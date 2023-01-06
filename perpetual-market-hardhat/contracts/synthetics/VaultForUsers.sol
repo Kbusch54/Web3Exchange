@@ -29,7 +29,7 @@ contract VaultForUsers{
     uint public usdcOwnedByUsers;
 
     uint public MMR;//percentage for minimum margin rate 2 decimals
-    uint public MAX_LEV;
+    uint public MAX_LEV;//whole number 
 
 
     event OpenPosition(address indexed trader, bytes32 indexed tradeId);
@@ -66,7 +66,16 @@ constructor(uint _newMMR){
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////Controller functions ///////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function closePosition(bytes32 _tradeId)public{
+
+/**
+ * This function closes position by trade Id.
+ *
+ * @param _tradeId The first number to add.
+ * @return pnl profit loss in usdc
+ */
+function closePosition(bytes32 _tradeId)public returns(int pnl){
+    uint tradingFee;
+
     uint _index = tradeIdToPosition[_tradeId];
     Position memory pos = positions[_index];
     // require(checkLiquidation(_tradeId)==false,"Liquidate");
@@ -77,24 +86,31 @@ function closePosition(bytes32 _tradeId)public{
     int pnlBeforeFees = int(_usdcAmt) - int(pos.openValue);
     if(pos.outstandingLoan !=0){
         USDCController cont = USDCController(Controller);
-       ( uint loanAmount, uint fee )= cont.closeDebt(msg.sender,_tradeId);
+       ( uint loanAmount, uint loanFee )= cont.closeDebt(msg.sender,_tradeId);
         _usdcAmt -=loanAmount;
-        _usdcAmt -=fee;
-        usdcInTreasury-= (fee + loanAmount);
-
+        _usdcAmt -=loanFee;
+        usdcInTreasury-= (loanFee + loanAmount);
+ 
     }
-    uint tradeFee = uint(pnlBeforeFees)/100;
-    _usdcAmt -= tradeFee;
-    usdcInTreasury+=tradeFee;
+    tradingFee = pnlBeforeFees>0? uint(pnlBeforeFees)/100:0;
+    _usdcAmt -= tradingFee;
+    usdcInTreasury+=tradingFee;
     usdcInTreasury -= _usdcAmt;
     usdcOwnedByUsers+=_usdcAmt;
     vaultBalances[msg.sender]+=_usdcAmt;
     updateUSDCBalances();
-
-
     positions[_index]=pos;
-
+    pnl = pnlBeforeFees-int(tradingFee);
 }
+/**
+ * @dev This function opens position.
+ * @param _initialMargin The collateral put down by trader.
+ * @param _lev The leverage of the trade.
+ * @param _side The side of the trade.
+ * @param currency The currency of the trade.
+ * @return tradeId
+ */
+ 
 function openPositionWithLev(uint256 _initialMargin, uint8 _lev, int8 _side,address  currency)public returns(bytes32 tradeId){
     uint tradingFee;
     require(_lev<=MAX_LEV,'Current leverage is to high for our current allowance');
@@ -144,17 +160,33 @@ tradeId = keccak256(abi.encodePacked(msg.sender,currency, block.number,_side,_in
     traderToIds[msg.sender].push(tradeId);
     tradeIdToPosition[tradeId]= positions.length;
       positions.push(newPosition);
+      totalLendingFeesPayed[tradeId]=marginRequirementsForTrader;
  
 }
+/**
+ * @dev This function gets position by trade Id
+ * @param _tradeId The unique key for the position.
+ * @return p position
+ */
 function getPosition(bytes32 _tradeId)public view returns(Position memory p){
             uint _index = tradeIdToPosition[_tradeId];
     Position memory pos = positions[_index];
     p=pos;
 }
+/**
+ * @dev This function gets all positions
+ * @return pos all positions
+ */
 function getAllPositions()public view returns(Position[]memory pos){
     pos =  positions;
 }
 
+/**
+ * @dev This function gets all positions by trader
+ * @param _usdcAmt The amount of usdc the trader would like to add to position.
+ * @param _tradeId The unique key for the position.
+ * @return true upon completion no reverts
+ */
 function addLiquidity(uint _usdcAmt, bytes32 _tradeId)public returns(bool){
     //check usdc
     require(_usdcAmt <= vaultBalances[msg.sender],'Not enough USDC Deposited');
@@ -171,6 +203,7 @@ function addLiquidity(uint _usdcAmt, bytes32 _tradeId)public returns(bool){
 
     
     uint _al = pos.addedLiquidity +=_usdcAmt;
+
     pos.liquidationPrice = getLiquidationPrice(pos.margin, pos.positionSize, pos.entryPrice, pos.side,totalLendingFeesPayed[_tradeId],_al);
     return true;
 }
@@ -180,6 +213,10 @@ function addLiquidity(uint _usdcAmt, bytes32 _tradeId)public returns(bool){
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////USDC functions ///////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/**
+ * @dev This function allows user to deposit funds (usdc) into vault
+ * @param _usdcAmt The amount of usdc the trader would like to deposit.
+ */
 function deposit(uint _usdcAmt)public{
     transferUsdcFromUser(_usdcAmt,msg.sender);
     usdcOwnedByUsers += _usdcAmt;
@@ -187,6 +224,10 @@ function deposit(uint _usdcAmt)public{
     updateUSDCBalances();
     checkUsdcBal();
 }
+/**
+ *@dev This function allows user to withdraw funds (usdc) from vault
+ * @param _usdcAmt The amount of usdc the trader would like to withdraw.
+ */
 function withdraw(uint _usdcAmt)public{
        IERC20 usdc = IERC20(USDC);
        require(_usdcAmt <= vaultBalances[msg.sender],"Not enough Balance");
@@ -198,8 +239,14 @@ function withdraw(uint _usdcAmt)public{
     updateUSDCBalances();
     checkUsdcBal();
 }
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////Utility functions ///////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////Utility functions ///////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ *@dev This function allows an account to give funds (usdc) into exchanges treasurey
+ * @param _usdcAmt The amount of usdc an account can would like to add.
+ */
  function depositUSDCToTreasurey(uint _usdcAmt)public{
         IERC20 usdc = IERC20(USDC);
         require(usdc.allowance(msg.sender,address(this))>= _usdcAmt,'need to increase allowance for vault');
@@ -211,7 +258,11 @@ function withdraw(uint _usdcAmt)public{
 
     }
 
-function transferUsdcFromUser(uint _usdcAmt,address sender)public{
+/**
+ *@dev This function allows contract to transfer usdc from user.
+ * @param _usdcAmt The amount of usdc thecontract would like to transfer.
+ */
+function transferUsdcFromUser(uint _usdcAmt,address sender)internal{
     IERC20 usdc = IERC20(USDC); 
     require(usdc.allowance(sender,address(this)) >= _usdcAmt,"Not enough allowance must approve contract");
     usdc.transferFrom(sender,address(this),_usdcAmt);
@@ -231,9 +282,33 @@ function checkUsdcBal()public{
     
     require(totalUsdc==usdcTotal,"Balances do not match");
 }
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////utility functions ///////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    function takeInterestFee(uint _feeAmount, bytes32 _tradeId)public {
+function getUsdcBal()public view returns(uint){
+    return usdcOwnedByUsers;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////utility functions ///////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ *@dev This function gets all trades by trader.
+ * @param _trader The trader address.
+ * @return allTrades by trader
+ */
+    function getAllUserTrades(address _trader)public view returns(bytes32[] memory){
+        //check for active trades
+        bytes32[] memory amountOfTrades = traderToIds[_trader];
+        return amountOfTrades;
+
+    }
+
+    /**
+     *@dev This function allows bot to call function to take interest fee.
+     * @param _feeAmount The amount of usdc the protocol dictates via fee requirements from loan.
+     * @param _tradeId The unique key for the position.
+     * @return true upon successful completion no reverts
+     */
+    function takeInterestFee(uint _feeAmount, bytes32 _tradeId)public returns(bool){
             uint _index = tradeIdToPosition[_tradeId];
     Position memory pos = positions[_index];
     uint totalFee  = totalLendingFeesPayed[_tradeId] +=_feeAmount;
@@ -246,14 +321,26 @@ function checkUsdcBal()public{
     userBalInMarket[pos.trader]-=_feeAmount;
     totalUsdc-=_feeAmount;
     usdc.transfer(Controller,_feeAmount);
+    return true;
 
     }
+
+    /**
+     * This function allows to calculate liquidation price
+     * @param initialMargin The amount of usdc put down as collateral
+     * @param positionSize size of the position 8 decimals
+     * @param entryPrice entry price of the position in USDC
+     * @param positionSide side of the position 1 for long -1 for short
+     * @param fee the total fee amount on a position
+     * @param addedLiquidity the amount of liquidity added to a position
+     * @return liquidationPrice of asset
+     */
     function getLiquidationPrice(uint initialMargin, uint positionSize, uint entryPrice, int8 positionSide,uint fee,uint addedLiquidity)public view returns(int liquidationPrice){
         int side = int(positionSide);
         int marginToBeAdded = intToFixedExact(addedLiquidity,3);
         int adjustFee = intToFixedExact(fee,3);
-        uint margin = uintToFixedExact(initialMargin,3);
-        uint pSz = fixedToUintExact(positionSize,3);
+        int margin = int(uintToFixedExact(initialMargin,3));
+        int pSz = int(fixedToUintExact(positionSize,3));
         uint fullMMR = MMR;
         uint sideFull;
         int numerator;
@@ -263,24 +350,31 @@ function checkUsdcBal()public{
         sideFull = uintToFixedExact(uint(side*-1),4);
 
 
-            numerator = (int(margin)+int(pSz * entryPrice)) -(marginToBeAdded-adjustFee);
+            numerator = (margin+(pSz * int(entryPrice))) - marginToBeAdded + adjustFee;
      
-            divBy = int((sideFull + fullMMR)* pSz);
+            divBy = (int(sideFull + fullMMR))* pSz;
+       
 
         }else{
             
         sideFull = uintToFixedExact(uint(side),4);
-        numerator = ((int(margin)-int(pSz * entryPrice))+(marginToBeAdded-adjustFee));
-        divBy = int((sideFull - fullMMR)* pSz);
+       
+        numerator = (margin - (pSz *int(entryPrice)))-marginToBeAdded+adjustFee;
+     
+        if(addedLiquidity>0){
+
+   
         }
-        int newNum = intToFixedExact(uint(numerator<0 ? numerator*-1: numerator*1),4);
+        divBy = (int(sideFull - fullMMR))* pSz;
+        }
+        int newNum = intToFixedExact(uint(numerator<0 ? numerator*-1: numerator),4);
     
        liquidationPrice = newNum/divBy;
        
     }
+/////////////////////////////////////////////////////////////////////////DAO FUnctions ///////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////DAO FUnctions ////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -293,6 +387,13 @@ function checkUsdcBal()public{
        function updateMarketAdd(address _market)public{
         MarketCont = _market;
     }
+
+/**
+ * @dev This function allows the DAO to change the MMR.
+ * and the max leverage. MMR percentage is 4 decimals.
+ * Max leverage has restrictions to protect exchange from liquidations
+ * @param _newMMR The new MMR.
+ */
     function changeMMR(uint _newMMR)public{
         MMR = _newMMR;
         if(_newMMR >=400){
@@ -302,9 +403,9 @@ function checkUsdcBal()public{
             MAX_LEV = _newMMR<=100?50:_newMMR<=200?30: 25;
         }
     }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////Decimal Functions ////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////Decimal Functions //////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 

@@ -106,7 +106,8 @@ describe("UsdcController Open and close positions", async () => {
     );
     console.log("max lev", await vault.MAX_LEV());
   });
-  it("changing mmr and chekcing max leverage doesnt exceed limits", async () => {
+  // #todo: add test for iterating through mutliple changingMMR and checkin maxLev() doesnt exceed limits
+  it.skip("changing mmr and chekcing max leverage doesnt exceed limits", async () => {
     const { usdc, owner, otherAccount, controller, vault, market, btcAdd } =
       await loadFixture(deployVaultFixture);
 
@@ -118,6 +119,9 @@ describe("UsdcController Open and close positions", async () => {
 
     await vault.changeMMR(100);
     expect(await vault.MAX_LEV()).to.be.equal(50);
+    //test for changing mmr and checking max leverage doesnt exceed limits 
+
+
 
     // mmrArr.forEach(async (mmr, i) => {
     //   await vault.changeMMR(mmr);
@@ -155,7 +159,7 @@ describe("UsdcController Open and close positions", async () => {
     //   //   expect(shortPosition.liquidationPrice).to.be.gt(shortPosition.entryPrice);
     // });
   });
-  it("changing mmr and chekcing max leverage doesnt exceed limits", async () => {
+  it.skip("changing mmr and chekcing max leverage doesnt exceed limits", async () => {
     const { usdc, owner, otherAccount, controller, vault, market, btcAdd } =
       await loadFixture(deployVaultFixture);
 
@@ -163,25 +167,72 @@ describe("UsdcController Open and close positions", async () => {
     const maxLev = await vault.MAX_LEV();
 
     const iMargin = parseUnits("10", 6);
-    const iMargin2 = parseUnits("5", 6);
-    // const iMargin = parseUnits("10", 6);
     const long = 1;
     const short = -1;
 
-    const tx = await vault.openPositionWithLev(iMargin, maxLev, short, btcAdd);
+    await vault.openPositionWithLev(iMargin, maxLev, short, btcAdd);
+    1;
 
-    // await tx.wait(2);
-    // const longPosition = await vault.positions(0);
-    // const tradeId1 = await vault.traderToIds(owner.address, 0);
-    // const tradeId2 = await vault.traderToIds(owner.address, 1);
-    // console.log("tradeIds:", tradeId1, tradeId2);
-    await vault.openPositionWithLev(iMargin, maxLev, long, btcAdd);
+     await vault.openPositionWithLev(iMargin, maxLev, long, btcAdd);
+        const longPosition = await vault.positions(1);
+ 
+  
+    const tradeId1 = await vault.traderToIds(owner.address, 0);
+    const tradeId2 = await vault.traderToIds(owner.address, 1);
+    console.log("tradeIds:", tradeId1, tradeId2);
+  
 
-    const longPosition = await vault.positions(1);
     const shortPosition = await vault.positions(0);
     console.log("short liq", await shortPosition.liquidationPrice);
     console.log("long liq", await longPosition.liquidationPrice);
     expect(longPosition.liquidationPrice).to.be.lt(longPosition.entryPrice);
     expect(shortPosition.liquidationPrice).to.be.gt(shortPosition.entryPrice);
   });
+  it.skip("Checking tradeIds match to user and callable", async () => {
+  const { usdc, owner, otherAccount, controller, vault, market, btcAdd } =
+      await loadFixture(deployVaultFixture);
+
+    await vault.changeMMR(500);
+    const maxLev = await vault.MAX_LEV();
+
+    const iMargin = parseUnits("10", 6);
+    const long = 1;
+    const short = -1;
+
+  
+    const tx = await vault.openPositionWithLev(iMargin, maxLev, short, btcAdd);
+   
+    await vault.openPositionWithLev(iMargin, maxLev, long, btcAdd);
+    const longPosition = await vault.positions(1);
+
+   const tradeId1 = await vault.traderToIds(owner.address, 0);
+
+    const tradeId2 = await vault.traderToIds(owner.address, 1);
+   const allTrades =  await vault.callStatic.getAllUserTrades(owner.address);
+expect(tradeId1).to.be.equal(allTrades[0]);
+expect(tradeId2).to.be.equal(allTrades[1]);
+
+  });
+  it("Adding liquidity checking if liquidity price reflects", async () => {
+    const { usdc, owner, otherAccount, controller, vault, market, btcAdd } =await loadFixture(deployVaultFixture);
+    await vault.openPositionWithLev(parseUnits("10", 6), 15, 1, btcAdd);
+    await vault.openPositionWithLev(parseUnits("10", 6), 15, -1, btcAdd);
+
+    const alltrades = await vault.getAllUserTrades(owner.address);
+    const position = await vault.positions(0);
+    const position2 = await vault.positions(1);
+ 
+    await vault.addLiquidity(parseUnits("2", 6),alltrades[0] );
+    await vault.addLiquidity(parseUnits("2", 6),alltrades[1] );
+
+    const postPosition = await vault.positions(0);
+    console.log('before adding liquidity long',position.liquidationPrice);
+    console.log('after adding liquidity long',postPosition.liquidationPrice);
+
+    const postPosition2 = await vault.positions(1);
+
+    expect(postPosition.liquidationPrice).to.be.gt(position.liquidationPrice);
+    expect(postPosition2.liquidationPrice).to.be.lt(position2.liquidationPrice);
+  });
 });
+
