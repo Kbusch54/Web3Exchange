@@ -12,10 +12,14 @@ import "../tokens/FakeErc20.sol";
 contract USDCController is ERC20{
     using SafeMath for uint256;
 
-    // Define the address of the contract owner
+   /**
+    *   @dev Define address of owner
+ */ 
     address public owner;
 
-    //Define address of vault contract
+    /**
+     *  @dev Define address of vault
+     */
     address public vault;
 
      //Define address of USDC contract
@@ -40,7 +44,7 @@ contract USDCController is ERC20{
     uint public maxLoan =70;
 
     //Define loanFeePercentage for cost to loan USDC
-    uint public loanFeePercentage = 100;//1%
+    uint public loanFeePercentage = 100;//1% 2 decimals
 
     // Define the mapping to store the balance of each user
     mapping(address => uint256) public balances;
@@ -48,7 +52,7 @@ contract USDCController is ERC20{
     // Define the mapping to store the debt of each user
     mapping(address => uint256) public userDebt;
 
-        // Define the mapping to store the debt of each user
+        // Define the mapping to store the debt of each trade
     mapping(bytes32 => uint256) public tradeDebt;
 
     mapping(bytes32 => uint256)public tradeMarginRequired;
@@ -99,7 +103,17 @@ event ChangedVault(address oldVault,address newVault);
 event ChangedDAO(address oldDAO, address newDAO);
 
 
-    // Define the function to allow users to borrow the synthetic BTC asset
+    // Define the function to allow users to borrow the synthetic BTC asset 
+
+    /**
+     * @dev Allows users to borrow the USDC pool to use for leveraged trading
+     * @param _initialMargin The initial margin the total collateral the trade has put down
+     * @param _leverage The leverage the trade is using
+     * @param _tradeId The trade id of the trade
+     * @param _trader The address of the trader
+     * @return loanAmountToVault The amount of USDC the pool sends to vault to be used for trade
+     * @return marginRequirementsForTrader The amount of USDC the trader must have in margin to maintain the trade without liquidation
+     */
     function borrow(uint256 _initialMargin,uint8 _leverage,bytes32 _tradeId,address _trader)onlyVault external returns(uint loanAmountToVault,uint marginRequirementsForTrader){
 
         uint _loanAmount = uint256(_leverage) * _initialMargin - _initialMargin;
@@ -118,6 +132,14 @@ event ChangedDAO(address oldDAO, address newDAO);
 
     }
 
+/**
+ * @dev Allows users to repay the USDC pool for the loan they took out.
+ * also used for remove liquidity from pool to lessen trades risk
+ * @param _tradeId The trade id of the trade
+ * @param _usdcAmt The amount of USDC the trader is paying back to the pool
+ * @param _trader The address of the trader
+ * @return fee The amount of USDC the trader must pay to the pool for the loan
+ */
     function repayLoan(bytes32 _tradeId, uint _usdcAmt,address _trader )public returns(uint fee){
         uint currentLoanAmount = tradeDebt[_tradeId];
         require(currentLoanAmount >=_usdcAmt,"You are paying back more than loaned");
@@ -139,11 +161,23 @@ event ChangedDAO(address oldDAO, address newDAO);
         emit Repayed(_tradeId,_trader,_usdcAmt,currentLoanAmount-_usdcAmt,_usdcAmt+fee);   
 
     }
+    /**
+     * @dev Allows users to repay the USDC pool for all the loan they took out.
+     * @param _tradeId The trade id of the trade
+     * @return usdcAmt The amount of USDC the trade must pay back to the pool
+     * @return payableUsdcAmt The amount of USDC the trader must pay to the pool for the loan
+     */
     function repayAll(bytes32 _tradeId)public view returns(uint usdcAmt,uint payableUsdcAmt){
         usdcAmt = tradeDebt[_tradeId];
         payableUsdcAmt = findInterestFeeOwed(_tradeId,usdcAmt);
 
     }
+    /**
+     * @dev Allows callers to find the amount of USDC the trade must pay to the pool for the loan
+     * @param _tradeId The trade id of the trade
+     * @param loanRepaymentAmt The amount of USDC the trade is paying back to the pool
+     * @return _feeAmt The amount of USDC the fee for loaning from the pool * the amount of interest blocks have past since last repayment (12 hours)
+     */
     function findInterestFeeOwed(bytes32 _tradeId,uint loanRepaymentAmt)public view returns(uint _feeAmt){
               uint unadjustedFee = loanRepaymentAmt/loanFeePercentage;
         _feeAmt = unadjustedFee * ((nextIntrestBlock[_tradeId]-block.number)/interestPeriod +1);
@@ -152,6 +186,14 @@ event ChangedDAO(address oldDAO, address newDAO);
 
 
 //on closed or liquidated position
+
+/**
+ * @dev allows the vault to close the trade and pay the trader the profit or called upon liquidation
+ * @param _trader The address of the trader
+ * @param _tradeId The trade id of the trade
+ * @return _usdcAmt The amount of USDC the trade must pay back to the pool i.e. the loan amount
+ * @return payableUsdc The amount of USDC the trader must pay to the pool for the loan i.e. interest this comes from margin
+ */
 function closeDebt(address _trader, bytes32 _tradeId)onlyVault external returns(uint _usdcAmt, uint payableUsdc) {
     ( _usdcAmt, payableUsdc) = repayAll(_tradeId);
 
@@ -165,6 +207,11 @@ function closeDebt(address _trader, bytes32 _tradeId)onlyVault external returns(
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////PoolERC20 functions ///////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/**
+ * @dev Allows users to stake USDC to the pool in exchange for pkTokens
+ * @param _amount The amount of USDC the user is staking
+ * emit Staked
+ */
 function stakeUsdc(uint _amount)public {
     IERC20 usdc = IERC20(USDC); 
     uint allowedAmt = usdc.allowance(msg.sender,address(this));
@@ -187,6 +234,14 @@ function stakeUsdc(uint _amount)public {
     updateUSDCSupply();
     emit Staked(msg.sender,totalUSDCSupply,totalSupply(),pTokMint,_amount);
 }
+
+/**
+ * @dev Allows users to unstake USDC from the pool in exchange for pkTokens
+ * will not allow if current loan amount - withdraw amount is greater than current MAXLoan of total USDC supply
+ * thereby taking out more USDC than is available
+ * @param _pTokAmt The amount of pkTokens the user is unstaking
+ * emit Withdrawn
+ */
 function withdrawStake(uint _pTokAmt)public {
     IERC20 usdc = IERC20(USDC); 
     require(balanceOf(msg.sender) <= _pTokAmt,"You cannot unstake more tokens than you have");
@@ -217,18 +272,37 @@ function receiveUSDC(uint _amt)public{
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////DAO functions ///////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/**
+ * @dev Allows the DAO to change the max loan percentage
+ * the max loan percentage is the percentage of the total USDC supply that can be loaned out
+ * @param _newMaxLoan The new max loan percentage
+ */
 function changeMaxLoan(uint _newMaxLoan)public {
     emit ChangedMaxLoanPercentage(maxLoan,_newMaxLoan);
     maxLoan = _newMaxLoan;
 }
+
+/**
+ * @dev Allows the DAO to change the interest period
+ * the interest period is the number of blocks between interest payments
+ * @param _newInterestPeriod The new interest period
+ */
 function changeInterestPeriod(uint _newInterestPeriod)public{
     emit ChangedInterestPeriod(interestPeriod,_newInterestPeriod);
     interestPeriod = _newInterestPeriod;
 }
+/**
+ * @dev Allows the DAO to change the DAO address
+ * @param _newDao The new DAO address
+ */
 function updateDAOAddress(address _newDao)public{
     emit ChangedDAO(DAO,_newDao);
     DAO = _newDao;
 }
+/**
+ * @dev Allows the DAO to change the loan fee percentage
+ * @param _newLoanFeePercentage The new loan fee percentage
+ */
 function changeLoanFeePercentage(uint _newLoanFeePercentage)public{
     emit ChangedMaxLoanPercentage(loanFeePercentage,_newLoanFeePercentage);
     loanFeePercentage = _newLoanFeePercentage;
@@ -254,6 +328,14 @@ function transferUsdcFromVault(uint _usdcAmt)public{
  // pay interest on loan 
  //for bot
  //add modifyer only bot
+
+ /**
+  * @dev Allows the bot to pay interest on a loan
+  * @param _tradeId The trade id of the loan
+  * @param _trader The trader who the loan is for
+  * @return newIntrestPaymentBlock The new block number that the next interest is due
+  * i.e. the current block number + the interest period
+  */
     function payOwedIntrest(bytes32 _tradeId,address _trader)public returns(uint newIntrestPaymentBlock){
         uint amountOwed = tradeMarginRequired[_tradeId];
         require(nextIntrestBlock[_tradeId ]>=block.number,'Intrest not due');
@@ -269,6 +351,13 @@ function transferUsdcFromVault(uint _usdcAmt)public{
        emit IntrestPayment(_tradeId,_trader,amountOwed);
 
     }
+    /**
+     * @dev Allows the bot to check if a loan needs to pay interest 
+     * or for user to check if they need to pay interest
+     * @param _tradeId The trade id of the loan
+     * @return needsToPayInterest True if the loan needs to pay interest
+     * @return interestOwed The amount of interest owed
+     */
     function findOwedInterest(bytes32 _tradeId)public view returns(bool needsToPayInterest, uint interestOwed){
         needsToPayInterest = nextIntrestBlock[_tradeId ]>=block.number;
            interestOwed = tradeMarginRequired[_tradeId];
