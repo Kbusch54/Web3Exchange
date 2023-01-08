@@ -236,21 +236,15 @@ expect(tradeId2).to.be.equal(allTrades[1]);
   });
   it("Closing position check", async () => {
     const { usdc, owner, otherAccount, controller, vault, market, btcAdd } =await loadFixture(deployVaultFixture);
-    await vault.openPositionWithLev(parseUnits("10", 6), 15, 1, btcAdd);
-    const preBalance = await vault.vaultBalances(owner.address);
-    
+    const collateral = parseUnits("10", 6);
+    await vault.openPositionWithLev(collateral, 15, 1, btcAdd);
+    const duringBalance = await vault.vaultBalances(owner.address);
     const tradeId = await vault.traderToIds(owner.address, 0);
-    const position = await vault.getPosition(tradeId);
     await market.changeBtcPrice(parseUnits("8", 6));
     const returnValue = await vault.callStatic.closePosition(tradeId); 
     await vault.closePosition(tradeId);
     const postBalance = await vault.vaultBalances(owner.address);
-    console.log('position open value',formatUnits(position.openValue,6));
-    console.log('position intialMargin',position.margin);
-    console.log("return value", formatUnits(returnValue,6));
-    console.log("preBalance", formatUnits(preBalance,6));
-    console.log("postBalance", formatUnits(postBalance,6));
-  
+    expect(postBalance).to.be.equal(collateral.add(returnValue).add(duringBalance))
   });
 });
 
