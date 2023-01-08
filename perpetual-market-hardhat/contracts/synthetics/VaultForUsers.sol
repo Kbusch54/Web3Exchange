@@ -81,19 +81,16 @@ function closePosition(bytes32 _tradeId)public returns(int pnl){
     console.log(pos.isActive,"pos.isActive");
     //check if trader is the owner of the trade
     // require(checkLiquidation(_tradeId)==false,"Liquidate");
-    pos.isActive = false;
+    pos.isActive  = false;
     Market market = Market(MarketCont);
     (uint _usdcAmt,)= market.closePosition(pos.currency,pos.positionSize); 
-    console.log('usdcAmt',_usdcAmt);
-    console.log('after usdcAmt',_usdcAmt);
-    console.log('pos.openValue',pos.openValue);
+
     int pnlBeforeFees = int(_usdcAmt) - int(pos.openValue);
     console.log('pnlBeforeFees',uint(pnlBeforeFees));
     if(pos.outstandingLoan !=0){
         USDCController cont = USDCController(Controller);
        ( uint loanAmount, uint loanFee )= cont.closeDebt(msg.sender,_tradeId);
-       console.log('loanAmount',loanAmount);    
-       console.log('loanFee',loanFee);
+
         _usdcAmt -=loanAmount;
         _usdcAmt -=loanFee;
         // usdcInTreasury-= loanFee;
@@ -108,6 +105,7 @@ function closePosition(bytes32 _tradeId)public returns(int pnl){
     // usdcInTreasury -= _usdcAmt;
     // console.log('after usdcInTreasury',usdcInTreasury);
     usdcOwnedByUsers+=_usdcAmt;
+    console.log('usdc amt to be added to user balance',_usdcAmt);
     vaultBalances[msg.sender]+=_usdcAmt;
     // usdcInMarket-=pos.margin;
     console.log('pnl before fee',uint(pnlBeforeFees));
@@ -115,7 +113,7 @@ function closePosition(bytes32 _tradeId)public returns(int pnl){
     // updateUSDCBalances();
     positions[_index]=pos;
     console.log('pnl',uint(pnlBeforeFees)-tradingFee);
-    pnl = pnlBeforeFees-int(tradingFee);
+    pnl = int(_usdcAmt);
 }
 /**
  * @dev This function opens position.
