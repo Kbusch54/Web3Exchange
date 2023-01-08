@@ -78,28 +78,42 @@ function closePosition(bytes32 _tradeId)public returns(int pnl){
 
     uint _index = tradeIdToPosition[_tradeId];
     Position memory pos = positions[_index];
+    console.log(pos.isActive,"pos.isActive");
+    //check if trader is the owner of the trade
     // require(checkLiquidation(_tradeId)==false,"Liquidate");
     pos.isActive = false;
     Market market = Market(MarketCont);
     (uint _usdcAmt,)= market.closePosition(pos.currency,pos.positionSize); 
-    usdcInMarket-=pos.openValue;
+    console.log('usdcAmt',_usdcAmt);
+    console.log('after usdcAmt',_usdcAmt);
+    console.log('pos.openValue',pos.openValue);
     int pnlBeforeFees = int(_usdcAmt) - int(pos.openValue);
+    console.log('pnlBeforeFees',uint(pnlBeforeFees));
     if(pos.outstandingLoan !=0){
         USDCController cont = USDCController(Controller);
        ( uint loanAmount, uint loanFee )= cont.closeDebt(msg.sender,_tradeId);
+       console.log('loanAmount',loanAmount);    
+       console.log('loanFee',loanFee);
         _usdcAmt -=loanAmount;
         _usdcAmt -=loanFee;
-        usdcInTreasury-= (loanFee + loanAmount);
+        // usdcInTreasury-= loanFee;
+        // (loanFee + loanAmount);
  
     }
     tradingFee = pnlBeforeFees>0? uint(pnlBeforeFees)/100:0;
     _usdcAmt -= tradingFee;
+
+    console.log('usdcInTreasury',usdcInTreasury);
     usdcInTreasury+=tradingFee;
-    usdcInTreasury -= _usdcAmt;
+    // usdcInTreasury -= _usdcAmt;
+    console.log('after usdcInTreasury',usdcInTreasury);
     usdcOwnedByUsers+=_usdcAmt;
     vaultBalances[msg.sender]+=_usdcAmt;
-    updateUSDCBalances();
+    // usdcInMarket-=pos.margin;
+    console.log('vault bal',vaultBalances[msg.sender]);
+    // updateUSDCBalances();
     positions[_index]=pos;
+    console.log('pnl',uint(pnlBeforeFees)-tradingFee);
     pnl = pnlBeforeFees-int(tradingFee);
 }
 /**
@@ -309,14 +323,16 @@ function getUsdcBal()public view returns(uint){
      * @return true upon successful completion no reverts
      */
     function takeInterestFee(uint _feeAmount, bytes32 _tradeId)public returns(bool){
+        console.log('inside takeInterestFee');
             uint _index = tradeIdToPosition[_tradeId];
     Position memory pos = positions[_index];
     uint totalFee  = totalLendingFeesPayed[_tradeId] +=_feeAmount;
    pos.liquidationPrice= getLiquidationPrice(pos.margin,pos.positionSize,pos.entryPrice,pos.side,totalFee,pos.addedLiquidity);
     
-
+    console.log('liquidation price',uint(getLiquidationPrice(pos.margin,pos.positionSize,pos.entryPrice,pos.side,totalFee,pos.addedLiquidity)));
     positions[_index]=pos;
     IERC20 usdc = IERC20(USDC);
+    console.log('the problem is below',usdcInMarket,'fee amount',_feeAmount);
     usdcInMarket-=_feeAmount;
     userBalInMarket[pos.trader]-=_feeAmount;
     totalUsdc-=_feeAmount;
