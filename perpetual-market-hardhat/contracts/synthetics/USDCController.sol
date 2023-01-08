@@ -133,6 +133,7 @@ event ChangedDAO(address oldDAO, address newDAO);
     }
 
 /**
+ * TODO: fix usdc tracking
  * @dev Allows users to repay the USDC pool for the loan they took out.
  * also used for remove liquidity from pool to lessen trades risk
  * @param _tradeId The trade id of the trade
@@ -153,6 +154,8 @@ event ChangedDAO(address oldDAO, address newDAO);
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////might want function on vault for taking usdc///////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
         VaultForUsers v = VaultForUsers(vault);
         v.takeInterestFee(fee,_tradeId);
         console.log('fee taken');
@@ -171,6 +174,7 @@ event ChangedDAO(address oldDAO, address newDAO);
 
     }
     /**
+     * TODO: fix usdc tracking
      * @dev Allows users to repay the USDC pool for all the loan they took out.
      * @param _tradeId The trade id of the trade
      * @return usdcAmt The amount of USDC the trade must pay back to the pool
@@ -197,6 +201,7 @@ event ChangedDAO(address oldDAO, address newDAO);
 //on closed or liquidated position
 
 /**
+ * TODO: fix usdc tracking
  * @dev allows the vault to close the trade and pay the trader the profit or called upon liquidation
  * @param _trader The address of the trader
  * @param _tradeId The trade id of the trade

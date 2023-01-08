@@ -103,14 +103,15 @@ function closePosition(bytes32 _tradeId)public returns(int pnl){
     tradingFee = pnlBeforeFees>0? uint(pnlBeforeFees)/100:0;
     _usdcAmt -= tradingFee;
 
-    console.log('usdcInTreasury',usdcInTreasury);
+    // console.log('usdcInTreasury',usdcInTreasury);
     usdcInTreasury+=tradingFee;
     // usdcInTreasury -= _usdcAmt;
-    console.log('after usdcInTreasury',usdcInTreasury);
+    // console.log('after usdcInTreasury',usdcInTreasury);
     usdcOwnedByUsers+=_usdcAmt;
     vaultBalances[msg.sender]+=_usdcAmt;
     // usdcInMarket-=pos.margin;
-    console.log('vault bal',vaultBalances[msg.sender]);
+    console.log('pnl before fee',uint(pnlBeforeFees));
+    console.log('tradingFee',tradingFee);
     // updateUSDCBalances();
     positions[_index]=pos;
     console.log('pnl',uint(pnlBeforeFees)-tradingFee);
