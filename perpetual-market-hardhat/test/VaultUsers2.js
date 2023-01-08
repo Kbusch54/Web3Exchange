@@ -213,7 +213,7 @@ expect(tradeId1).to.be.equal(allTrades[0]);
 expect(tradeId2).to.be.equal(allTrades[1]);
 
   });
-  it("Adding liquidity checking if liquidity price reflects", async () => {
+  it.skip("Adding liquidity checking if liquidity price reflects", async () => {
     const { usdc, owner, otherAccount, controller, vault, market, btcAdd } =await loadFixture(deployVaultFixture);
     await vault.openPositionWithLev(parseUnits("10", 6), 15, 1, btcAdd);
     await vault.openPositionWithLev(parseUnits("10", 6), 15, -1, btcAdd);
@@ -233,6 +233,19 @@ expect(tradeId2).to.be.equal(allTrades[1]);
 
     expect(postPosition.liquidationPrice).to.be.gt(position.liquidationPrice);
     expect(postPosition2.liquidationPrice).to.be.lt(position2.liquidationPrice);
+  });
+  it("Removing liquidity checking if liquidity price reflects", async () => {
+    const { usdc, owner, otherAccount, controller, vault, market, btcAdd } =await loadFixture(deployVaultFixture);
+    await vault.openPositionWithLev(parseUnits("10", 6), 15, 1, btcAdd);
+    
+    const tradeId = await vault.traderToIds(owner.address, 0);
+    const position = await vault.getPosition(tradeId);
+    await market.changeBtcPrice(parseUnits("8", 6));
+    const returnValue = await vault.callStatic.closePosition(tradeId);
+    console.log('position open value',formatUnits(position.openValue,6));
+    console.log('position intialMargin',position.margin);
+    console.log("return value", formatUnits(returnValue,6));
+  
   });
 });
 

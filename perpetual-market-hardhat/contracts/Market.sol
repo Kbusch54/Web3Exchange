@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "hardhat/console.sol";
 
 contract Market{
           using SafeMath for uint;
@@ -33,11 +34,15 @@ uint public ethPrice = 5000000;
                 } 
             }
             function closePosition(address currency, uint positonSize)public view returns(uint _usdcAmt,uint exitPrice){
+                console.log('market position size',positonSize);
+                console.log('btc price',btcPrice);
+                console.log('market position size/price',positonSize*btcPrice/1000000);
+
                  if(currency == 0x0facf6788EBAa4E7481BCcaFB469CD0DdA089ab3){
-                    _usdcAmt = fixedToUint(positonSize)/btcPrice;
+                    _usdcAmt = fixedToUint(positonSize*btcPrice);
                     exitPrice = btcPrice;
                 }else{
-                    _usdcAmt = fixedToUint(positonSize)/ethPrice;
+                    _usdcAmt = fixedToUint(positonSize*ethPrice);
                     exitPrice = ethPrice;
                 } 
             }

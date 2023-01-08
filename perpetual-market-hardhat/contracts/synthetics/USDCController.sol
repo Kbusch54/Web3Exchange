@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "../tokens/PoolErc20.sol";
 import "./VaultForUsers.sol";
 import "../tokens/FakeErc20.sol";
-
+import 'hardhat/console.sol';
 
 contract USDCController is ERC20{
     using SafeMath for uint256;
@@ -142,23 +142,32 @@ event ChangedDAO(address oldDAO, address newDAO);
  */
     function repayLoan(bytes32 _tradeId, uint _usdcAmt,address _trader )public returns(uint fee){
         uint currentLoanAmount = tradeDebt[_tradeId];
+        console.log('repay loan');
+        console.log("current loan amount",currentLoanAmount);
+        console.log("amount to pay back",_usdcAmt);
         require(currentLoanAmount >=_usdcAmt,"You are paying back more than loaned");
 
         fee = _usdcAmt/loanFeePercentage;
+        console.log('fee',fee);
         // require(fee == _payableUsdc,"In order to pay loan must pay interest owed");
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////might want function on vault for taking usdc///////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         VaultForUsers v = VaultForUsers(vault);
         v.takeInterestFee(fee,_tradeId);
+        console.log('fee taken');
+        console.log('trade debt updated',tradeDebt[_tradeId]);
        tradeDebt[_tradeId] -=_usdcAmt;
         tradeMarginRequired[_tradeId]-=fee;
         loanedUSDC -= _usdcAmt;
         updateUSDCSupply();
-        tradeDebt[_tradeId]-=_usdcAmt;
+        console.log('repay loan done',_usdcAmt);
+      
+        console.log('user debt',userDebt[_trader]);
         userDebt[_trader]-=_usdcAmt;
         totalTradeValueAfterClose[_tradeId]+=fee;
         emit Repayed(_tradeId,_trader,_usdcAmt,currentLoanAmount-_usdcAmt,_usdcAmt+fee);   
+        console.log('repay loan done done');
 
     }
     /**
@@ -195,9 +204,12 @@ event ChangedDAO(address oldDAO, address newDAO);
  * @return payableUsdc The amount of USDC the trader must pay to the pool for the loan i.e. interest this comes from margin
  */
 function closeDebt(address _trader, bytes32 _tradeId)onlyVault external returns(uint _usdcAmt, uint payableUsdc) {
+    console.log("closeDebt");
     ( _usdcAmt, payableUsdc) = repayAll(_tradeId);
-
+    console.log('usdcAmt: %s',_usdcAmt);
+    console.log('payable',payableUsdc);
     repayLoan( _tradeId,_usdcAmt,_trader);
+    console.log('hellop there after repayLoan');
     require(tradeDebt[_tradeId] == 0,"Must be repayed in full");
     require(tradeMarginRequired[_tradeId] ==0,'Trade Margin must be 0');
     uint totalTradePoolProfit =totalTradeValueAfterClose[_tradeId];
