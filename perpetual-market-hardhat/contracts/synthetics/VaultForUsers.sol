@@ -185,7 +185,7 @@ function getPosition(bytes32 _tradeId)public view returns(Position memory p){
 /**
  * @dev This function gets all positions
  * @return pos all positions
- */
+ */ 
 function getAllPositions()public view returns(Position[]memory pos){
     pos =  positions;
 }
