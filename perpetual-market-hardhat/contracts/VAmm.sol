@@ -125,17 +125,11 @@ contract VAmm {
         lastSnapshot.totalPositionSize-=positionSize; 
         int quoteWPsz = int(lastSnapshot.quoteAssetReserve) + fixedToInt(positionSize);
         uint newBaseAsset = k/ uint(quoteWPsz);
-
-        // figuring out the funding rate over the last fundingPeriods for the position size being closed
-    // int _amt = fundingPaymentOwed(fundingPeriods,_side);
-        // lastSnapshot.cumulativeNotional-=_amt;
          usdcAmt =int(lastSnapshot.baseAssetReserve)- int(newBaseAsset) * _side;
         lastSnapshot.quoteAssetReserve = uint(quoteWPsz);
         lastSnapshot.baseAssetReserve = newBaseAsset;
         liquidityChangedSnapshots[liquidityChangedSnapshots.length-1] = lastSnapshot;
-        // usdcAmt = pnl-(_amt * _side);
         exitPrice = uint(intToFixed(int(usdcAmt))/(positionSize));
-
         updateFutureFundingRate();
     }
 
@@ -146,18 +140,13 @@ contract VAmm {
         // require(lastSnapshot.blockNumber+indexPricePeriod>=block.number,"Need to wait for loan block period");
            int nbR =  int(lastSnapshot.baseAssetReserve) *(1000000+lastSnapshot.fundingRate);
          uint _newBaseAsset = uint(fixedToInt(nbR>0?nbR:nbR*-1));
-
         uint _newQuoteAsset = k/ _newBaseAsset;
-        console.log("new base asset",_newBaseAsset);
-
-        lastSnapshot.quoteAssetReserve = _newQuoteAsset;
+        lastSnapshot.quoteAssetReserve = _newQuoteAsset;  
         lastSnapshot.baseAssetReserve = _newBaseAsset;
         lastSnapshot.blockNumber = block.number;
         lastSnapshot.timestamp = block.timestamp;
         lastSnapshot.cumulativeNotional += fixedToInt(int(lastSnapshot.baseAssetReserve) * lastSnapshot.fundingRate);
-
         lastSnapshot.totalPositionSize += int(lastSnapshot.quoteAssetReserve) * lastSnapshot.fundingRate;
-        console.log("total position size",uint(lastSnapshot.totalPositionSize*-1));
         liquidityChangedSnapshots.push(lastSnapshot);
         updateFutureFundingRate();
     }
