@@ -4,7 +4,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./IVAmm.sol";
 import "hardhat/console.sol";
 
-contract VAmm {
+contract VAmm is IVAmm{
 
           using SafeMath for int;
 
@@ -15,27 +15,7 @@ contract VAmm {
     uint8 public indexPricePeriod;
     bool public isFrozen;
 
-   struct LiquidityChangedSnapshot {
-    //longsCollateral - shortsCollateral
-        int cumulativeNotional;
-        // every open/close position, funding rate will be updated 
-        // final FR for this period will adjust VAMM's assets based on this
-        int fundingRate;
-        //start timestamp
-        uint timestamp;
-        //start block number
-        uint blockNumber;
-        //long pSIze - short pSize
-        int totalPositionSize;
-        //index asset amount in vAMM
-        uint quoteAssetReserve;
-        //usdc in VAmm
-        uint baseAssetReserve;
-        //start index price not used in FR calculation for this period
-        uint startIndexPrice;
-        //final index price of period
-        uint finalIndexPrice;
-    }
+ 
 
 
     LiquidityChangedSnapshot[] public liquidityChangedSnapshots;
@@ -134,7 +114,7 @@ contract VAmm {
     }
 
 
-        function adjustFundingPaymentsAll()public {
+        function adjustFundingPaymentsAll()external {
             updateFutureFundingRate();
         LiquidityChangedSnapshot memory lastSnapshot = liquidityChangedSnapshots[liquidityChangedSnapshots.length-1];
         // require(lastSnapshot.blockNumber+indexPricePeriod>=block.number,"Need to wait for loan block period");

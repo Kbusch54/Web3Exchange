@@ -5,33 +5,48 @@ interface IVAmm {
 
 
    struct LiquidityChangedSnapshot {
+         //longsCollateral - shortsCollateral
         int cumulativeNotional;
-        uint cumulativeLoan;
+        // every open/close position, funding rate will be updated 
+        // final FR for this period will adjust VAMM's assets based on this
         int fundingRate;
+        //start timestamp
         uint timestamp;
+        //start block number
         uint blockNumber;
+        //long pSIze - short pSize
         int totalPositionSize;
+        //index asset amount in vAMM
         uint quoteAssetReserve;
+        //usdc in VAmm
         uint baseAssetReserve;
+        //start index price not used in FR calculation for this period
+        uint startIndexPrice;
+        //final index price of period
+        uint finalIndexPrice;
     }
 
-     function init(address _assest, bytes32 _path,uint _indexPrice,uint _k,uint _quoteAssetAmount,uint _loanBlockPeriod)external;
+    function init(address _assest, string memory _path,uint _indexPrice,uint _quoteAssetAmount,uint8 _indexPricePeriod)external;
 
-    function openPosition(uint totalCollateral,int _side,uint loanAmount)external returns(int positionSize,uint avgEntryPrice,uint openValue);
-    function closePosition(int positionSize,uint loanAmount,uint fundingPeriods,int _side)external returns(int usdcAmt,uint exitPrice);
+    function openPosition(uint totalCollateral,int _side)external returns(int positionSize,uint avgEntryPrice,uint openValue);
+    function closePosition(int positionSize,int _side)external returns(uint exitPrice,int usdcAmt);
     
+
+
+        function getLiquidityChangedSnapshots()external view returns(LiquidityChangedSnapshot[] memory);
+
     //price
-    function getAssetPrice(address currency) external view returns(uint priceInUSDC);
-    function getLastAssetSpotPrice() external view returns(uint priceInUSDC);
-    function changeAssetPrice(uint _newPrice) external;
-    function getAssetReserve() external view returns(uint);
-    function getVUsdcReserve() external view returns(uint);
+    
+    function setIndexPrice(uint _price)external;
+    function getAssetPrice() external view returns(uint priceInUSDC);
+    function getLastAssetSpotPrice()external view returns(uint);
+    function getQuoteReserve()external view returns(uint);
+
 
     //funding rate
-    function getFutureFundingRateTimestamp() external view returns(uint);
-    function getFutureFundingRateAccumulator() external view returns(int);
-    function getFutureFundingRateAccumulatorTimestamp() external view returns(uint);
+     function adjustFundingPaymentsAll()external;
     function getFutureFundingRate() external view returns(int);
+
 
 
 
