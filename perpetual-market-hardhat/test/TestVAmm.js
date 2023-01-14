@@ -1,9 +1,8 @@
-const { expect } = require("chai");
+const { expect,chai } = require("chai");
 
 const { ethers } = require("hardhat");
 const hre = require("hardhat");
-const { loadFixture } = require("@nomicfoundation/hardhat-network-helpers");
-const { int } = require("hardhat/internal/core/params/argumentTypes");
+const { loadFixture,mine,takeSnapshot } = require("@nomicfoundation/hardhat-network-helpers");
 const {
   formatEther,
   parseEther,
@@ -11,7 +10,7 @@ const {
   formatUnits,
 } = require("ethers/lib/utils");
 
-describe("UsdcController Open and close positions", async () => {
+describe("Amm Open and close positions", async () => {
   async function deployAmmFixture() {
     const [owner, otherAccount,bot] = await ethers.getSigners();
  
@@ -29,7 +28,7 @@ describe("UsdcController Open and close positions", async () => {
 
     return {  owner,bot, otherAccount, vamm };
   }
-    it("allow open position adjust varibales accordingly", async () => {
+    it.skip("allow open position adjust varibales accordingly", async () => {
         const {owner,bot, vamm,otherAccount} = await loadFixture(deployAmmFixture);
     
     const snapShot = await vamm.liquidityChangedSnapshots(0);
@@ -78,5 +77,17 @@ describe("UsdcController Open and close positions", async () => {
     const snapShot5 = await vamm.liquidityChangedSnapshots(1);
     console.log('position size 5',snapShot5.totalPositionSize);
     console.log('funding rate',formatUnits(snapShot5.fundingRate,6));
+    });
+    it("allow open position check snapshot", async () => {
+        const {owner,bot, vamm,otherAccount} = await loadFixture(deployAmmFixture);
+        const firstSnapShot = await vamm.liquidityChangedSnapshots(0);
+        const openAmt = parseUnits("200000",6);
+        const openPosStatic = await vamm.callStatic.openPosition(openAmt,1);
+        await vamm.openPosition(openAmt,1);
+        const secondSnapShot = await vamm.liquidityChangedSnapshots(0);
+        const realPSize = Math.round(openPosStatic.positionSize/1000000);
+        expect(secondSnapShot.totalPositionSize).to.equal(firstSnapShot.totalPositionSize.add(openPosStatic.positionSize));
+        expect(secondSnapShot.baseAssetReserve).to.equal(firstSnapShot.baseAssetReserve.add(openAmt));
+        expect(secondSnapShot.quoteAssetReserve).to.equal(firstSnapShot.quoteAssetReserve.sub(realPSize));
     });
 }); 

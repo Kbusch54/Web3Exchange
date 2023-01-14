@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "./IVAmm.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol"; 
+// import "./IVAmm.sol";
 import "hardhat/console.sol";
 
-contract VAmm is IVAmm{
+ contract VAmm {
 
           using SafeMath for int;
 
@@ -14,6 +14,28 @@ contract VAmm is IVAmm{
     uint public k;
     uint8 public indexPricePeriod;
     bool public isFrozen;
+
+  struct LiquidityChangedSnapshot {
+         //longsCollateral - shortsCollateral
+        int cumulativeNotional;
+        // every open/close position, funding rate will be updated 
+        // final FR for this period will adjust VAMM's assets based on this
+        int fundingRate;
+        //start timestamp
+        uint timestamp;
+        //start block number
+        uint blockNumber;
+        //long pSIze - short pSize
+        int totalPositionSize;
+        //index asset amount in vAMM
+        uint quoteAssetReserve;
+        //usdc in VAmm
+        uint baseAssetReserve;
+        //start index price not used in FR calculation for this period
+        uint startIndexPrice;
+        //final index price of period
+        uint finalIndexPrice;
+    }
 
  
 
@@ -85,10 +107,10 @@ contract VAmm is IVAmm{
         lastSnapshot.baseAssetReserve = uint(_newBaseAsset);
         lastSnapshot.cumulativeNotional += int(totalCollateral)*_side;
         lastSnapshot.totalPositionSize += positionSize;
-        openValue = uint(_newBaseAsset)/_newQuoteAsset * uint(positionSize*_side);
+        openValue = uint(fixedToInt(int(uint(_newBaseAsset)/_newQuoteAsset * uint(positionSize*_side))));
         liquidityChangedSnapshots[liquidityChangedSnapshots.length-1]=lastSnapshot;
         updateFutureFundingRate();
-    }
+    } 
 
     function updateFutureFundingRate()public returns(int){
          LiquidityChangedSnapshot memory lastSnapshot = liquidityChangedSnapshots[liquidityChangedSnapshots.length-1];
