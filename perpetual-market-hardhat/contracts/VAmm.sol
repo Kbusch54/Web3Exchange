@@ -68,13 +68,12 @@ import "hardhat/console.sol";
         LiquidityChangedSnapshot memory lastSnapshot = liquidityChangedSnapshots[liquidityChangedSnapshots.length-1];
         require(lastSnapshot.blockNumber+indexPricePeriod>=block.number,"Need to wait for loan block period");
         //set last index price
-        lastSnapshot.finalIndexPrice = indexPrice;
+        lastSnapshot.finalIndexPrice = _price;
         //set new index price
+        liquidityChangedSnapshots[liquidityChangedSnapshots.length-1] = lastSnapshot;
         indexPrice = _price;
-        //block number/block timestamp
-        //set new funding rate
-        //new struct 
-        //change base and quote asset reserve
+        adjustFundingPaymentsAll();
+   
     }
     //only loan contract via oracle
  
@@ -137,10 +136,10 @@ import "hardhat/console.sol";
     }
 
 
-        function adjustFundingPaymentsAll()external {
+        function adjustFundingPaymentsAll()internal {
             updateFutureFundingRate();
         LiquidityChangedSnapshot memory lastSnapshot = liquidityChangedSnapshots[liquidityChangedSnapshots.length-1];
-        // require(lastSnapshot.blockNumber+indexPricePeriod>=block.number,"Need to wait for loan block period");
+        require(lastSnapshot.blockNumber+indexPricePeriod>=block.number,"Need to wait for loan block period");
            int nbR =  int(lastSnapshot.baseAssetReserve) *(1000000+lastSnapshot.fundingRate);
          uint _newBaseAsset = uint(fixedToInt(nbR>0?nbR:nbR*-1));
         uint _newQuoteAsset = k/ _newBaseAsset;
@@ -148,8 +147,8 @@ import "hardhat/console.sol";
         lastSnapshot.baseAssetReserve = _newBaseAsset;
         lastSnapshot.blockNumber = block.number;
         lastSnapshot.timestamp = block.timestamp;
-        lastSnapshot.cumulativeNotional += fixedToInt(int(lastSnapshot.baseAssetReserve) * lastSnapshot.fundingRate);
-        lastSnapshot.totalPositionSize += int(lastSnapshot.quoteAssetReserve) * lastSnapshot.fundingRate;
+        lastSnapshot.startIndexPrice = lastSnapshot.finalIndexPrice;
+        lastSnapshot.finalIndexPrice =0;
         liquidityChangedSnapshots.push(lastSnapshot);
         updateFutureFundingRate();
     }
