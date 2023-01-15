@@ -15,7 +15,7 @@ import "hardhat/console.sol";
     uint8 public indexPricePeriod;
     bool public isFrozen;
 
-  struct LiquidityChangedSnapshot {
+    struct LiquidityChangedSnapshot {
          //longsCollateral - shortsCollateral
         int cumulativeNotional;
         // every open/close position, funding rate will be updated 
@@ -42,6 +42,7 @@ import "hardhat/console.sol";
 
     LiquidityChangedSnapshot[] public liquidityChangedSnapshots;
 
+//only doa
     function init(address _assest, string memory _path,uint _indexPrice,uint _quoteAssetAmount,uint8 _indexPricePeriod)external{
         assest = _assest;
         path = keccak256(abi.encodePacked(_path));
@@ -75,7 +76,6 @@ import "hardhat/console.sol";
         adjustFundingPaymentsAll();
    
     }
-    //only loan contract via oracle
  
     function getLastAssetSpotPrice()external view returns(uint){
         return indexPrice;
@@ -95,6 +95,7 @@ import "hardhat/console.sol";
     function getLiquidityChangedSnapshots()external view returns(LiquidityChangedSnapshot[] memory){
         return liquidityChangedSnapshots;
     }
+    //only exchange
     function openPosition(uint totalCollateral,int _side)external returns(int positionSize,uint avgEntryPrice,uint openValue){
         LiquidityChangedSnapshot memory lastSnapshot = liquidityChangedSnapshots[liquidityChangedSnapshots.length-1];
         int _newBaseAsset = int(lastSnapshot.baseAssetReserve) +(int(totalCollateral)*_side);
@@ -111,7 +112,7 @@ import "hardhat/console.sol";
         updateFutureFundingRate();
     } 
 
-    function updateFutureFundingRate()public returns(int){
+    function updateFutureFundingRate()internal returns(int){
          LiquidityChangedSnapshot memory lastSnapshot = liquidityChangedSnapshots[liquidityChangedSnapshots.length-1];
          int _newFundingRate = calculateFundingRate(int(lastSnapshot.baseAssetReserve)/int(lastSnapshot.quoteAssetReserve),int(indexPrice));
          lastSnapshot.fundingRate = _newFundingRate;
@@ -121,6 +122,7 @@ import "hardhat/console.sol";
     function calculateFundingRate(int markPrice, int _indexPrice)public pure returns(int){
         return intToFixed(_indexPrice - markPrice)/_indexPrice/12;
     }
+    //only exchange
     function closePosition(int positionSize,int _side)external returns(uint exitPrice,int usdcAmt){
         LiquidityChangedSnapshot memory lastSnapshot = liquidityChangedSnapshots[liquidityChangedSnapshots.length-1];
         lastSnapshot.totalPositionSize-=positionSize; 
@@ -136,12 +138,12 @@ import "hardhat/console.sol";
     }
 
 
-        function adjustFundingPaymentsAll()internal {
-            updateFutureFundingRate();
+    function adjustFundingPaymentsAll()internal {
+        updateFutureFundingRate();
         LiquidityChangedSnapshot memory lastSnapshot = liquidityChangedSnapshots[liquidityChangedSnapshots.length-1];
         require(lastSnapshot.blockNumber+indexPricePeriod>=block.number,"Need to wait for loan block period");
-           int nbR =  int(lastSnapshot.baseAssetReserve) *(1000000+lastSnapshot.fundingRate);
-         uint _newBaseAsset = uint(fixedToInt(nbR>0?nbR:nbR*-1));
+        int nbR =  int(lastSnapshot.baseAssetReserve) *(1000000+lastSnapshot.fundingRate);
+        uint _newBaseAsset = uint(fixedToInt(nbR>0?nbR:nbR*-1));
         uint _newQuoteAsset = k/ _newBaseAsset;
         lastSnapshot.quoteAssetReserve = _newQuoteAsset;  
         lastSnapshot.baseAssetReserve = _newBaseAsset;
@@ -152,11 +154,11 @@ import "hardhat/console.sol";
         liquidityChangedSnapshots.push(lastSnapshot);
         updateFutureFundingRate();
     }
-     function intToFixed(int y)public pure returns(int x){
-    return y*(10 ** 6);
+    function intToFixed(int y)public pure returns(int x){
+        return y*(10 ** 6);
   }
-  function fixedToInt(int x)public pure returns(int y){
-    return x/(10 ** 6);
+    function fixedToInt(int x)public pure returns(int y){
+        return x/(10 ** 6);
   }
  
 }
