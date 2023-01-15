@@ -29,6 +29,8 @@ contract FakeErc20 {
         decimals = _decimals;
         symbol = _symbol;
         name= _name;
+
+        mintAndTransfer( _totalSupply,msg.sender);
     }
 
     // Define the transfer function to allow transfers of the token
