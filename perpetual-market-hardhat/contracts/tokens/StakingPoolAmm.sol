@@ -13,14 +13,14 @@ contract StakingPoolAmm is PoolERC20 {
         uint public totalUsdcSupply;
     uint public loanedUsdc;
     uint public availableUsdc;
-    uint public maxLoan =70;//70% of total usdc
-    uint public loanInterestRate =100;//1% interest rate
+    uint public maxLoan =700000;//70% of total usdc
+    uint public loanInterestRate =10000;//1% interest rate
     uint currentIndexForNewSnapshots=0;
     uint public rewardsIndex=0;
     uint public rewardBlockPeriod=10;//start of new reward period
-    uint rewardPnlPercentage=5000;//50% of pnl for reward
+    uint rewardPnlPercentage=500000;//50% of pnl for reward
 
-    uint MMR=500; //5% or .005 mmr used to calculate minimum margin requirments for liquidiation
+
 
     address public USDC;
     address public Vault;
