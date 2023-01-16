@@ -34,16 +34,12 @@ contract VaultMain is VaultForLoanPool{
         (uint loanAmt,uint minMargReq,bool check) = stake.borrow(_tradeId,_collateral,_leverage);
         require(check,"borrow failed");
         // change balances
-        newBalance = availableBalance[_trader] -= _collateral;
-        tradeCollateral[_tradeId] += _collateral;
+        require(availableBalance[_trader] >= _collateral+minMargReq,"To low of balance");
+        newBalance = availableBalance[_trader] -= _collateral - minimumMarginReq;
+        tradeCollateral[_tradeId] += _collateral-minMargReq;
         minimumMarginReq =tradeInterest[_tradeId] += minMargReq;
-        /**
-         * execute trade
-         */
         _tradeBalance = tradeBalance[_tradeId] += loanAmt;
-    
         _check =check;
-
     }
     //internal functions
     function exitPosition(bytes32 _tradeId,address _trader)internal returns(uint _collateral){

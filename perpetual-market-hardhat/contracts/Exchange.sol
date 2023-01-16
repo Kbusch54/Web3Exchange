@@ -3,12 +3,15 @@ pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "../Interfaces/IVAmm.sol";
+import "../Interfaces/IVaultMain.sol";
 contract Exchange{
     address[] public amms;
+    address public Vault;
     mapping(address => bool) public ammActive;
 
-    constructor(address[] memory _amms){
+    constructor(address[] memory _amms, address _vault){
         amms = _amms;
+        Vault = _vault;
         for(uint i = 0; i < amms.length; i++){
             ammActive[amms[i]] = true;
         }
@@ -39,12 +42,14 @@ contract Exchange{
         require(_collateral > 0, "collateral must be greater than 0");
         require(_leverage > 0, "leverage must be greater than 0");
         bytes32 tradeId = keccak256(abi.encodePacked( _amm, block.number,_side, _trader));
+        require(isTradeActive[tradeId] == false, "trade already active");
         uint totalCollateral;
         uint margin;
         uint loanedAmount;
 
         //getloan
-      
+        (bool _check,uint newBalance,uint _tradeBalance,uint minimumMarginReq) = IVaultMain(Vault).secureLoanAndTrade(_trader, _collateral, _leverage, totalCollateral, margin, loanedAmount);
+        require(check, "loan not approved");
         //check if trader has enough collateral from vault
             //tell vault fee from interest if applicable
             //tell vault fee for trade % of total collateral        
@@ -54,7 +59,7 @@ contract Exchange{
 
         // right to trade
         (int positionSize,uint avgEntryPrice,uint openValue) = IVAmm(ammToPool[_amm]).openPosition(totalCollateral,_side);
-        positionsbyTradeId[tradeId] = Position(_collateral,loanedAmount,_side,positionSize,avgEntryPrice,openValue,block.number);
+        positionsbyTradeId[tradeId] = Position(_collateral,_tradeBalance,_side,positionSize,avgEntryPrice,openValue,block.number);
         isTradeActive[tradeId] = true;;
         //event
         return tradeId;
