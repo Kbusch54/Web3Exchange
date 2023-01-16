@@ -95,6 +95,9 @@ import "hardhat/console.sol";
     function getLiquidityChangedSnapshots()external view returns(LiquidityChangedSnapshot[] memory){
         return liquidityChangedSnapshots;
     }
+    function getLastSnapshot()external view returns(LiquidityChangedSnapshot memory){
+        return liquidityChangedSnapshots[liquidityChangedSnapshots.length-1];
+    }
     //only exchange
     function openPosition(uint totalCollateral,int _side)external returns(int positionSize,uint avgEntryPrice,uint openValue){
         LiquidityChangedSnapshot memory lastSnapshot = liquidityChangedSnapshots[liquidityChangedSnapshots.length-1];
