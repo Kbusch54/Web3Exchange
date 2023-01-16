@@ -16,24 +16,21 @@ contract FakeVault{
     mapping(bytes32=>uint)public tradeCollateral;
     mapping(bytes32=>uint)public tradeInterest;
     mapping(address=>uint)public availableBalance;
+    mapping(address=>uint)public totalTradeCollateral; //for liquidation purposes
 
     constructor(address _usdc,address _stakingPoolAmm){
         Usdc = _usdc;
         Pool = _stakingPoolAmm;
     }
 
-    //just for testing
-    function testTradeCollateral(bytes32 _tradeId,uint collateral)public{
-         tradeCollateral[_tradeId]+=collateral;
-    }
-
-    //public for testing purposes
-    function recordInterest(bytes32 _tradeId,uint _amount)public returns(bool){
+    function recordInterest(bytes32 _tradeId,uint _amount)internal returns(bool){
         //liquidate if not enough collateral
         require(tradeCollateral[_tradeId] >= _amount,"not enough collateral");
+        require(totalTradeCollateral[msg.sender] >= _amount,"not enough collateral");
         IStakingPoolAmm stake = IStakingPoolAmm(Pool);
         uint indexForStore = stake.updateAndGetCurrentIndex();
         tradeCollateral[_tradeId] -= _amount;
+        totalTradeCollateral[msg.sender] -= _amount;
         uint _amt = _amount;
         uint half = _amt/2;
         _amt -= half;
@@ -88,13 +85,16 @@ contract FakeVault{
         require(availableBalance[msg.sender] >= _amount,"not enough balance");
         availableBalance[msg.sender] -= _amount;
         tradeCollateral[_tradeId] += _amount;
+        totalTradeCollateral[msg.sender] += _amount;
         
     }
     //remove collateral
     function removeCollateral(bytes32 _tradeId, uint _amount)public returns(uint duh,uint interestPayed){
         //checks if there is enough collateral without liquidiation
         require(tradeCollateral[_tradeId] >= _amount,"not enough collateral");
+        require(totalTradeCollateral[msg.sender] >= _amount,"not enough collateral");
         tradeCollateral[_tradeId] -= _amount;
+        totalTradeCollateral[msg.sender] -= _amount;
         availableBalance[msg.sender] += _amount;
     }
 
