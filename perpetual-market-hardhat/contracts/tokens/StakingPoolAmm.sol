@@ -177,8 +177,8 @@ function internalCheckRewardAmount(address _user)internal view returns(uint){
         uint tUsdcS= totalUsdcSupply>0?totalUsdcSupply:1;
         uint ts = totalSupply()>0?totalSupply():1;
         
-        uint pTokMint = (_usdcAmt*10000 / tUsdcS)*ts;
-        _mint(msg.sender,pTokMint/10000);
+        uint pTokMint = (uintToFixed(_usdcAmt) / tUsdcS)*ts;
+        _mint(msg.sender,fixedToUint(pTokMint));
 
         //check if need new snapshot
         if(snapshots.length == 0){
@@ -309,4 +309,16 @@ function internalCheckRewardAmount(address _user)internal view returns(uint){
     function getCurrentindex()external view returns(uint){
         return currentIndexForNewSnapshots;
     }
+
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////Utility Functions//////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        function fixedToUint(uint _fixed) internal pure returns(uint){
+        return _fixed/10**6;
+    }
+    function uintToFixed(uint _uint) internal pure returns(uint){
+        return _uint*10**6;
+    }
+
 }
