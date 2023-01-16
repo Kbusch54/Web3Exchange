@@ -56,10 +56,53 @@ contract LoanPool is StakingPoolAmm{
         interestOwed = _interest;
     }
 
-    function fixedToUint(uint _fixed) internal pure returns(uint){
+
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////Utility Functions//////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        function fixedToUint(uint _fixed) internal pure returns(uint){
         return _fixed/10**6;
     }
     function uintToFixed(uint _uint) internal pure returns(uint){
         return _uint*10**6;
+    }
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////Dao Functions////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    function setMaxLev(uint _maxLev) external {
+        maxLev = _maxLev;
+    }
+    function setMMR(uint _mmr) external {
+        MMR = _mmr;
+    }
+    function setInterestPeriod(uint _interestPeriod) external {
+        interestPeriod = _interestPeriod;
+    }
+
+    // rewardPnlPercentage
+    function setRewardPnlPercentage(uint _rewardPnlPercentage) external  {
+        rewardPnlPercentage = _rewardPnlPercentage;
+    }
+        // maxLoan
+    function setMaxLoan(uint _maxLoan) external  {
+        maxLoan = _maxLoan;
+    }
+        // loanInterestRate
+    function setLoanInterestRate(uint _loanInterestRate) external  {
+        loanInterestRate = _loanInterestRate;
+    }
+        // rewardBlockPeriod
+    function setRewardBlockPeriod(uint _rewardBlockPeriod) external  {
+        rewardBlockPeriod = _rewardBlockPeriod;
+
+    }
+    function updateVault(address _vault) external  {
+        Vault = _vault;
     }
 }

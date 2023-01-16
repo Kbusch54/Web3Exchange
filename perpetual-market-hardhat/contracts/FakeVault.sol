@@ -38,8 +38,15 @@ contract FakeVault{
 
     //only for pools to take rewards
     function takeReward(uint _amount,address _staker,uint rewardsIndex)public{
+        checkTakeReward(msg.sender,rewardsIndex);
         balancesForRewards[msg.sender][rewardsIndex] -= _amount;
         IERC20(Usdc).transfer(_staker,_amount);
+
+    }
+    function checkTakeReward(address _staker,uint rewardsIndex)internal{
+         if(balancesForRewards[_staker][rewardsIndex-1]>0){
+            balancesForRewards[_staker][rewardsIndex]+=balancesForRewards[_staker][rewardsIndex-1];
+         }
     }
 
 

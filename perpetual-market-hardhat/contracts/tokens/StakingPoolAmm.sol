@@ -76,14 +76,12 @@ function claimReward()external{
         if(block.number <= snapshot.rewardsCuttOffBlock){
             internalClaimRewards(msg.sender); 
         }else if(block.number > snapshots[currentIndexForNewSnapshots].endBlock){
-            
-            createNewStruct();
+            updateAndGetCurrentIndex();
             if(block.number <= snapshots[rewardsIndex].rewardsCuttOffBlock){
                 internalClaimRewards(msg.sender);
             }else{
                 revert("No rewards yet");
             }
-      
         }else{
             revert("No rewards yet");
         }
@@ -235,9 +233,9 @@ function internalClaimRewards(address _user)internal{
     }
     function updateAndGetCurrentIndex()public returns(uint){
         Snapshot memory snapshot = snapshots[currentIndexForNewSnapshots];
-        if(block.number >= snapshot.endBlock){
+        if(block.number >= snapshot.endBlock && snapshots.length-1 > currentIndexForNewSnapshots){
             //create new snapshot
-        createNewStruct();
+            createNewStruct();
         }
         return currentIndexForNewSnapshots;
     }
@@ -258,30 +256,7 @@ function internalClaimRewards(address _user)internal{
 
 
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////Dao Functions////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    // rewardPnlPercentage
-    function setRewardPnlPercentage(uint _rewardPnlPercentage) external  {
-        rewardPnlPercentage = _rewardPnlPercentage;
-    }
-        // maxLoan
-    function setMaxLoan(uint _maxLoan) external  {
-        maxLoan = _maxLoan;
-    }
-        // loanInterestRate
-    function setLoanInterestRate(uint _loanInterestRate) external  {
-        loanInterestRate = _loanInterestRate;
-    }
-        // rewardBlockPeriod
-    function setRewardBlockPeriod(uint _rewardBlockPeriod) external  {
-        rewardBlockPeriod = _rewardBlockPeriod;
-
-    }
-    function updateVault(address _vault) external  {
-        Vault = _vault;
-    }
     function getCurrentindex()external view returns(uint){
         return currentIndexForNewSnapshots;
     }
