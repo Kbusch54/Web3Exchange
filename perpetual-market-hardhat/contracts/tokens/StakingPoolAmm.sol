@@ -10,12 +10,12 @@ import "hardhat/console.sol";
 contract StakingPoolAmm is PoolERC20 {
 
 
-        uint public totalUsdcSupply;
-    uint public loanedUsdc;
-    uint public availableUsdc;
+        uint public totalUsdcSupply=0;
+    uint public loanedUsdc=0;
+    uint public availableUsdc=0;
     uint public maxLoan =700000;//70% of total usdc
     uint public loanInterestRate =10000;//1% interest rate
-    uint currentIndexForNewSnapshots=0;
+    uint public currentIndexForNewSnapshots=0;
     uint public rewardsIndex=0;
     uint public rewardBlockPeriod=10;//start of new reward period
     uint rewardPnlPercentage=500000;//50% of pnl for reward
@@ -39,6 +39,7 @@ contract StakingPoolAmm is PoolERC20 {
     // mapping(uint=> mapping(address=>uint)) public snapshotTokenStakes;
     mapping(uint=> mapping(address=>bool)) public snapshotHasClaimedReward;
     mapping(uint=> mapping(address=>uint)) public cannotTakeFromStake; //curentStake-user = cannotTakeReward
+  
 
     Snapshot[] public snapshots;
     constructor(
@@ -71,6 +72,7 @@ function getAllSnaps()public view returns(Snapshot[] memory){
 
 
 function claimReward()external{
+    updateAndGetCurrentIndex();
     Snapshot memory snapshot = snapshots[rewardsIndex];
     if(block.number > snapshot.endBlock ){
         if(block.number <= snapshot.rewardsCuttOffBlock){
@@ -80,7 +82,7 @@ function claimReward()external{
             if(block.number <= snapshots[rewardsIndex].rewardsCuttOffBlock){
                 internalClaimRewards(msg.sender);
             }else{
-                revert("No rewards yet");
+                revert("No rewards yet must wait");
             }
         }else{
             revert("No rewards yet");
@@ -92,8 +94,10 @@ function claimReward()external{
 
 function internalClaimRewards(address _user)internal{
     Snapshot memory snapshot = snapshots[rewardsIndex];
+if(  snapshot.pnlRemaining > 0){
 
-    if(snapshotHasClaimedReward[rewardsIndex][_user] == false && snapshot.pnlRemaining > 0){
+
+    if(snapshotHasClaimedReward[rewardsIndex][_user] == false){
         uint userTokens = balanceOf(_user);
         if(userTokens > 0){
             uint tokensAvaibleForReward;
@@ -118,18 +122,63 @@ function internalClaimRewards(address _user)internal{
     }else {
         revert("User has already claimed reward");
     }
+    }else{
+        revert("Current Pnl is 0 or negative");
+    }
 }
+function checkRewardAmount()public view returns(uint){
+    Snapshot memory snapshot = snapshots[rewardsIndex];
 
+        if(block.number <= snapshot.rewardsCuttOffBlock){
+            return internalCheckRewardAmount(msg.sender); 
+        }else if(block.number > snapshots[currentIndexForNewSnapshots].endBlock){
+            if(block.number <= snapshots[rewardsIndex].rewardsCuttOffBlock){
+                return internalCheckRewardAmount(msg.sender);
+            }else{
+                return 0;
+            }
+        }else{
+            return 0;
+        }
+    }
+
+function internalCheckRewardAmount(address _user)internal view returns(uint){
+    Snapshot memory snapshot = snapshots[rewardsIndex];
+    if(  snapshot.pnlRemaining > 0){
+        if(snapshotHasClaimedReward[rewardsIndex][_user] == false){
+            uint userTokens = balanceOf(_user);
+            if(userTokens > 0){
+                uint tokensAvailableForReward;
+                uint userLockedTokens = rewardsIndex==0?0:cannotTakeFromStake[rewardsIndex][_user];
+                if(userLockedTokens > 0){
+                    if(userTokens > userLockedTokens){
+                        tokensAvailableForReward = userTokens-userLockedTokens;
+                    }else{
+                        return 0;
+                    }
+                }else{
+                    tokensAvailableForReward = userTokens;
+                }
+                uint reward = (uint(snapshot.pnlForReward)*tokensAvailableForReward)/snapshot.totalTokenSupply;
+                return reward;
+            }else{
+                return 0;
+            }
+        }else {
+            return 0;
+        }
+    }else{
+        return 0;
+    }
+}
     function stake(uint _usdcAmt)external returns(uint _pkTok) {
         IERC20 usdc = IERC20(USDC); 
         require(usdc.transferFrom(msg.sender,address(this),_usdcAmt), "Transfer failed");
-        
         uint tUsdcS= totalUsdcSupply>0?totalUsdcSupply:1;
         uint ts = totalSupply()>0?totalSupply():1;
-
-        uint pTokMint = (_usdcAmt / tUsdcS)*ts;
-        _mint(msg.sender,pTokMint);
-        totalUsdcSupply += _usdcAmt;
+        
+        uint pTokMint = (_usdcAmt*10000 / tUsdcS)*ts;
+        _mint(msg.sender,pTokMint/10000);
 
         //check if need new snapshot
         if(snapshots.length == 0){
@@ -220,20 +269,20 @@ function internalClaimRewards(address _user)internal{
         usdc.transferFrom(msg.sender,address(this),_amt);
         updateUsdcSupply();
     }
-    function takeInterest(uint _amt)public{
+    function takeInterest(uint _amt,uint _totalAmt)external{
         IERC20 usdc = IERC20(USDC); 
         usdc.transferFrom(msg.sender,address(this),_amt);
         Snapshot memory snapshot = snapshots[currentIndexForNewSnapshots];
         snapshot.pnlRemaining += int(_amt);
         snapshot.pnlForReward += int(_amt);
-        snapshot.pnlForSnapshot += int(_amt);
+        snapshot.pnlForSnapshot += int(_totalAmt);
         snapshots[currentIndexForNewSnapshots] = snapshot;
         availableUsdc += _amt;
         updateUsdcSupply();
     }
     function updateAndGetCurrentIndex()public returns(uint){
         Snapshot memory snapshot = snapshots[currentIndexForNewSnapshots];
-        if(block.number >= snapshot.endBlock && snapshots.length-1 > currentIndexForNewSnapshots){
+        if(block.number >= snapshot.endBlock && snapshots.length-1 >= currentIndexForNewSnapshots){
             //create new snapshot
             createNewStruct();
         }

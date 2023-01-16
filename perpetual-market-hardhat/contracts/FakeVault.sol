@@ -21,7 +21,14 @@ contract FakeVault{
         Usdc = _usdc;
         Pool = _stakingPoolAmm;
     }
-    function recordInterest(bytes32 _tradeId,uint _amount)internal returns(bool){
+
+    //just for testing
+    function testTradeCollateral(bytes32 _tradeId,uint collateral)public{
+         tradeCollateral[_tradeId]+=collateral;
+    }
+
+    //public for testing purposes
+    function recordInterest(bytes32 _tradeId,uint _amount)public returns(bool){
         //liquidate if not enough collateral
         require(tradeCollateral[_tradeId] >= _amount,"not enough collateral");
         IStakingPoolAmm stake = IStakingPoolAmm(Pool);
@@ -32,7 +39,7 @@ contract FakeVault{
         _amt -= half;
         IERC20(Usdc).approve(Pool,half);
         balancesForRewards[Pool][indexForStore] += _amt;
-        stake.takeInterest(half);
+        stake.takeInterest(half,_amount);
         return true;
     }
 
@@ -78,14 +85,17 @@ contract FakeVault{
    
     // add collateral
     function addCollateral(bytes32 _tradeId, uint _amount)public returns(uint duh,uint interestPayed){
+        require(availableBalance[msg.sender] >= _amount,"not enough balance");
+        availableBalance[msg.sender] -= _amount;
         tradeCollateral[_tradeId] += _amount;
-        IERC20(Usdc).transferFrom(msg.sender,address(this),_amount);
+        
     }
     //remove collateral
     function removeCollateral(bytes32 _tradeId, uint _amount)public returns(uint duh,uint interestPayed){
-        //checks if there is enough collateral without liuquidiation
+        //checks if there is enough collateral without liquidiation
+        require(tradeCollateral[_tradeId] >= _amount,"not enough collateral");
         tradeCollateral[_tradeId] -= _amount;
-        IERC20(Usdc).transfer(msg.sender,_amount);
+        availableBalance[msg.sender] += _amount;
     }
 
 
@@ -106,21 +116,36 @@ contract FakeVault{
         tradeInterest[_tradeId] = minMargReq;
         bool check =recordInterest(_tradeId,owedInterest);
         require(check,"record interest failed");
+            if(tradeCollateral[_tradeId] > 0 && tradeBalance[_tradeId] == 0  && tradeInterest[_tradeId] == 0){
+            exitPosition(_tradeId);
+        }
         return (owedInterest,newLoanAmt,minMargReq);
 
     }
-    function secureLoanAndTrade(bytes32 _tradeId, uint _leverage, uint _collateral)public returns(bool){
+    function secureLoanAndTrade(bytes32 _tradeId, uint _leverage, uint _collateral)public returns(bool _check,uint newBalance,uint _tradeBalance,uint minimumMarginReq){
+        require(availableBalance[msg.sender] >= _collateral,"not enough balance");
         IStakingPoolAmm stake = IStakingPoolAmm(Pool);
         (uint loanAmt,uint minMargReq,bool check) = stake.borrow(_tradeId,_collateral,_leverage);
         require(check,"borrow failed");
-        IERC20(Usdc).transferFrom(msg.sender,address(this),loanAmt);
+        // change balances
+        newBalance = availableBalance[msg.sender] -= _collateral;
         tradeCollateral[_tradeId] += _collateral;
-        tradeInterest[_tradeId] += minMargReq;
+        minimumMarginReq =tradeInterest[_tradeId] += minMargReq;
         /**
          * execute trade
          */
-        tradeBalance[_tradeId] += loanAmt;
-        return true;
+        _tradeBalance = tradeBalance[_tradeId] += loanAmt;
+    
+        _check =check;
+
+    }
+    function exitPosition(bytes32 _tradeId)public returns(uint _collateral){
+       require(tradeBalance[_tradeId] == 0,"no position");
+       require(tradeInterest[_tradeId] == 0,"no interest");
+         require(tradeCollateral[_tradeId] > 0,"no collateral");
+          _collateral = tradeCollateral[_tradeId];
+            tradeCollateral[_tradeId] = 0;
+            availableBalance[msg.sender] += _collateral;
 
     }
 
