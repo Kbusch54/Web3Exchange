@@ -18,9 +18,7 @@ contract LoanPool is StakingPoolAmm{
     uint MMR=500; //5% or .005 mmr used to calculate minimum margin requirments for liquidiation
     uint public maxLev=15;
     uint interestPeriod = 10; //10 blocks
-    uint public loanedUsdc=0;
-    uint public availableUsdc=0;
-    uint public maxLoan =700000;//70% of total usdc
+
     uint public loanInterestRate =10000;//1% interest rate
 
 

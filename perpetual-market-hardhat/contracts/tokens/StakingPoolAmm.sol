@@ -16,6 +16,9 @@ contract StakingPoolAmm is PoolERC20 {
     uint public rewardsIndex=0;
     uint public rewardBlockPeriod=10;//start of new reward period
     uint rewardPnlPercentage=500000;//50% of pnl for reward
+        uint public loanedUsdc=0;
+    uint public availableUsdc=0;
+    uint public maxLoan =700000;//70% of total usdc
 
 
 
