@@ -16,6 +16,7 @@ constructor(address _usdc){
     mapping(bytes32=>uint)public tradeInterest;
     mapping(address=>uint)public availableBalance;
     mapping(address=>uint)public totalTradeCollateral; //for liquidation purposes
+    mapping(address=>uint)public poolOutstandingLoans;
 
 
 

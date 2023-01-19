@@ -26,6 +26,7 @@ contract Exchange{
         uint entryPrice;
         uint openValue;
         uint startBlock;
+        uint lastFundingRateIndex;
     }
 
     mapping(bytes32 => Position) public positionsbyTradeId;
@@ -50,16 +51,11 @@ contract Exchange{
         //getloan
         (bool _check,uint newBalance,uint _tradeBalance,uint minimumMarginReq) = IVaultMain(Vault).secureLoanAndTrade(_trader, _collateral, _leverage, totalCollateral, margin, loanedAmount);
         require(check, "loan not approved");
-        //check if trader has enough collateral from vault
-            //tell vault fee from interest if applicable
-            //tell vault fee for trade % of total collateral        
-
-
-
-
+        IVAmm amm = IVAmm(ammToPool[_amm]);
+        uint lastFFr = amm.lastFundingRateIndex();
         // right to trade
-        (int positionSize,uint avgEntryPrice,uint openValue) = IVAmm(ammToPool[_amm]).openPosition(totalCollateral,_side);
-        positionsbyTradeId[tradeId] = Position(_collateral,_tradeBalance,_side,positionSize,avgEntryPrice,openValue,block.number);
+        (int positionSize,uint avgEntryPrice,uint openValue) = amm.openPosition(_tradeBalance,_side);
+        positionsbyTradeId[tradeId] = Position(_collateral-minimumMarginReq,_tradeBalance,_side,positionSize,avgEntryPrice,openValue,block.number,lastFFr);
         isTradeActive[tradeId] = true;;
         //event
         return tradeId;
@@ -75,7 +71,8 @@ contract Exchange{
         // right to trade
         ( uint _avgExitPrice, int _usdcAmt) = IVAmm(ammToPool[ammToPool[_tradeId]]).closePosition(position.positionSize, position.side);
         //tell vault to transfer usdc to party
-
+        // IVaultMain(Vault).repayLoan(bytes32 _tradeId, uint _amount)external returns(uint interestPayed,uint newLoanAmount,uint minimumMarginReq)
+        //funding rate
         //event
         isTradeActive[_tradeId] = false;
         return (_avgExitPrice, _usdcAmt);
@@ -111,9 +108,29 @@ contract Exchange{
         
         //check if trader has enough collateral from vault
             //tell vault fee from interest if applicable
-            //tell vault fee for trade % of total collateral
+
         // tell amm to close portion of trade
         //tell vault to transfer usdc to party
+        //check new margin req
+        (uint interestPayed,uint newLoanAmount,uint minimumMarginReq)= IVaultMain(Vault).repayLoan(bytes32 _tradeId, uint _collateral);
+        //update position
+            // (int additionalPositionSize,uint avgEntryPrice,uint openValue) = IVAmm(ammToPool[_amm]).closePosition(totalCollateral,_side);
+            // position.entryPrice = (position.entryPrice * position.positionSize + avgEntryPrice * additionalPositionSize) / (position.positionSize + additionalPositionSize);
+            // position.positionSize -= additionalPositionSize;
+    }
+
+
+    function getTotalFundingRate(bytes32 _tradeId)public view returns(int){
+        Position memory position = positionsbyTradeId[_tradeId];
+        require(position.startBlock > 0, "position not found");
+        uint posLastFFr = position.lastFundingRateBlock;
+        uint lastFFr = IVAmm(ammToPool[_amm]).lastFundingRateIndex();
+        int cumulativeFFR;
+        for(uint i = posLastFFr; i < lastFFr; i++){
+            cumulativeFFR += IVAmm(ammToPool[_amm]).liquidityChangedSnapshots(i).fundingRate ;
+        }
+        return cumulativeFFR;
+
     }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////

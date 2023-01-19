@@ -223,7 +223,6 @@ function internalCheckRewardAmount(address _user)internal view returns(uint){
         snapshots[currentIndexForNewSnapshots]=snapshot;
         _burn(msg.sender,_pTokAmt);
         usdc.transfer(msg.sender,usdcAmt);
-        totalUsdcSupply -= usdcAmt;
         updateUsdcSupply();
 
 
@@ -257,8 +256,8 @@ function internalCheckRewardAmount(address _user)internal view returns(uint){
 
     function updateUsdcSupply()internal{
         IERC20 usdc = IERC20(USDC);
-        totalUsdcSupply = usdc.balanceOf(address(this));
-        availableUsdc = totalUsdcSupply - loanedUsdc;
+        availableUsdc = usdc.balanceOf(address(this));
+         totalUsdcSupply = availableUsdc + loanedUsdc;
     }
     
 
@@ -277,7 +276,6 @@ function internalCheckRewardAmount(address _user)internal view returns(uint){
         snapshot.pnlForReward += int(_amt);
         snapshot.pnlForSnapshot += int(_totalAmt);
         snapshots[currentIndexForNewSnapshots] = snapshot;
-        availableUsdc += _amt;
         updateUsdcSupply();
     }
     function updateAndGetCurrentIndex()public returns(uint){

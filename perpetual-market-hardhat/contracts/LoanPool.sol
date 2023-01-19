@@ -26,34 +26,34 @@ contract LoanPool is StakingPoolAmm{
     mapping(bytes32=>uint) public tradeInterestPeriod;
 
     function borrow(bytes32 _tradeId, uint _margin, uint _leverage) external returns(uint loanAmt, uint minimumMarginReq,bool check){
-        //check minimums
+        // //check minimums
         require(_leverage<=maxLev,'Max leverage exceeded');
         uint _loanAmt = _margin*(_leverage);
         require(uintToFixed(loanedUsdc + _loanAmt)/totalUsdcSupply <= maxLoan, "LoanPool: Max loan reached");
         require(_loanAmt < availableUsdc, "Not enough USDC in pool");
         borrowedAmounts[_tradeId] += _loanAmt;
-        availableUsdc -= _loanAmt;
+        IERC20(USDC).approve(msg.sender, _loanAmt);
         loanedUsdc += _loanAmt;
         tradeInterestPeriod[_tradeId] = block.number;
         loanAmt = _loanAmt;
         minimumMarginReq = fixedToUint(_loanAmt*loanInterestRate);
         updateUsdcSupply();
-        check=true;
+        // check=true;
     }
 
 
 //pay interest of whole loan and principal of repayed amount????
     function repay(bytes32 _tradeId, uint _amount) external returns(uint newLoanAmount, uint minimumMarginReq,uint owedInterest){
-        require(borrowedAmounts[_tradeId] >= _amount,'LoanPool: Amount to repay exceeds loan');
-        uint interestMultiplyer = (block.number-tradeInterestPeriod[_tradeId])/interestPeriod>0?(block.number-tradeInterestPeriod[_tradeId])/interestPeriod:1;
-        owedInterest = fixedToUint(borrowedAmounts[_tradeId]*loanInterestRate) *interestMultiplyer;
-        borrowedAmounts[_tradeId] -= _amount;
-        tradeInterestPeriod[_tradeId] = block.number;
-        availableUsdc += _amount;
-        loanedUsdc-= _amount;
-        updateUsdcSupply();
-        newLoanAmount = borrowedAmounts[_tradeId];
-        minimumMarginReq = fixedToUint(borrowedAmounts[_tradeId]*loanInterestRate);
+        // require(borrowedAmounts[_tradeId] >= _amount,'LoanPool: Amount to repay exceeds loan');
+        // uint interestMultiplyer = (block.number-tradeInterestPeriod[_tradeId])/interestPeriod>0?(block.number-tradeInterestPeriod[_tradeId])/interestPeriod:1;
+        // owedInterest = fixedToUint(borrowedAmounts[_tradeId]*loanInterestRate) *interestMultiplyer;
+        // borrowedAmounts[_tradeId] -= _amount;
+        // tradeInterestPeriod[_tradeId] = block.number;
+        // availableUsdc += _amount;
+        // loanedUsdc-= _amount;
+        // updateUsdcSupply();
+        // newLoanAmount = borrowedAmounts[_tradeId];
+        // minimumMarginReq = fixedToUint(borrowedAmounts[_tradeId]*loanInterestRate);
     }
     function getInterestOwedForAmount(bytes32 _tradeId, uint _amount) external view returns(uint interestOwed){
           uint interestMultiplyer = (block.number-tradeInterestPeriod[_tradeId])/interestPeriod>0?(block.number-tradeInterestPeriod[_tradeId])/interestPeriod:1;

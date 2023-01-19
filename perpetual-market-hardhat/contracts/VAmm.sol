@@ -14,6 +14,8 @@ import "hardhat/console.sol";
     uint public k;
     uint8 public indexPricePeriod;
     bool public isFrozen;
+    uint public lastFundingRateIndex;
+    uint absolutePositionSize;//when zero and upon new trade set market price to index price
 
     struct LiquidityChangedSnapshot {
          //longsCollateral - shortsCollateral
@@ -36,14 +38,18 @@ import "hardhat/console.sol";
         //final index price of period
         uint finalIndexPrice;
     }
+    modifier onlyExchange(){
+        require(msg.sender == exchange,"only exchange");
+        _;
+    }
 
- 
+ address private exchange;
 
 
     LiquidityChangedSnapshot[] public liquidityChangedSnapshots;
 
 //only doa
-    function init(address _assest, string memory _path,uint _indexPrice,uint _quoteAssetAmount,uint8 _indexPricePeriod)external{
+    function init(address _assest, string memory _path,uint _indexPrice,uint _quoteAssetAmount,uint8 _indexPricePeriod,address _exchange)external{
         assest = _assest;
         path = keccak256(abi.encodePacked(_path));
         indexPrice = _indexPrice;
@@ -61,6 +67,8 @@ import "hardhat/console.sol";
             finalIndexPrice:0
         }));
         indexPricePeriod = _indexPricePeriod;
+        exchange = _exchange;
+
     }
     // only oracle/keeper
     function setIndexPrice(uint _price)external{
@@ -99,6 +107,7 @@ import "hardhat/console.sol";
         return liquidityChangedSnapshots[liquidityChangedSnapshots.length-1];
     }
     //only exchange
+
     function openPosition(uint totalCollateral,int _side)external returns(int positionSize,uint avgEntryPrice,uint openValue){
         LiquidityChangedSnapshot memory lastSnapshot = liquidityChangedSnapshots[liquidityChangedSnapshots.length-1];
         int _newBaseAsset = int(lastSnapshot.baseAssetReserve) +(int(totalCollateral)*_side);
@@ -120,6 +129,7 @@ import "hardhat/console.sol";
          int _newFundingRate = calculateFundingRate(int(lastSnapshot.baseAssetReserve)/int(lastSnapshot.quoteAssetReserve),int(indexPrice));
          lastSnapshot.fundingRate = _newFundingRate;
          liquidityChangedSnapshots[liquidityChangedSnapshots.length-1] =  lastSnapshot;
+
        return  _newFundingRate;
     }
     function calculateFundingRate(int markPrice, int _indexPrice)public pure returns(int){
@@ -155,6 +165,7 @@ import "hardhat/console.sol";
         lastSnapshot.startIndexPrice = lastSnapshot.finalIndexPrice;
         lastSnapshot.finalIndexPrice =0;
         liquidityChangedSnapshots.push(lastSnapshot);
+        lastFundingRateIndex = liquidityChangedSnapshots.length-1;
         updateFutureFundingRate();
     }
     function intToFixed(int y)public pure returns(int x){
