@@ -70,6 +70,9 @@ import "hardhat/console.sol";
         exchange = _exchange;
 
     }
+    function getLastFundingRateIndex()external view returns(uint){
+        return lastFundingRateIndex;
+    }
     // only oracle/keeper
     function setIndexPrice(uint _price)external{
         require(_price>0,"price must be greater than 0");
@@ -105,6 +108,9 @@ import "hardhat/console.sol";
     }
     function getLastSnapshot()external view returns(LiquidityChangedSnapshot memory){
         return liquidityChangedSnapshots[liquidityChangedSnapshots.length-1];
+    }
+    function getSnapshotByIndex(uint index)external view returns(LiquidityChangedSnapshot memory){
+        return liquidityChangedSnapshots[index];
     }
     //only exchange
 

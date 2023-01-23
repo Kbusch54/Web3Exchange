@@ -3,7 +3,7 @@ pragma solidity ^0.8.17;
 
 import "./PoolErc20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "../FakeVault.sol";
+import "../vaults/VaultMain.sol";
 
 import "hardhat/console.sol";
 
@@ -116,7 +116,7 @@ if(  snapshot.pnlRemaining > 0){
             snapshot.tokensClaimed += tokensAvaibleForReward;
             snapshot.pnlRemaining -= int(reward);
             snapshots[rewardsIndex] = snapshot;
-            FakeVault vault = FakeVault(Vault);
+            VaultMain vault = VaultMain(Vault);
             vault.takeReward(reward,_user,rewardsIndex);
         }
     }else {

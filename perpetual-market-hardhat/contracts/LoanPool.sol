@@ -22,10 +22,10 @@ contract LoanPool is StakingPoolAmm{
     uint public loanInterestRate =10000;//1% interest rate
 
 
-    mapping(bytes32=>uint) public borrowedAmounts;
-    mapping(bytes32=>uint) public tradeInterestPeriod;
+    mapping(bytes=>uint) public borrowedAmounts;
+    mapping(bytes=>uint) public tradeInterestPeriod;
 
-    function borrow(bytes32 _tradeId, uint _margin, uint _leverage) external returns(uint loanAmt, uint minimumMarginReq,bool check){
+    function borrow(bytes memory _tradeId, uint _margin, uint _leverage) external returns(uint loanAmt, uint minimumMarginReq,bool check){
         // //check minimums
         require(_leverage<=maxLev,'Max leverage exceeded');
         uint _loanAmt = _margin*(_leverage);
@@ -43,7 +43,7 @@ contract LoanPool is StakingPoolAmm{
 
 
 //pay interest of whole loan and principal of repayed amount????
-    function repay(bytes32 _tradeId, uint _amount) external returns(uint newLoanAmount, uint minimumMarginReq,uint owedInterest){
+    function repay(bytes memory _tradeId, uint _amount) external returns(uint newLoanAmount, uint minimumMarginReq,uint owedInterest){
         // require(borrowedAmounts[_tradeId] >= _amount,'LoanPool: Amount to repay exceeds loan');
         // uint interestMultiplyer = (block.number-tradeInterestPeriod[_tradeId])/interestPeriod>0?(block.number-tradeInterestPeriod[_tradeId])/interestPeriod:1;
         // owedInterest = fixedToUint(borrowedAmounts[_tradeId]*loanInterestRate) *interestMultiplyer;
@@ -55,13 +55,13 @@ contract LoanPool is StakingPoolAmm{
         // newLoanAmount = borrowedAmounts[_tradeId];
         // minimumMarginReq = fixedToUint(borrowedAmounts[_tradeId]*loanInterestRate);
     }
-    function getInterestOwedForAmount(bytes32 _tradeId, uint _amount) external view returns(uint interestOwed){
+    function getInterestOwedForAmount(bytes memory _tradeId, uint _amount) external view returns(uint interestOwed){
           uint interestMultiplyer = (block.number-tradeInterestPeriod[_tradeId])/interestPeriod>0?(block.number-tradeInterestPeriod[_tradeId])/interestPeriod:1;
         uint _interest = fixedToUint(_amount*loanInterestRate) *interestMultiplyer;
         interestOwed = _interest;
     }
 
-    function loanDebt(bytes32 _tradeId) external view returns(uint){
+    function loanDebt(bytes memory _tradeId) external view returns(uint){
         return borrowedAmounts[_tradeId];
     }
 

@@ -49,6 +49,10 @@ interface IVAmm {
     function getFutureFundingRate() external view returns(int);
 
 
+    function getLastFundingRateIndex()external view returns(uint);
+
+function getSnapshotByIndex(uint index)external view returns(LiquidityChangedSnapshot memory);
+
 
 
 }

@@ -1,15 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import "@Openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./Balances.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "../Interfaces/IStakingPoolAmm.sol";
 
-contract VaultForLoanPool is Balances{
-    constructor(address _usdc,address[] calldata _pools)Balances(_usdc){
-         Pools = _pool;
+contract VaultForLoanPools is Balances{
+    constructor(address _usdc,address[] memory _pools)Balances(_usdc){
+         Pools = _pools;
     }
     address[] public Pools;
-     function getInterestOwed(bytes32 _tradeId)public view returns(uint){
+     function getInterestOwed(bytes memory  _tradeId)public view returns(uint){
         (address _pool, , , )=decodeTradeId(_tradeId);
         IStakingPoolAmm stake = IStakingPoolAmm(_pool);
         return stake.getInterestOwedForAmount(_tradeId,tradeBalance[_tradeId]);
@@ -17,7 +18,7 @@ contract VaultForLoanPool is Balances{
 
    
 
-     function recordInterest(bytes32 _tradeId,uint _amount)internal returns(bool){
+     function recordInterest(bytes memory _tradeId,uint _amount)internal returns(bool){
         //liquidate if not enough collateral
         require(tradeCollateral[_tradeId] >= _amount,"not enough collateral");
         (address _pool, , , address trader )=decodeTradeId(_tradeId);
@@ -49,8 +50,10 @@ contract VaultForLoanPool is Balances{
     }
 
     function decodeTradeId(bytes memory encodedData) public pure returns (address pool, uint timeStamp, int side, address trader ) {
-    ( pool,  timeStamp, side,trader) = abi.decode(encodedData, (address, uint, int, address));
+
+    ( pool,  timeStamp, side,trader) = abi.decode(encodedData, (address, uint, int, address)); 
 }
+
 
 
 
