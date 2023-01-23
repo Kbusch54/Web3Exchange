@@ -4,6 +4,7 @@ pragma solidity ^0.8.17;
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./Interfaces/IVaultMain.sol";
 import "./Interfaces/IVAmm.sol";
+import "hardhat/console.sol";
 contract Exchange{
     address[] public amms;
     address public Vault;
@@ -34,8 +35,14 @@ contract Exchange{
     mapping(address => address)ammToPool;
     mapping(bytes=>bool)isTradeActive;
 
+    Position [] public  positions;
     function getPosition(bytes memory _tradeId) public view returns(Position memory){
         return positionsbyTradeId[_tradeId];
+    }
+
+    //have checks 
+    function registerPool(address _amm, address _pool) public{
+        ammToPool[_amm] = _pool;
     }
 
     function openPosition(address _trader,address _amm,uint _collateral, uint _leverage, int _side) public returns(bytes memory){
@@ -43,20 +50,27 @@ contract Exchange{
         require(_side == 1 || _side == -1, "side must be 1 or -1");
         require(_collateral > 0, "collateral must be greater than 0");
         require(_leverage > 0, "leverage must be greater than 0");
-        bytes memory tradeId = abi.encodePacked( _amm, block.number,_side, _trader);
-        require(isTradeActive[tradeId] == false, "trade already active");
-      
+  
+        bytes memory tradeId = abi.encode( _amm, block.number,_side, _trader,ammToPool[_amm]);
 
+        require(isTradeActive[tradeId] == false, "trade already active");
+        console.log('block number', block.number);
+        console.log('pool', ammToPool[_amm]);
+        console.logBytes(tradeId);
         //getloan
-        (bool _check,,uint _tradeBalance,uint minimumMarginReq) = IVaultMain(Vault).secureLoanAndTrade( tradeId,  _leverage,  _collateral);
+        (bool _check,,uint _tradeBalance,) = IVaultMain(Vault).secureLoanAndTrade( tradeId,  _leverage,  _collateral);
         require(_check, "loan not approved");
-        IVAmm amm = IVAmm(ammToPool[_amm]);
+        IVAmm amm = IVAmm(_amm);
         uint lastFFr = amm.getLastFundingRateIndex();
         // right to trade
+    
         (int positionSize,uint avgEntryPrice,uint openValue) = amm.openPosition(_tradeBalance,_side);
-        positionsbyTradeId[tradeId] = Position(_collateral-minimumMarginReq,_tradeBalance,_side,positionSize,avgEntryPrice,openValue,block.number,lastFFr,_amm);
+        Position memory position = Position(_collateral,_tradeBalance,_side,positionSize,avgEntryPrice,openValue,block.number,lastFFr,_amm);
+        positionsbyTradeId[tradeId] = position;
+        positions.push(position);
         isTradeActive[tradeId] = true;
         //event
+    
         return tradeId;
     }
 
@@ -135,7 +149,7 @@ contract Exchange{
         Position memory position = positionsbyTradeId[_tradeId];
         require(position.startBlock > 0, "position not found");
         uint posLastFFr = position.lastFundingRateIndex;
-        IVAmm amm = IVAmm(ammToPool[position._amm]);
+        IVAmm amm = IVAmm(position._amm);
         uint lastFFr = amm.getLastFundingRateIndex();
         int cumulativeFFR;
         for(uint i = posLastFFr; i < lastFFr; i++){

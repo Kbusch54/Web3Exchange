@@ -139,7 +139,7 @@ import "hardhat/console.sol";
        return  _newFundingRate;
     }
     function calculateFundingRate(int markPrice, int _indexPrice)public pure returns(int){
-        return intToFixed(_indexPrice - markPrice)/_indexPrice/12;
+        return intToFixed(_indexPrice - markPrice)/_indexPrice/24;
     }
     //only exchange
     function closePosition(int positionSize,int _side)external returns(uint exitPrice,int usdcAmt){
@@ -161,7 +161,7 @@ import "hardhat/console.sol";
         updateFutureFundingRate();
         LiquidityChangedSnapshot memory lastSnapshot = liquidityChangedSnapshots[liquidityChangedSnapshots.length-1];
         require(lastSnapshot.blockNumber+indexPricePeriod>=block.number,"Need to wait for loan block period");
-        int nbR =  int(lastSnapshot.baseAssetReserve) *(1000000+lastSnapshot.fundingRate);
+        int nbR =  int(lastSnapshot.baseAssetReserve) *(100000000+lastSnapshot.fundingRate);
         uint _newBaseAsset = uint(fixedToInt(nbR>0?nbR:nbR*-1));
         uint _newQuoteAsset = k/ _newBaseAsset;
         lastSnapshot.quoteAssetReserve = _newQuoteAsset;  
@@ -175,10 +175,10 @@ import "hardhat/console.sol";
         updateFutureFundingRate();
     }
     function intToFixed(int y)public pure returns(int x){
-        return y*(10 ** 6);
+        return y*(10 ** 8);
   }
     function fixedToInt(int x)public pure returns(int y){
-        return x/(10 ** 6);
+        return x/(10 ** 8);
   }
  
 }

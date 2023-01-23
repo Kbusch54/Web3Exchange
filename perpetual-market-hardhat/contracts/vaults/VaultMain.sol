@@ -2,18 +2,26 @@
 pragma solidity ^0.8.17;
 import "../vaults/VaultForLoanPools.sol";
 import "../Interfaces/IExchange.sol";
+import "../Interfaces/ILoanPool.sol";
+import "hardhat/console.sol";
  
 contract VaultMain is VaultForLoanPools{
 address exchange;
+mapping(address=>address)ammToPool;
     constructor(address _usdc,address [] memory _pools,address _exchange)VaultForLoanPools(_usdc,_pools){
         exchange = _exchange;
+    }
+
+    //checks here
+    function registerPool(address _pool,address _amm)public{
+        ammToPool[_amm] = _pool;
     }
 
      // functions for borrowing and repaying //only for exchange
     //repay loan
     function repayLoan(bytes memory _tradeId, uint _amount)public returns(uint interestPayed,uint newLoanAmount,uint minimumMarginReq){
         //exit position of amount wanting to repay
-        (address _pool,,,address _trader)=decodeTradeId(_tradeId);
+        (,,,address _trader,address _pool)=decodeTradeId(_tradeId);
         IERC20(Usdc).approve(_pool,_amount);
         IStakingPoolAmm stake = IStakingPoolAmm(_pool);
         (uint newLoanAmt,uint minMargReq,uint owedInterest) = stake.repay(_tradeId,_amount);
@@ -34,16 +42,17 @@ address exchange;
     //only for exchnage
     function secureLoanAndTrade(bytes memory  _tradeId, uint _leverage, uint _collateral)public returns(bool _check,uint newBalance,uint _tradeBalance,uint minimumMarginReq){
         //check if enough balance
-        (address _pool,,,address _trader)=decodeTradeId(_tradeId);
-        require(availableBalance[_trader] >= _collateral,"not enough balance");
-        IStakingPoolAmm stake = IStakingPoolAmm(_pool);
+        (,,,address _trader,address _pool)=decodeTradeId(_tradeId);
+        
+        ILoanPool stake = ILoanPool(_pool);
         (uint loanAmt,uint minMargReq,bool check) = stake.borrow(_tradeId,_collateral,_leverage);
+        require(availableBalance[_trader] >= _collateral+minimumMarginReq,"not enough balance");
         require(check,"borrow failed");
         // change balances
         require(IERC20(Usdc).transferFrom(_pool,address(this),loanAmt),"transfer failed");
         //might change to not include margin req
-        require(availableBalance[_trader] >= _collateral+minMargReq,"To low of balance");
-        newBalance = availableBalance[_trader] -= _collateral;
+
+        newBalance = availableBalance[_trader] -= _collateral + minMargReq;
         tradeCollateral[_tradeId] += _collateral;
         minimumMarginReq =tradeInterest[_tradeId] += minMargReq;
         _tradeBalance = tradeBalance[_tradeId] += loanAmt;
@@ -61,9 +70,10 @@ address exchange;
             availableBalance[_trader] += addedAvailableBalance>0? uint(addedAvailableBalance):0;
 
     }
-    function calculateCollateral(bytes memory  _tradeId)public view returns(int _collateral){
-        (address _pool,,,)=decodeTradeId(_tradeId);
+    function calculateCollateral(bytes memory  _tradeId)public  returns(int _collateral){
+        // (address _pool,,,)=decodeTradeId(_tradeId);
         uint _interest = getInterestOwed(_tradeId);
+        console.log("interest",_interest);
         IExchange _exchange = IExchange(exchange);
         int cumulativeFFR = _exchange.getTotalFundingRate(_tradeId);
         uint inititalCollateral = tradeCollateral[_tradeId];

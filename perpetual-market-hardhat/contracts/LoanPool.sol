@@ -4,7 +4,9 @@ pragma solidity ^0.8.17;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./tokens/StakingPoolAmm.sol";
-import "./FakeVault.sol";
+
+import "hardhat/console.sol";
+
 
 contract LoanPool is StakingPoolAmm{
 
@@ -38,22 +40,22 @@ contract LoanPool is StakingPoolAmm{
         loanAmt = _loanAmt;
         minimumMarginReq = fixedToUint(_loanAmt*loanInterestRate);
         updateUsdcSupply();
-        // check=true;
+        check=true;
     }
 
 
 //pay interest of whole loan and principal of repayed amount????
     function repay(bytes memory _tradeId, uint _amount) external returns(uint newLoanAmount, uint minimumMarginReq,uint owedInterest){
-        // require(borrowedAmounts[_tradeId] >= _amount,'LoanPool: Amount to repay exceeds loan');
-        // uint interestMultiplyer = (block.number-tradeInterestPeriod[_tradeId])/interestPeriod>0?(block.number-tradeInterestPeriod[_tradeId])/interestPeriod:1;
-        // owedInterest = fixedToUint(borrowedAmounts[_tradeId]*loanInterestRate) *interestMultiplyer;
-        // borrowedAmounts[_tradeId] -= _amount;
-        // tradeInterestPeriod[_tradeId] = block.number;
-        // availableUsdc += _amount;
-        // loanedUsdc-= _amount;
-        // updateUsdcSupply();
-        // newLoanAmount = borrowedAmounts[_tradeId];
-        // minimumMarginReq = fixedToUint(borrowedAmounts[_tradeId]*loanInterestRate);
+        require(borrowedAmounts[_tradeId] >= _amount,'LoanPool: Amount to repay exceeds loan');
+        uint interestMultiplyer = (block.number-tradeInterestPeriod[_tradeId])/interestPeriod>0?(block.number-tradeInterestPeriod[_tradeId])/interestPeriod:1;
+        owedInterest = fixedToUint(borrowedAmounts[_tradeId]*loanInterestRate) *interestMultiplyer;
+        borrowedAmounts[_tradeId] -= _amount;
+        tradeInterestPeriod[_tradeId] = block.number;
+        availableUsdc += _amount;
+        loanedUsdc-= _amount;
+        updateUsdcSupply();
+        newLoanAmount = borrowedAmounts[_tradeId];
+        minimumMarginReq = fixedToUint(borrowedAmounts[_tradeId]*loanInterestRate);
     }
     function getInterestOwedForAmount(bytes memory _tradeId, uint _amount) external view returns(uint interestOwed){
           uint interestMultiplyer = (block.number-tradeInterestPeriod[_tradeId])/interestPeriod>0?(block.number-tradeInterestPeriod[_tradeId])/interestPeriod:1;
