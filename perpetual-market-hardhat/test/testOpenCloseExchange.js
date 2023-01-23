@@ -27,17 +27,13 @@ describe("LoanPool FakeVault", async () => {
       const LoanPool = await ethers.getContractFactory("LoanPool");
       const usdcAdd = usdc.address;
       const loanPool = await LoanPool.deploy('ammPool token','pTok', usdcAdd);
-  
       const VaultMain = await ethers.getContractFactory("VaultMain");
       const VAMM = await ethers.getContractFactory("VAmm");
       const vamm = await VAMM.deploy();
       const LoanArray = [loanPool.address];
       const vault = await VaultMain.deploy(usdc.address,LoanArray,thirdAccount.address);
       const path = "events/json/appl";
-      
-      
       const VammArray = [vamm.address];
-      
       const Exchange = await ethers.getContractFactory("Exchange");
       const exchange = await Exchange.deploy(VammArray,vault.address);
       await exchange.registerPool(vamm.address,loanPool.address);
@@ -45,19 +41,9 @@ describe("LoanPool FakeVault", async () => {
       // const assetAddress = "0x0fac6788EBAa4E7481BCcaFB469CD0DdA089ab3";
       const indexPrice = parseUnits("370", 6);
       const quoteAsset = parseUnits("5", 4);
-      const indexPricePeriod = 2;
-
-  
+      const indexPricePeriod = 2; 
       await vamm.init(oracle.address,path, indexPrice, quoteAsset, indexPricePeriod,exchange.address);
-
-
-
-
-
-
-
       await loanPool.updateVault(vault.address);
-  
       await usdc.transfer(thirdAccount.address, parseUnits("1000", 6));
       await usdc.mintAndTransfer( parseUnits("10000", 6),otherAccount.address);
       await usdc.mintAndTransfer( parseUnits("10000", 6),thirdAccount.address);
@@ -69,15 +55,13 @@ describe("LoanPool FakeVault", async () => {
       mine(5)
       await loanPool.connect(thirdAccount).stake(parseUnits("500", 6));
       await loanPool.stake(parseUnits("700", 6));
-  
       mine(2)
-  
-      return{usdc, owner, otherAccount, thirdAccount,loanPool,vault,vamm,exchange,oracle}
-      
+      return{usdc, owner, otherAccount, thirdAccount,loanPool,vault,vamm,exchange,oracle};
     }
       it("should open position and borrow", async () => {
           const { usdc, owner, otherAccount, thirdAccount,loanPool,vault,vamm,exchange,oracle } =await loadFixture(deployContracts);
           console.log("vault balance",formatUnits(await vault.availableBalance(owner.address),6))  
+          //approve and deposit 100 usdc
           await usdc.approve(vault.address, parseUnits("1000", 6));
           const amount = parseUnits("100", 6);
             await vault.deposit(amount);
@@ -86,20 +70,24 @@ describe("LoanPool FakeVault", async () => {
             const loanPoolUsdcBalBefore = await usdc.balanceOf(loanPool.address);
             const vammSnapshotBefore = await vamm.getLastSnapshot();
             const collateral = parseUnits("75", 6);
-
+            //open position
             await exchange.openPosition(owner.address, vamm.address,collateral,5,1);
             const exhchangePosition = await exchange.positions(0);
             console.log('loan pool usdc balance',formatUnits(await usdc.balanceOf(loanPool.address),6));
             const loanPoolUsdcBalAfter = await usdc.balanceOf(loanPool.address);
             const vammSnapshotAfter = await vamm.getLastSnapshot();
+            //tradeId
             const types = ["address","uint256","int256","address","address"];
             const values = [vamm.address,29,1,owner.address,loanPool.address];
             const tradeId = ethers.utils.defaultAbiCoder.encode(types,values);
-            console.log(tradeId);
 
+            //usdc balance of loan pool reflect loaned amount
           expect(loanPoolUsdcBalBefore).to.equal(loanPoolUsdcBalAfter.add(exhchangePosition.loanedAmount));
+          //vamm total position size reflect position size
           expect(vammSnapshotBefore.totalPositionSize).to.equal(vammSnapshotAfter.totalPositionSize.sub(exhchangePosition.positionSize));
+          //vamm cumulative notional reflect loaned amount
           expect(vammSnapshotBefore.cumulativeNotional).to.equal(vammSnapshotAfter.cumulativeNotional.sub(exhchangePosition.loanedAmount));
+          // open value should match position size * price
           expect(exhchangePosition.openValue).to.equal(exhchangePosition.positionSize.mul(await vamm.getAssetPrice()).div(1e8));
 
           console.log('collateral calc',await vault.callStatic.calculateCollateral(tradeId));
