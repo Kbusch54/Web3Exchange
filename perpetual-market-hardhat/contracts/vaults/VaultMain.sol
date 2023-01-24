@@ -23,7 +23,7 @@ mapping(address=>address)ammToPool;
         //exit position of amount wanting to repay
         (,,,address _trader,address _pool)=decodeTradeId(_tradeId);
         IERC20(Usdc).approve(_pool,_amount);
-        IStakingPoolAmm stake = IStakingPoolAmm(_pool);
+        ILoanPool stake = ILoanPool(_pool);
         (uint newLoanAmt,uint minMargReq,uint owedInterest) = stake.repay(_tradeId,_amount);
         //
         //calculate collaterral
@@ -64,18 +64,16 @@ mapping(address=>address)ammToPool;
        require(tradeBalance[_tradeId] == 0,"no position");
        require(tradeInterest[_tradeId] == 0,"no interest");
          require(tradeCollateral[_tradeId] > 0,"no collateral");
-          uint _collateral = tradeCollateral[_tradeId];
             addedAvailableBalance = calculateCollateral(_tradeId);
             tradeCollateral[_tradeId] = 0;
             availableBalance[_trader] += addedAvailableBalance>0? uint(addedAvailableBalance):0;
-
     }
-    function calculateCollateral(bytes memory  _tradeId)public  returns(int _collateral){
+    function calculateCollateral(bytes memory  _tradeId)public view returns(int _collateral){
         // (address _pool,,,)=decodeTradeId(_tradeId);
         uint _interest = getInterestOwed(_tradeId);
-        console.log("interest",_interest);
-        IExchange _exchange = IExchange(exchange);
-        int cumulativeFFR = _exchange.getTotalFundingRate(_tradeId);
+        // IExchange _exchange = IExchange(exchange);
+        // int cumulativeFFR = _exchange.getTotalFundingRate(_tradeId);
+        int cumulativeFFR = 0;
         uint inititalCollateral = tradeCollateral[_tradeId];
         _collateral = int(inititalCollateral) - int(_interest) + (cumulativeFFR*int(inititalCollateral));
 

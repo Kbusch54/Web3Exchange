@@ -53,7 +53,7 @@ import "hardhat/console.sol";
         assest = _assest;
         path = keccak256(abi.encodePacked(_path));
         indexPrice = _indexPrice;
-        k= indexPrice*_quoteAssetAmount**2;
+        k= indexPrice*_quoteAssetAmount*100;
         uint _baseAsset  = k/_quoteAssetAmount;
         liquidityChangedSnapshots.push(LiquidityChangedSnapshot({
             cumulativeNotional:0,
@@ -120,7 +120,7 @@ import "hardhat/console.sol";
         uint _newQuoteAsset = k/ uint(_newBaseAsset);
         int _quoteWPZ = intToFixed(int(k))/_newBaseAsset;
         positionSize = intToFixed(int(lastSnapshot.quoteAssetReserve)) - _quoteWPZ;
-        avgEntryPrice = uint(intToFixed(int(totalCollateral))/(positionSize)*(_side));
+        avgEntryPrice = uint(intToFixed(int(totalCollateral))/(positionSize)*(_side))*1000000;
         lastSnapshot.quoteAssetReserve = _newQuoteAsset;
         lastSnapshot.baseAssetReserve = uint(_newBaseAsset);
         lastSnapshot.cumulativeNotional += int(totalCollateral)*_side;
@@ -146,13 +146,17 @@ import "hardhat/console.sol";
         LiquidityChangedSnapshot memory lastSnapshot = liquidityChangedSnapshots[liquidityChangedSnapshots.length-1];
         lastSnapshot.totalPositionSize-=positionSize; 
         int quoteWPsz = int(lastSnapshot.quoteAssetReserve) + fixedToInt(positionSize);
+
         uint newBaseAsset = k/ uint(quoteWPsz);
-         usdcAmt =(int(lastSnapshot.baseAssetReserve)- int(newBaseAsset)) * _side;
-        lastSnapshot.cumulativeNotional -= usdcAmt * _side;
+
+
+          usdcAmt =(int(lastSnapshot.baseAssetReserve)- int(newBaseAsset)) ;
+
+        lastSnapshot.cumulativeNotional -= usdcAmt ;
         lastSnapshot.quoteAssetReserve = uint(quoteWPsz);
         lastSnapshot.baseAssetReserve = newBaseAsset;
         liquidityChangedSnapshots[liquidityChangedSnapshots.length-1] = lastSnapshot;
-        exitPrice = uint(intToFixed(int(usdcAmt))/(positionSize));
+        exitPrice = uint(intToFixed(int(usdcAmt))/(positionSize))*1000000;
         updateFutureFundingRate();
     }
 

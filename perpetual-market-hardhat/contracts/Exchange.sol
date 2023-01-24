@@ -31,13 +31,16 @@ contract Exchange{
         address _amm;
     }
 
-    mapping(bytes => Position) public positionsbyTradeId;
+    mapping(bytes => uint) public positionsbyTradeId;
     mapping(address => address)ammToPool;
     mapping(bytes=>bool)isTradeActive;
 
+
     Position [] public  positions;
     function getPosition(bytes memory _tradeId) public view returns(Position memory){
-        return positionsbyTradeId[_tradeId];
+        
+        Position memory pos =  positions[positionsbyTradeId[_tradeId]];
+        return pos;
     }
 
     //have checks 
@@ -54,9 +57,6 @@ contract Exchange{
         bytes memory tradeId = abi.encode( _amm, block.number,_side, _trader,ammToPool[_amm]);
 
         require(isTradeActive[tradeId] == false, "trade already active");
-        console.log('block number', block.number);
-        console.log('pool', ammToPool[_amm]);
-        console.logBytes(tradeId);
         //getloan
         (bool _check,,uint _tradeBalance,) = IVaultMain(Vault).secureLoanAndTrade( tradeId,  _leverage,  _collateral);
         require(_check, "loan not approved");
@@ -66,8 +66,9 @@ contract Exchange{
     
         (int positionSize,uint avgEntryPrice,uint openValue) = amm.openPosition(_tradeBalance,_side);
         Position memory position = Position(_collateral,_tradeBalance,_side,positionSize,avgEntryPrice,openValue,block.number,lastFFr,_amm);
-        positionsbyTradeId[tradeId] = position;
         positions.push(position);
+        positionsbyTradeId[tradeId] = positions.length - 1;
+        
         isTradeActive[tradeId] = true;
         //event
     
@@ -75,7 +76,7 @@ contract Exchange{
     }
 
     function closeOutPosition(bytes memory _tradeId) public returns(uint avgExitPrice,int usdcAmt){
-        Position memory position = positionsbyTradeId[_tradeId];
+        Position memory position = positions[positionsbyTradeId[_tradeId]];
         require(position.startBlock > 0, "position not found");
        //for liqidtaiton as well
         //check if trader has enough collateral from vault
@@ -87,7 +88,11 @@ contract Exchange{
         (uint interestPayed,uint newLoanAmount,uint minimumMarginReq)= IVaultMain(Vault).repayLoan( _tradeId, position.loanedAmount);
         //funding rate
         require(newLoanAmount == 0, "loan not paid back");
-
+        position.margin = 0;
+        position.loanedAmount = 0;
+        position.positionSize = 0;
+        position.margin = 0;
+        positions[positionsbyTradeId[_tradeId]] = position;
         //event
         isTradeActive[_tradeId] = false;
         return (_avgExitPrice, _usdcAmt);
@@ -125,7 +130,7 @@ contract Exchange{
     // //lowering risk by paying back part of the loan and reducing margin
     function removeLiquidityFromPosition(bytes memory _tradeId, uint _collateral)public returns(bool,int usdcAmt){
         
-        Position memory position = positionsbyTradeId[_tradeId];
+        Position memory position = positions[positionsbyTradeId[_tradeId]];
         require(ammActive[position._amm], "amm not active");
         require(isTradeActive[_tradeId], "trade not active");
         require(position.startBlock > 0, "position not found");
@@ -146,7 +151,7 @@ contract Exchange{
 
 
     function getTotalFundingRate(bytes memory _tradeId)public view returns(int){
-        Position memory position = positionsbyTradeId[_tradeId];
+        Position memory position = positions[positionsbyTradeId[_tradeId]];
         require(position.startBlock > 0, "position not found");
         uint posLastFFr = position.lastFundingRateIndex;
         IVAmm amm = IVAmm(position._amm);

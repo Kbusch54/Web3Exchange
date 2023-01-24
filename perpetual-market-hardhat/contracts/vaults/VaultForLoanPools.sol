@@ -14,7 +14,7 @@ contract VaultForLoanPools is Balances{
          Pools = _pools;
     }
     address[] public Pools;
-     function getInterestOwed(bytes memory  _tradeId)public  returns(uint){
+     function getInterestOwed(bytes memory  _tradeId)public view returns(uint){
         (, , , ,address _pool)=decodeTradeId(_tradeId);
         IStakingPoolAmm stake = IStakingPoolAmm(_pool);
         return stake.getInterestOwedForAmount(_tradeId,tradeBalance[_tradeId]);
@@ -26,11 +26,11 @@ contract VaultForLoanPools is Balances{
         //liquidate if not enough collateral
         require(tradeCollateral[_tradeId] >= _amount,"not enough collateral");
         ( , , , address trader,address _pool )=decodeTradeId(_tradeId);
-        require(totalTradeCollateral[trader] >= _amount,"not enough collateral");
+
         IStakingPoolAmm stake = IStakingPoolAmm(_pool);
         uint indexForStore = stake.updateAndGetCurrentIndex();
         tradeCollateral[_tradeId] -= _amount;
-        totalTradeCollateral[trader] -= _amount;
+        // totalTradeCollateral[trader] -= _amount;
         uint _amt = _amount;
         uint half = _amt/2;
         _amt -= half;

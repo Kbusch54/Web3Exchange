@@ -47,18 +47,19 @@ contract LoanPool is StakingPoolAmm{
 //pay interest of whole loan and principal of repayed amount????
     function repay(bytes memory _tradeId, uint _amount) external returns(uint newLoanAmount, uint minimumMarginReq,uint owedInterest){
         require(borrowedAmounts[_tradeId] >= _amount,'LoanPool: Amount to repay exceeds loan');
-        uint interestMultiplyer = (block.number-tradeInterestPeriod[_tradeId])/interestPeriod>0?(block.number-tradeInterestPeriod[_tradeId])/interestPeriod:1;
-        owedInterest = fixedToUint(borrowedAmounts[_tradeId]*loanInterestRate) *interestMultiplyer;
+       owedInterest = getInterestOwedForAmount(_tradeId,_amount);
         borrowedAmounts[_tradeId] -= _amount;
         tradeInterestPeriod[_tradeId] = block.number;
+        IERC20 usdc = IERC20(USDC);
+        require(usdc.transferFrom(msg.sender,address(this), _amount),'Transfer failed');
         availableUsdc += _amount;
         loanedUsdc-= _amount;
         updateUsdcSupply();
         newLoanAmount = borrowedAmounts[_tradeId];
         minimumMarginReq = fixedToUint(borrowedAmounts[_tradeId]*loanInterestRate);
     }
-    function getInterestOwedForAmount(bytes memory _tradeId, uint _amount) external view returns(uint interestOwed){
-          uint interestMultiplyer = (block.number-tradeInterestPeriod[_tradeId])/interestPeriod>0?(block.number-tradeInterestPeriod[_tradeId])/interestPeriod:1;
+    function getInterestOwedForAmount(bytes memory _tradeId, uint _amount) public view returns(uint interestOwed){
+          uint interestMultiplyer = (block.number-tradeInterestPeriod[_tradeId])/interestPeriod;
         uint _interest = fixedToUint(_amount*loanInterestRate) *interestMultiplyer;
         interestOwed = _interest;
     }

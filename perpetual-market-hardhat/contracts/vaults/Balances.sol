@@ -19,6 +19,9 @@ constructor(address _usdc){
     mapping(address=>uint)public poolOutstandingLoans;
 
 
+function readBalanceRewards(address _loanPool,uint _indexId)public view returns(uint){
+    return balancesForRewards[_loanPool][_indexId];
+}
 
       //basic functions for usdc to get into vault
     function deposit(uint _amount)public{
