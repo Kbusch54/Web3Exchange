@@ -17,23 +17,25 @@ contract LoanPool is StakingPoolAmm{
             address _usdc
         ) StakingPoolAmm(_name,_symbol,_usdc){ 
     }
-    uint MMR=500; //5% or .005 mmr used to calculate minimum margin requirments for liquidiation
-    uint public maxLev=15;
+    uint MMR=50000; //5% or .005 mmr used to calculate minimum margin requirments for liquidiation
+    uint public maxLev=20;
     uint interestPeriod = 10; //10 blocks
 
-    uint public loanInterestRate =10000;//1% interest rate
+    uint public loanInterestRate =10000;//1% interest rate 6 decimal places
 
 
     mapping(bytes=>uint) public borrowedAmounts;
     mapping(bytes=>uint) public tradeInterestPeriod;
 
-    function borrow(bytes memory _tradeId, uint _margin, uint _leverage) external returns(uint loanAmt, uint minimumMarginReq,bool check){
+    function borrow(bytes memory _tradeId, uint _margin, uint _leverage,uint _totalMargin) external returns(uint loanAmt, uint minimumMarginReq,bool check){
         // //check minimums
         require(_leverage<=maxLev,'Max leverage exceeded');
         uint _loanAmt = _margin*(_leverage);
+        require(uintToFixed(_totalMargin)/(_loanAmt+borrowedAmounts[_tradeId]) >= MMR, "LoanPool: under minimum margin requirement");
         require(uintToFixed(loanedUsdc + _loanAmt)/totalUsdcSupply <= maxLoan, "LoanPool: Max loan reached");
         require(_loanAmt < availableUsdc, "Not enough USDC in pool");
         borrowedAmounts[_tradeId] += _loanAmt;
+        
         IERC20(USDC).approve(msg.sender, _loanAmt);
         loanedUsdc += _loanAmt;
         tradeInterestPeriod[_tradeId] = block.number;
@@ -41,6 +43,27 @@ contract LoanPool is StakingPoolAmm{
         minimumMarginReq = fixedToUint(_loanAmt*loanInterestRate);
         updateUsdcSupply();
         check=true;
+    }
+    function borrowOnTrade(bytes memory tradeId, uint _addAmount,uint _amountLeverage) external returns(uint newLoanAmount, uint minimumMarginReq,uint owedInterest){
+       //require minimums
+       // new loan amount + old loan amount = total loan amount
+       // uintToFixed(totalCollateral)/totalLoanAmount >= MMR
+       
+       
+       
+       
+        require(_amountLeverage<=maxLev,'Max leverage exceeded');
+        uint _loanAmt = _addAmount*(_amountLeverage);
+        require(uintToFixed(loanedUsdc + _loanAmt)/totalUsdcSupply <= maxLoan, "LoanPool: Max loan reached");
+        require(_loanAmt < availableUsdc, "Not enough USDC in pool");
+        borrowedAmounts[tradeId] += _loanAmt;
+        IERC20(USDC).approve(msg.sender, _loanAmt);
+        loanedUsdc += _loanAmt;
+        tradeInterestPeriod[tradeId] = block.number;
+        newLoanAmount = borrowedAmounts[tradeId];
+        minimumMarginReq = fixedToUint(borrowedAmounts[tradeId]*loanInterestRate);
+        owedInterest = getInterestOwedForAmount(tradeId,_loanAmt);
+        updateUsdcSupply();
     }
 
 
@@ -78,11 +101,12 @@ contract LoanPool is StakingPoolAmm{
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////Dao Functions////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    function setMaxLev(uint _maxLev) external {
+    function setMaxLev(uint _maxLev) internal {
         maxLev = _maxLev;
     }
     function setMMR(uint _mmr) external {
         MMR = _mmr;
+        maxLev = 1000000/MMR;
     }
     function setInterestPeriod(uint _interestPeriod) external {
         interestPeriod = _interestPeriod;

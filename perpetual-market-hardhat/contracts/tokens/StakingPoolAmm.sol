@@ -268,7 +268,7 @@ function internalCheckRewardAmount(address _user)internal view returns(uint){
         usdc.transferFrom(msg.sender,address(this),_amt);
         updateUsdcSupply();
     }
-    function takeInterest(uint _amt,uint _totalAmt)external{
+    function takeInterest(uint _amt,uint _totalAmt)external returns(bool){
         IERC20 usdc = IERC20(USDC); 
         usdc.transferFrom(msg.sender,address(this),_amt);
         Snapshot memory snapshot = snapshots[currentIndexForNewSnapshots];
@@ -277,6 +277,7 @@ function internalCheckRewardAmount(address _user)internal view returns(uint){
         snapshot.pnlForSnapshot += int(_totalAmt);
         snapshots[currentIndexForNewSnapshots] = snapshot;
         updateUsdcSupply();
+        return true;
     }
     function updateAndGetCurrentIndex()public returns(uint){
         Snapshot memory snapshot = snapshots[currentIndexForNewSnapshots];

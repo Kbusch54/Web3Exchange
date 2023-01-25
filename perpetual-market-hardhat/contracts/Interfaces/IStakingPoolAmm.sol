@@ -2,7 +2,7 @@
 pragma solidity ^0.8.17;
 
 interface IStakingPoolAmm{
-    function takeInterest(uint _amt,uint _totalAmt)external;
+    function takeInterest(uint _amt,uint _totalAmt)external returns(bool);
     function getCurrentindex() external view returns(uint);
     function updateAndGetCurrentIndex() external returns(uint);
     function borrow(bytes memory _tradeId, uint _margin, uint _leverage) external returns(uint loanAmt, uint minimumMarginReq,bool check);

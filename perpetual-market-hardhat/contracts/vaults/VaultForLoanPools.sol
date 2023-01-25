@@ -25,7 +25,7 @@ contract VaultForLoanPools is Balances{
      function recordInterest(bytes memory _tradeId,uint _amount)internal returns(bool){
         //liquidate if not enough collateral
         require(tradeCollateral[_tradeId] >= _amount,"not enough collateral");
-        ( , , , address trader,address _pool )=decodeTradeId(_tradeId);
+        ( , , , ,address _pool )=decodeTradeId(_tradeId);
 
         IStakingPoolAmm stake = IStakingPoolAmm(_pool);
         uint indexForStore = stake.updateAndGetCurrentIndex();
@@ -36,7 +36,7 @@ contract VaultForLoanPools is Balances{
         _amt -= half;
         IERC20(Usdc).approve(_pool,half);
         balancesForRewards[_pool][indexForStore] += _amt;
-        stake.takeInterest(half,_amount);
+        require(stake.takeInterest(half,_amount),'interest not taken');
         return true;
     }
 

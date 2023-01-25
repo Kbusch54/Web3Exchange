@@ -12,7 +12,7 @@ const {
 } = require("ethers/lib/utils");
 const { latestBlock,setNextBlockTimestamp } = require("@nomicfoundation/hardhat-network-helpers/dist/src/helpers/time");
 
-describe("Exchnage vaultsMain together ", async () => {
+describe("Exchange vaultsMain together ", async () => {
     async function deployContracts() {
       const [owner, otherAccount, thirdAccount,oracle] = await hre.ethers.getSigners();
       const FakeCurrency = await hre.ethers.getContractFactory("FakeErc20");
@@ -59,6 +59,25 @@ describe("Exchnage vaultsMain together ", async () => {
       mine(2)
       return{usdc, owner, otherAccount, thirdAccount,loanPool,vault,vamm,exchange,oracle};
     }
+    async function openPosition(collateral,deposit, approveAmt, side,leverage, user, vault, exchange, vamm,loanPool,usdc) {
+
+   
+
+      await usdc.approve(vault.address, approveAmt);
+
+   
+      
+        await vault.deposit(deposit);
+
+        //open position
+        const block = await latestBlock();
+        await exchange.openPosition(user.address, vamm.address,collateral,leverage,side);
+         //tradeId
+         const types = ["address","uint256","int256","address","address"];
+         const values = [vamm.address,block+1,side,user.address,loanPool.address];
+         const tradeId = ethers.utils.defaultAbiCoder.encode(types,values);
+         return{tradeId};
+    };
       it.skip("Should open position and borrow", async () => {
           const { usdc, owner, otherAccount, thirdAccount,loanPool,vault,vamm,exchange,oracle } =await loadFixture(deployContracts);
           console.log("vault balance",formatUnits(await vault.availableBalance(owner.address),6))  
@@ -277,6 +296,24 @@ describe("Exchnage vaultsMain together ", async () => {
         // console.log('total pnl',formatUnits(userBalAfter.add(availableBalance).sub(usdcBalOfUser),6));
           
         //   //vamm cumulative notional reflect loaned amount
+      });
+      it('adding liquidity ',async()=>{
+        const { usdc, owner, otherAccount, thirdAccount,loanPool,vault,vamm,exchange,oracle } =await loadFixture(deployContracts);
+        //open posiiton function
+        const approveAmt = parseUnits("100", 6);
+        const deposit = parseUnits("100", 6);
+        const collateral = parseUnits("75", 6);
+        const side = 1;
+        const leverage = 5;
+        const user = owner;
+        const{tradeId} = await openPosition(collateral,deposit, approveAmt, side,leverage, user, vault, exchange, vamm,loanPool,usdc);
+        // console.log('tradeId',tradeId);
+        console.log('positions',await exchange.positions(0));
+        console.log('position index by tradeId',await exchange.positionsbyTradeId(tradeId));
+        console.log('is trade active',await exchange.isTradeActive(tradeId));
+
+        
+ 
       });
 
     });

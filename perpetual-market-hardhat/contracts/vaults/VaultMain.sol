@@ -42,22 +42,21 @@ mapping(address=>address)ammToPool;
     //only for exchnage
     function secureLoanAndTrade(bytes memory  _tradeId, uint _leverage, uint _collateral)public returns(bool _check,uint newBalance,uint _tradeBalance,uint minimumMarginReq){
         //check if enough balance
-        (,,,address _trader,address _pool)=decodeTradeId(_tradeId);
-        
-        ILoanPool stake = ILoanPool(_pool);
-        (uint loanAmt,uint minMargReq,bool check) = stake.borrow(_tradeId,_collateral,_leverage);
-        require(availableBalance[_trader] >= _collateral+minimumMarginReq,"not enough balance");
-        require(check,"borrow failed");
-        // change balances
-        require(IERC20(Usdc).transferFrom(_pool,address(this),loanAmt),"transfer failed");
-        //might change to not include margin req
+        (bool pass,  uint _newBalance ,uint  __tradeBalance,uint mmr) =addingLeverage(_tradeId,_collateral,_collateral,_leverage);
+        require(pass == true,"adding leverage failed");
+        return(true,_newBalance,__tradeBalance,mmr);
+    }
 
-        newBalance = availableBalance[_trader] -= _collateral + minMargReq;
-        tradeCollateral[_tradeId] += _collateral;
-        minimumMarginReq =tradeInterest[_tradeId] += minMargReq;
-        _tradeBalance = tradeBalance[_tradeId] += loanAmt;
-        poolOutstandingLoans[_pool] += loanAmt;
-        _check =check;
+    function addLiquidityWithLoan(bytes memory _tradeId, uint _levOnAddedColl, uint _addedColl)public returns(bool _check,uint newBalance,uint _tradeBalance,uint minimumMarginReq){
+        //get and pay interest
+        uint interestOwed = getInterestOwed(_tradeId);
+        require(tradeCollateral[_tradeId] >= interestOwed,"not enough balance");
+        recordInterest(_tradeId,interestOwed);
+        //calculate new collateral
+        uint totalCollateral = tradeCollateral[_tradeId] + _addedColl;
+        (bool pass,  uint _newBalance,uint  __tradeBalance,uint  mmr) =addingLeverage(_tradeId,_addedColl,totalCollateral,_levOnAddedColl);
+        require(pass == true,"adding leverage failed");
+        return(true,_newBalance,__tradeBalance,mmr);
     }
     //internal functions
     function exitPosition(bytes memory  _tradeId,address _trader)internal returns(int addedAvailableBalance){
@@ -67,6 +66,21 @@ mapping(address=>address)ammToPool;
             addedAvailableBalance = calculateCollateral(_tradeId);
             tradeCollateral[_tradeId] = 0;
             availableBalance[_trader] += addedAvailableBalance>0? uint(addedAvailableBalance):0;
+    }
+    function addingLeverage(bytes memory _tradeId , uint _newCollateral,uint _totalCollateral,uint _lev)internal returns(bool pass,uint newBalance,uint _tradeBalance,uint minimumMarginReq){
+        (,,,address _trader,address _pool)=decodeTradeId(_tradeId);
+        (uint loanAmt,uint minMargReq,bool check) = ILoanPool(_pool).borrow(_tradeId,_newCollateral,_lev,_totalCollateral);
+        require(availableBalance[_trader] >= _newCollateral+minimumMarginReq,"not enough balance");
+        require(check,"borrow failed");
+        // change balances
+        require(IERC20(Usdc).transferFrom(_pool,address(this),loanAmt),"transfer failed");
+        //might change to not include margin req
+        newBalance = availableBalance[_trader] -= _newCollateral + minMargReq;
+        tradeCollateral[_tradeId] += _newCollateral;
+        minimumMarginReq =tradeInterest[_tradeId] += minMargReq;
+        _tradeBalance = tradeBalance[_tradeId] += loanAmt;
+        poolOutstandingLoans[_pool] += loanAmt;
+        pass = true;
     }
     function calculateCollateral(bytes memory  _tradeId)public view returns(int _collateral){
         // (address _pool,,,)=decodeTradeId(_tradeId);

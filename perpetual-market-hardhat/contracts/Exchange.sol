@@ -33,7 +33,7 @@ contract Exchange{
 
     mapping(bytes => uint) public positionsbyTradeId;
     mapping(address => address)ammToPool;
-    mapping(bytes=>bool)isTradeActive;
+    mapping(bytes=>bool)public isTradeActive;
 
 
     Position [] public  positions;
@@ -53,7 +53,8 @@ contract Exchange{
         require(_side == 1 || _side == -1, "side must be 1 or -1");
         require(_collateral > 0, "collateral must be greater than 0");
         require(_leverage > 0, "leverage must be greater than 0");
-  
+    
+        console.log("block num", block.number);
         bytes memory tradeId = abi.encode( _amm, block.number,_side, _trader,ammToPool[_amm]);
 
         require(isTradeActive[tradeId] == false, "trade already active");
