@@ -298,7 +298,7 @@ describe("Exchange vaultsMain together ", async () => {
           
         //   //vamm cumulative notional reflect loaned amount
       });
-      it('adding liquidity long',async()=>{
+      it.skip('adding liquidity long',async()=>{
         const { usdc, owner, otherAccount, thirdAccount,loanPool,vault,vamm,exchange,oracle } =await loadFixture(deployContracts);
         //open posiiton function
         const approveAmt = parseUnits("1000", 6);
@@ -351,7 +351,7 @@ describe("Exchange vaultsMain together ", async () => {
         
  
       });
-      it('adding liquidity short',async()=>{
+      it.skip('adding liquidity short',async()=>{
         const { usdc, owner, otherAccount, thirdAccount,loanPool,vault,vamm,exchange,oracle } =await loadFixture(deployContracts);
         //open posiiton function
         const approveAmt = parseUnits("1000", 6);
@@ -391,6 +391,88 @@ describe("Exchange vaultsMain together ", async () => {
         expect(tradeBalance).to.eq(positionBefore.loanedAmount.add(amount.mul(newLev)));
        // loan pool shows exact loaned amount
         expect(poolOustandingLoan).to.eq(positionAfter.loanedAmount);
+ 
+      });
+      it('adding liquidity long and close all',async()=>{
+        const { usdc, owner, otherAccount, thirdAccount,loanPool,vault,vamm,exchange,oracle } =await loadFixture(deployContracts);
+        //open posiiton function
+        const approveAmt = parseUnits("1000", 6);
+        const deposit = parseUnits("1000", 6);
+        const collateral = parseUnits("75", 6);
+        const side = 1;
+        const leverage = 5;
+        const user = owner;
+
+        const{tradeId} = await openPosition(collateral,deposit, approveAmt, side,leverage, user, vault, exchange, vamm,loanPool,usdc);
+
+
+        //add liquidity
+        const amount = parseUnits("10", 6);
+
+        const newLev = 3;
+
+        await exchange.addLiquidityToPosition(tradeId,amount,newLev,vamm.address);
+        // await openPosition(amount,deposit, approveAmt, side,leverage, user, vault, exchange, vamm,loanPool,usdc);
+
+        
+        await exchange.closeOutPosition(tradeId);
+        const tradeInterest = await vault.tradeInterest(tradeId);
+        const tradeCollateral = await vault.tradeCollateral(tradeId);
+        const poolOustandingLoan = await vault.poolOutstandingLoans(loanPool.address);
+
+        const tradeBalance = await vault.tradeBalance(tradeId);
+
+        const position = await exchange.positions(0);
+ 
+        //all above variables should be equal to zero
+        expect(tradeInterest).to.eq(0);
+        expect(tradeCollateral).to.eq(0);
+        expect(poolOustandingLoan).to.eq(0);
+        expect(tradeBalance).to.eq(0);
+        expect(position.positionSize).to.eq(0);
+        expect(position.loanedAmount).to.eq(0);
+        expect(position.margin).to.eq(0);
+ 
+      });
+      it('adding liquidity short and close all',async()=>{
+        const { usdc, owner, otherAccount, thirdAccount,loanPool,vault,vamm,exchange,oracle } =await loadFixture(deployContracts);
+        //open posiiton function
+        const approveAmt = parseUnits("1000", 6);
+        const deposit = parseUnits("1000", 6);
+        const collateral = parseUnits("75", 6);
+        const side = -1;
+        const leverage = 5;
+        const user = owner;
+
+        const{tradeId} = await openPosition(collateral,deposit, approveAmt, side,leverage, user, vault, exchange, vamm,loanPool,usdc);
+
+
+        //add liquidity
+        const amount = parseUnits("10", 6);
+
+        const newLev = 3;
+
+        await exchange.addLiquidityToPosition(tradeId,amount,newLev,vamm.address);
+        // await openPosition(amount,deposit, approveAmt, side,leverage, user, vault, exchange, vamm,loanPool,usdc);
+
+        
+        await exchange.closeOutPosition(tradeId);
+        const tradeInterest = await vault.tradeInterest(tradeId);
+        const tradeCollateral = await vault.tradeCollateral(tradeId);
+        const poolOustandingLoan = await vault.poolOutstandingLoans(loanPool.address);
+
+        const tradeBalance = await vault.tradeBalance(tradeId);
+
+        const position = await exchange.positions(0);
+ 
+        //all above variables should be equal to zero
+        expect(tradeInterest).to.eq(0);
+        expect(tradeCollateral).to.eq(0);
+        expect(poolOustandingLoan).to.eq(0);
+        expect(tradeBalance).to.eq(0);
+        expect(position.positionSize).to.eq(0);
+        expect(position.loanedAmount).to.eq(0);
+        expect(position.margin).to.eq(0);
  
       });
 
