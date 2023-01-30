@@ -41,7 +41,7 @@ describe("Exchange vaultsMain together ", async () => {
       vault.updateExchange(exchange.address);
       // const assetAddress = "0x0fac6788EBAa4E7481BCcaFB469CD0DdA089ab3";
       const indexPrice = parseUnits("370", 6);
-      const quoteAsset = parseUnits("100", 6);
+      const quoteAsset = parseUnits("100", 2);
       const indexPricePeriod = 2; 
       await vamm.init(oracle.address,path, indexPrice, quoteAsset, indexPricePeriod,exchange.address);
       await loanPool.updateVault(vault.address);
@@ -166,8 +166,8 @@ describe("Exchange vaultsMain together ", async () => {
       it.skip('Should open and borrow with short', async () => {
         const { usdc, owner, otherAccount, thirdAccount,loanPool,vault,vamm,exchange,oracle } =await loadFixture(deployContracts);
         //approve and deposit 100 usdc
-        await usdc.approve(vault.address, parseUnits("10000", 6));
-        const amount = parseUnits("5000", 6);
+        await usdc.approve(vault.address, parseUnits("1000", 6));
+        const amount = parseUnits("500", 6);
           await vault.deposit(amount);
           const loanPoolUsdcBalBefore = await usdc.balanceOf(loanPool.address);
           const vammSnapshotBefore = await vamm.getLastSnapshot();
@@ -185,6 +185,7 @@ describe("Exchange vaultsMain together ", async () => {
           const values = [vamm.address,29,1,owner.address,loanPool.address];
           const tradeId = ethers.utils.defaultAbiCoder.encode(types,values);
 
+          console.log('hello world from test', exhchangePosition.positionSize);
           //usdc balance of loan pool reflect loaned amount
         expect(loanPoolUsdcBalBefore).to.equal(loanPoolUsdcBalAfter.add(exhchangePosition.loanedAmount));
         //vamm total position size reflect position size
@@ -297,23 +298,101 @@ describe("Exchange vaultsMain together ", async () => {
           
         //   //vamm cumulative notional reflect loaned amount
       });
-      it('adding liquidity ',async()=>{
+      it('adding liquidity long',async()=>{
         const { usdc, owner, otherAccount, thirdAccount,loanPool,vault,vamm,exchange,oracle } =await loadFixture(deployContracts);
         //open posiiton function
-        const approveAmt = parseUnits("100", 6);
-        const deposit = parseUnits("100", 6);
+        const approveAmt = parseUnits("1000", 6);
+        const deposit = parseUnits("1000", 6);
         const collateral = parseUnits("75", 6);
         const side = 1;
         const leverage = 5;
         const user = owner;
+
         const{tradeId} = await openPosition(collateral,deposit, approveAmt, side,leverage, user, vault, exchange, vamm,loanPool,usdc);
         // console.log('tradeId',tradeId);
-        console.log('positions',await exchange.positions(0));
-        console.log('position index by tradeId',await exchange.positionsbyTradeId(tradeId));
-        console.log('is trade active',await exchange.isTradeActive(tradeId));
+
+        const positionBefore = await exchange.positions(0);
+
+        //add liquidity
+        const amount = parseUnits("10", 6);
+
+        const newLev = 3;
+
+        await exchange.addLiquidityToPosition(tradeId,amount,newLev,vamm.address);
+        // await openPosition(amount,deposit, approveAmt, side,leverage, user, vault, exchange, vamm,loanPool,usdc);
+
+
+        const positionAfter = await exchange.positions(0);
+
+        const tradeInterest = await vault.tradeInterest(tradeId);
+        const tradeCollateral = await vault.tradeCollateral(tradeId);
+        const poolOustandingLoan = await vault.poolOutstandingLoans(loanPool.address);
+
+        const tradeBalance = await vault.tradeBalance(tradeId);
+        const avgPriceToPsize = amount *newLev/positionAfter.entryPrice;
+        const positionDiff = (Math.floor(positionAfter.positionSize - positionBefore.positionSize))/1e8;
+
+        const allowedPSizeVariance = 0.00001;
+    
+        //position size is same as position size before plus new position size
+        expect((avgPriceToPsize)-positionDiff).to.lte(allowedPSizeVariance);
+        //trade interest is same as trade bal divided by 100
+        expect(tradeInterest).to.eq(tradeBalance.div(100));
+        //trade bal on vault is same as loaned amount
+        expect(tradeBalance).to.eq(positionAfter.loanedAmount);
+        //trade bal on vault is same as loaned amount before plus new loan
+        expect(tradeBalance).to.eq(positionBefore.loanedAmount.add(amount.mul(newLev)));
+       // loan pool shows exact loaned amount
+        expect(poolOustandingLoan).to.eq(positionAfter.loanedAmount);
+        
+
+
 
         
  
       });
+      it('adding liquidity short',async()=>{
+        const { usdc, owner, otherAccount, thirdAccount,loanPool,vault,vamm,exchange,oracle } =await loadFixture(deployContracts);
+        //open posiiton function
+        const approveAmt = parseUnits("1000", 6);
+        const deposit = parseUnits("1000", 6);
+        const collateral = parseUnits("75", 6);
+        const side = -1;
+        const leverage = 5;
+        const user = owner;
+
+        const{tradeId} = await openPosition(collateral,deposit, approveAmt, side,leverage, user, vault, exchange, vamm,loanPool,usdc);
+
+        const positionBefore = await exchange.positions(0);
+
+        //add liquidity
+        const amount = parseUnits("10", 6);
+
+        const newLev = 3;
+
+        await exchange.addLiquidityToPosition(tradeId,amount,newLev,vamm.address);
+        const positionAfter = await exchange.positions(0);
+
+        const tradeInterest = await vault.tradeInterest(tradeId);
+        const poolOustandingLoan = await vault.poolOutstandingLoans(loanPool.address);
+
+        const tradeBalance = await vault.tradeBalance(tradeId);
+        const avgPriceToPsize = amount *newLev/positionAfter.entryPrice*side;
+        const positionDiff = (Math.floor(positionAfter.positionSize - positionBefore.positionSize))/1e8;
+        const allowedPSizeVariance = 0.00001;
+    
+        //position size is same as position size before plus new position size
+        expect((avgPriceToPsize)-positionDiff).to.lte(allowedPSizeVariance);
+        //trade interest is same as trade bal divided by 100
+        expect(tradeInterest).to.eq(tradeBalance.div(100));
+        //trade bal on vault is same as loaned amount
+        expect(tradeBalance).to.eq(positionAfter.loanedAmount);
+        //trade bal on vault is same as loaned amount before plus new loan
+        expect(tradeBalance).to.eq(positionBefore.loanedAmount.add(amount.mul(newLev)));
+       // loan pool shows exact loaned amount
+        expect(poolOustandingLoan).to.eq(positionAfter.loanedAmount);
+ 
+      });
 
     });
+

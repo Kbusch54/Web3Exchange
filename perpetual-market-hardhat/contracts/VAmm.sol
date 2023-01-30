@@ -53,14 +53,16 @@ import "hardhat/console.sol";
         assest = _assest;
         path = keccak256(abi.encodePacked(_path));
         indexPrice = _indexPrice;
-        k= indexPrice*_quoteAssetAmount*100;
-        uint _baseAsset  = k/_quoteAssetAmount;
+        // k= indexPrice*_quoteAssetAmount*100;
+        // uint _baseAsset  = k/_quoteAssetAmount;
+        uint _baseAsset = _quoteAssetAmount*_indexPrice;
+        k=_baseAsset*_quoteAssetAmount;
         liquidityChangedSnapshots.push(LiquidityChangedSnapshot({
             cumulativeNotional:0,
             fundingRate:0,
             timestamp:block.timestamp,
             blockNumber:block.number,
-            totalPositionSize:0,
+            totalPositionSize:0, 
             quoteAssetReserve:_quoteAssetAmount,
             baseAssetReserve:_baseAsset,
             startIndexPrice:_indexPrice,
@@ -118,9 +120,10 @@ import "hardhat/console.sol";
         LiquidityChangedSnapshot memory lastSnapshot = liquidityChangedSnapshots[liquidityChangedSnapshots.length-1];
         int _newBaseAsset = int(lastSnapshot.baseAssetReserve) +(int(totalCollateral)*_side);
         uint _newQuoteAsset = k/ uint(_newBaseAsset);
-        int _quoteWPZ = intToFixed(int(k))/_newBaseAsset;
-        positionSize = intToFixed(int(lastSnapshot.quoteAssetReserve)) - _quoteWPZ;
-        avgEntryPrice = uint(intToFixed(int(totalCollateral))/(positionSize)*(_side))*1000000;
+        int _quoteWPZ =intToFixed(int(k))/_newBaseAsset;
+        positionSize = intToFixed(int(k))/int( lastSnapshot.baseAssetReserve) - _quoteWPZ;
+        int _avgEntryPrice = intToFixed(int(totalCollateral))/(positionSize);
+        avgEntryPrice = uint(_avgEntryPrice>0?_avgEntryPrice:_avgEntryPrice*-1);
         lastSnapshot.quoteAssetReserve = _newQuoteAsset;
         lastSnapshot.baseAssetReserve = uint(_newBaseAsset);
         lastSnapshot.cumulativeNotional += int(totalCollateral)*_side;

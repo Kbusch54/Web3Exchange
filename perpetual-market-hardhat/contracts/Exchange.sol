@@ -54,7 +54,6 @@ contract Exchange{
         require(_collateral > 0, "collateral must be greater than 0");
         require(_leverage > 0, "leverage must be greater than 0");
     
-        console.log("block num", block.number);
         bytes memory tradeId = abi.encode( _amm, block.number,_side, _trader,ammToPool[_amm]);
 
         require(isTradeActive[tradeId] == false, "trade already active");
@@ -118,9 +117,9 @@ contract Exchange{
 
 
      // right to trade on AMM
-        (int additionalPositionSize,uint avgEntryPrice,) = IVAmm(ammToPool[_amm]).openPosition(_tradeBalance - position.loanedAmount,position.side);
+        (int additionalPositionSize,uint avgEntryPrice,) = IVAmm(_amm).openPosition(_tradeBalance - position.loanedAmount,position.side);
      //update position
-        position.entryPrice = uint((int(position.entryPrice) * position.positionSize + int(avgEntryPrice) * additionalPositionSize) / (position.positionSize + additionalPositionSize)*position.side);
+        position.entryPrice = uint((int(position.entryPrice) * position.positionSize + int(avgEntryPrice) * additionalPositionSize) / (position.positionSize + additionalPositionSize));
         position.positionSize += additionalPositionSize;
         position.loanedAmount = _tradeBalance;
         // position.
