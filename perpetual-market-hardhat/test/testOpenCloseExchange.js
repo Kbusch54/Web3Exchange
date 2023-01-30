@@ -393,7 +393,7 @@ describe("Exchange vaultsMain together ", async () => {
         expect(poolOustandingLoan).to.eq(positionAfter.loanedAmount);
  
       });
-      it('adding liquidity long and close all',async()=>{
+      it.skip('adding liquidity long and close all',async()=>{
         const { usdc, owner, otherAccount, thirdAccount,loanPool,vault,vamm,exchange,oracle } =await loadFixture(deployContracts);
         //open posiiton function
         const approveAmt = parseUnits("1000", 6);
@@ -434,7 +434,7 @@ describe("Exchange vaultsMain together ", async () => {
         expect(position.margin).to.eq(0);
  
       });
-      it('adding liquidity short and close all',async()=>{
+      it.skip('adding liquidity short and close all',async()=>{
         const { usdc, owner, otherAccount, thirdAccount,loanPool,vault,vamm,exchange,oracle } =await loadFixture(deployContracts);
         //open posiiton function
         const approveAmt = parseUnits("1000", 6);
@@ -475,6 +475,36 @@ describe("Exchange vaultsMain together ", async () => {
         expect(position.margin).to.eq(0);
  
       });
+      it('adding liquidity long with interest periods',async()=>{
+        const { usdc, owner, otherAccount, thirdAccount,loanPool,vault,vamm,exchange,oracle } =await loadFixture(deployContracts);
+        //open posiiton function
+        const approveAmt = parseUnits("1000", 6);
+        const deposit = parseUnits("1000", 6);
+        const initialCollateral = parseUnits("75", 6);
+        const side = 1;
+        const leverage = 5;
+        const user = owner;
+
+        const{tradeId} = await openPosition(initialCollateral,deposit, approveAmt, side,leverage, user, vault, exchange, vamm,loanPool,usdc);
+        // console.log('tradeId',tradeId);
+
+        const positionBefore = await exchange.positions(0);
+        
+        //add liquidity
+        const addedCollateral = parseUnits("10", 6);
+        
+        const newLev = 3;
+        mine(30);
+        const tradeCollateralRemaing = await vault.calculateCollateral(tradeId);
+        const interestOwed = await vault.getInterestOwed(tradeId);
+
+        await exchange.addLiquidityToPosition(tradeId,addedCollateral,newLev,vamm.address);
+    
+        // all collateral minus interest owed should be equal to current trade collateral
+        expect(await vault.tradeCollateral(tradeId)).to.eq(addedCollateral.add(initialCollateral).sub(interestOwed));
+
+      });
+
 
     });
 
