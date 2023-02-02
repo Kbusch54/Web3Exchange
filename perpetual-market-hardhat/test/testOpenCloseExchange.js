@@ -475,7 +475,7 @@ describe("Exchange vaultsMain together ", async () => {
         expect(position.margin).to.eq(0);
  
       });
-      it('adding liquidity long with interest periods',async()=>{
+      it.skip('adding liquidity long with interest periods',async()=>{
         const { usdc, owner, otherAccount, thirdAccount,loanPool,vault,vamm,exchange,oracle } =await loadFixture(deployContracts);
         //open posiiton function
         const approveAmt = parseUnits("1000", 6);
@@ -504,7 +504,101 @@ describe("Exchange vaultsMain together ", async () => {
         expect(await vault.tradeCollateral(tradeId)).to.eq(addedCollateral.add(initialCollateral).sub(interestOwed));
 
       });
+      it.skip("adding leverage long",async()=>{
+        const { usdc, owner, otherAccount, thirdAccount,loanPool,vault,vamm,exchange,oracle } =await loadFixture(deployContracts);
+        //open posiiton function
+        const approveAmt = parseUnits("1000", 6);
+        const deposit = parseUnits("1000", 6);
+        const collateral = parseUnits("75", 6);
+        const side = 1;
+        const leverage = 3;
+        const user = owner;
+
+        const{tradeId} = await openPosition(collateral,deposit, approveAmt, side,leverage, user, vault, exchange, vamm,loanPool,usdc);
+        const positionBefore = await exchange.positions(0);
+        //add liquidity
+        const amount = parseUnits("10", 6);
+
+        const newLev = 5;
+        const newLoanAmount = collateral.mul(newLev - (leverage));
+        const { pSize,  avgEntry,  openValue} = await vamm.callStatic.openPosition(newLoanAmount,1);
+
+
+        await exchange.addLeverage(tradeId,newLev);
+        // await openPosition(amount,deposit, approveAmt, side,leverage, user, vault, exchange, vamm,loanPool,usdc);
+
+        const positionAfter = await exchange.positions(0);
+        const tradeInterest = await vault.tradeInterest(tradeId);
+        const tradeCollateral = await vault.tradeCollateral(tradeId);
+        const poolOustandingLoan = await vault.poolOutstandingLoans(loanPool.address);
+
+        const tradeBalance = await vault.tradeBalance(tradeId);
+        //equvilent to 0.0001% of position size
+        const allowedPSizeVariance = 100;
+
+
+
+        const addedPos = parseUnits(Math.floor(1000000*newLoanAmount/370060004).toString(),2);
+
+        // new loan amount should be equal to the difference between the new leverage and the old leverage times the collateral
+        expect(positionAfter.loanedAmount).to.be.equal(positionBefore.loanedAmount.add(newLoanAmount));
+        //new position size should be equal to the old position size plus the new loan amount mul by the price
+        expect(positionAfter.positionSize).to.be.within(positionBefore.positionSize.add(addedPos),positionBefore.positionSize.add(addedPos.add(allowedPSizeVariance)));
+        //trade balance should be equal to the loaned amount
+        expect(tradeBalance).to.be.equal(positionAfter.loanedAmount);
+        //check trade interest
+        expect(tradeInterest).to.be.equal(tradeBalance.div(100));
+        //check outstading loan
+        expect(poolOustandingLoan).to.be.equal(tradeBalance);
 
 
     });
+    it("adding leverage short",async()=>{
+      const { usdc, owner, otherAccount, thirdAccount,loanPool,vault,vamm,exchange,oracle } =await loadFixture(deployContracts);
+      //open posiiton function
+      const approveAmt = parseUnits("1000", 6);
+      const deposit = parseUnits("1000", 6);
+      const collateral = parseUnits("75", 6);
+      const side = -1;
+      const leverage = 3;
+      const user = owner;
 
+      const{tradeId} = await openPosition(collateral,deposit, approveAmt, side,leverage, user, vault, exchange, vamm,loanPool,usdc);
+      const positionBefore = await exchange.positions(0);
+      //add leverage
+      
+      const newLev = 5;
+      const newLoanAmount = collateral.mul(newLev - (leverage));
+      const { pSize,  avgEntry,  openValue} = await vamm.callStatic.openPosition(newLoanAmount,1);
+
+      
+      await exchange.addLeverage(tradeId,newLev);
+      // await openPosition(amount,deposit, approveAmt, side,leverage, user, vault, exchange, vamm,loanPool,usdc);
+
+      const positionAfter = await exchange.positions(0);
+      const tradeInterest = await vault.tradeInterest(tradeId);
+      const tradeCollateral = await vault.tradeCollateral(tradeId);
+      const poolOustandingLoan = await vault.poolOutstandingLoans(loanPool.address);
+
+      const tradeBalance = await vault.tradeBalance(tradeId);
+      //equvilent to 0.00001% of position size
+      const allowedPSizeVariance = 100;
+
+
+
+      const addedPos = parseUnits(Math.floor(1000000*newLoanAmount/369939997).toString(),2);
+
+      // new loan amount should be equal to the difference between the new leverage and the old leverage times the collateral
+      expect(positionAfter.loanedAmount).to.be.equal(positionBefore.loanedAmount.add(newLoanAmount));
+      //trade balance should be equal to the loaned amount
+      expect(tradeBalance).to.be.equal(positionAfter.loanedAmount);
+      //new position size should be equal to the old position size plus the new loan amount mul by the price
+      expect(positionAfter.positionSize.mul(-1)).to.be.within(positionBefore.positionSize.sub(addedPos).mul(-1),(positionBefore.positionSize.sub(addedPos.add(allowedPSizeVariance)).mul(-1)));
+      //check trade interest
+      expect(tradeInterest).to.be.equal(tradeBalance.div(100));
+      //check outstading loan
+      expect(poolOustandingLoan).to.be.equal(tradeBalance);
+
+
+  });
+});

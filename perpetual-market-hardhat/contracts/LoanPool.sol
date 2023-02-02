@@ -48,10 +48,7 @@ contract LoanPool is StakingPoolAmm{
        //require minimums
        // new loan amount + old loan amount = total loan amount
        // uintToFixed(totalCollateral)/totalLoanAmount >= MMR
-       
-       
-       
-       
+
         require(_amountLeverage<=maxLev,'Max leverage exceeded');
         uint _loanAmt = _addAmount*(_amountLeverage);
         require(uintToFixed(loanedUsdc + _loanAmt)/totalUsdcSupply <= maxLoan, "LoanPool: Max loan reached");
@@ -63,6 +60,23 @@ contract LoanPool is StakingPoolAmm{
         newLoanAmount = borrowedAmounts[tradeId];
         minimumMarginReq = fixedToUint(borrowedAmounts[tradeId]*loanInterestRate);
         owedInterest = getInterestOwedForAmount(tradeId,_loanAmt);
+        updateUsdcSupply();
+    }
+    function addLeverageOnLoan(bytes memory _tradeId, uint _newLev,uint _oldLev) external returns(uint newLoanAmount, uint minimumMarginReq,uint owedInterest){
+       //require minimums
+       // new loan amount + old loan amount = total loan amount
+       // uintToFixed(totalCollateral)/totalLoanAmount >= MMR
+       require(_newLev<=maxLev,'Max leverage exceeded');
+       uint currentBorrow = borrowedAmounts[_tradeId];
+       uint originalColl= currentBorrow/(_oldLev);
+        uint _loanAmt = originalColl*(_newLev);
+        require(uintToFixed(loanedUsdc + _loanAmt-currentBorrow)/totalUsdcSupply <= maxLoan, "LoanPool: Max loan reached");
+        require(_loanAmt -currentBorrow <= availableUsdc, "Not enough USDC in pool");
+        IERC20(USDC).approve(msg.sender, _loanAmt-currentBorrow);
+        borrowedAmounts[_tradeId] += _loanAmt -currentBorrow;
+        newLoanAmount = borrowedAmounts[_tradeId] - currentBorrow;
+        minimumMarginReq = fixedToUint(borrowedAmounts[_tradeId]*loanInterestRate);
+        owedInterest = getInterestOwedForAmount(_tradeId,_loanAmt);
         updateUsdcSupply();
     }
 

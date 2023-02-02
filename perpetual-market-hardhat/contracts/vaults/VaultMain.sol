@@ -82,6 +82,22 @@ mapping(address=>address)ammToPool;
         poolOutstandingLoans[_pool] += loanAmt;
         pass = true;
     }
+    function addLeverageToLoan(bytes memory _tradeId,uint _oldLev, uint _newLev)public returns(bool _check,uint _newTradeBalance,uint _minimumMarginReq){
+        //get and pay interest
+        // addLeverageOnLoan(bytes memory _tradeId, uint _newLev,uint _oldLev) external returns(uint newLoanAmount, uint minimumMarginReq,uint owedInterest)
+        (,,,,address _pool)=decodeTradeId(_tradeId);
+        (uint newLoanAmount, uint minimumMarginReq,) = ILoanPool(_pool).addLeverageOnLoan(_tradeId,_newLev,_oldLev);
+        require(IERC20(Usdc).transferFrom(_pool,address(this),newLoanAmount),"transfer failed");
+        tradeBalance[_tradeId] += newLoanAmount;
+        tradeInterest[_tradeId] = minimumMarginReq;
+        poolOutstandingLoans[_pool] += newLoanAmount;
+        _minimumMarginReq = tradeInterest[_tradeId];
+        _newTradeBalance = tradeBalance[_tradeId];
+        //pay interest 
+        uint interestOwed = getInterestOwed(_tradeId);
+        require(tradeCollateral[_tradeId] >= interestOwed,"not enough balance");
+        _check =recordInterest(_tradeId,interestOwed);
+    }
     function calculateCollateral(bytes memory  _tradeId)public view returns(int _collateral){
         // (address _pool,,,)=decodeTradeId(_tradeId);
         uint _interest = getInterestOwed(_tradeId);

@@ -101,32 +101,45 @@ contract Exchange{
     //another loan
 
     function addLiquidityToPosition(bytes memory _tradeId, uint _collateral,uint _leverage,address _amm)public returns(bool){
-    // function addLiquidityWithLoan(bytes memory _tradeId, uint _levOnAddedColl, uint _addedColl)
+        // function addLiquidityWithLoan(bytes memory _tradeId, uint _levOnAddedColl, uint _addedColl)
         require(ammActive[_amm], "amm not active");
-    // public returns(bool _check,uint newBalance,uint _tradeBalance,uint minimumMarginReq)
+        // public returns(bool _check,uint newBalance,uint _tradeBalance,uint minimumMarginReq)
         require(isTradeActive[_tradeId], "trade not active");
         Position memory position = positions[positionsbyTradeId[_tradeId]];
         require(position.margin > 0, "position already closed");
         require(position.startBlock > 0, "position not found");
         (bool _check,,uint _tradeBalance,) = IVaultMain(Vault).addLiquidityWithLoan( _tradeId,  _leverage,  _collateral);
-    //         //debit/credit from loan payments and funding rate
-
-    
-    require(_check, "loan not approved");
-
-
-
-     // right to trade on AMM
-        (int additionalPositionSize,uint avgEntryPrice,) = IVAmm(_amm).openPosition(_tradeBalance - position.loanedAmount,position.side);
-     //update position
+       //debit/credit from loan payments and funding rate
+        require(_check, "loan not approved");
+        // right to trade on AMM
+            (int additionalPositionSize,uint avgEntryPrice,) = IVAmm(_amm).openPosition(_tradeBalance - position.loanedAmount,position.side);
+        //update position
+            position.entryPrice = uint((int(position.entryPrice) * position.positionSize + int(avgEntryPrice) * additionalPositionSize) / (position.positionSize + additionalPositionSize));
+            position.positionSize += additionalPositionSize;
+            position.loanedAmount = _tradeBalance;
+            // position.
+            positions[positionsbyTradeId[_tradeId]] = position;
+            //event
+            return true;
+    }
+    function addLeverage(bytes memory _tradeId,uint _newLev)public returns(bool){
+        require(isTradeActive[_tradeId], "trade not active");
+        Position memory position = positions[positionsbyTradeId[_tradeId]];
+        require(position.margin > 0, "position already closed");
+        require(position.startBlock > 0, "position not found");
+        uint _oldLev =position.loanedAmount/position.margin;
+        require(_newLev > _oldLev, "new leverage must be greater than current leverage");
+        //check new margin req
+        (bool check, uint _newTradeBalance, ) = IVaultMain(Vault).addLeverageToLoan(_tradeId,_oldLev,_newLev);
+        require(check, "loan not approved");
+        //update position
+        IVAmm amm = IVAmm(position._amm);
+        (int additionalPositionSize,uint avgEntryPrice,) = amm.openPosition(_newTradeBalance - position.loanedAmount,position.side);
+        position.loanedAmount = _newTradeBalance;
         position.entryPrice = uint((int(position.entryPrice) * position.positionSize + int(avgEntryPrice) * additionalPositionSize) / (position.positionSize + additionalPositionSize));
         position.positionSize += additionalPositionSize;
-        position.loanedAmount = _tradeBalance;
-        // position.
         positions[positionsbyTradeId[_tradeId]] = position;
-        //event
         return true;
-
     }
     // //lowering risk by paying back part of the loan and reducing margin
     function removeLiquidityFromPosition(bytes memory _tradeId, uint _collateral)public returns(bool,int usdcAmt){
