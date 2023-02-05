@@ -152,7 +152,7 @@ import "hardhat/console.sol";
         uint newBaseAsset = uint(intToFixed(int(k))/ quoteWPsz);
         
             usdcAmt =(int(lastSnapshot.baseAssetReserve)- int(newBaseAsset));
-
+            usdcAmt>0?usdcAmt*=1:usdcAmt*=-1;
           console.log('VAMM: usdc AMT',uint(usdcAmt));
         lastSnapshot.cumulativeNotional -= usdcAmt ;
         lastSnapshot.quoteAssetReserve = uint(quoteWPsz);

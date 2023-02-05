@@ -78,7 +78,7 @@ describe("Exchange vaultsMain together ", async () => {
          const tradeId = ethers.utils.defaultAbiCoder.encode(types,values);
          return{tradeId};
     };
-      it.skip("Should open position and borrow", async () => {
+      it("Should open position and borrow", async () => {
           const { usdc, owner, otherAccount, thirdAccount,loanPool,vault,vamm,exchange,oracle } =await loadFixture(deployContracts);
           console.log("vault balance",formatUnits(await vault.availableBalance(owner.address),6))  
           //approve and deposit 100 usdc
@@ -112,7 +112,7 @@ describe("Exchange vaultsMain together ", async () => {
 
           console.log('collateral calc',await vault.callStatic.calculateCollateral(tradeId));
       });
-      it.skip("Should close position and repay", async () => {
+      it("Should close position and repay", async () => {
         const { usdc, owner, otherAccount, thirdAccount,loanPool,vault,vamm,exchange,oracle } =await loadFixture(deployContracts);
         //approve and deposit 100 usdc
         await usdc.approve(vault.address, parseUnits("10000", 6));
@@ -155,7 +155,7 @@ describe("Exchange vaultsMain together ", async () => {
         //   //position size Should be 0
           expect(exhchangePositionAfter.positionSize).to.equal(0);
       });
-      it.skip('Should open and borrow with short', async () => {
+      it('Should open and borrow with short', async () => {
         const { usdc, owner, otherAccount, thirdAccount,loanPool,vault,vamm,exchange,oracle } =await loadFixture(deployContracts);
         //approve and deposit 100 usdc
         await usdc.approve(vault.address, parseUnits("1000", 6));
@@ -187,11 +187,11 @@ describe("Exchange vaultsMain together ", async () => {
         // // open value Should match position size * price
         expect(exhchangePosition.openValue).to.equal(exhchangePosition.positionSize.mul(await vamm.getAssetPrice()).div(1e8).mul(-1));
       });
-      it.skip('Should close and repay with short', async () => {
+      it('Should close and repay with short', async () => {
         const { usdc, owner, otherAccount, thirdAccount,loanPool,vault,vamm,exchange,oracle } =await loadFixture(deployContracts);
         //approve and deposit 100 usdc
         await usdc.approve(vault.address, parseUnits("10000", 6));
-        const amount = parseUnits("5000", 6);
+        const amount = parseUnits("500", 6);
           await vault.deposit(amount);
           const loanPoolUsdcBalBefore = await usdc.balanceOf(loanPool.address);
           const vammSnapshotBefore = await vamm.getLastSnapshot();
@@ -236,7 +236,7 @@ describe("Exchange vaultsMain together ", async () => {
         //   //position size Should be 0
           expect(exhchangePositionAfter.positionSize).to.equal(0);
       });
-      it.skip("Should open and close long with multiple interest periods", async () => {
+      it("Should open and close long with multiple interest periods", async () => {
         const { usdc, owner, otherAccount, thirdAccount,loanPool,vault,vamm,exchange,oracle } =await loadFixture(deployContracts);
         //approve and deposit 100 usdc
         await usdc.approve(vault.address, parseUnits("10000", 6));
@@ -290,7 +290,7 @@ describe("Exchange vaultsMain together ", async () => {
           
         //   //vamm cumulative notional reflect loaned amount
       });
-      it.skip('adding liquidity long',async()=>{
+      it('adding liquidity long',async()=>{
         const { usdc, owner, otherAccount, thirdAccount,loanPool,vault,vamm,exchange,oracle } =await loadFixture(deployContracts);
         //open posiiton function
         const approveAmt = parseUnits("1000", 6);
@@ -343,7 +343,7 @@ describe("Exchange vaultsMain together ", async () => {
         
  
       });
-      it.skip('adding liquidity short',async()=>{
+      it('adding liquidity short',async()=>{
         const { usdc, owner, otherAccount, thirdAccount,loanPool,vault,vamm,exchange,oracle } =await loadFixture(deployContracts);
         //open posiiton function
         const approveAmt = parseUnits("1000", 6);
@@ -385,7 +385,7 @@ describe("Exchange vaultsMain together ", async () => {
         expect(poolOustandingLoan).to.eq(positionAfter.loanedAmount);
  
       });
-      it.skip('adding liquidity long and close all',async()=>{
+      it('adding liquidity long and close all',async()=>{
         const { usdc, owner, otherAccount, thirdAccount,loanPool,vault,vamm,exchange,oracle } =await loadFixture(deployContracts);
         //open posiiton function
         const approveAmt = parseUnits("1000", 6);
@@ -426,7 +426,7 @@ describe("Exchange vaultsMain together ", async () => {
         expect(position.margin).to.eq(0);
  
       });
-      it.skip('adding liquidity short and close all',async()=>{
+      it('adding liquidity short and close all',async()=>{
         const { usdc, owner, otherAccount, thirdAccount,loanPool,vault,vamm,exchange,oracle } =await loadFixture(deployContracts);
         //open posiiton function
         const approveAmt = parseUnits("1000", 6);
@@ -467,7 +467,7 @@ describe("Exchange vaultsMain together ", async () => {
         expect(position.margin).to.eq(0);
  
       });
-      it.skip('adding liquidity long with interest periods',async()=>{
+      it('adding liquidity long with interest periods',async()=>{
         const { usdc, owner, otherAccount, thirdAccount,loanPool,vault,vamm,exchange,oracle } =await loadFixture(deployContracts);
         //open posiiton function
         const approveAmt = parseUnits("1000", 6);
@@ -496,7 +496,7 @@ describe("Exchange vaultsMain together ", async () => {
         expect(await vault.tradeCollateral(tradeId)).to.eq(addedCollateral.add(initialCollateral).sub(interestOwed));
 
       });
-      it.skip("adding leverage long",async()=>{
+      it("adding leverage long",async()=>{
         const { usdc, owner, otherAccount, thirdAccount,loanPool,vault,vamm,exchange,oracle } =await loadFixture(deployContracts);
         //open posiiton function
         const approveAmt = parseUnits("1000", 6);
@@ -545,7 +545,7 @@ describe("Exchange vaultsMain together ", async () => {
 
 
     });
-    it.skip("adding leverage short",async()=>{
+    it("adding leverage short",async()=>{
       const { usdc, owner, otherAccount, thirdAccount,loanPool,vault,vamm,exchange,oracle } =await loadFixture(deployContracts);
       //open posiiton function
       const approveAmt = parseUnits("1000", 6);
@@ -593,7 +593,7 @@ describe("Exchange vaultsMain together ", async () => {
 
 
   });
-  it.skip('removing liquidity long',async()=>{
+  it('removing liquidity long',async()=>{
     const { usdc, owner, otherAccount, thirdAccount,loanPool,vault,vamm,exchange,oracle } =await loadFixture(deployContracts);
     //open posiiton function
     const approveAmt = parseUnits("100", 6);
