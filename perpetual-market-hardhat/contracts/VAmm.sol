@@ -63,7 +63,7 @@ import "hardhat/console.sol";
             timestamp:block.timestamp,
             blockNumber:block.number,
             totalPositionSize:0, 
-            quoteAssetReserve:_quoteAssetAmount,
+            quoteAssetReserve:_quoteAssetAmount*100000000,
             baseAssetReserve:_baseAsset,
             startIndexPrice:_indexPrice,
             finalIndexPrice:0
@@ -95,7 +95,7 @@ import "hardhat/console.sol";
     }
     function getAssetPrice()external view returns(uint){
         LiquidityChangedSnapshot memory lastSnapshot = liquidityChangedSnapshots[liquidityChangedSnapshots.length-1];
-        return lastSnapshot.baseAssetReserve/lastSnapshot.quoteAssetReserve;
+        return lastSnapshot.baseAssetReserve*100000000/lastSnapshot.quoteAssetReserve;
     }
     function getAssetReserve()external view returns(uint){
         LiquidityChangedSnapshot memory lastSnapshot = liquidityChangedSnapshots[liquidityChangedSnapshots.length-1];
@@ -119,16 +119,15 @@ import "hardhat/console.sol";
     function openPosition(uint totalCollateral,int _side)external returns(int positionSize,uint avgEntryPrice,uint openValue){
         LiquidityChangedSnapshot memory lastSnapshot = liquidityChangedSnapshots[liquidityChangedSnapshots.length-1];
         int _newBaseAsset = int(lastSnapshot.baseAssetReserve) +(int(totalCollateral)*_side);
-        uint _newQuoteAsset = k/ uint(_newBaseAsset);
-        int _quoteWPZ =intToFixed(int(k))/_newBaseAsset;
-        positionSize = intToFixed(int(k))/int( lastSnapshot.baseAssetReserve) - _quoteWPZ;
+        uint _newQuoteAsset = uint(intToFixed(int(k)))/ uint(_newBaseAsset);
+        positionSize = int(lastSnapshot.quoteAssetReserve) - int(_newQuoteAsset);
         int _avgEntryPrice = intToFixed(int(totalCollateral))/(positionSize);
         avgEntryPrice = uint(_avgEntryPrice>0?_avgEntryPrice:_avgEntryPrice*-1);
         lastSnapshot.quoteAssetReserve = _newQuoteAsset;
         lastSnapshot.baseAssetReserve = uint(_newBaseAsset);
         lastSnapshot.cumulativeNotional += int(totalCollateral)*_side;
         lastSnapshot.totalPositionSize += positionSize;
-        openValue = uint(fixedToInt(int(uint(_newBaseAsset)/_newQuoteAsset * uint(positionSize*_side))));
+        openValue = uint(fixedToInt(intToFixed(_newBaseAsset)/int(_newQuoteAsset) * positionSize*_side));
         liquidityChangedSnapshots[liquidityChangedSnapshots.length-1]=lastSnapshot;
         updateFutureFundingRate();
     } 
@@ -148,18 +147,20 @@ import "hardhat/console.sol";
     function closePosition(int positionSize,int _side)external returns(uint exitPrice,int usdcAmt){
         LiquidityChangedSnapshot memory lastSnapshot = liquidityChangedSnapshots[liquidityChangedSnapshots.length-1];
         lastSnapshot.totalPositionSize-=positionSize; 
-        int quoteWPsz = int(lastSnapshot.quoteAssetReserve) + fixedToInt(positionSize);
+        int quoteWPsz = int(lastSnapshot.quoteAssetReserve) + (positionSize);
 
-        uint newBaseAsset = k/ uint(quoteWPsz);
+        uint newBaseAsset = uint(intToFixed(int(k))/ quoteWPsz);
+        
+            usdcAmt =(int(lastSnapshot.baseAssetReserve)- int(newBaseAsset));
 
-
-          usdcAmt =(int(lastSnapshot.baseAssetReserve)- int(newBaseAsset)) ;
-
+          console.log('VAMM: usdc AMT',uint(usdcAmt));
         lastSnapshot.cumulativeNotional -= usdcAmt ;
         lastSnapshot.quoteAssetReserve = uint(quoteWPsz);
         lastSnapshot.baseAssetReserve = newBaseAsset;
         liquidityChangedSnapshots[liquidityChangedSnapshots.length-1] = lastSnapshot;
-        exitPrice = uint(intToFixed(int(usdcAmt))/(positionSize))*1000000;
+
+        exitPrice = uint(intToFixed(int(usdcAmt))/(positionSize));
+
         updateFutureFundingRate();
     }
 

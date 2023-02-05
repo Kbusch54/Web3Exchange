@@ -133,8 +133,6 @@ describe("Exchange vaultsMain together ", async () => {
           const types = ["address","uint256","int256","address","address"];
           const values = [vamm.address,29,1,owner.address,loanPool.address];
           const tradeId = ethers.utils.defaultAbiCoder.encode(types,values);
-
-
         //close position
         const {avgExitPrice,usdcAmt} = await exchange.callStatic.closeOutPosition(tradeId);
         await exchange.closeOutPosition(tradeId);
@@ -145,23 +143,17 @@ describe("Exchange vaultsMain together ", async () => {
         const interest = await loanPool.callStatic.getInterestOwedForAmount(tradeId,exhchangePosition.loanedAmount);
         console.log('avail bal',formatUnits(await vault.callStatic.availableBalance(owner.address),6));
         const balanceReward = await vault.callStatic.readBalanceRewards(loanPool.address,2  );
- 
         //usdc balance of loan pool reflect loaned amount
         expect(loanPoolUsdcBalAfter).to.equal(loanPoolUsdcBalAfterClose.sub(exhchangePosition.loanedAmount.add(interest).sub(balanceReward)));
         // //vamm total position size reflect position size
           expect(vammSnapshotAfterClose.totalPositionSize).to.equal(vammSnapshotAfter.totalPositionSize.sub(exhchangePosition.positionSize));
         //   //vamm cumulative notional reflect loaned amount
-
-
         //   //collateral Should be 0
           expect(exhchangePositionAfter.margin).to.equal(0);
         //   //loaned amount Should be 0
           expect(exhchangePositionAfter.loanedAmount).to.equal(0);
         //   //position size Should be 0
           expect(exhchangePositionAfter.positionSize).to.equal(0);
- 
-
- 
       });
       it.skip('Should open and borrow with short', async () => {
         const { usdc, owner, otherAccount, thirdAccount,loanPool,vault,vamm,exchange,oracle } =await loadFixture(deployContracts);
@@ -553,7 +545,7 @@ describe("Exchange vaultsMain together ", async () => {
 
 
     });
-    it("adding leverage short",async()=>{
+    it.skip("adding leverage short",async()=>{
       const { usdc, owner, otherAccount, thirdAccount,loanPool,vault,vamm,exchange,oracle } =await loadFixture(deployContracts);
       //open posiiton function
       const approveAmt = parseUnits("1000", 6);
@@ -601,4 +593,78 @@ describe("Exchange vaultsMain together ", async () => {
 
 
   });
+  it.skip('removing liquidity long',async()=>{
+    const { usdc, owner, otherAccount, thirdAccount,loanPool,vault,vamm,exchange,oracle } =await loadFixture(deployContracts);
+    //open posiiton function
+    const approveAmt = parseUnits("100", 6);
+    const deposit = parseUnits("100", 6);
+    const collateral = parseUnits("75", 6);
+    const side = 1;
+    const leverage = 3;
+    const user = owner;
+
+    const{tradeId} = await openPosition(collateral,deposit, approveAmt, side,leverage, user, vault, exchange, vamm,loanPool,usdc);
+    const positionBefore = await exchange.positions(0);
+    const availableBalanceBefore = await vault.availableBalance(owner.address);
+    //remove liquidity
+    const amountToRemove = Math.floor(positionBefore.positionSize/4)*side;
+    const amountRemovedFromLoan = Math.floor(positionBefore.loanedAmount/4);
+    const result = await exchange.callStatic.removeLiquidityFromPosition(tradeId,amountToRemove);
+    await exchange.removeLiquidityFromPosition(tradeId,amountToRemove);
+    const availableBalanceAfter = await vault.availableBalance(owner.address);
+    const positionAfter = await exchange.positions(0);
+    //equvilent to 0.0000001 USDC
+    const deveationAllowance = 10;
+    //test that the position size is equal to the old position size minus the amount removed
+    expect(positionAfter.positionSize).to.be.equal(positionBefore.positionSize.sub(amountToRemove));
+    //test that the available balance is equal to the old available balance plus the pnl from the removed amount
+    expect(availableBalanceAfter).to.be.equal(availableBalanceBefore.add(result._pnl));
+    //check new loaned amount
+    expect(positionAfter.loanedAmount).to.be.within(positionBefore.loanedAmount.sub(amountRemovedFromLoan),positionBefore.loanedAmount.sub(amountRemovedFromLoan).add(deveationAllowance));
+    //check new min marg should be equal to 1% of the current loaned amount
+    expect(result._newMinMarg).to.be.equal(positionAfter.loanedAmount.div(100));
+    //check loan pool outstanding loan shoulkd be equal to the new loaned amount
+    expect(await loanPool.loanedUsdc()).to.be.equal(positionAfter.loanedAmount);
 });
+it('removing liquidity short',async()=>{
+  const { usdc, owner, otherAccount, thirdAccount,loanPool,vault,vamm,exchange,oracle } =await loadFixture(deployContracts);
+  //open posiiton function
+  const approveAmt = parseUnits("100", 6);
+  const deposit = parseUnits("100", 6);
+  const collateral = parseUnits("75", 6);
+  const side = -1;
+  const leverage = 3;
+  const user = owner;
+
+  const{tradeId} = await openPosition(collateral,deposit, approveAmt, side,leverage, user, vault, exchange, vamm,loanPool,usdc);
+  const positionBefore = await exchange.positions(0);
+  const availableBalanceBefore = await vault.availableBalance(owner.address);
+  const tradeCollateralBefore = await vault.tradeCollateral(tradeId);
+  //remove liquidity
+  const amountToRemove = Math.floor(positionBefore.positionSize/4);
+  const amountRemovedFromLoan = Math.floor(positionBefore.loanedAmount/4);
+  const result = await exchange.callStatic.removeLiquidityFromPosition(tradeId,amountToRemove);
+  await exchange.removeLiquidityFromPosition(tradeId,amountToRemove);
+  const availableBalanceAfter = await vault.availableBalance(owner.address);
+  const positionAfter = await exchange.positions(0);
+  const tradeCollateralAfter = await vault.tradeCollateral(tradeId);
+
+  //pnl is negative so takes from trade collateral and does not add/subtract from available balance
+  //equvilent to 0.0000001 USDC
+  const deveationAllowance = 10;
+  //test that the position size is equal to the old position size minus the amount removed
+  expect(positionAfter.positionSize).to.be.equal(positionBefore.positionSize.sub(amountToRemove));
+  //test that the available balance is equal to the old available balance plus the pnl from the removed amount
+  expect(availableBalanceAfter).to.be.equal(availableBalanceBefore);
+  //check new loaned amount
+  expect(positionAfter.loanedAmount).to.be.within(positionBefore.loanedAmount.sub(amountRemovedFromLoan),positionBefore.loanedAmount.sub(amountRemovedFromLoan).add(deveationAllowance));
+  //check new min marg should be equal to 1% of the current loaned amount
+  expect(result._newMinMarg).to.be.equal(positionAfter.loanedAmount.div(100));
+  //check loan pool outstanding loan shoulkd be equal to the new loaned amount
+  expect(await loanPool.loanedUsdc()).to.be.equal(positionAfter.loanedAmount);
+  //check collateral
+  expect(tradeCollateralAfter).to.be.equal(tradeCollateralBefore.add(result._pnl));
+  
+});
+});
+

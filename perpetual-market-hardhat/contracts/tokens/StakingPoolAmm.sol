@@ -279,6 +279,22 @@ function internalCheckRewardAmount(address _user)internal view returns(uint){
         updateUsdcSupply();
         return true;
     }
+    function profitTaken(int _amt)external returns(bool){
+       uint _index = updateAndGetCurrentIndex();
+        Snapshot memory snapshot = snapshots[_index];
+        snapshot.pnlRemaining -= _amt/2;
+        snapshot.pnlForReward-= _amt/2;
+        snapshot.pnlForSnapshot-= _amt;
+        if(uint(_amt) <=availableUsdc){
+            require(IERC20(USDC).transfer(msg.sender,uint(_amt)),"STAKINGPOOL: Failed to transfer USDC to vault");
+        }else{
+            //take from insurance and go to debt mode
+            // require(IERC20(USDC).transfer(Vault,uint(_amt)),"STAKINGPOOL: Failed to transfer USDC to vault");
+        }
+        snapshots[currentIndexForNewSnapshots] = snapshot;
+        updateUsdcSupply();
+        return true;
+    }
     function updateAndGetCurrentIndex()public returns(uint){
         Snapshot memory snapshot = snapshots[currentIndexForNewSnapshots];
         if(block.number >= snapshot.endBlock && snapshots.length-1 >= currentIndexForNewSnapshots){

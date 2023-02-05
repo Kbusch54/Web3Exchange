@@ -7,7 +7,9 @@ import "./tokens/StakingPoolAmm.sol";
 
 import "hardhat/console.sol";
 
-
+//@TODO: add debt mode for insurance fund
+//@TODO: see MMR for liquidation
+//@TODO: add events
 contract LoanPool is StakingPoolAmm{
 
     constructor(
@@ -104,11 +106,6 @@ contract LoanPool is StakingPoolAmm{
     function loanDebt(bytes memory _tradeId) external view returns(uint){
         return borrowedAmounts[_tradeId];
     }
-
-
-
-
-
 
 
 

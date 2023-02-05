@@ -5,6 +5,10 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./Interfaces/IVaultMain.sol";
 import "./Interfaces/IVAmm.sol";
 import "hardhat/console.sol";
+
+//@TODO: add events
+//@TODO: add modifiers
+//@TODO: CALCULATE FFR correctly
 contract Exchange{
     address[] public amms;
     address public Vault;
@@ -17,8 +21,6 @@ contract Exchange{
             ammActive[amms[i]] = true;
         }
     }
-
-
     struct Position{
         uint margin;
         uint loanedAmount;
@@ -85,7 +87,7 @@ contract Exchange{
         // right to trade
         ( uint _avgExitPrice, int _usdcAmt) = IVAmm(position._amm).closePosition(position.positionSize, position.side);
         //tell vault to transfer usdc to party
-        (uint interestPayed,uint newLoanAmount,uint minimumMarginReq)= IVaultMain(Vault).repayLoan( _tradeId, position.loanedAmount);
+        (uint interestPayed,uint newLoanAmount,uint minimumMarginReq)= IVaultMain(Vault).repayLoan( _tradeId, position.loanedAmount,uint(_usdcAmt));
         //funding rate
         require(newLoanAmount == 0, "loan not paid back");
         position.margin = 0;
@@ -142,25 +144,29 @@ contract Exchange{
         return true;
     }
     // //lowering risk by paying back part of the loan and reducing margin
-    function removeLiquidityFromPosition(bytes memory _tradeId, uint _collateral)public returns(bool,int usdcAmt){
+    function removeLiquidityFromPosition(bytes memory _tradeId, int _positionSize)public returns(bool check,int usdcAmt,uint _avgExitPrice,uint _newMinMarg,int _pnl){
         
         Position memory position = positions[positionsbyTradeId[_tradeId]];
         require(ammActive[position._amm], "amm not active");
         require(isTradeActive[_tradeId], "trade not active");
         require(position.startBlock > 0, "position not found");
         require(position.margin > 0, "position already closed");
-        
-        //check if trader has enough collateral from vault
-            //tell vault fee from interest if applicable
 
-        // tell amm to close portion of trade
+            uint loanToRepay =(uint(100000000*_positionSize / position.positionSize) * position.loanedAmount)/100000000;    
+        // right to trade
+        ( uint avgExitPrice, int _usdcAmt) = IVAmm(position._amm).closePosition(_positionSize*position.side, position.side);
         //tell vault to transfer usdc to party
-        //check new margin req
-        // (uint interestPayed,uint newLoanAmount,uint minimumMarginReq)= IVaultMain(Vault).repayLoan( _tradeId,  _collateral);
-        //update position
-            // (int additionalPositionSize,uint avgEntryPrice,uint openValue) = IVAmm(ammToPool[_amm]).closePosition(totalCollateral,_side);
-            // position.entryPrice = (position.entryPrice * position.positionSize + avgEntryPrice * additionalPositionSize) / (position.positionSize + additionalPositionSize);
-            // position.positionSize -= additionalPositionSize;
+        (,uint newLoanAmount,uint  minMargReq)= IVaultMain(Vault).repayLoan( _tradeId, loanToRepay,uint(_usdcAmt));
+        //funding rate
+        // need to figure out repay loan
+        _newMinMarg = minMargReq;
+        usdcAmt = _usdcAmt;
+        _avgExitPrice = avgExitPrice;
+        _pnl = _usdcAmt - int(loanToRepay);
+        position.loanedAmount = newLoanAmount;
+        position.positionSize -= _positionSize;
+        positions[positionsbyTradeId[_tradeId]] = position;
+        check = true;
     }
 
 

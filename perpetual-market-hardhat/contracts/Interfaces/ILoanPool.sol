@@ -8,5 +8,6 @@ interface ILoanPool{
     function borrow(bytes memory _tradeId, uint _margin, uint _leverage,uint _totalCollateral) external returns(uint loanAmt, uint minimumMarginReq,bool check);
     function repay(bytes memory _tradeId, uint _amount) external returns(uint newLoanAmount, uint minimumMarginReq,uint owedInterest);
     function getInterestOwedForAmount(bytes memory _tradeId, uint _amount) external view returns(uint interestOwed);
+    function profitTaken(int _amt)external returns(bool);
     function addLeverageOnLoan(bytes memory _tradeId, uint _newLev,uint _oldLev) external returns(uint newLoanAmount, uint minimumMarginReq,uint owedInterest);
 }
