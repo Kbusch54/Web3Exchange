@@ -85,10 +85,10 @@ function claimReward()external{
                 revert("No rewards yet must wait");
             }
         }else{
-            revert("No rewards yet");
+            revert("No rewards yet duh");
         }
     }else{
-        revert("No rewards yet");
+        internalClaimRewards(msg.sender); 
     }  
 }
 
@@ -118,6 +118,7 @@ if(  snapshot.pnlRemaining > 0){
             snapshots[rewardsIndex] = snapshot;
             VaultMain vault = VaultMain(Vault);
             vault.takeReward(reward,_user,rewardsIndex);
+            updateUsdcSupply();
         }
     }else {
         revert("User has already claimed reward");
@@ -257,7 +258,7 @@ function internalCheckRewardAmount(address _user)internal view returns(uint){
     function updateUsdcSupply()internal{
         IERC20 usdc = IERC20(USDC);
         availableUsdc = usdc.balanceOf(address(this));
-         totalUsdcSupply = availableUsdc + loanedUsdc;
+        totalUsdcSupply = availableUsdc + loanedUsdc;
     }
     
 
@@ -269,9 +270,10 @@ function internalCheckRewardAmount(address _user)internal view returns(uint){
         updateUsdcSupply();
     }
     function takeInterest(uint _amt,uint _totalAmt)external returns(bool){
+          uint _index = updateAndGetCurrentIndex();
         IERC20 usdc = IERC20(USDC); 
-        usdc.transferFrom(msg.sender,address(this),_amt);
-        Snapshot memory snapshot = snapshots[currentIndexForNewSnapshots];
+        require(usdc.transferFrom(msg.sender,address(this),_amt), "StakingPool: Transfer failed on take interest");
+        Snapshot memory snapshot = snapshots[_index];
         snapshot.pnlRemaining += int(_amt);
         snapshot.pnlForReward += int(_amt);
         snapshot.pnlForSnapshot += int(_totalAmt);

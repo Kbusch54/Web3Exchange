@@ -14,6 +14,7 @@ contract VaultForLoanPools is Balances{
          Pools = _pools;
     }
     address[] public Pools;
+    uint public lastRewardIndex;
      function getInterestOwed(bytes memory  _tradeId)public view returns(uint){
         (, , , ,address _pool)=decodeTradeId(_tradeId);
         IStakingPoolAmm stake = IStakingPoolAmm(_pool);
@@ -45,12 +46,17 @@ contract VaultForLoanPools is Balances{
         checkTakeReward(msg.sender,rewardsIndex);
         balancesForRewards[msg.sender][rewardsIndex] -= _amount;
         IERC20(Usdc).transfer(_staker,_amount);
+        lastRewardIndex = rewardsIndex;
 
     }
-    function checkTakeReward(address _staker,uint rewardsIndex)internal{
-         if(balancesForRewards[_staker][rewardsIndex-1]>0){
-            balancesForRewards[_staker][rewardsIndex]+=balancesForRewards[_staker][rewardsIndex-1];
-         }
+    function checkTakeReward(address _pool,uint rewardsIndex)public{
+        if(rewardsIndex>lastRewardIndex){
+            for(uint i = lastRewardIndex;i<rewardsIndex;i++){
+                if(balancesForRewards[_pool][i]>0){
+                    IERC20(Usdc).transfer(_pool,balancesForRewards[_pool][i]);
+                }
+            }
+        }    
     }
 
     function decodeTradeId(bytes memory encodedData) public pure returns(address amm, uint timeStamp, int side, address trader,address pool ) {
