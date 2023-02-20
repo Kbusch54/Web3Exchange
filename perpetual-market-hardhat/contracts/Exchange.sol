@@ -170,18 +170,48 @@ contract Exchange{
     }
 
 
-    function getTotalFundingRate(bytes memory _tradeId)public view returns(int){
+    function getTotalFundingRate(bytes memory _tradeId)public view returns(int cumulativeFFR,int side){
         Position memory position = positions[positionsbyTradeId[_tradeId]];
-        require(position.startBlock > 0, "position not found");
+        require(position.startBlock >= 0, "position not found");
         uint posLastFFr = position.lastFundingRateIndex;
         IVAmm amm = IVAmm(position._amm);
         uint lastFFr = amm.getLastFundingRateIndex();
-        int cumulativeFFR;
+        int _cumulativeFFR;
         for(uint i = posLastFFr; i < lastFFr; i++){
-            cumulativeFFR += amm.getSnapshotByIndex(i).fundingRate ;
+            _cumulativeFFR += amm.getSnapshotByIndex(i).fundingRate ;
         }
-        return cumulativeFFR;
-
+        cumulativeFFR = _cumulativeFFR;
+        side = position.side;
+    }
+  
+    //only vault
+    function updatePositionLoanAmount(bytes memory _tradeId, uint _newLoanedAmount)public returns(bool){
+        require(isTradeActive[_tradeId], "trade not active");
+        Position memory position = positions[positionsbyTradeId[_tradeId]];
+        require(position.startBlock > 0, "position not found");
+        require(position.margin > 0, "position already closed");
+        position.loanedAmount = _newLoanedAmount;
+        positions[positionsbyTradeId[_tradeId]] = position;
+        return true;
+    }
+    function updatePositionMarginAmount(bytes memory _tradeId, uint _newMargin)public returns(bool){
+        require(isTradeActive[_tradeId], "trade not active");
+        Position memory position = positions[positionsbyTradeId[_tradeId]];
+        require(position.startBlock > 0, "position not found");
+        require(position.margin > 0, "position already closed");
+        position.margin = _newMargin;
+        position.lastFundingRateIndex = block.number;
+        positions[positionsbyTradeId[_tradeId]] = position;
+        return true;
+    }
+    function updatePositionLastFundingRate(bytes memory _tradeId)public returns(bool){
+        require(isTradeActive[_tradeId], "trade not active");
+        Position memory position = positions[positionsbyTradeId[_tradeId]];
+        require(position.startBlock > 0, "position not found");
+        require(position.margin > 0, "position already closed");
+        position.lastFundingRateIndex = block.number;
+        positions[positionsbyTradeId[_tradeId]] = position;
+        return true;
     }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////

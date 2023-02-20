@@ -55,20 +55,17 @@ mapping(address=>address)ammToPool;
 
     function addLiquidityWithLoan(bytes memory _tradeId, uint _levOnAddedColl, uint _addedColl)public returns(bool _check,uint newBalance,uint _tradeBalance,uint minimumMarginReq){
         //get and pay interest
-        uint interestOwed = getInterestOwed(_tradeId);
-        require(tradeCollateral[_tradeId] >= interestOwed,"not enough balance");
-        recordInterest(_tradeId,interestOwed);
+        (,,,address _trader,)=decodeTradeId(_tradeId);
+        require(recordInterest(_tradeId,getInterestOwed(_tradeId)),"record interest failed");
         //calculate new collateral
-        uint totalCollateral = tradeCollateral[_tradeId] + _addedColl;
-        (bool pass,  uint _newBalance,uint  __tradeBalance,uint  mmr) =addingLeverage(_tradeId,_addedColl,totalCollateral,_levOnAddedColl);
-        require(pass == true,"adding leverage failed");
+        collateralChange(_tradeId,_trader);
+        (,  uint _newBalance,uint  __tradeBalance,uint  mmr) =addingLeverage(_tradeId,_addedColl,tradeCollateral[_tradeId] + _addedColl,_levOnAddedColl);
         return(true,_newBalance,__tradeBalance,mmr);
     }
     //internal functions
     function calculatePnl(bytes memory _tradeId,int _pnl)internal returns(bool){
         //check if pnl is positive or negative
         (,,,address _trader,address _pool)=decodeTradeId(_tradeId);
-        _pnl>0?console.log("pnl:",uint(_pnl)):console.log("pnl: -",uint(_pnl*-1));
           if(_pnl > 0){
             //profit
             //usdc transfer from pool to vault
@@ -98,6 +95,7 @@ mapping(address=>address)ammToPool;
                 //liquidate
                 if(hasChanged == true){
                     tradeCollateral[_tradeId] = uint(_collateral);
+                    IExchange(exchange).updatePositionMarginAmount(_tradeId,uint(_collateral));
                 }
             }
         return true;
@@ -123,13 +121,14 @@ mapping(address=>address)ammToPool;
         tradeCollateral[_tradeId] += _newCollateral;
         minimumMarginReq =tradeInterest[_tradeId] += minMargReq;
         _tradeBalance = tradeBalance[_tradeId] += loanAmt;
+        
         poolOutstandingLoans[_pool] += loanAmt;
         pass = true;
     }
     function addLeverageToLoan(bytes memory _tradeId,uint _oldLev, uint _newLev)public returns(bool _check,uint _newTradeBalance,uint _minimumMarginReq){
         //get and pay interest
         // addLeverageOnLoan(bytes memory _tradeId, uint _newLev,uint _oldLev) external returns(uint newLoanAmount, uint minimumMarginReq,uint owedInterest)
-        (,,,,address _pool)=decodeTradeId(_tradeId);
+        (,,,address _trader,address _pool)=decodeTradeId(_tradeId);
         (uint newLoanAmount, uint minimumMarginReq,) = ILoanPool(_pool).addLeverageOnLoan(_tradeId,_newLev,_oldLev);
         require(IERC20(Usdc).transferFrom(_pool,address(this),newLoanAmount),"transfer failed");
         tradeBalance[_tradeId] += newLoanAmount;
@@ -138,18 +137,18 @@ mapping(address=>address)ammToPool;
         _minimumMarginReq = tradeInterest[_tradeId];
         _newTradeBalance = tradeBalance[_tradeId];
         //pay interest 
-        uint interestOwed = getInterestOwed(_tradeId);
-        require(tradeCollateral[_tradeId] >= interestOwed,"not enough balance");
-        _check =recordInterest(_tradeId,interestOwed);
+        _check =recordInterest(_tradeId,getInterestOwed(_tradeId));
+        collateralChange(_tradeId,_trader);
     }
     function calculateCollateral(bytes memory  _tradeId)public view returns(int _collateral,bool hasChanged){
         // (address _pool,,,)=decodeTradeId(_tradeId);
         uint _interest = getInterestOwed(_tradeId);
         // IExchange _exchange = IExchange(exchange);
-        // int cumulativeFFR = _exchange.getTotalFundingRate(_tradeId);
-        int cumulativeFFR = 0;
+        (int cumulativeFFR,int side) = IExchange(exchange).getTotalFundingRate(_tradeId);
+
         uint inititalCollateral = tradeCollateral[_tradeId];
-        _collateral = int(inititalCollateral) - int(_interest) + (cumulativeFFR*int(inititalCollateral));
+        uint intialTradeBalance = tradeBalance[_tradeId];
+        _collateral = int(inititalCollateral) - int(_interest) + (cumulativeFFR*int(intialTradeBalance)/100000000*side);
         if(int(inititalCollateral) == _collateral){
            hasChanged = false;
         }else{

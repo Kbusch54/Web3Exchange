@@ -84,7 +84,7 @@ contract LoanPool is StakingPoolAmm{
 
 
 //pay interest of whole loan and principal of repayed amount????
-    function repay(bytes memory _tradeId, uint _amount) external returns(uint newLoanAmount, uint minimumMarginReq,uint owedInterest){
+    function repay(bytes memory _tradeId, uint _amount) external returns(uint newLoanAmount, uint marginFee,uint owedInterest){
         require(borrowedAmounts[_tradeId] >= _amount,'LoanPool: Amount to repay exceeds loan');
        owedInterest = getInterestOwedForAmount(_tradeId,_amount);
         borrowedAmounts[_tradeId] -= _amount;
@@ -95,7 +95,7 @@ contract LoanPool is StakingPoolAmm{
         loanedUsdc-= _amount;
         updateUsdcSupply();
         newLoanAmount = borrowedAmounts[_tradeId];
-        minimumMarginReq = fixedToUint(borrowedAmounts[_tradeId]*loanInterestRate);
+        marginFee = fixedToUint(borrowedAmounts[_tradeId]*loanInterestRate);
     }
     function getInterestOwedForAmount(bytes memory _tradeId, uint _amount) public view returns(uint interestOwed){
           uint interestMultiplyer = (block.number-tradeInterestPeriod[_tradeId])/interestPeriod;

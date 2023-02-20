@@ -80,7 +80,10 @@ import "hardhat/console.sol";
         require(_price>0,"price must be greater than 0");
         require(!isFrozen,"VAmm is frozen");
         LiquidityChangedSnapshot memory lastSnapshot = liquidityChangedSnapshots[liquidityChangedSnapshots.length-1];
-        require(lastSnapshot.blockNumber+indexPricePeriod>=block.number,"Need to wait for loan block period");
+        console.log("lastSnapshot.blockNumber",lastSnapshot.blockNumber);
+        console.log("indexPricePeriod",indexPricePeriod);
+        console.log("block.number",block.number);
+        require(lastSnapshot.blockNumber+indexPricePeriod<=block.number,"Need to wait for loan block period");
         //set last index price
         lastSnapshot.finalIndexPrice = _price;
         //set new index price
@@ -93,7 +96,7 @@ import "hardhat/console.sol";
     function getLastAssetSpotPrice()external view returns(uint){
         return indexPrice;
     }
-    function getAssetPrice()external view returns(uint){
+    function getAssetPrice()public view returns(uint){
         LiquidityChangedSnapshot memory lastSnapshot = liquidityChangedSnapshots[liquidityChangedSnapshots.length-1];
         return lastSnapshot.baseAssetReserve*100000000/lastSnapshot.quoteAssetReserve;
     }
@@ -134,14 +137,15 @@ import "hardhat/console.sol";
 
     function updateFutureFundingRate()internal returns(int){
          LiquidityChangedSnapshot memory lastSnapshot = liquidityChangedSnapshots[liquidityChangedSnapshots.length-1];
-         int _newFundingRate = calculateFundingRate(int(lastSnapshot.baseAssetReserve)/int(lastSnapshot.quoteAssetReserve),int(indexPrice));
+         int _newFundingRate = calculateFundingRate(int(getAssetPrice()),int(indexPrice));
+         console.log("new funding rate",uint(_newFundingRate*-1));
          lastSnapshot.fundingRate = _newFundingRate;
          liquidityChangedSnapshots[liquidityChangedSnapshots.length-1] =  lastSnapshot;
 
        return  _newFundingRate;
     }
     function calculateFundingRate(int markPrice, int _indexPrice)public pure returns(int){
-        return intToFixed(_indexPrice - markPrice)/_indexPrice/24;
+        return intToFixed(_indexPrice - markPrice)/_indexPrice/12;
     }
     //only exchange
     function closePosition(int positionSize,int _side)external returns(uint exitPrice,int usdcAmt){
@@ -168,12 +172,11 @@ import "hardhat/console.sol";
     function adjustFundingPaymentsAll()internal {
         updateFutureFundingRate();
         LiquidityChangedSnapshot memory lastSnapshot = liquidityChangedSnapshots[liquidityChangedSnapshots.length-1];
-        require(lastSnapshot.blockNumber+indexPricePeriod>=block.number,"Need to wait for loan block period");
-        int nbR =  int(lastSnapshot.baseAssetReserve) *(100000000+lastSnapshot.fundingRate);
-        uint _newBaseAsset = uint(fixedToInt(nbR>0?nbR:nbR*-1));
-        uint _newQuoteAsset = k/ _newBaseAsset;
-        lastSnapshot.quoteAssetReserve = _newQuoteAsset;  
-        lastSnapshot.baseAssetReserve = _newBaseAsset;
+        // int nbR =  int(lastSnapshot.baseAssetReserve) *(100000000+lastSnapshot.fundingRate);
+        // uint _newBaseAsset = uint(fixedToInt(nbR>0?nbR:nbR*-1));
+        // uint _newQuoteAsset = k/ _newBaseAsset;
+        lastSnapshot.quoteAssetReserve = lastSnapshot.quoteAssetReserve;  
+        lastSnapshot.baseAssetReserve = lastSnapshot.baseAssetReserve;
         lastSnapshot.blockNumber = block.number;
         lastSnapshot.timestamp = block.timestamp;
         lastSnapshot.startIndexPrice = lastSnapshot.finalIndexPrice;
