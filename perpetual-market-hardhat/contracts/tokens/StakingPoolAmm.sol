@@ -94,7 +94,7 @@ function claimReward()external{
 
 function internalClaimRewards(address _user)internal{
     Snapshot memory snapshot = snapshots[rewardsIndex];
-if(  snapshot.pnlRemaining > 0){
+    if(  snapshot.pnlRemaining > 0){
 
 
     if(snapshotHasClaimedReward[rewardsIndex][_user] == false){
