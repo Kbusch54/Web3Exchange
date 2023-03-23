@@ -4,12 +4,13 @@ import Image from "next/image";
 
 import main from "../public/assets/main-background.png";
 import column from "../public/assets/column.png";
-
+import Link from "next/link";
 import logo from "../public/assets/minotaur-logo-thing.png";
 import ariadne from "../public/assets/ariadne-real.png";
 import theseus from "../public/assets/stone-theseus.png"
 import dynamic from "next/dynamic";
 import LoanPoolTab from "../components/LoanPoolTab";
+import ScrollUp from "../components/utils/ScrollUp";
 const TradeStepper= dynamic(() => import("../components/mainPage/TradeStepper"), {
   ssr: false,
   });
@@ -19,7 +20,7 @@ interface Props {}
 export default function page({}: Props): ReactElement {
   return (
     <div className="text-[rgba(41,87,109,255)] ">
-      <section className="min-h-screen flex justify-center text-center lg:ml-8 m-2">
+      <section className="min-h-screen flex justify-center text-center lg:ml-8 m-2" id="top">
         
         <div className="absolute flex ">
           <Image
@@ -54,8 +55,9 @@ export default function page({}: Props): ReactElement {
             </div>
           </div>
         </div>
+     
       </section>
-      <section className="min-h-screen relative">
+      <section className="min-h-screen relative" id='trade-page'>
         <div className="hidden lg:block relative">
           <Image src={column} alt="column"
             className="  w-[15vw] h-[90vh] absolute left-0 -z-10" />
@@ -73,7 +75,7 @@ export default function page({}: Props): ReactElement {
         </div>
 
       </section>
-      <section className="min-h-screen max-h-screen relative  ">
+      <section className="min-h-screen max-h-screen relative  " id='loan-pool'>
         <div className="flex flex-col text-center ">
           <h1 className="text-3xl mb-8 text-white">Loan Pools</h1>
 
@@ -85,7 +87,7 @@ export default function page({}: Props): ReactElement {
             </div>
         </div>
       </section>
-      <section className="min-h-screen max-h-screen relative  ">
+      <section className="min-h-screen max-h-screen relative  " id='theseus-dao'>
         <div className="flex flex-col text-center m-4">
           <h1 className="text-3xl mt-4 mb-12 text-white">Theseus DAO</h1>
           <div className="border-4 border-slate-700 flex flex-col justify-center gap-y-8 py-8  text-center text-white m-6 backdrop-blur-[6px] p-2 shadow-2xl border-b-8 border-l-[6px] border-opacity-60 xl:mr-[40rem] ">
@@ -110,7 +112,7 @@ export default function page({}: Props): ReactElement {
           </div>
         </div>
       </section>
-      <section className="h-screen">
+      <section className="h-screen" id='white-paper'>
         <div className="flex flex-col m-12 text-center bg-white 2xl:mx-96  p-6">
           <h1 className="text-center text-xl"> Minoan Exchange: A Perpetual Defi Exchange</h1>
           <h3 className="text-lg font-bold">Introduction</h3>
@@ -168,6 +170,9 @@ export default function page({}: Props): ReactElement {
           </p>
         </div>
       </section>
+      <ScrollUp className="w-10 h-10" href='#top'>
+        <Image src={logo} alt="logo" height={40} className=' sticky bottom-3  left-1/2'/>
+      </ScrollUp>
     </div>
   );
 }
