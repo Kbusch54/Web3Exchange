@@ -1,3 +1,48 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.background-style {
+  /* ff 3.6+ */
+  background: -moz-linear-gradient(
+    0deg,
+    rgba(4, 2, 28, 1) 0%,
+    rgba(24, 3, 58, 1) 46%,
+    rgba(12, 2, 78, 1) 100%
+  );
+
+  /* safari 5.1+,chrome 10+ */
+  background: -webkit-linear-gradient(
+    0deg,
+    rgba(4, 2, 28, 1) 0%,
+    rgba(24, 3, 58, 1) 46%,
+    rgba(12, 2, 78, 1) 100%
+  );
+
+  /* opera 11.10+ */
+  background: -o-linear-gradient(
+    0deg,
+    rgba(4, 2, 28, 1) 0%,
+    rgba(24, 3, 58, 1) 46%,
+    rgba(12, 2, 78, 1) 100%
+  );
+
+  /* ie 6-9 */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#04021C', endColorstr='#0C024E', GradientType=1 );
+
+  /* ie 10+ */
+  background: -ms-linear-gradient(
+    0deg,
+    rgba(4, 2, 28, 1) 0%,
+    rgba(24, 3, 58, 1) 46%,
+    rgba(12, 2, 78, 1) 100%
+  );
+
+  /* global 94%+ browsers support */
+  background: linear-gradient(
+    0deg,
+    rgba(4, 2, 28, 1) 0%,
+    rgba(24, 3, 58, 1) 46%,
+    rgba(12, 2, 78, 1) 100%
+  );
+}

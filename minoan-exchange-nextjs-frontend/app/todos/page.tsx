@@ -1,13 +1,7 @@
-import React, { ReactElement } from 'react'
+import React, { ReactElement } from "react";
 
-interface Props {
-    
-}
+interface Props {}
 
 export default function page({}: Props): ReactElement {
-    return (
-        <div>
-           todos
-        </div>
-    )
+  return <div>todos fir</div>;
 }
