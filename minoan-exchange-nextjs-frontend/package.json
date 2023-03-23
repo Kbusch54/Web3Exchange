@@ -6,6 +6,9 @@
     "start": "next start"
   },
   "dependencies": {
+    "@emotion/react": "^11.10.6",
+    "@emotion/styled": "^11.10.6",
+    "@mui/material": "^5.11.14",
     "next": "latest",
     "node": "^19.6.1",
     "react": "18.2.0",

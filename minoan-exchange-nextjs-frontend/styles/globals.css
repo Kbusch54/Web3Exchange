@@ -1,7 +1,12 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
+.shadow-box {
+  background: linear-gradient(hsl(300, 50%, 20%), hsl(300, 6%, 21%));
+  padding: 2rem 0.5rem;
+  text-align: left;
+  color: hsl(300, 50%, 95%);
+}
 .background-style {
   /* ff 3.6+ */
   background: -moz-linear-gradient(
