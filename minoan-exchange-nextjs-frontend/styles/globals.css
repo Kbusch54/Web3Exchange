@@ -7,6 +7,10 @@
   text-align: left;
   color: hsl(300, 50%, 95%);
 }
+.pool-card{
+  background:conic-gradient(from 225deg at 49% 0%, rgba(202, 138, 4, 1) 0%, rgba(30, 64, 175, 1) 50%, rgba(30, 64, 175, 1) 100%);
+  @apply shadow-lg shadow-blue-600 flex-grow flex-col w-full md:w-1/2 lg:w-1/3 xl:w-1/4 text-center rounded-lg h-full border-4  border-yellow-700 hover:scale-125
+}
 .background-style {
   /* ff 3.6+ */
   background: -moz-linear-gradient(
