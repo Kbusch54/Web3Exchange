@@ -26,7 +26,7 @@ export default function PurposalModal() {
     <div>
       <Button
         onClick={handleOpen}
-        className=" py-4 my-6 text-xl px-8 md:px-32 md:py-12 rounded-full md:my-12  bg-green-500 text-white md:text-5xl text-center hover:scale-125"
+        className=" py-4 my-6 text-xl px-8 md:px-32 md:py-12 rounded-full md:my-12  bg-amber-400 hover:shadow-2xl hover:shadow-amber-200 text-white md:text-5xl text-center hover:scale-125"
       >
         Purpose
       </Button>

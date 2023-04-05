@@ -95,58 +95,66 @@ export default async function PoolPage({ params }: Props) {
               id={"stats"}
               className="col-span-9 lg:col-span-9 flex flex-wrap justify-evenly text-center gap-y-12"
             >
-              <div className="flex flex-col gap-y-4">
-                <h1>Investor Stats</h1>
-                <div className="flex flex-row gap-x-24 text-lg text-center justify-between">
-                  <h3>Minimum Margin Ratio:</h3>
-                  <h3>5%</h3>
-                </div>
-                <div className="flex flex-row gap-x-24 text-lg text-center justify-between">
-                  <h3>Max Leverage:</h3>
-                  <h3>15X</h3>
-                </div>
-                <div className="flex flex-row gap-x-24 text-lg text-center justify-between">
-                  <h3>Minimum Investment:</h3>
-                  <h3>$2,000.03</h3>
-                </div>
-                <div className="flex flex-row gap-x-24 text-lg text-center justify-between">
-                  <h3>Maximum Investment:</h3>
-                  <h3>$87,039.25</h3>
-                </div>
-                <div className="flex flex-row gap-x-24 text-lg text-center justify-between">
-                  <h3>Interest Rate:</h3>
-                  <h3>3.2 %</h3>
-                </div>
-                <div className="flex flex-row gap-x-24 text-lg text-center justify-between">
-                  <h3>Interest Payment Period:</h3>
-                  <h3>8 hrs</h3>
+              <div className="rounded-2xl bg-gradient-to-r from-cyan-500 via-red-500 to-amber-500 p-1 shadow-xl">
+                <div className="block rounded-xl bg-slate-800 -z-10 p-4 sm:p-6 lg:p-8">
+                  <div className="flex flex-col gap-y-4 ">
+                    <h1>Investor Stats</h1>
+                    <div className="flex flex-row gap-x-24 text-lg text-center justify-between">
+                      <h3>Minimum Margin Ratio:</h3>
+                      <h3>5%</h3>
+                    </div>
+                    <div className="flex flex-row gap-x-24 text-lg text-center justify-between">
+                      <h3>Max Leverage:</h3>
+                      <h3>15X</h3>
+                    </div>
+                    <div className="flex flex-row gap-x-24 text-lg text-center justify-between">
+                      <h3>Minimum Investment:</h3>
+                      <h3>$2,000.03</h3>
+                    </div>
+                    <div className="flex flex-row gap-x-24 text-lg text-center justify-between">
+                      <h3>Maximum Investment:</h3>
+                      <h3>$87,039.25</h3>
+                    </div>
+                    <div className="flex flex-row gap-x-24 text-lg text-center justify-between">
+                      <h3>Interest Rate:</h3>
+                      <h3>3.2 %</h3>
+                    </div>
+                    <div className="flex flex-row gap-x-24 text-lg text-center justify-between">
+                      <h3>Interest Payment Period:</h3>
+                      <h3>8 hrs</h3>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div className="flex flex-col gap-y-4">
-                <h1>Staking Information</h1>
-                <div className="flex flex-row gap-x-24 text-lg text-center justify-between">
-                  <h3>Stakers:</h3>
-                  <h3>126</h3>
-                </div>
-                <div className="flex flex-row gap-x-24 text-lg text-center justify-between">
-                  <h3>USDC to Tok:</h3>
-                  <h3>12:3</h3>
-                </div>
-                <div className="flex flex-row gap-x-24 text-lg text-center justify-between">
-                  <h3>ROI (72h) avg:</h3>
-                  <h3>$475.02</h3>
-                </div>
-                <div className="flex flex-row gap-x-24 text-lg text-center justify-between">
-                  <h3>Reward %:</h3>
-                  <h3>48 %</h3>
-                </div>
-                <div className="flex flex-row gap-x-24 text-lg text-center justify-between">
-                  <h3>Reward Period:</h3>
-                  <h3>96 hrs</h3>
-                </div>
-                <div className="flex flex-row gap-x-24 text-lg text-center justify-between">
-                  <h3>Minimum Stake:</h3>
-                  <h3>$2.05</h3>
+              <div className="rounded-2xl bg-gradient-to-r from-cyan-500 via-red-500 to-amber-500 p-1 shadow-xl">
+                <div className="block rounded-xl bg-slate-800 -z-10 p-4 sm:p-6 lg:p-8">
+                  <div className="flex flex-col gap-y-4">
+                    <h1>Staking Information</h1>
+                    <div className="flex flex-row gap-x-24 text-lg text-center justify-between">
+                      <h3>Stakers:</h3>
+                      <h3>126</h3>
+                    </div>
+                    <div className="flex flex-row gap-x-24 text-lg text-center justify-between">
+                      <h3>USDC to Tok:</h3>
+                      <h3>12:3</h3>
+                    </div>
+                    <div className="flex flex-row gap-x-24 text-lg text-center justify-between">
+                      <h3>ROI (72h) avg:</h3>
+                      <h3>$475.02</h3>
+                    </div>
+                    <div className="flex flex-row gap-x-24 text-lg text-center justify-between">
+                      <h3>Reward %:</h3>
+                      <h3>48 %</h3>
+                    </div>
+                    <div className="flex flex-row gap-x-24 text-lg text-center justify-between">
+                      <h3>Reward Period:</h3>
+                      <h3>96 hrs</h3>
+                    </div>
+                    <div className="flex flex-row gap-x-24 text-lg text-center justify-between">
+                      <h3>Minimum Stake:</h3>
+                      <h3>$2.05</h3>
+                    </div>
+                  </div>
                 </div>
               </div>
             </section>
@@ -155,11 +163,9 @@ export default async function PoolPage({ params }: Props) {
               className="col-span-9 lg:col-span-9 text-center "
             >
               <h1 className="my-4">Stake</h1>
-              <div className="flex flex-col bg-cyan-700 bg-opacity-10 rounded-2xl shadow-xl shadow-amber-400 text-lg p-4 mx-36">
-                <div className="flex justify-evenly">
-                  <div>dffff</div>
-                  <StakingForm />
-                </div>
+
+              <div className="">
+                <StakingForm />
               </div>
             </section>
           </div>

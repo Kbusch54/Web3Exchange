@@ -14,6 +14,9 @@ import Paper from "@mui/material/Paper";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 
+// TODO pull data
+// from component which DAO
+// from graph get all data
 function createData(
   nonce: number,
   hash: string,
@@ -50,40 +53,57 @@ function Row(props: { row: ReturnType<typeof createData> }) {
             {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
         </TableCell>
-        <TableCell component="th" scope="row">
+        <TableCell component="th" scope="row" className="text-white">
           {row.nonce}
         </TableCell>
-        <TableCell>{row.hash}</TableCell>
-        <TableCell>{row.votes}</TableCell>
-        <TableCell>{row.votesNeeded}</TableCell>
-        <TableCell>
-          <button className="px-4 py-2 bg-green-500 text-white hover:scale-125 rounded-2xl">
+        <TableCell className="text-white">{row.hash}</TableCell>
+        <TableCell className="text-white">{row.votes}</TableCell>
+        <TableCell className="text-white">{row.votesNeeded}</TableCell>
+        <TableCell className="text-white">
+          <button className="px-4 py-2 bg-amber-400 text-white hover:scale-125 rounded-2xl">
             Vote
           </button>
         </TableCell>
       </TableRow>
       <TableRow>
-        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+        <TableCell
+          className="text-white"
+          style={{ paddingBottom: 0, paddingTop: 0 }}
+          colSpan={6}
+        >
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box sx={{ margin: 1 }}>
-              <Typography variant="h6" gutterBottom component="div">
+              <Typography
+                className="text-white"
+                variant="h6"
+                gutterBottom
+                component="div"
+              >
                 Information
               </Typography>
               <Table size="small" aria-label="info">
                 <TableHead>
                   <TableRow>
-                    <TableCell>Date</TableCell>
-                    <TableCell>Purposer</TableCell>
-                    <TableCell align="right">Description</TableCell>
+                    <TableCell className="text-white">Date</TableCell>
+                    <TableCell className="text-white">Purposer</TableCell>
+                    <TableCell className="text-white" align="right">
+                      Description
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   <TableRow key={row.information.date}>
-                    <TableCell component="th" scope="row">
+                    <TableCell
+                      className="text-white"
+                      component="th"
+                      scope="row"
+                    >
                       {row.information.date}
                     </TableCell>
-                    <TableCell>{row.information.purposer}</TableCell>
-                    <TableCell align="right">
+                    <TableCell className="text-white">
+                      {row.information.purposer}
+                    </TableCell>
+                    <TableCell className="text-white" align="right">
                       {row.information.description}
                     </TableCell>
                   </TableRow>
@@ -117,15 +137,18 @@ const rows = [
 
 export default function DaoTransaction() {
   return (
-    <TableContainer component={Paper}>
+    <TableContainer
+      component={Paper}
+      className="bg-slate-800 rounded-2xl shadow-xl shadow-amber-400 text-white"
+    >
       <Table aria-label="collapsible table">
         <TableHead>
           <TableRow>
             <TableCell />
-            <TableCell>Nonce</TableCell>
-            <TableCell>Hash</TableCell>
-            <TableCell>Votes</TableCell>
-            <TableCell>Votes Needed</TableCell>
+            <TableCell className="text-white">Nonce</TableCell>
+            <TableCell className="text-white">Hash</TableCell>
+            <TableCell className="text-white">Votes</TableCell>
+            <TableCell className="text-white">Votes Needed</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
