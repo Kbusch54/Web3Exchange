@@ -1,6 +1,7 @@
 import Image from "next/image";
 import React from "react";
 import AreaChartPoolsApex from "../../components/charts/poolCharts/AreaChartPoolsApex";
+import VaultUSDCForm from "../../components/forms/VaultUSDCForm";
 import StockData from "../../components/stockData/StockData";
 import CurrentTradesTable from "../../components/tables/CurrentTradesTable";
 import tesla from "../../public/assets/teslaSymbol.png";
@@ -59,12 +60,7 @@ const page = (props: Props) => {
               </button>
             </div>
           </div>
-          <div className="outside-box mt-8">
-            <div className="flex flex-col text-center inside-box ">
-              <h3>Deposit</h3>
-              <h3>Withdraw</h3>
-            </div>
-          </div>
+          <VaultUSDCForm/>
         </div>
         <div className="my-4 col-start-2 col-span-9 border">
           <CurrentTradesTable />
