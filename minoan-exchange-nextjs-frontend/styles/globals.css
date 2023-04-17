@@ -7,9 +7,23 @@
   text-align: left;
   color: hsl(300, 50%, 95%);
 }
-.pool-card{
-  background:conic-gradient(from 225deg at 49% 0%, rgba(202, 138, 4, 1) 0%, rgba(30, 64, 175, 1) 50%, rgba(30, 64, 175, 1) 100%);
-  @apply shadow-lg shadow-blue-600 flex-grow flex-col w-full md:w-1/2 lg:w-1/3 xl:w-1/4 text-center rounded-lg h-full border-4  border-yellow-700 hover:scale-125
+.table-text {
+  @apply text-white text-xs lg:text-base;
+}
+.pool-card {
+  background: conic-gradient(
+    from 225deg at 49% 0%,
+    rgba(202, 138, 4, 1) 0%,
+    rgba(30, 64, 175, 1) 50%,
+    rgba(30, 64, 175, 1) 100%
+  );
+  @apply shadow-lg shadow-blue-600 flex-grow flex-col w-full md:w-1/2 lg:w-1/3 xl:w-1/4 text-center rounded-lg h-full border-4  border-yellow-700 hover:scale-125;
+}
+.outside-box {
+  @apply rounded-2xl bg-gradient-to-r from-cyan-500 via-red-500 to-amber-500 p-1 shadow-xl;
+}
+.inside-box {
+  @apply rounded-xl bg-slate-800 -z-10 p-2 sm:p-4 lg:p-6;
 }
 .background-style {
   /* ff 3.6+ */

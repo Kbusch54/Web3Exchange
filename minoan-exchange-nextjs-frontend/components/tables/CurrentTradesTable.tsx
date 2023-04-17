@@ -54,25 +54,29 @@ function Row(props: { row: ReturnType<typeof createData> }) {
 
   return (
     <React.Fragment>
-      <TableRow sx={{ "& > *": { borderBottom: "unset" } }}>
+      <TableRow sx={{}}>
         <TableCell>
           <IconButton
             aria-label="expand row"
-            size="small"
+            size="medium"
             onClick={() => setOpen(!open)}
           >
             {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
         </TableCell>
-        <TableCell component="th" scope="row" className="text-white">
-          {row.id}
+        <TableCell
+          component="header"
+          scope="row"
+          className="table-text text-left"
+        >
+          {row.id.slice(0, 4) + "..." + row.id.slice(-4)}
         </TableCell>
 
-        <TableCell className="text-white">{row.asset}</TableCell>
-        <TableCell className="text-white">{row.side}</TableCell>
-        <TableCell className="text-white">{row.size}</TableCell>
-        <TableCell className="text-white">{row.leverage}X</TableCell>
-        <TableCell className="text-white">${row.pnl}</TableCell>
+        <TableCell className="table-text">{row.asset}</TableCell>
+        <TableCell className="table-text">{row.side}</TableCell>
+        <TableCell className="table-text">{row.size}</TableCell>
+        <TableCell className="table-text">{row.leverage}X</TableCell>
+        <TableCell className="table-text">${row.pnl}</TableCell>
       </TableRow>
       <TableRow>
         <TableCell
@@ -81,7 +85,7 @@ function Row(props: { row: ReturnType<typeof createData> }) {
           colSpan={6}
         >
           <Collapse in={open} timeout="auto" unmountOnExit>
-            <Box sx={{ margin: 2 }}>
+            <Box sx={{}}>
               <Typography
                 className="text-white"
                 variant="h6"
@@ -131,7 +135,7 @@ function Row(props: { row: ReturnType<typeof createData> }) {
                 </TableBody>
               </Table>
             </Box>
-            <Box sx={{ margin: 2 }}>
+            <Box sx={{}}>
               <Table size="small" aria-label="info">
                 <TableHead>
                   <TableRow>
@@ -167,17 +171,17 @@ function Row(props: { row: ReturnType<typeof createData> }) {
                 </TableBody>
               </Table>
             </Box>
-            <div className="flex justify-between mb-8 ml-4">
-              <button className="px-3 py-2 rounded-lg hover:scale-125 bg-green-400">
+            <div className="flex justify-between mb-8 md:ml-4 mt-6 ">
+              <button className="px-2 py-1  text-xs md:text-base md:px-3 md:py-2  rounded-lg hover:scale-125 bg-green-400">
                 Add Leverage
               </button>
-              <button className="px-3 py-2 rounded-lg hover:scale-125 bg-green-400">
+              <button className="px-2 py-1  text-xs md:text-base md:px-3 md:py-2 rounded-lg hover:scale-125 bg-green-400">
                 Add Collateral
               </button>
-              <button className="px-3 py-2 rounded-lg hover:scale-125 bg-yellow-400">
+              <button className="px-2 py-1  text-xs md:text-base md:px-3 md:py-2 rounded-lg hover:scale-125 bg-yellow-400">
                 Remove Collateral
               </button>
-              <button className="px-3 py-2 rounded-lg hover:scale-125 bg-red-400">
+              <button className="px-2 py-1  text-xs md:text-base md:px-3 md:py-2 rounded-lg hover:scale-125 bg-red-400">
                 Close Postion
               </button>
             </div>
@@ -189,7 +193,7 @@ function Row(props: { row: ReturnType<typeof createData> }) {
 }
 
 const rows = [
-  createData("0x83hsh348dhh5hjf", "TSL", 12.3, 1, 10, 2899.33, {
+  createData("0x83hsh348dhh5hjf", "TSLA", 12.3, 1, 10, 2899.33, {
     mmr: 5,
     ffr: 12.34,
     liquidationPrice: 313.82,
@@ -209,16 +213,19 @@ export default function CurrentTradesTable() {
       component={Paper}
       className="bg-slate-800 rounded-2xl shadow-xl shadow-amber-400 text-white"
     >
+      <div className="text-2xl text-center border-4 border-slate-900">
+        Active Trades
+      </div>
       <Table aria-label="collapsible table">
         <TableHead>
           <TableRow>
             <TableCell />
-            <TableCell className="text-white">Id</TableCell>
-            <TableCell className="text-white">Asset</TableCell>
-            <TableCell className="text-white">Side</TableCell>
-            <TableCell className="text-white">Size</TableCell>
-            <TableCell className="text-white">Lev</TableCell>
-            <TableCell className="text-white">PNL</TableCell>
+            <TableCell className="table-text">Id</TableCell>
+            <TableCell className="table-text">Asset</TableCell>
+            <TableCell className="table-text">Side</TableCell>
+            <TableCell className="table-text">Size</TableCell>
+            <TableCell className="table-text">Lev</TableCell>
+            <TableCell className="table-text">PNL</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
