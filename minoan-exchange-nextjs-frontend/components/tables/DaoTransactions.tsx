@@ -137,26 +137,30 @@ const rows = [
 
 export default function DaoTransaction() {
   return (
-    <TableContainer
-      component={Paper}
-      className="bg-slate-800 rounded-2xl shadow-xl shadow-amber-400 text-white"
-    >
-      <Table aria-label="collapsible table">
-        <TableHead>
-          <TableRow>
-            <TableCell />
-            <TableCell className="text-white">Nonce</TableCell>
-            <TableCell className="text-white">Hash</TableCell>
-            <TableCell className="text-white">Votes</TableCell>
-            <TableCell className="text-white">Votes Needed</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {rows.map((row) => (
-            <Row key={row.nonce} row={row} />
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+    <>
+      <h1 className="text-white text-5xl text-center">DAO</h1>
+      <h3 className="text-white text-2xl mb-4  ">Proposals</h3>
+      <TableContainer
+        component={Paper}
+        className="bg-slate-800 rounded-2xl shadow-xl shadow-amber-400 text-white"
+      >
+        <Table aria-label="collapsible table">
+          <TableHead>
+            <TableRow>
+              <TableCell />
+              <TableCell className="text-white">Nonce</TableCell>
+              <TableCell className="text-white">Hash</TableCell>
+              <TableCell className="text-white">Votes</TableCell>
+              <TableCell className="text-white">Votes Needed</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {rows.map((row) => (
+              <Row key={row.nonce} row={row} />
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </>
   );
 }

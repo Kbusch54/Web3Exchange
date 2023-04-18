@@ -86,10 +86,7 @@ export default async function PoolPage({ params }: Props) {
             </section>
           </div>
           <section id={"dao"} className="m-2 md:m-12">
-            <h1 className="text-white text-5xl text-center">DAO</h1>
-            <h3 className="text-white text-2xl mb-4  ">Proposals</h3>
             <DaoTransaction />
-
             <PurposalModal />
           </section>
         </div>
