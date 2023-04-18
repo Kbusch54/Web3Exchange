@@ -27,6 +27,7 @@ function createData(
   information: {
     mmr: number;
     ffr: number;
+    ffrReturn:string;
     liquidationPrice: number;
     interestRate: number;
     interestPeriod: number;
@@ -99,6 +100,7 @@ function Row(props: { row: ReturnType<typeof createData> }) {
                   <TableRow>
                     <TableCell className="text-white">MMR</TableCell>
                     <TableCell className="text-white">FFR</TableCell>
+                    <TableCell className="text-white">FFR Return</TableCell>
                     <TableCell className="text-white">
                       Liquidation Price
                     </TableCell>
@@ -121,6 +123,9 @@ function Row(props: { row: ReturnType<typeof createData> }) {
                     </TableCell>
                     <TableCell className="text-white">
                       {row.information.ffr}
+                    </TableCell>
+                    <TableCell className="text-white">
+                      {row.information.ffrReturn}
                     </TableCell>
                     <TableCell className="text-white">
                       {row.information.liquidationPrice}
@@ -196,6 +201,7 @@ const rows = [
   createData("0x83hsh348dhh5hjf", "TSLA", 12.3, 1, 10, 2899.33, {
     mmr: 5,
     ffr: 12.34,
+    ffrReturn:'$28.73',
     liquidationPrice: 313.82,
     interestRate: 1,
     interestPeriod: 12,
@@ -204,6 +210,19 @@ const rows = [
     currentCollateral: 382,
     openValue: 100,
     currentValue: 3000,
+  }),
+  createData("0x87ad83DC2F12A14C85D20f178A918a65Edfe1B42", "TSLA", 120.3, -1, 10, 20899.33, {
+    mmr: 5,
+    ffr: 12.34,
+    ffrReturn:'-$38.73',
+    liquidationPrice: 303.82,
+    interestRate: 1,
+    interestPeriod: 12,
+    interestAccrued: 40,
+    startCollateral: 400,
+    currentCollateral: 320,
+    openValue: 1000,
+    currentValue: 30000,
   }),
 ];
 

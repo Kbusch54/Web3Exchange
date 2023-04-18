@@ -59,7 +59,7 @@ export default class AreaChartsPools extends PureComponent<Props, State> {
 
     render() {
         return (
-          <ResponsiveContainer width={700} height="80%">
+          <ResponsiveContainer width={500} height={20}>
             <AreaChart  data={data}
                margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
               <defs>

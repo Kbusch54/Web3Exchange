@@ -4,6 +4,7 @@ import AreaChartPoolsApex from "../../components/charts/poolCharts/AreaChartPool
 import VaultUSDCForm from "../../components/forms/VaultUSDCForm";
 import StockData from "../../components/stockData/StockData";
 import CurrentTradesTable from "../../components/tables/CurrentTradesTable";
+import GlobalTrades from "../../components/tables/GlobalTrades";
 import tesla from "../../public/assets/teslaSymbol.png";
 type Props = {};
 
@@ -22,6 +23,7 @@ const page = (props: Props) => {
             <StockData />
           </div>
         </div>
+        
         <div className="hidden lg:block lg:col-span-7 ">
           <div className="grid grid-rows-6">
             <div className="row-span-3">
@@ -32,6 +34,7 @@ const page = (props: Props) => {
             </div>
           </div>
         </div>
+        
         <div className="col-span-3">
           <div className="outside-box mt-4">
             <div className="flex flex-col text-center inside-box text-white">
@@ -62,8 +65,55 @@ const page = (props: Props) => {
           </div>
           <VaultUSDCForm/>
         </div>
-        <div className="my-4 col-start-2 col-span-9 border">
+        <div className="col-span-12 flex flex-col md:flex-row items-center justify-evenly ">
+          <div className="outside-box mt-8 row-span-3">
+            <div className="asset-data-box inside-box">
+              <h1>Future Funding Rate</h1>
+              <div className="flex flex-row justify-between m-4 gap-x-4 text-xl">
+                <p>EST FFR</p>
+                <p>12.8</p>
+              </div>
+              <div className="flex flex-row justify-between m-4 gap-x-4 text-xl">
+                <p>Next Period</p>
+                <div className="flex-col">
+                  <p>15:27</p>
+                  <p className="text-xs text-amber-500">APROX</p>
+                </div>
+              </div>
+              <div className="flex flex-row justify-between m-4 gap-x-4 text-xl">
+                <p>Total Collateral Change</p>
+                <div className="flex-col">
+                  <p>+ $5.91</p>
+                  <p className="text-xs text-amber-500 ml-6">TSLA</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="outside-box mt-8 row-span-3">
+            <div className="asset-data-box inside-box ">
+              <h1>Interest</h1>
+              <div className="flex flex-row justify-between m-4 gap-x-4 text-xl">
+                <p>Next Period</p>
+                <div className="flex-col">
+                  <p>29:18</p>
+                  <p className="text-xs text-amber-500">APROX</p>
+                </div>
+              </div>
+              <div className="flex flex-row justify-between m-4 gap-x-4 text-xl">
+                <p>Total Collateral Change</p>
+                <div className="flex-col">
+                  <p>- $13.29</p>
+                  <p className="text-xs text-amber-500 ml-6">TSLA</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="my-4 col-start-2 col-span-9 ">
           <CurrentTradesTable />
+        </div>
+        <div className="my-4 col-start-2 col-span-9 ">
+          <GlobalTrades/>
         </div>
       </div>
     </div>

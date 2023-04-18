@@ -185,7 +185,7 @@ const VaultUSDCForm: React.FC<Props> = () => {
               <input
                 type="number"
                 ref={withdrawRef}
-                className={`text-slate-600 w-32 lg:w-24 xl-w-32  rounded-l-full text-center ${className} `}
+                className={`text-slate-600 w-32 lg:w-20 xl-w-32  rounded-l-full text-center ${className} `}
                 onFocus={handleWithdrawFocus}
                 max={vaultBalance?vaultBalance:0}
                 step="0.01"
@@ -193,7 +193,7 @@ const VaultUSDCForm: React.FC<Props> = () => {
                 prefix="$"
                 onChange={(e) => withdrawValueCheck(e)}
               />
-              <button onClick={handleMaxWithdraw} className="bg-amber-400  p-1 pr-3 rounded-r-full">
+              <button onClick={handleMaxWithdraw} className="bg-amber-400  p-1 pr-3 rounded-r-full ">
                 MAX
               </button>
             </div>
@@ -204,7 +204,7 @@ const VaultUSDCForm: React.FC<Props> = () => {
               <input
               ref={depositRef}
                 type="number"
-                className={`text-slate-600 w-32 lg:w-24 xl-w-32  rounded-l-full text-center ${className} `}
+                className={`text-slate-600 w-32 lg:w-20 xl-w-32  rounded-l-full text-center ${className} `}
                 onFocus={handleDepositFocus}
                 step="0.01"
                 placeholder="$0.00"

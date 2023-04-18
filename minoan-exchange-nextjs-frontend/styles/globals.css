@@ -1,6 +1,8 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
 .shadow-box {
   background: linear-gradient(hsl(300, 50%, 20%), hsl(300, 6%, 21%));
   padding: 2rem 0.5rem;
@@ -27,6 +29,24 @@
 }
 .input-bg{
   @apply bg-white rounded-full text-slate-600 text-center  tracking-wide md:w-[18rem] lg:w-[11rem] xl:w-[8rem] 2xl:w-[12.5rem] md:h-[2rem];
+}
+.asset-data-box{
+  @apply flex flex-col text-center text-white
+}
+.global-trades{
+  @apply   text-center flex  items-center bg-slate-800 rounded-2xl shadow-xl shadow-amber-400 text-white flex-col pb-12 mx-32 my-12
+}
+.global-trades-table{
+  @apply  text-center flex items-center text-white 
+}
+
+.global-trades-table p{
+  @apply text-xl text-white
+}
+
+
+h1{
+  @apply text-3xl
 }
 .background-style {
   /* ff 3.6+ */
