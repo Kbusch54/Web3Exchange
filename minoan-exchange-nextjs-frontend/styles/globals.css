@@ -43,7 +43,24 @@
 .global-trades-table p{
   @apply text-xl text-white
 }
-
+.balance-container{
+  @apply col-span-6 md:col-span-4 lg:col-span-6 lg:mt-0 grid grid-cols-2 xl:grid-cols-3 mt-12 gap-y-12
+}
+.balance-box{
+  @apply flex flex-col text-center border-2 border-blue-800 rounded-t-2xl rounded-b-xl bg-sky-800 m-4 bg-opacity-40
+}
+.balance-box h1{
+  @apply text-xl md:text-3xl lg:text-5xl
+}
+.balance-box h3{
+  @apply text-lg lg:text-xl
+}
+.asset-info-box{
+  @apply flex flex-col gap-y-4
+}
+.asset-info-box div{
+  @apply flex flex-row gap-x-24 text-lg text-center justify-between
+}
 
 h1{
   @apply text-3xl
