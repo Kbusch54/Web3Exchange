@@ -1,4 +1,3 @@
-import { useRouter } from "next/router";
 import { stocks } from "../../utils/stockData";
 import Image from "next/image";
 import { Stock } from "../../../types/custom";
@@ -7,7 +6,6 @@ import dynamic from "next/dynamic";
 import DaoTransaction from "../../../components/tables/DaoTransactions";
 import PurposalModal from "../../../components/modals/PurposalModal";
 import StakingForm from "../../../components/forms/StakingForm";
-import Balance from "../../../components/balances/Balances";
 import Balances from "../../../components/balances/Balances";
 import InvestorStats from "../../../components/stockData/InvestorStats";
 import StakingStats from "../../../components/stockData/StakingStats";
@@ -32,11 +30,6 @@ const AreaChartsForPools = dynamic(
 
 export default async function PoolPage({ params }: Props) {
   const stock = await getStocks(params.slug);
-
-  // dynamic(() => import('../../../components/charts/poolCharts/AreaChartsForPools'), {
-  //   ssr: false
-  // })
-
   return (
     <div>
       {stock && (

@@ -5,6 +5,7 @@ import InvestForm from "../../components/forms/InvestForm";
 import VaultUSDCForm from "../../components/forms/VaultUSDCForm";
 import FFRData from "../../components/stockData/FFRData";
 import InterestData from "../../components/stockData/InterestData";
+import InvestorStats from "../../components/stockData/InvestorStats";
 import StockData from "../../components/stockData/StockData";
 import CurrentTradesTable from "../../components/tables/CurrentTradesTable";
 import GlobalTrades from "../../components/tables/GlobalTrades";
@@ -25,8 +26,9 @@ const page = (props: Props) => {
           <div className="outside-box mt-8">
             <StockData />
           </div>
+
         </div>
-        
+
         <div className="hidden lg:block lg:col-span-7 ">
           <div className="grid grid-rows-6">
             <div className="row-span-3">
@@ -37,20 +39,21 @@ const page = (props: Props) => {
             </div>
           </div>
         </div>
-        
+
         <div className="col-span-3">
-          <InvestForm/>
-          <VaultUSDCForm/>
+          <InvestForm />
+          <VaultUSDCForm />
         </div>
-        <div className="col-span-12 flex flex-col md:flex-row items-center justify-evenly ">
-          <FFRData/>
-          <InterestData/>
+        <div className="col-span-12 flex flex-col lg:flex-row items-center justify-evenly  gap-y-8">
+          <FFRData />
+          <InterestData />
+          <InvestorStats />
         </div>
         <div className="my-4 col-start-2 col-span-9 ">
           <CurrentTradesTable />
         </div>
-        <div className="my-4 col-start-2 col-span-9 ">
-          <GlobalTrades/>
+        <div className="my-4  lg:col-start-2 lg:col-span-9 ">
+          <GlobalTrades />
         </div>
       </div>
     </div>

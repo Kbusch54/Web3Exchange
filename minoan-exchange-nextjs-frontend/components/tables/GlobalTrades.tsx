@@ -9,30 +9,34 @@ const columns: GridColDef[] = [
     {
         field: 'asset',
         headerName: 'Asset',
-        width: 150,
+        maxWidth: 250,
         sortable: false,
-        resizable:true,
+        hideable: true,
+        minWidth:10,
     },
     {
         field: 'side',
         headerName: 'Side',
         type: 'number',
-        width: 150,
-        resizable:true,
+        maxWidth: 250,
+        width: 90,
+        minWidth:20,
     },
     {
         field: 'size',
         headerName: 'Position Size',
         type: 'number',
-        width: 150,
-        resizable:true,
+        maxWidth: 250,
+        width: 90,
+        minWidth:20,
     },
     {
         field: 'lev',
         headerName: 'Leverage',
         type: 'number',
-        width: 100,
-        resizable:true,
+        maxWidth: 250,
+        width: 90,
+        minWidth:20,
         valueFormatter: (params) =>
             `${(params.value, `${params.value}X`) || ''}`,
 
@@ -40,8 +44,9 @@ const columns: GridColDef[] = [
     {
         field: 'pnl',
         headerName: 'PNL',
-        width: 350,
-        resizable:true,
+        maxWidth: 350,
+        width: 90,
+        minWidth:20,
         valueFormatter: (params) =>
             `${(params.value, `$${params.value}`) || ''}`,
 
@@ -62,30 +67,32 @@ interface Props {
 
 const GlobalTrades: React.FC<Props> = () => {
     return (
-            <div className='global-trades'>
-        <Box sx={{ height: 390, width: '100%'  }} >
+        <div className='global-trades'>
+            <Box sx={{ height: 390, width: '100%' }} >
 
-            <h1 className='my-2'>Global Active Trades</h1>
-            <DataGrid
-                className='global-trades-table'
-                rows={rows}
-                columns={columns}
-                initialState={{
-                    pagination: {
-                        
-                        paginationModel: {
-                            pageSize: 5,
+                <h1 className='my-2'>Global Active Trades</h1>
+                <DataGrid
+                    autoHeight
+                    columnHeaderHeight={40}
+                    className='global-trades-table '
+                    rows={rows}
+                    columns={columns }
+                    initialState={{
+                        pagination: {
+
+                            paginationModel: {
+                                pageSize: 5,
+                            },
                         },
-                    },
-                }}
-                pageSizeOptions={[5]}
-                // loading={true}
-                paginationMode="server"
-                
-                disableRowSelectionOnClick
+                    }}
+                    pageSizeOptions={[5]}
+                    // loading={true}
+                    paginationMode="server"
+
+                    disableRowSelectionOnClick
                 />
-        </Box>
-                </div>
+            </Box>
+        </div>
     );
 }
 export default GlobalTrades

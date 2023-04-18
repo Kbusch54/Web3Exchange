@@ -20,7 +20,7 @@ const FFRData: React.FC<Props> = () => {
               <p className="text-xs text-amber-500">APROX</p>
             </div>
           </div>
-          <div className="flex flex-row justify-between m-4 gap-x-4 text-xl">
+          <div className="flex flex-row justify-between m-4 gap-x-12 text-xl">
             <p>Total Collateral Change</p>
             <div className="flex-col">
               <p>+ $5.91</p>

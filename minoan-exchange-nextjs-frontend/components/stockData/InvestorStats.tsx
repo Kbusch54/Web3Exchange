@@ -9,7 +9,7 @@ const InvestorStats: React.FC<Props> = () => {
         <div className="outside-box">
         <div className="inside-box">
           <div className="asset-info-box">
-            <h1>Investor Stats</h1>
+            <h1 className='text-white text-center'>Investor Stats</h1>
             <div>
               <h3>Minimum Margin Ratio:</h3>
               <h3>5%</h3>

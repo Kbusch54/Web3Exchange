@@ -38,14 +38,14 @@
 }
 /* GLobal Trade Component */
 .global-trades{
-  @apply   text-center flex  items-center bg-slate-800 rounded-2xl shadow-xl shadow-amber-400 text-white flex-col pb-12 mx-32 my-12
+  @apply   text-center flex bg-slate-800 rounded-2xl shadow-xl shadow-amber-400 text-white flex-col pb-12  lg:mx-24 my-12
 }
 .global-trades-table{
-  @apply  text-center flex items-center text-white 
+  @apply items-stretch lg:place-items-center text-white  text-[0.6rem] md:text-sm xl:text-base 2xl:text-lg   md:mr-0  
 }
 
 .global-trades-table p{
-  @apply text-xl text-white
+  @apply text-xl text-white 
 }
 
 /* Balance Component */
@@ -63,10 +63,10 @@
 }
 /* Staking and Investor Stats components for pools */
 .asset-info-box{
-  @apply flex flex-col gap-y-4
+  @apply flex flex-col gap-y-4 gap-x-12
 }
 .asset-info-box div{
-  @apply flex flex-row gap-x-24 text-lg text-center justify-between
+  @apply flex flex-row gap-x-24 text-lg text-center justify-between text-white
 }
 
 h1{
