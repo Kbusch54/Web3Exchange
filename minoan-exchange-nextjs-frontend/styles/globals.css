@@ -25,6 +25,9 @@
 .inside-box {
   @apply rounded-xl bg-slate-800 -z-10 p-2 sm:p-4 lg:p-6;
 }
+.input-bg{
+  @apply bg-white rounded-full text-slate-600 text-center  tracking-wide md:w-[18rem] lg:w-[11rem] xl:w-[8rem] 2xl:w-[12.5rem] md:h-[2rem];
+}
 .background-style {
   /* ff 3.6+ */
   background: -moz-linear-gradient(
