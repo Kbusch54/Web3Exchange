@@ -65,7 +65,7 @@ const GlobalTrades: React.FC<Props> = () => {
             <div className='global-trades'>
         <Box sx={{ height: 390, width: '100%'  }} >
 
-            <h1 className='my-2'>Global Trades</h1>
+            <h1 className='my-2'>Global Active Trades</h1>
             <DataGrid
                 className='global-trades-table'
                 rows={rows}
