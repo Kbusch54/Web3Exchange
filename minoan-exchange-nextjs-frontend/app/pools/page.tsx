@@ -1,6 +1,5 @@
 import React from 'react'
 import helmet from "../../public/assets/silhoute-helmet.png"
-import Link from 'next/link';
 import { stocks } from '../utils/stockData';
 import Image from 'next/image';
 interface Props {
