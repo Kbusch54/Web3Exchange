@@ -64,7 +64,7 @@ export default async function page(context: { params: { slug: string; }; }) {
             <InvestForm />
             <VaultUSDCForm />
           </div>
-          <div className="col-span-12 flex flex-col lg:flex-row items-center justify-evenly gap-y-8 mt-8">
+          <div className="col-span-12 flex flex-col lg:flex-row justify-evenly gap-y-8 mt-8">
 
             {stock?.symbol && (
               <StockData stockSymbol={stock?.symbol} />

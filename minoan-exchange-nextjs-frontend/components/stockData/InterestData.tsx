@@ -10,7 +10,7 @@ const MyLazyComponent = lazy(async () => await import('../countdowns/Countdown')
 const InterestData: React.FC<Props> = () => {
   const targetDate = new Date("2023-04-22T20:24:59");
     return (
-        <div className="outside-box  row-span-3">
+        <div className="outside-box">
         <div className="asset-data-box inside-box">
           <h1 className='text-white'>Interest</h1>
           <div className="flex flex-row justify-between m-4 gap-x-4 text-xl">

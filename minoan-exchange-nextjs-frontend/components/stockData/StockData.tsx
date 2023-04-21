@@ -58,7 +58,7 @@ const StockInfo: React.FC<Props> = ({ stockSymbol }) => {
     <div className="outside-box ">
       <div className=" flex flex-col justify-center text-center inside-box text-white gap-y-2">
         <h2 className="text-3xl mb-2">Yahoo Stock Info</h2>
-        <h3>{stockSymbol}</h3>
+        <h3 className="text-amber-400">{stockSymbol}</h3>
         <div className="flex flex-row justify-between text-xl"><p>Current Price:</p><p> 284.43</p></div>
         <div className="flex flex-row justify-between text-xl"><p>High Price:</p><p> 370.80</p></div>
         <div className="flex flex-row justify-between text-xl"><p>Low Price: </p><p>207.77</p></div>
