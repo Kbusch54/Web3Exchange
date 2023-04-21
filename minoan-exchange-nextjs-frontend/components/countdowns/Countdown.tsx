@@ -24,6 +24,10 @@ const Countdown: React.FC<CountdownProps> = ({ targetDate }) => {
   }, [targetDate]);
 
   const formatTimeLeft = (milliseconds: number) => {
+    if(milliseconds === 0) return <p className="animate-pulse text-red-500">
+
+      0:00:00
+    </p>
     const totalSeconds = Math.floor(milliseconds / 1000);
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);

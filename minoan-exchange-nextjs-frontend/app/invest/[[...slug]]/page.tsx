@@ -12,6 +12,7 @@ import CurrentTradesTable from "../../../components/tables/CurrentTradesTable";
 import GlobalTrades from "../../../components/tables/GlobalTrades";
 import { Stock } from "../../../types/custom";
 import { stocks } from "../../utils/stockData";
+import ReachartsEx from "../../../components/charts/poolCharts/ReachartsEx";
 type Props = {};
 async function fetchData(slug: string) {
   // Fetch data based on the slug value
@@ -58,7 +59,7 @@ export default async function page(context: { params: { slug: string; }; }) {
                 <AreaChartPoolsApex />
               </div>
               <div className="row-span-3">
-                <AreaChartPoolsApex />
+                <ReachartsEx/>
               </div>
             </div>
           </div>

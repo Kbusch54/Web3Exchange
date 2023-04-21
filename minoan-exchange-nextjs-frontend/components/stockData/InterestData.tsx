@@ -8,7 +8,7 @@ interface Props {
 const MyLazyComponent = lazy(async () => await import('../countdowns/Countdown'));
 
 const InterestData: React.FC<Props> = () => {
-  const targetDate = new Date("2023-04-20T20:24 :59");
+  const targetDate = new Date("2023-04-22T20:24:59");
     return (
         <div className="outside-box  row-span-3">
         <div className="asset-data-box inside-box">
