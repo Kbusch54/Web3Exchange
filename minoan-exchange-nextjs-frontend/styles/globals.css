@@ -116,3 +116,13 @@ h1{
     rgba(12, 2, 78, 1) 100%
   );
 }
+@keyframes flashRed {
+  0%,
+  100% {
+    background-color: transparent;
+  }
+  50% {
+    background-color: red;
+  }
+}
+

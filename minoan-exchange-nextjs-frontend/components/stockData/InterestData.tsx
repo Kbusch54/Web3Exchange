@@ -1,10 +1,14 @@
-import React from 'react'
+'use client'
+import React, { Suspense, lazy } from 'react'
 
 interface Props {
     
 }
 
+const MyLazyComponent = lazy(async () => await import('../countdowns/Countdown'));
+
 const InterestData: React.FC<Props> = () => {
+  const targetDate = new Date("2023-04-20T20:24 :59");
     return (
         <div className="outside-box  row-span-3">
         <div className="asset-data-box inside-box">
@@ -12,7 +16,11 @@ const InterestData: React.FC<Props> = () => {
           <div className="flex flex-row justify-between m-4 gap-x-4 text-xl">
             <p>Next Period</p>
             <div className="flex-col">
-              <p>29:18</p>
+            <Suspense fallback={
+              <p className="text-white text-3xl">Loading feed...</p>
+            }>
+              <MyLazyComponent targetDate={targetDate} />
+            </Suspense >
               <p className="text-xs text-amber-500">APROX</p>
             </div>
           </div>

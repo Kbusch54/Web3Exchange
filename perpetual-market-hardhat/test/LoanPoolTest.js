@@ -48,10 +48,11 @@ describe("LoanPool FakeVault", async () => {
     return{usdc, owner, otherAccount, thirdAccount,loanPool,vault,interestPayer}
     
   }
-    it.skip("should allow deposit", async () => {
+    it("should allow deposit", async () => {
         const { usdc, owner, otherAccount, loanPool, thirdAccount,vault } =await loadFixture(deployContracts);
         const depositAmount = parseUnits("100", 6);
         const usdcBalBefore = await usdc.balanceOf(owner.address);
+        console.log('loanpool address',loanPool.address);
         await usdc.approve(vault.address, depositAmount);
         await vault.deposit(depositAmount);
         const vaultBal = await vault.availableBalance(owner.address);
