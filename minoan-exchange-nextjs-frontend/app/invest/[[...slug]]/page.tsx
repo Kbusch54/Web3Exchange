@@ -53,8 +53,8 @@ export default async function page(context: { params: { slug: string; }; }) {
 
           </div>
 
-          <div className="hidden lg:block lg:col-span-7 ">
-            <div className="grid grid-rows-6">
+          <div className="hidden lg:block lg:col-span-7 mr-8 ">
+            <div className="grid grid-rows-6 ">
               <div className="row-span-3">
                 <AreaChartPoolsApex />
               </div>
