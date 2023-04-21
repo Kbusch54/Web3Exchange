@@ -45,21 +45,17 @@ export default async function page(context: { params: { slug: string; }; }) {
                 </div>
               )}
             </div>
-            <div className="outside-box mt-8">
-              {stock?.symbol && (
-                <StockData stockSymbol={stock?.symbol} />
-              )}
-            </div>
+
 
           </div>
 
           <div className="hidden lg:block lg:col-span-7 mr-8 ">
             <div className="grid grid-rows-6 ">
-              <div className="row-span-3">
+              <div className="row-span-4">
                 <AreaChartPoolsApex />
               </div>
-              <div className="row-span-3">
-                <ReachartsEx/>
+              <div className="row-span-2">
+                <ReachartsEx />
               </div>
             </div>
           </div>
@@ -68,7 +64,12 @@ export default async function page(context: { params: { slug: string; }; }) {
             <InvestForm />
             <VaultUSDCForm />
           </div>
-          <div className="col-span-12 flex flex-col lg:flex-row items-center justify-evenly  gap-y-8">
+          <div className="col-span-12 flex flex-col lg:flex-row items-center justify-evenly gap-y-8 mt-8">
+
+            {stock?.symbol && (
+              <StockData stockSymbol={stock?.symbol} />
+            )}
+
             <FFRData />
             <InterestData />
             <InvestorStats />

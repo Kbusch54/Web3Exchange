@@ -6,7 +6,7 @@ import axios from "axios";
 interface Props {
   stockSymbol: string;
 }
-const StockInfo: React.FC<Props> = ({stockSymbol}) => {
+const StockInfo: React.FC<Props> = ({ stockSymbol }) => {
   const [stockData, setStockData] = useState<any>(null);
   const [reco, setReco] = useState<String>("BUY");
 
@@ -42,7 +42,7 @@ const StockInfo: React.FC<Props> = ({stockSymbol}) => {
   return (
     // <div className="bg-blue-200">
     //   <h2>Tesla Stock Information</h2>
-    //   <p>
+    //   <p className="text-xl">
     //     Current Price: {stockData.currentPrice && stockData.currentPrice.fmt}
     //   </p>
     //   <p>
@@ -55,17 +55,22 @@ const StockInfo: React.FC<Props> = ({stockSymbol}) => {
     //   </p>
     //   <p>Recommendation Mean: {stockData.recommendationKey}</p>
     // </div>
-    <div className=" flex flex-col justify-center text-center inside-box text-white">
-      <h2 className="text-xl mb-2">Yahoo Stock Info</h2>
-      <h3>{stockSymbol}</h3>
-      <p>Current Price: 284.43</p>
-      <p>High Price: 370.80</p>
-      <p>Low Price: 207.77</p>
-      <div>
-        <p>Recommendation: </p>
-        <p className={`${reco == "BUY" ? "text-green-500" : "text-red-500"}`}>
-          {reco}
-        </p>
+    <div className="outside-box ">
+      <div className=" flex flex-col justify-center text-center inside-box text-white gap-y-2">
+        <h2 className="text-3xl mb-2">Yahoo Stock Info</h2>
+        <h3>{stockSymbol}</h3>
+        <div className="flex flex-row justify-between text-xl"><p>Current Price:</p><p> 284.43</p></div>
+        <div className="flex flex-row justify-between text-xl"><p>High Price:</p><p> 370.80</p></div>
+        <div className="flex flex-row justify-between text-xl"><p>Low Price: </p><p>207.77</p></div>
+
+
+
+        <div className="flex flex-row justify-between text-xl">
+          <p >Recommendation: </p>
+          <p className={` ${reco == "BUY" ? "text-green-500" : "text-red-500"}`}>
+            {reco}
+          </p>
+        </div>
       </div>
     </div>
   );
