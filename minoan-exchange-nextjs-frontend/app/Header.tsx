@@ -17,6 +17,7 @@ const Header: React.FC<Props> = () => {
         <a href="/todos">
           Docs
         </a>
+        <a href="/theseusDao">Theseus Dao</a>
         <a href="/pools">Pools</a>
         <a href="/invest">Invest</a>
         <a href="/dashboard">Dashboard</a>
