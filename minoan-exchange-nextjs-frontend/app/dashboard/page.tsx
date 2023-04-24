@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Suspense } from 'react'
 import DashBoardBalances from '../../components/balances/dashboard/DashBoardBalances'
 import ReachartsEx from '../../components/charts/poolCharts/ReachartsEx'
 import DashBoardTradeTab from '../../components/tabs/dashboard/DashBoardTradeTab'
@@ -16,12 +16,18 @@ const page: React.FC<Props> = () => {
             <h1 className='text-white'>Dashboard</h1>
             <DashBoardBalances />
             <div className='mx-4 md:mx-8 lg:mx-24 xl:mx-40 border-2 border-slate-700 mt-12'>
-                <ReachartsEx />
+                <Suspense fallback={<div>Loading...</div>}>
+                    <ReachartsEx />
+                </Suspense>
             </div>
-            <DashBoardTradeTab/>
-            {stocks&&(
-                <DashboardAssets stockData={stocks}/>
-                )}
+            <Suspense fallback={<div>Loading...</div>}>
+                <DashBoardTradeTab />
+            </Suspense>
+            {stocks && (
+                <Suspense fallback={<div>Loading...</div>}>
+                    <DashboardAssets stockData={stocks} />
+                </Suspense>
+            )}
         </div>
     )
 }

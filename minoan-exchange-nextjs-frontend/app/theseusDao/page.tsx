@@ -13,30 +13,30 @@ const page = (props: Props) => {
       <div className="flex flex-row justify-between">
         <div className="mt-12 ml-24 text-white  ">
           <h1 className="text-5xl ">Theseus DAO</h1>
-          <div>
-            <div className="flex flex-col text-center">
-              <h1 className="text-xl md:text-3xl lg:text-5xl">0.00</h1>
-              <h3 className="text-xl"> Your Balance</h3>
+          <div className="balance-container">
+            <div className="">
+              <h1 className="">0.00</h1>
+              <h3> Your Balance</h3>
             </div>
-            <div className="flex flex-col text-center">
-              <h1 className="text-xl md:text-3xl lg:text-5xl">$0.00</h1>
-              <h3 className="text-xl"> Current Value</h3>
+            <div className="">
+              <h1 className="">$0.00</h1>
+              <h3> Current Value</h3>
             </div>
-            <div className="flex flex-col text-center">
-              <h1 className="text-xl md:text-3xl lg:text-5xl">134533</h1>
-              <h3 className="text-xl"> Total Supply</h3>
+            <div className="">
+              <h1 className="">134533</h1>
+              <h3> Total Supply</h3>
             </div>
-            <div className="flex flex-col text-center">
-              <h1 className="text-xl md:text-3xl lg:text-5xl">$9382.02</h1>
-              <h3 className="text-xl"> Total Value</h3>
+            <div className="">
+              <h1 className="">$9382.02</h1>
+              <h3> Total Value</h3>
             </div>
-            <div className="flex flex-col text-center">
-              <h1 className="text-xl md:text-3xl lg:text-5xl">$6983.39</h1>
-              <h3 className="text-xl"> Loaned Out</h3>
+            <div className="">
+              <h1 className="">$6983.39</h1>
+              <h3> Loaned Out</h3>
             </div>
-            <div className="flex flex-col text-center">
-              <h1 className="text-xl md:text-3xl lg:text-5xl">$2398.63</h1>
-              <h3 className="text-xl"> In Vault</h3>
+            <div className="">
+              <h1 className="">$2398.63</h1>
+              <h3> In Vault</h3>
             </div>
           </div>
         </div>
