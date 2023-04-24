@@ -19,6 +19,7 @@ const Header: React.FC<Props> = () => {
         </a>
         <a href="/pools">Pools</a>
         <a href="/invest">Invest</a>
+        <a href="/dashboard">Dashboard</a>
       </div>
       <ConnectingButton />  
     </header>
