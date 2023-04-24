@@ -38,7 +38,7 @@ export default async function page(context: { params: { slug: string; }; }) {
                 <StockOptionMenu stockData={stocks} />
               )}
               {stock && (
-                <div className="object-contain ml-8 md:ml-0">
+                <div className="object-contain  self-center">
                   <Image src={stock.img}
                     alt={"stock-img"} height={520} />
                   <div className="text-3xl text-white">{slug}</div>
