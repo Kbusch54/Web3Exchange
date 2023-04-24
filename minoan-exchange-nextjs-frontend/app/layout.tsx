@@ -15,7 +15,6 @@ export default function RootLayout({
     <html lang="en">
       <body className="bg-[rgba(24,24,35,255)]">
         <Providers>
-
           <Header />
           {children}
         </Providers>
