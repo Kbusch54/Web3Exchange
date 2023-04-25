@@ -13,6 +13,7 @@ import "hardhat/console.sol";
 contract VaultMain is VaultForLoanPools{
 address exchange;
 mapping(address=>address)ammToPool;
+uint public feeRate = 1000;
     constructor(address _usdc,address [] memory _pools,address _exchange)VaultForLoanPools(_usdc,_pools){
         exchange = _exchange;
     }
@@ -49,6 +50,9 @@ mapping(address=>address)ammToPool;
     function secureLoanAndTrade(bytes memory  _tradeId, uint _leverage, uint _collateral)public returns(bool _check,uint newBalance,uint _tradeBalance,uint minimumMarginReq){
         //check if enough balance
         (bool pass,  uint _newBalance ,uint  __tradeBalance,uint mmr) =addingLeverage(_tradeId,_collateral,_collateral,_leverage);
+        console.log('trade balance',__tradeBalance);
+        require(takeFee(_tradeId,__tradeBalance),"VAULT MAIN: fee failed");
+
         require(pass == true,"adding leverage failed");
         return(true,_newBalance,__tradeBalance,mmr);
     }
@@ -147,7 +151,12 @@ mapping(address=>address)ammToPool;
         (int cumulativeFFR,int side) = IExchange(exchange).getTotalFundingRate(_tradeId);
 
         uint inititalCollateral = tradeCollateral[_tradeId];
+        console.log("inititalCollateral",inititalCollateral);
+        console.log("cumulativeFFR",uint(cumulativeFFR));
         uint intialTradeBalance = tradeBalance[_tradeId];
+        console.log("intialTradeBalance",intialTradeBalance);
+        console.log('calulation',uint(cumulativeFFR*int(intialTradeBalance)/100000000*side));
+        console.log('interest',_interest);
         _collateral = int(inititalCollateral) - int(_interest) + (cumulativeFFR*int(intialTradeBalance)/100000000*side);
         if(int(inititalCollateral) == _collateral){
            hasChanged = false;
@@ -157,7 +166,24 @@ mapping(address=>address)ammToPool;
 
     }
 
+    function takeFee(bytes memory _tradeId,uint _amount)internal returns(bool){
+        (,,,address _trader,address _pool)=decodeTradeId(_tradeId);
+        uint fee = _amount/feeRate;
+        require(availableBalance[_trader]-fee >= 0,"not enough balance");
+        availableBalance[_trader] -= fee;
+        uint amtToDao = fee/2;
+        require(IERC20(Usdc).transfer(_pool,fee-amtToDao),"fee transfer failed");
+        // require(IERC20(Usdc).transfer(dao,amountToDao),"pool transfer failed");
+
+        return true;
+    }
+
+
+//DAO
     function updateExchange(address _exchange)public{
         exchange = _exchange;
+    }
+    function updateFee(uint _feeRate)public{
+        feeRate = _feeRate;
     }
 }

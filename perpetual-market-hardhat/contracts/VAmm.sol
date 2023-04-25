@@ -138,7 +138,7 @@ import "hardhat/console.sol";
     function updateFutureFundingRate()internal returns(int){
          LiquidityChangedSnapshot memory lastSnapshot = liquidityChangedSnapshots[liquidityChangedSnapshots.length-1];
          int _newFundingRate = calculateFundingRate(int(getAssetPrice()),int(indexPrice));
-         console.log("new funding rate",uint(_newFundingRate*-1));
+         console.log("new funding rate 111",uint(_newFundingRate*-1));
          lastSnapshot.fundingRate = _newFundingRate;
          liquidityChangedSnapshots[liquidityChangedSnapshots.length-1] =  lastSnapshot;
 
@@ -148,7 +148,7 @@ import "hardhat/console.sol";
         return intToFixed(_indexPrice - markPrice)/_indexPrice/12;
     }
     //only exchange
-    function closePosition(int positionSize,int _side)external returns(uint exitPrice,int usdcAmt){
+    function closePosition(int positionSize,int  )external returns(uint exitPrice,int usdcAmt){
         LiquidityChangedSnapshot memory lastSnapshot = liquidityChangedSnapshots[liquidityChangedSnapshots.length-1];
         lastSnapshot.totalPositionSize-=positionSize; 
         int quoteWPsz = int(lastSnapshot.quoteAssetReserve) + (positionSize);

@@ -91,9 +91,9 @@ describe("Funding Rate", async () => {
         await vamm.setIndexPrice(parseUnits("390", 6));
         const cumulativeFundingRate = await exchange.callStatic.getTotalFundingRate(tradeId);
         console.log("cumulativeFundingRate",cumulativeFundingRate);
-        // await exchange.closePosition(otherAccount.address,tradeId);
         const newCollateral = await vault.callStatic.calculateCollateral(tradeId);
         console.log("newCollateral",newCollateral);
+        // await exchange.closePosition(otherAccount.address,tradeId);
         
     });
 });
