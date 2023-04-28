@@ -155,6 +155,8 @@ contract Exchange is LoanPool {
         if (tradeCollateral[_tradeId] >= _interestToBePayed) {
             tradeCollateral[_tradeId] -= _interestToBePayed;
             tradeInterest[_tradeId] += _interestToBePayed;
+            poolAvailableUsdc[_amm] += _interestToBePayed;
+            poolTotalUsdcSupply[_amm] += _interestToBePayed;
             positions[_tradeId].collateral - _interestToBePayed;
             require(payInterest(_tradeId), "pay interest failed");
         } else {
