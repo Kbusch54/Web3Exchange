@@ -17,7 +17,7 @@ contract LoanPool is Staking{
 
 
 //mmr of 5% is 50000
-    function borrow(bytes memory _tradeId, uint _totalCollateral, uint _loanAmount,address _ammPool)private returns(bool){
+    function borrow(bytes memory _tradeId, uint _totalCollateral, uint _loanAmount,address _ammPool)internal returns(bool){
         require(_loanAmount >= minLoan[_ammPool],'below min loan');
         require(_loanAmount <= maxLoan[_ammPool],'above max loan');
         uint _minimumHoldings = poolAvailableUsdc[_ammPool]/minHoldingsReqPercentage[_ammPool];
@@ -31,7 +31,7 @@ contract LoanPool is Staking{
         return true;
     }
 
-    function repayLoan(bytes memory _tradeId, uint _amount,address _ammPool)private returns(bool){
+    function repayLoan(bytes memory _tradeId, uint _amount,address _ammPool)internal returns(bool){
         require(_amount <= borrowedAmount[_tradeId],'repaying too much');
         require(interestOwed(_tradeId,_ammPool) ==0,'Need To pay interest first');
         borrowedAmount[_tradeId] -= _amount;
@@ -40,7 +40,7 @@ contract LoanPool is Staking{
         return true;
     }
 
-    function addLeverage(bytes memory _tradeId, address _ammPool, uint _newLoan)private returns(bool){
+    function addLeverage(bytes memory _tradeId, address _ammPool, uint _newLoan)internal returns(bool){
         uint _totalLoan = _newLoan + borrowedAmount[_tradeId];
         require(interestOwed(_tradeId,_ammPool) ==0,'Need To pay interest first');
         require(_newLoan >= minLoan[_ammPool],'below min loan');
@@ -60,7 +60,7 @@ contract LoanPool is Staking{
         return _interestToPay;
     }
 
-    function payInterest(bytes memory _tradeId)private returns(bool){
+    function payInterest(bytes memory _tradeId)internal returns(bool){
         loanInterestLastPayed[_tradeId] = block.timestamp;
         return true;
     }
