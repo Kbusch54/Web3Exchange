@@ -6,7 +6,7 @@ import "../amm/VAmm.sol";
 import "hardhat/console.sol";
 
 /// @title Exchange contract for leveraged trading
-/// @author YourName
+/// @author Kbusch54
 /// @notice The Exchange contract inherits from the LoanPool contract
 contract Exchange is LoanPool {
     /**
