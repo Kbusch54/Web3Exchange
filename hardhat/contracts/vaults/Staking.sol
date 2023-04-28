@@ -6,7 +6,10 @@ import "./LoanPoolBalances.sol";
 import "../tokens/PoolTokens.sol";
 import "../../node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-
+/**
+ * @title Staking
+ * @dev A contract for staking and unstaking tokens in a loan pool.
+ */
 contract Staking is Balances, LoanPoolBalances {
     address public poolToken;
     mapping(address => uint) public ammPoolToTokenId;
@@ -21,7 +24,11 @@ contract Staking is Balances, LoanPoolBalances {
     constructor(address _usdc, address _poolTokens) Balances(_usdc) {
         poolToken = _poolTokens;
     }
-
+ /**
+     * @dev Function for staking usdc in the loan pool.
+     * @param _amount The amount of usdc to stake.
+     * @param _ammPool The address of the AMM pool.
+     */
     function stake(uint _amount, address _ammPool) public {
         require(availableBalance[msg.sender] >= _amount, "not enough balance");
         availableBalance[msg.sender] -= _amount;
@@ -40,6 +47,11 @@ contract Staking is Balances, LoanPoolBalances {
         //event stake(address _user,uint _amount,uint _porportion);
     }
 
+ /**
+     * @dev Function for unstaking tokens from the loan pool.
+     * @param _amountToBurn The amount of tokens to unstake (burn).
+     * @param _ammPool The address of the AMM pool.
+     */
     function unStake(uint _amountToBurn, address _ammPool) public IfIsFrozen(_ammPool) {
         PoolTokens poolTokCon = PoolTokens(poolToken);
         require(
@@ -68,6 +80,11 @@ contract Staking is Balances, LoanPoolBalances {
     }
 
 
+   /**
+     * @dev Function for adding an AMM token to the poolTokens contract .
+     * @param _ammPool The address of the AMM pool.
+     * @param _id The ID of the token in the pool.
+     */
     function addAmmTokenToPool(address _ammPool,uint _id) public {
         require(
             ammPoolToTokenId[_ammPool] == _id,

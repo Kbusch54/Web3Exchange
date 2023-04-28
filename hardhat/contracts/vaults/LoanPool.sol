@@ -2,6 +2,10 @@
 pragma solidity 0.8.17;
 import "./Staking.sol";
 import "hardhat/console.sol";
+/**
+ * @title LoanPool
+ * @dev A contract for managing a loan pool with staking functionality.
+ */
 contract LoanPool is Staking{
 
     modifier onlyDao(address _ammPool){
@@ -17,7 +21,14 @@ contract LoanPool is Staking{
     }
 
 
-//mmr of 5% is 50000
+ /**
+     * @dev Function for borrowing from the loan pool.
+     * @param _tradeId The unique identifier for the trade.
+     * @param _totalCollateral The total collateral for the loan.
+     * @param _loanAmount The loan amount to borrow.
+     * @param _ammPool The address of the AMM pool.
+     * @return true if the borrow is successful, otherwise false.
+     */
     function borrow(bytes memory _tradeId, uint _totalCollateral, uint _loanAmount,address _ammPool)internal returns(bool){
         require(_loanAmount >= minLoan[_ammPool],'below min loan');
         require(_loanAmount <= maxLoan[_ammPool],'above max loan');
@@ -31,7 +42,13 @@ contract LoanPool is Staking{
         interestForTrade[_tradeId] = loanInterestRate[_ammPool];
         return true;
     }
-
+   /**
+     * @dev Function for repaying a loan.
+     * @param _tradeId The unique identifier for the trade.
+     * @param _amount The amount to repay.
+     * @param _ammPool The address of the AMM pool.
+     * @return true if the repayment is successful, otherwise false.
+     */
     function repayLoan(bytes memory _tradeId, uint _amount,address _ammPool)internal returns(bool){
         require(_amount <= borrowedAmount[_tradeId],'repaying too much');
         require(interestOwed(_tradeId,_ammPool) ==0,'Need To pay interest first');
@@ -41,6 +58,13 @@ contract LoanPool is Staking{
         return true;
     }
 
+    /**
+     * @dev Function for adding leverage to a trade.
+     * @param _tradeId The unique identifier for the trade.
+     * @param _ammPool The address of the AMM pool.
+     * @param _newLoan The new loan amount to add.
+     * @return true if the operation is successful, otherwise false.
+     */
     function addLeverage(bytes memory _tradeId, address _ammPool, uint _newLoan)internal returns(bool){
         uint _totalLoan = _newLoan + borrowedAmount[_tradeId];
         require(interestOwed(_tradeId,_ammPool) ==0,'Need To pay interest first');
@@ -53,6 +77,12 @@ contract LoanPool is Staking{
         poolAvailableUsdc[_ammPool] -= _newLoan;
         return true;
     }
+      /**
+     * @dev Function for calculating the interest owed for a trade.
+     * @param _tradeId The unique identifier for the trade.
+     * @param _ammPool The address of the AMM pool.
+     * @return The interest owed for the trade.
+     */
 
     function interestOwed(bytes memory _tradeId,address _ammPool)public view returns(uint){
         uint _interest = interestForTrade[_tradeId]; 
@@ -61,6 +91,11 @@ contract LoanPool is Staking{
         return _interestToPay;
     }
 
+    /**
+     * @dev Function for paying the interest for a trade.
+     * @param _tradeId The unique identifier for the trade.
+     * @return true if the interest payment is successful, otherwise false.
+     */
     function payInterest(bytes memory _tradeId)internal returns(bool){
         loanInterestLastPayed[_tradeId] = block.timestamp;
         return true;

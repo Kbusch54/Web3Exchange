@@ -3,8 +3,12 @@ pragma solidity 0.8.17;
 
 import "../../node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
+/**
+ * @title FakeUsdc
+ * @dev A simple implementation of an ERC20 token, used for testing purposes.
+ */
 contract FakeUsdc is IERC20{
-    // Define the name, symbol, and decimal precision of the token
+    // token properties
     string public name;
     string public symbol;
     uint8 public decimals;
@@ -21,7 +25,13 @@ contract FakeUsdc is IERC20{
 
     mapping(address => mapping(address => uint256)) private _allowances;
 
-    // Define the constructor to initialize the total supply and owner
+        /**
+     * @dev Contract constructor.
+     * @param _totalSupply The initial total supply of the token.
+     * @param _name The name of the token.
+     * @param _symbol The symbol of the token.
+     * @param _decimals The number of decimals for the token.
+     */
     constructor(uint _totalSupply,string memory _name, string memory _symbol,uint8 _decimals)  {
         totalSupply = _totalSupply;
         owners[msg.sender] = true;
@@ -45,18 +55,31 @@ contract FakeUsdc is IERC20{
     // ine the balanceOf function to allow checking the balance of an account
     function balanceOf(address _owner) public view returns (uint balance) {
         return balances[_owner];
-    }
+    }  
+     /**
+     * @dev Function to mint new tokens.
+     * @param _value The amount of tokens to mint.
+     */
        function mint(uint _value) public {
         require(owners[msg.sender] == true, "Only the owner can mint tokens");
         totalSupply += _value;
         balances[msg.sender] += _value;
     }
+      /**
+     * @dev Function to mint and transfer tokens.
+     * @param _value The amount of tokens to mint.
+     * @param _to The address to transfer the minted tokens to.
+     */
     function mintAndTransfer(uint _value,address _to)public{
          require(owners[msg.sender] == true,'Only owner');
                totalSupply += _value;
         balances[_to] += _value;
 
     }
+       /**
+     * @dev Function to add a new owner.
+     * @param _newOwner The address of the new owner.
+     */
     function addOwner(address _newOwner) public {
         require(owners[msg.sender] == true,'Only owner');
 
