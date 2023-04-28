@@ -208,8 +208,7 @@ contract Exchange is LoanPool {
     }
 
     /**
-     * 
-     *     @dev Function to decode a tradeId
+    *@dev Function to decode a tradeId
     *@param encodedData The encoded data of the tradeId
     *@return A tuple containing the following values:
             - The user address
