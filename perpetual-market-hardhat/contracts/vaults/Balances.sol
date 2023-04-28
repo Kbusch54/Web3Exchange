@@ -26,7 +26,7 @@ function readBalanceRewards(address _loanPool,uint _indexId)public view returns(
       //basic functions for usdc to get into vault
     function deposit(uint _amount)public{
         require(IERC20(Usdc).balanceOf(msg.sender) >= _amount,"not enough balance");
-        IERC20(Usdc).transferFrom(msg.sender,address(this),_amount);
+        require(IERC20(Usdc).transferFrom(msg.sender,address(this),_amount),'transfer failed');
         availableBalance[msg.sender] += _amount;
     }
     function withdraw(uint _amount)public{
