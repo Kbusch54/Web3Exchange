@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 import "./Staking.sol";
+import "hardhat/console.sol";
 contract LoanPool is Staking{
 
     modifier onlyDao(address _ammPool){
@@ -54,9 +55,9 @@ contract LoanPool is Staking{
     }
 
     function interestOwed(bytes memory _tradeId,address _ammPool)public view returns(uint){
-        uint _interest = interestForTrade[_tradeId];
-        uint _interestPeriods = block.timestamp - loanInterestLastPayed[_tradeId]/interestPeriods[_ammPool];
-        uint _interestToPay =  borrowedAmount[_tradeId]*( _interest * _interestPeriods)/(10**6) ;
+        uint _interest = interestForTrade[_tradeId]; 
+        uint _interestPeriods = (block.timestamp - loanInterestLastPayed[_tradeId])/interestPeriods[_ammPool];
+        uint _interestToPay =  (borrowedAmount[_tradeId]*( _interest * _interestPeriods))/(10**6) ;
         return _interestToPay;
     }
 
