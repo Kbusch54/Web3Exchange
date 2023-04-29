@@ -1,13 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
-import "./Staking.sol";
-import "hardhat/console.sol";
+import "./LoanPoolBalances.sol";
+import "./Balances.sol";
+
 /**
  * @title LoanPool
  * @dev A contract for managing a loan pool with staking functionality.
  */
-contract LoanPool is Staking{
+contract LoanPool is Balances, LoanPoolBalances{
 
+address public staking;
     modifier onlyDao(address _ammPool){
         require(msg.sender == dao[_ammPool],'not dao');
         _;
@@ -16,32 +18,20 @@ contract LoanPool is Staking{
         require(msg.sender == theseusDao,'not theseus');
         _;
     }
+    modifier onlyTheseusOrDao(address _ammPool){
+        require(msg.sender == theseusDao || msg.sender == dao[_ammPool],'not theseus or dao');
+        _;
+    }
+    modifier onlyStaking {
+        require(msg.sender == staking,'not staking');
+        _;
+    }
 
-    constructor(address _usdc, address _poolTokens) Staking(_usdc,_poolTokens) {
+    constructor(address _usdc, address _staking) Balances(_usdc) {
+        staking = _staking;
     }
 
 
- /**
-     * @dev Function for borrowing from the loan pool.
-     * @param _tradeId The unique identifier for the trade.
-     * @param _totalCollateral The total collateral for the loan.
-     * @param _loanAmount The loan amount to borrow.
-     * @param _ammPool The address of the AMM pool.
-     * @return true if the borrow is successful, otherwise false.
-     */
-    function borrow(bytes memory _tradeId, uint _totalCollateral, uint _loanAmount,address _ammPool)internal returns(bool){
-        require(_loanAmount >= minLoan[_ammPool],'below min loan');
-        require(_loanAmount <= maxLoan[_ammPool],'above max loan');
-        uint _minimumHoldings = poolAvailableUsdc[_ammPool]/minHoldingsReqPercentage[_ammPool];
-        require(_loanAmount <= poolAvailableUsdc[_ammPool]-_minimumHoldings,'not enough available usdc');
-        require(_totalCollateral*10**6 /_loanAmount >= mmr[_ammPool],'not enough collateral');
-        borrowedAmount[_tradeId] += _loanAmount;
-        poolOutstandingLoans[_ammPool] += _loanAmount;
-        poolAvailableUsdc[_ammPool] -= _loanAmount;
-        loanInterestLastPayed[_tradeId] = block.timestamp;
-        interestForTrade[_tradeId] = loanInterestRate[_ammPool];
-        return true;
-    }
    /**
      * @dev Function for repaying a loan.
      * @param _tradeId The unique identifier for the trade.
@@ -59,22 +49,24 @@ contract LoanPool is Staking{
     }
 
     /**
-     * @dev Function for adding leverage to a trade.
+     * @dev Function for borrowing to a trade.
      * @param _tradeId The unique identifier for the trade.
      * @param _ammPool The address of the AMM pool.
      * @param _newLoan The new loan amount to add.
      * @return true if the operation is successful, otherwise false.
      */
-    function addLeverage(bytes memory _tradeId, address _ammPool, uint _newLoan)internal returns(bool){
+    function borrow(bytes memory _tradeId, address _ammPool, uint _newLoan)internal returns(bool){
         uint _totalLoan = _newLoan + borrowedAmount[_tradeId];
-        require(interestOwed(_tradeId,_ammPool) ==0,'Need To pay interest first');
-        require(_newLoan >= minLoan[_ammPool],'below min loan');
-        require(_totalLoan <= maxLoan[_ammPool],'above max loan');
+        require(_newLoan >= minLoan[_ammPool],'');
+        require(_totalLoan <= maxLoan[_ammPool],'');
         uint _minimumHoldings = poolAvailableUsdc[_ammPool]/minHoldingsReqPercentage[_ammPool];
-        require(_newLoan <= poolAvailableUsdc[_ammPool]-_minimumHoldings,'not enough available usdc');
+        require(_newLoan <= poolAvailableUsdc[_ammPool]-_minimumHoldings,'');
+        require(tradeCollateral[_tradeId]*10**6 /_totalLoan >= mmr[_ammPool],'');
         borrowedAmount[_tradeId] += _newLoan;
         poolOutstandingLoans[_ammPool] += _newLoan;
         poolAvailableUsdc[_ammPool] -= _newLoan;
+        loanInterestLastPayed[_tradeId] = block.timestamp;
+        interestForTrade[_tradeId] = loanInterestRate[_ammPool];
         return true;
     }
       /**
@@ -135,25 +127,25 @@ contract LoanPool is Staking{
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     function setMinAndMaxInterestRate(uint _minInterestRate,uint _maxInterestRate)external onlyTheseus{
-        require(_minInterestRate <= _maxInterestRate,'min interest rate is greater than max interest rate');
+        require(_minInterestRate <= _maxInterestRate,'');
         minLoanInterestRateLimit = _minInterestRate;
         maxLoanInterestRateLimit = _maxInterestRate;
     }
 
     function setMinAndMaxLoan(uint _minLoan,uint _maxLoan)external onlyTheseus{
-        require(_minLoan <= _maxLoan,'min loan is greater than max loan');
+        require(_minLoan <= _maxLoan,'');
         minLoanLimit = _minLoan;
         maxLoanLimit = _maxLoan;
     }
 
     function setMinAndMaxMMR(uint _minMMR,uint _maxMMR)external onlyTheseus{
-        require(_minMMR <= _maxMMR,'min MMR is greater than max MMR');
+        require(_minMMR <= _maxMMR,'');
         minMMRLimit = _minMMR;
         maxMMRLimit = _maxMMR;
     }
 
     function setMinAndMaxMinHoldingsReqPercentage(uint _minMinHoldingsReqPercentage,uint _maxMinHoldingsReqPercentage)external onlyTheseus{
-        require(_minMinHoldingsReqPercentage <= _maxMinHoldingsReqPercentage,'min min holdings req percentage is greater than max min holdings req percentage');
+        require(_minMinHoldingsReqPercentage <= _maxMinHoldingsReqPercentage,'');
         minHoldingsReqPercentageLimit = _minMinHoldingsReqPercentage;
         maxHoldingsReqPercentageLimit = _maxMinHoldingsReqPercentage;
     }

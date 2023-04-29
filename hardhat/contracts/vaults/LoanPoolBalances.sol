@@ -6,6 +6,17 @@ pragma solidity ^0.8.17;
  * @dev A contract for managing loan pool balances and related parameters.
  */
 contract LoanPoolBalances {
+    // Theseus DAO limits
+    uint public maxLoanLimit;
+    uint public minLoanLimit;
+    uint public maxLoanInterestRateLimit;
+    uint public minLoanInterestRateLimit;
+    uint public maxInterestPeriodsLimit;
+    uint public minInterestPeriodsLimit;
+    uint public minMMRLimit;
+    uint public maxMMRLimit;
+    uint public minHoldingsReqPercentageLimit;
+    uint public maxHoldingsReqPercentageLimit;
     // Mappings for storing pool-related data
     mapping(address => uint) public poolTotalUsdcSupply;
     mapping(address => uint) public poolOutstandingLoans;
@@ -19,30 +30,22 @@ contract LoanPoolBalances {
     mapping(address => uint) public mmr;
     mapping(address => uint) public minHoldingsReqPercentage;
 
-    // Theseus DAO limits
-    uint public maxLoanLimit;
-    uint public minLoanLimit;
-    uint public maxLoanInterestRateLimit;
-    uint public minLoanInterestRateLimit;
-    uint public maxInterestPeriodsLimit;
-    uint public minInterestPeriodsLimit;
-    uint public minMMRLimit;
-    uint public maxMMRLimit;
-    uint public minHoldingsReqPercentageLimit;
-    uint public maxHoldingsReqPercentageLimit;
 
     // Mappings for storing trade-related data
     mapping(bytes => uint) public borrowedAmount;
     mapping(bytes => uint) public loanInterestLastPayed;
     mapping(bytes => uint) public interestForTrade;
 
-    // Mappings for storing reward-related data
-    mapping(address => uint) public currentRewardIndex;
-    mapping(address => mapping(uint => uint)) public balancesForRewards;
-    mapping(address => uint) public rewardDuration;
-    mapping(address => uint) public rewardPnlPercentage;
+    // // Mappings for storing reward-related data
+    // mapping(address => uint) public currentRewardIndex;
+    // mapping(address => mapping(uint => uint)) public balancesForRewards;
+    // mapping(address => uint) public rewardDuration;
+    // mapping(address => uint) public rewardPnlPercentage;
 
     // Mappings for storing DAO-related data
     mapping(address => address) public dao;
     address public theseusDao;
+
+  
+    
 }

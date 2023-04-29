@@ -46,4 +46,5 @@ contract Balances {
         IERC20(Usdc).transfer(msg.sender, _amount);
         availableBalance[msg.sender] -= _amount;
     }
+
 }
