@@ -2,7 +2,7 @@
 pragma solidity 0.8.17;
 import "./VaultMain.sol";
 import "../amm/VAmm.sol";
-
+import "hardhat/console.sol";
 contract Exchange is VaultMain {
     /**
  * @dev Constructor for initializing the Exchange contract
@@ -164,7 +164,43 @@ contract Exchange is VaultMain {
     function removeLiquidityFromPosition(
         bytes memory _tradeId,
         int _positionSize
-    ) public returns (bool) {}
+    ) public returns (bool) {
+        require(isActive[_tradeId], "");
+        Position storage _position = positions[_tradeId];
+        // require(msg.sender == _position.trader, "");
+        // require(_positionSize > 0 && _positionSize< _position.positionSize, "");
+        require(
+            payInterestPayments(_tradeId, _position.amm),
+            ""
+        );
+        // require(calcFFR(_tradeId,_amm), "ffr payment failed");
+        uint _loanAmount = _position.loanedAmount;
+        VAmm _amm = VAmm(_position.amm);
+        (, int _usdcAmt) = _amm.closePosition(
+            _positionSize,
+            _position.side
+        );
+        int _amountOwed = ((10**8*_positionSize)/_position.positionSize)*int(_loanAmount)/(10**8);
+        console.log("amount owed", uint(_amountOwed));
+        console.log('BORROWEDaMOUNT', uint(_loanAmount));
+        int pnl = _usdcAmt - _amountOwed;
+        console.log("pnl", uint(pnl));
+        if(pnl > 0){
+            repayLoan(_tradeId, uint(_amountOwed), _position.amm);
+            availableBalance[msg.sender] += uint(pnl);
+        }
+        else{
+            tradeCollateral[_tradeId] -= uint(pnl*-1);
+            repayLoan(_tradeId, uint(_amountOwed), _position.amm);
+
+        }
+            _position.positionSize -= _positionSize;
+            _position.loanedAmount -= uint(_amountOwed); 
+            tradeBalance[_tradeId] -= uint(_amountOwed);
+    
+      
+        return true;
+    }
 
         /**
      *@dev Function to pay the funding rate for a position
