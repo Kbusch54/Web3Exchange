@@ -298,7 +298,7 @@ contract VAmm {
      */
     function closePosition(
         int positionSize,
-        int
+        int side
     ) external returns (uint exitPrice, int usdcAmt) {
         LiquidityChangedSnapshot
             memory lastSnapshot = liquidityChangedSnapshots[

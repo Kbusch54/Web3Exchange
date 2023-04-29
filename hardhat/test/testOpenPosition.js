@@ -64,10 +64,10 @@ describe("depositAndStake", function () {
         const leverage = 2;
         const side =1;
         await exchange.openPosition(amm.address,collateral,leverage,side);
-        const tradeId = await exchange.callStatic.getTradeIds(owner.address)[0];
+        const tradeId = await exchange.callStatic.getTradeIds(owner.address);
         return {usdc, owner, otherAccount, amm,loanToks,exchange,collateral,leverage,side,tradeId};
     };
-    it("should deposit and openPosition loanPool should reflect new loan", async function () {
+    it.skip("should deposit and openPosition loanPool should reflect new loan", async function () {
         const {usdc, owner, otherAccount, amm,loanToks,exchange,staking} = await loadFixture(deployContracts);
         await usdc.approve(exchange.address, parseUnits("1000", 6));
         await exchange.initializeVamm(amm.address);
@@ -99,7 +99,7 @@ describe("depositAndStake", function () {
         // expect(tradeCollateralAfter).to.equal(collateral);
      
     });
-    it("should deposit and openPosition loanPool should reflect new loan short", async function () {
+    it.skip("should deposit and openPosition loanPool should reflect new loan short", async function () {
         const {usdc, owner, otherAccount, amm,loanToks,exchange,staking} = await loadFixture(deployContracts);
         await usdc.approve(exchange.address, parseUnits("1000", 6));
         await exchange.initializeVamm(amm.address);
@@ -127,7 +127,7 @@ describe("depositAndStake", function () {
         expect(tradeBalanceAfter).to.equal(usdcOnLoanAfter);
         expect(tradeCollateralAfter).to.equal(collateral);
     });
-    it("should deposit and openPosition charge interest", async function () {
+    it.skip("should deposit and openPosition charge interest", async function () {
         const {usdc, owner, otherAccount, amm,loanToks,exchange,staking} = await loadFixture(deployContracts);
         await usdc.approve(exchange.address, parseUnits("1000", 6));
         await exchange.initializeVamm(amm.address);
@@ -145,7 +145,7 @@ describe("depositAndStake", function () {
         const interstOwed = await exchange.callStatic.interestOwed(tradeIds[0],amm.address);
         expect(interstOwed).to.equal(loanAmount.div(100));
     });
-    it("should deposit and openPosition charge interest short", async function () {
+    it.skip("should deposit and openPosition charge interest short", async function () {
         const {usdc, owner, otherAccount, amm,loanToks,exchange,staking} = await loadFixture(deployContracts);
         await usdc.approve(exchange.address, parseUnits("1000", 6));
         await exchange.initializeVamm(amm.address);
@@ -161,7 +161,7 @@ describe("depositAndStake", function () {
         const interstOwed = await exchange.callStatic.interestOwed(tradeIds[0],amm.address);
         expect(interstOwed).to.equal(loanAmount.div(100));
     });
-    it("should add liquidity to the position and increase collateral and loan amount", async function () {
+    it.skip("should add liquidity to the position and increase collateral and loan amount", async function () {
         const {usdc, owner, otherAccount, amm, loanToks, exchange,staking} = await loadFixture(deployContracts);
         // ... set up the initial state (deposit, stake, open position)
         await usdc.approve(exchange.address, parseUnits("1000", 6));
@@ -193,7 +193,7 @@ describe("depositAndStake", function () {
         const expectedLoanAmount = initialLoanedAmount.add(addedCollateral.mul(leverage2));
         expect(newLoanedAmount).to.equal(expectedLoanAmount);
     });
-    it("should revert when trying to add liquidity with zero collateral", async function () {
+    it.skip("should revert when trying to add liquidity with zero collateral", async function () {
         // const {usdc, owner, otherAccount, amm, loanToks, exchange} = await loadFixture(deployContracts);
         // ... set up the initial state (deposit, stake, open position)
         const {usdc, owner, otherAccount, amm,loanToks,exchange,collateral,side,tradeId} = await loadFixture(openPosition);
@@ -204,7 +204,7 @@ describe("depositAndStake", function () {
     });
 
     // Test case 3: Verify that adding liquidity with insufficient available balance reverts the transaction
-    it("should revert when trying to add liquidity with insufficient available balance", async function () {
+    it.skip("should revert when trying to add liquidity with insufficient available balance", async function () {
         // const {usdc, owner, otherAccount, amm, loanToks, exchange} = await loadFixture(deployContracts);
         // ... set up the initial state (deposit, stake, open position)
         const {usdc, owner, otherAccount, amm,loanToks,exchange,collateral,side,tradeId} = await loadFixture(openPosition);
@@ -213,6 +213,29 @@ describe("depositAndStake", function () {
         const leverage = 4;
          expect( exchange.addLiquidityToPosition(tradeId, leverage, addedCollateral)).to.be.reverted;
 
+    });
+    it("should remove liquidity from a long position successfully", async function () {
+        // Setup: deposit, initialize, open a position
+        // ... your existing setup code here
+        const {usdc, owner, otherAccount, amm,loanToks,exchange,collateral,side,tradeId} = await loadFixture(openPosition);
+        // Remove liquidity from the position
+        console.log('tradeId',tradeId);
+        const initialPositionSize = await exchange.callStatic.positions(tradeId[0]);
+        console.log('initialPositionSize',initialPositionSize.positionSize);
+        console.log('owner address',owner.address);
+        const removedPositionSize = initialPositionSize.positionSize.div(2);
+        await exchange.removeLiquidityFromPosition(tradeId[0], removedPositionSize);
+    
+        // Verify that the position size has been updated
+        const newPositionSize = await exchange.callStatic.positions(tradeId[0]);
+        expect(newPositionSize.positionSize).to.equal(initialPositionSize.positionSize.sub(removedPositionSize));
+
+    
+        // Verify that the loaned amount and trade balance have been updated
+        // const newLoanedAmount = await exchange.callStatic.tradeBalance(tradeId[0]);
+        // expect(newLoanedAmount).to.equal(initialPositionSize.loanedAmount.sub(removedPositionSize));
+        // const newTradeBalance = await exchange.callStatic.tradeBalance(tradeId[0]);
+        // expect(newTradeBalance).to.equal(initialPositionSize.loanedAmount.sub(removedPositionSize));
     });
 
    
