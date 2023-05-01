@@ -2,7 +2,7 @@
 pragma solidity 0.8.17;
 import "./VaultMain.sol";
 import "../amm/VAmm.sol";
-import "hardhat/console.sol";
+// import "hardhat/console.sol";
 contract Exchange is VaultMain {
     /**
  * @dev Constructor for initializing the Exchange contract
@@ -37,7 +37,7 @@ contract Exchange is VaultMain {
 
         require(
             availableBalance[msg.sender] >= _collateral,
-            ""
+            "Not enough balance"
         );
         bytes memory _tradeId = abi.encodePacked(
             msg.sender,
@@ -49,7 +49,7 @@ contract Exchange is VaultMain {
         availableBalance[msg.sender] -= _collateral;
         tradeCollateral[_tradeId] += _collateral;
         tradeBalance[_tradeId] += _loanAmt;
-        require(borrow(_tradeId,  _amm,_loanAmt), "");
+        require(LoanPool(pool).borrow(_tradeId,  _amm,_loanAmt,_collateral), "Borrow failed");
         Position storage _position = positions[_tradeId];
         _position.collateral = _collateral;
         _position.loanedAmount = _loanAmt;
@@ -96,8 +96,8 @@ contract Exchange is VaultMain {
         _usdcAmt -= int(_loanAmount);
         tradeBalance[_tradeId] = 0;
         require(
-            repayLoan(_tradeId, _loanAmount, _position.amm),
-          ""
+            LoanPool(pool).repayLoan(_tradeId, _loanAmount, _position.amm),
+          "Repay loan failed"
         );
         _usdcAmt >= 0
             ? tradeCollateral[_tradeId] += uint(_usdcAmt)
@@ -108,11 +108,6 @@ contract Exchange is VaultMain {
         tradeCollateral[_tradeId] = 0;
         return (true, _usdcAmt, _exitPrice);
     }
-
-
-
-
-
     /**
      * @dev Function to add liquidity to position
      * @param _tradeId The tradeId of the position
@@ -141,8 +136,8 @@ contract Exchange is VaultMain {
         tradeCollateral[_tradeId] += _addedCollateral;
         uint _newLoan = _leverage * _addedCollateral;
         require(
-            borrow(_tradeId, _position.amm, _newLoan),
-            ""
+            LoanPool(pool).borrow(_tradeId, _position.amm, _newLoan,tradeCollateral[_tradeId]),
+            "Borrow failed"
         );
         VAmm _amm = VAmm(_position.amm);
         (int additionalPositionSize, uint avgEntryPrice, ) = _amm.openPosition(
@@ -165,13 +160,13 @@ contract Exchange is VaultMain {
         bytes memory _tradeId,
         int _positionSize
     ) public returns (bool) {
-        require(isActive[_tradeId], "");
+        require(isActive[_tradeId], "Trade not active");
         Position storage _position = positions[_tradeId];
-        require(msg.sender == _position.trader, "");
-        require(_positionSize > 0 && _positionSize< _position.positionSize, "");
+        require(msg.sender == _position.trader, "No authorized");
+        require(_positionSize*_position.side > 0 && _positionSize*_position.side< _position.positionSize*_position.side, "P size invalid");
         require(
             payInterestPayments(_tradeId, _position.amm),
-            ""
+            "Interest payment failed"
         );
         // require(calcFFR(_tradeId,_amm), "ffr payment failed");
         uint _loanAmount = _position.loanedAmount;
@@ -181,24 +176,18 @@ contract Exchange is VaultMain {
             _position.side
         );
         int _amountOwed = ((10**8*_positionSize)/_position.positionSize)*int(_loanAmount)/(10**8);
-        console.log("amount owed", uint(_amountOwed));
-        console.log('BORROWEDaMOUNT', uint(_loanAmount));
         int pnl = _usdcAmt - _amountOwed;
-        console.log("pnl", uint(pnl));
         if(pnl > 0){
-            repayLoan(_tradeId, uint(_amountOwed), _position.amm);
             availableBalance[msg.sender] += uint(pnl);
+            poolTotalUsdcSupply[_position.amm] -= uint(pnl);
         }
         else{
             tradeCollateral[_tradeId] -= uint(pnl*-1);
-            repayLoan(_tradeId, uint(_amountOwed), _position.amm);
-
         }
+            LoanPool(pool).repayLoan(_tradeId, uint(_amountOwed), _position.amm);
             _position.positionSize -= _positionSize;
             _position.loanedAmount -= uint(_amountOwed); 
             tradeBalance[_tradeId] -= uint(_amountOwed);
-    
-      
         return true;
     }
 
@@ -215,7 +204,6 @@ contract Exchange is VaultMain {
             tradeInterest[_tradeId] += _ffrToBePayed;
             positions[_tradeId].collateral - _ffrToBePayed;
             positions[_tradeId].lastFundingRate = block.timestamp;
-            require(payInterest(_tradeId), "");
         } else {
             liquidate(_tradeId);
         }
@@ -236,19 +224,5 @@ contract Exchange is VaultMain {
 
 
 
-    /**
-     * @dev Function to initialize a new AMM
-     *  @param _amm The address of the AMM contract
-     */
-    function initializeVamm(address _amm) public {
-        // require(!isFrozen[_amm], "amm already initialized");
-    
-        maxLoan[_amm] = 1000000000;
-        minLoan[_amm] = 1000000;
-        loanInterestRate[_amm] = 10000;
-        interestPeriods[_amm] = 2 hours;
-        mmr[_amm] = 50000;
-        minHoldingsReqPercentage[_amm] = 20000;
-    }
 
 }

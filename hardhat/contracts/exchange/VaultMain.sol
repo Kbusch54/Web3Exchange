@@ -1,14 +1,34 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
-import "../vaults/LoanPool.sol";
+import "../loanPools/LoanPool.sol";
+import "./Balances.sol";
 
-contract VaultMain is LoanPool {
+contract VaultMain is Balances {
 //constructor
+address public staking;
+address public pool;
+
     constructor(
         address _usdc,
         address _staking
-    ) LoanPool(_usdc, _staking) {}
+    ) Balances(_usdc) {
+        staking = _staking;
+    }
 
+ modifier onlyStaking {
+        require(msg.sender == staking,'not staking');
+        _;
+    }
+    modifier onlyPool {
+        require(isAmmPool[msg.sender] == true,'not pool');
+        _;
+    }
+    modifier onlyStakingOrPool{
+        require(msg.sender == staking || msg.sender == pool,'not staking or pool');
+        _;
+    }
+
+  
     //mapping of tradeId to collateral
     mapping(bytes => bool) public isActive;
     /// @dev Position struct to store details about a user's position
@@ -109,14 +129,14 @@ contract VaultMain is LoanPool {
         bytes memory _tradeId,
         address _amm
     ) public returns (bool) {
-        uint _interestToBePayed = interestOwed(_tradeId, _amm);
+        uint _interestToBePayed = LoanPool(pool).interestOwed(_tradeId, _amm);
         if (tradeCollateral[_tradeId] >= _interestToBePayed) {
             tradeCollateral[_tradeId] -= _interestToBePayed;
             tradeInterest[_tradeId] += _interestToBePayed;
             poolAvailableUsdc[_amm] += _interestToBePayed;
             poolTotalUsdcSupply[_amm] += _interestToBePayed;
             positions[_tradeId].collateral - _interestToBePayed;
-            require(payInterest(_tradeId), "");
+            require(LoanPool(pool).payInterest(_tradeId), "");
         } else {
             liquidate(_tradeId);
         }
@@ -148,24 +168,38 @@ contract VaultMain is LoanPool {
         return (_user, _amm, _timeStamp, _side);
     }
 
-      function addPoolTotalUsdcSupply(address _ammPool, uint _amount) external onlyStaking{
+      function addPoolTotalUsdcSupply(address _ammPool, uint _amount) external onlyStakingOrPool{
         poolTotalUsdcSupply[_ammPool] += _amount;
     }
-    function subPoolTotalUsdcSupply(address _ammPool, uint _amount) external onlyStaking{
+    function subPoolTotalUsdcSupply(address _ammPool, uint _amount) external onlyStakingOrPool{
         poolTotalUsdcSupply[_ammPool] -= _amount;
     }
 
-    function addPoolAvailableUsdc(address _ammPool, uint _amount) external onlyStaking{
+    function addPoolAvailableUsdc(address _ammPool, uint _amount) external onlyStakingOrPool{
         poolAvailableUsdc[_ammPool] += _amount;
     }
-    function subPoolAvailableUsdc(address _ammPool, uint _amount) external onlyStaking{
+    function subPoolAvailableUsdc(address _ammPool, uint _amount) external onlyStakingOrPool{
         poolAvailableUsdc[_ammPool] -= _amount;
     }
     
-    function addAvailableBalance(address _user, uint _amount) external onlyStaking{
+    function addAvailableBalance(address _user, uint _amount) external onlyStakingOrPool{
         availableBalance[_user] += _amount;
     }
-    function subAvailableBalance(address _user, uint _amount) external onlyStaking{
+    function subAvailableBalance(address _user, uint _amount) external onlyStakingOrPool{
         availableBalance[_user] -= _amount;
+    }
+    function addPoolOutstandingLoans(address _ammPool, uint _amount) external onlyPool{
+        poolOutstandingLoans[_ammPool] += _amount;
+    }
+    function subPoolOutstandingLoans(address _ammPool, uint _amount) external onlyPool{
+        poolOutstandingLoans[_ammPool] -= _amount;
+    }
+
+
+
+    function addPool(
+        address _pool
+    ) external  {
+        pool= _pool;
     }
 }
