@@ -237,6 +237,41 @@ describe("depositAndStake", function () {
         // const newTradeBalance = await exchange.callStatic.tradeBalance(tradeId[0]);
         // expect(newTradeBalance).to.equal(initialPositionSize.loanedAmount.sub(removedPositionSize));
     });
+    it("should remove liquidity from a short position successfully", async function () {
+        // Setup: deposit, initialize, open a position
+        const {usdc, owner, otherAccount, amm,loanToks,exchange,staking} = await loadFixture(deployContracts);
+        await usdc.approve(exchange.address, parseUnits("1000", 6));
+        await exchange.initializeVamm(amm.address);
+        await exchange.deposit(parseUnits("1000", 6));
+        await staking.stake(parseUnits("100", 6),amm.address);
+        const availableBalanceBefore = await exchange.callStatic.poolAvailableUsdc(amm.address);
+        const usdcOnLoanBefore = await exchange.callStatic.poolOutstandingLoans(amm.address);
+        const totalSupplyBefore = await exchange.callStatic.poolTotalUsdcSupply(amm.address);
+        const collateral = parseUnits("10", 6);
+        const leverage = 2;
+        const side =-1;
+        await exchange.openPosition(amm.address,collateral,leverage,side);
+        const tradeIds = await exchange.callStatic.getTradeIds(owner.address);
+        const tradeBalanceAfter = await exchange.callStatic.tradeBalance(tradeIds[0]);
+        const tradeCollateralAfter = await exchange.callStatic.tradeCollateral(tradeIds[0]);
+        const loanAmount = collateral.mul(leverage);
+        const initialPositionSize = await exchange.callStatic.positions(tradeIds[0]);
+        console.log('initialPositionSize',initialPositionSize.positionSize);
+        console.log('owner address',owner.address);
+        const removedPositionSize = initialPositionSize.positionSize.div(2);
+        await exchange.removeLiquidityFromPosition(tradeIds[0], removedPositionSize);
+    
+        // Verify that the position size has been updated
+        const newPositionSize = await exchange.callStatic.positions(tradeIds[0]);
+        expect(newPositionSize.positionSize).to.equal(initialPositionSize.positionSize.sub(removedPositionSize));
+
+    
+        // Verify that the loaned amount and trade balance have been updated
+        // const newLoanedAmount = await exchange.callStatic.tradeBalance(tradeId[0]);
+        // expect(newLoanedAmount).to.equal(initialPositionSize.loanedAmount.sub(removedPositionSize));
+        // const newTradeBalance = await exchange.callStatic.tradeBalance(tradeId[0]);
+        // expect(newTradeBalance).to.equal(initialPositionSize.loanedAmount.sub(removedPositionSize));
+    });
 
    
 

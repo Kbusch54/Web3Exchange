@@ -167,8 +167,8 @@ contract Exchange is VaultMain {
     ) public returns (bool) {
         require(isActive[_tradeId], "");
         Position storage _position = positions[_tradeId];
-        // require(msg.sender == _position.trader, "");
-        // require(_positionSize > 0 && _positionSize< _position.positionSize, "");
+        require(msg.sender == _position.trader, "");
+        require(_positionSize > 0 && _positionSize< _position.positionSize, "");
         require(
             payInterestPayments(_tradeId, _position.amm),
             ""

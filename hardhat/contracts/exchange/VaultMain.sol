@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
-import "./LoanPool.sol";
+import "../vaults/LoanPool.sol";
 
 contract VaultMain is LoanPool {
 //constructor
