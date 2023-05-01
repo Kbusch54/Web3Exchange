@@ -47,4 +47,4 @@ contract Balances {
         availableBalance[msg.sender] -= _amount;
     }
 
-}
+} 
