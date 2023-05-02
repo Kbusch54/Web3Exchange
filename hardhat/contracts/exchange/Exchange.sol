@@ -205,14 +205,22 @@ contract Exchange is VaultMain {
      @return A boolean value indicating whether the operation succeeded
      */
     function payFFR(bytes memory _tradeId, address _amm) internal returns (bool) {
-        uint _ffrToBePayed = calcFFR(_tradeId, _amm);
-        if (tradeCollateral[_tradeId] >= _ffrToBePayed) {
-            tradeCollateral[_tradeId] -= _ffrToBePayed;
-            tradeInterest[_tradeId] += _ffrToBePayed;
-            positions[_tradeId].collateral - _ffrToBePayed;
+        int _ffrToBePayed = calcFFR(_tradeId, _amm);
+            poolFFRFund[_amm] -= _ffrToBePayed;
+        if(_ffrToBePayed >0){
+            uint _ffrCal = uint(_ffrToBePayed);
+            tradeCollateral[_tradeId] += _ffrCal;
+            positions[_tradeId].collateral + _ffrCal;
             positions[_tradeId].lastFundingRate = block.timestamp;
-        } else {
-            liquidate(_tradeId);
+        }else{
+            uint _ffrCal = uint(_ffrToBePayed*-1);
+            if(_ffrCal > tradeCollateral[_tradeId]){
+                liquidate(_tradeId);
+            }else{
+                tradeCollateral[_tradeId] -= _ffrCal;
+                positions[_tradeId].collateral - _ffrCal;
+                positions[_tradeId].lastFundingRate = block.timestamp;
+            }   
         }
 
         return true;
@@ -222,14 +230,32 @@ contract Exchange is VaultMain {
     function calcFFR(
         bytes memory _tradeId,
         address _amm
-    ) internal view returns (uint) {
+    ) internal view returns (int) {
         // Position memory _position = positions[_tradeId];
         // VAmm _vamm = VAmm(_amm);
-        uint _ffr = 1;
+        int _ffr = 1;
         return _ffr;
     }
 
+    //check if the position is liquidatable (calcFFR, interestOwed) (checkMMR loanAmt, Current position worth)
+    //give array of liquidatable positions
+    //check pnl/remaning collateral
+    //liquidate function
 
 
+function checkLiquidiation(bytes memory _tradeId)public view returns(bool){
+    //check collateral 
+    //sub interest owed and ffr
+    //mock pnl
+    //loan amt
+    //check MMR
+    // if(((collateralAfterInterest +- pnl )*10**8)/loanAmt>=mmr){
+        // return false;
+    // }
+    // else{
+        // return true;
+    // }
+    return false;
+}
 
 }

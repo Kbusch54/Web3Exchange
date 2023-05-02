@@ -23,7 +23,6 @@ contract Balances {
     // Mappings for storing trade balances, collaterals, interests, available balances, and total trade collaterals
     mapping(bytes => uint) public tradeBalance;
     mapping(bytes => uint) public tradeCollateral;
-    mapping(bytes => uint) public tradeInterest;
     mapping(address => uint) public availableBalance;
     mapping(address => uint) public totalTradeCollateral; // For liquidation purposes
 
@@ -31,6 +30,7 @@ contract Balances {
     mapping(address => uint) public poolTotalUsdcSupply;
     mapping(address => uint) public poolOutstandingLoans;
     mapping(address => uint) public poolAvailableUsdc;
+    mapping(address => int) public poolFFRFund;
 
 
   mapping(address => bool) public isAmmPool;

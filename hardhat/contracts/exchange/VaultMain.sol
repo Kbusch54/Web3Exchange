@@ -69,9 +69,7 @@ address public pool;
     ) public returns (bool) {
         (
             address _user,
-            address _amm,
-            uint _timeStamp,
-            int _side
+            address _amm,,
         ) = decodeTradeId(_tradeId);
         require(isActive[_tradeId] && msg.sender == _user, "");
         require(payInterestPayments(_tradeId, _amm), "");
@@ -132,7 +130,6 @@ address public pool;
         uint _interestToBePayed = LoanPool(pool).interestOwed(_tradeId, _amm);
         if (tradeCollateral[_tradeId] >= _interestToBePayed) {
             tradeCollateral[_tradeId] -= _interestToBePayed;
-            tradeInterest[_tradeId] += _interestToBePayed;
             poolAvailableUsdc[_amm] += _interestToBePayed;
             poolTotalUsdcSupply[_amm] += _interestToBePayed;
             positions[_tradeId].collateral - _interestToBePayed;
