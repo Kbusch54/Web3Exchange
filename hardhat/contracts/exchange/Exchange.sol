@@ -4,6 +4,7 @@ import "./VaultMain.sol";
 import "../amm/VAmm.sol";
 // import "hardhat/console.sol";
 contract Exchange is VaultMain {
+    address public theseusDao;
     /**
  * @dev Constructor for initializing the Exchange contract
     @param _usdc The address of the USDC contract
@@ -11,8 +12,11 @@ contract Exchange is VaultMain {
  * */
     constructor(
         address _usdc,
-        address _staking
-    ) VaultMain(_usdc, _staking) {}
+        address _staking,
+        address _theseusDao
+    ) VaultMain(_usdc, _staking) {
+        theseusDao = _theseusDao;
+    }
 
     
 //hello
@@ -46,9 +50,12 @@ contract Exchange is VaultMain {
             _side
         );
         uint _loanAmt = _collateral * _leverage;
-        availableBalance[msg.sender] -= _collateral;
+        (uint _amtToPool, uint _amtToDao)=LoanPool(pool).tradingFeeCalc(_amm, _loanAmt);
+        availableBalance[msg.sender] -= (_collateral + _amtToPool + _amtToDao);
         tradeCollateral[_tradeId] += _collateral;
         tradeBalance[_tradeId] += _loanAmt;
+        poolTotalUsdcSupply[_amm] += _amtToPool;
+        availableBalance[theseusDao] += _amtToDao;
         require(LoanPool(pool).borrow(_tradeId,  _amm,_loanAmt,_collateral), "Borrow failed");
         Position storage _position = positions[_tradeId];
         _position.collateral = _collateral;

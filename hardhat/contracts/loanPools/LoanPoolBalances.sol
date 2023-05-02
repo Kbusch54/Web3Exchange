@@ -17,6 +17,8 @@ contract LoanPoolBalances {
     uint public maxMMRLimit;
     uint public minHoldingsReqPercentageLimit;
     uint public maxHoldingsReqPercentageLimit;
+    uint public maxTradingFeeLimit;
+    uint public minTradingFeeLimit;
 
 
     // Mappings for storing loan-related data
@@ -32,6 +34,13 @@ contract LoanPoolBalances {
     mapping(bytes => uint) public borrowedAmount;
     mapping(bytes => uint) public loanInterestLastPayed;
     mapping(bytes => uint) public interestForTrade;
+
+
+    //mapping for trading fees
+    mapping(address => uint) public tradingFeeLoanPool;
+
+
+    mapping(address => uint) public debt;
 
     // // Mappings for storing reward-related data
     // mapping(address => uint) public currentRewardIndex;

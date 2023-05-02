@@ -3,6 +3,7 @@ pragma solidity 0.8.17;
 import "./LoanPoolBalances.sol";
 import "../exchange/Balances.sol";
 import "../exchange/Exchange.sol";
+import "hardhat/console.sol";
 
 
 /**
@@ -101,11 +102,32 @@ address public exchange;
         return true;
     }
 
+    /**
+     * @dev Function for calculating the trading fee for a trade.
+     * @param _amm The address of the AMM pool.
+     * @param _loanAmt The amount of the loan.
+     * @return feeToPool The fee to the pool.
+     * @return feeToDAO The fee to the DAO.
+     */
+    function tradingFeeCalc(address _amm, uint _loanAmt)external onlyExchange returns(uint feeToPool,uint feeToDAO){
+        uint _tradingFee = tradingFeeLoanPool[_amm];
+        uint _fee = (_loanAmt * _tradingFee)/10**6;
+        if(debt[_amm] == 0){
+            _fee/=2;
+            return (_fee,_fee);
+        }
+        debt[_amm] -= _fee;
+        return (0,_fee);
+    }
+
     
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////Dao Functions////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/*
+TODO:Require min and max
+*/
     function setMMR(uint _mmr,address _ammPool)external onlyDao(_ammPool){
         mmr[_ammPool] = _mmr;
     }
@@ -128,6 +150,9 @@ address public exchange;
 
     function setInterestPeriods(uint _interestPeriods,address _ammPool)external onlyDao(_ammPool){
         interestPeriods[_ammPool] = _interestPeriods;
+    }
+    function setTradingFee(uint _tradingFee,address _ammPool)external onlyDao(_ammPool){
+        tradingFeeLoanPool[_ammPool] = _tradingFee;
     }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -157,6 +182,11 @@ address public exchange;
         minHoldingsReqPercentageLimit = _minMinHoldingsReqPercentage;
         maxHoldingsReqPercentageLimit = _maxMinHoldingsReqPercentage;
     }
+    function setMinAndMaxTradingFee(uint _minTradingFee,uint _maxTradingFee)external onlyTheseus{
+        require(_minTradingFee <= _maxTradingFee,'');
+        minTradingFeeLimit = _minTradingFee;
+        maxTradingFeeLimit = _maxTradingFee;
+    }
 
     
     /**
@@ -171,6 +201,7 @@ address public exchange;
         interestPeriods[_amm] = 2 hours;
         mmr[_amm] = 50000;
         minHoldingsReqPercentage[_amm] = 20000;
+        tradingFeeLoanPool[_amm] = 10000;
     }
 
 }
