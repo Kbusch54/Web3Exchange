@@ -43,10 +43,10 @@ address public staking;
         address amm;
         address trader;
     }
+    mapping(bytes => Position) public positions;
     //array of tradIds for each user
     mapping(address => bytes[]) public tradeIds;
 
-    mapping(bytes => Position) public positions;
     bytes[] public tradeIdList;
 
     /** 
@@ -144,6 +144,10 @@ address public staking;
 
         function liquidate(bytes memory _tradeId) public {
         2 + 2;
+    }
+
+    function getTradeIdList() public view returns (bytes[] memory) {
+        return tradeIdList;
     }
 
     
