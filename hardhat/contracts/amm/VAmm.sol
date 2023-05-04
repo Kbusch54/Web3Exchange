@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 import "../../node_modules/@openzeppelin/contracts/utils/math/SafeMath.sol";
 // import "./IVAmm.sol";
 import "../../node_modules/hardhat/console.sol";
+import "./FakeOracle.sol";
 
 /**
  * @title VAmm
@@ -11,7 +12,6 @@ import "../../node_modules/hardhat/console.sol";
 contract VAmm {
     using SafeMath for int;
 
-    address public assest;
     bytes32 public path;
     uint public indexPrice;
     uint public k;
@@ -48,13 +48,16 @@ contract VAmm {
         _;
     }
 
-    address private exchange;
+    address public exchange;
+    address public oracle;
+    constructor(address _oracle) {
+        oracle = _oracle;
+    }
 
     LiquidityChangedSnapshot[] public liquidityChangedSnapshots;
 
     /**
      * @dev Initializes the VAMM contract with given parameters.
-     * @param _assest Address of the asset.
      * @param _path Path of the asset.
      * @param _indexPrice Initial index price of the asset.
      * @param _quoteAssetAmount Initial quote asset amount.
@@ -62,14 +65,12 @@ contract VAmm {
      * @param _exchange Address of the exchange contract.
      */
     function init(
-        address _assest,
         string memory _path,
         uint _indexPrice,
         uint _quoteAssetAmount,
         uint16 _indexPricePeriod,
         address _exchange
     ) external {
-        assest = _assest;
         path = keccak256(abi.encodePacked(_path));
         indexPrice = _indexPrice;
         // k= indexPrice*_quoteAssetAmount*100;
@@ -94,6 +95,7 @@ contract VAmm {
     }
 
     function unFreeze(uint _indexPrice,uint _quoteAssetAmount) internal {
+        console.log("unfreeze new price %s",_indexPrice);
         isFrozen = false;
         indexPrice = _indexPrice;
         // k= indexPrice*_quoteAssetAmount*100;
@@ -125,29 +127,11 @@ contract VAmm {
 
     /**
      * @dev Sets the index price for the asset.
-     * @param _price New index price.
      */
-    function setIndexPrice(uint _price) external {
-        require(!isFrozen, "VAmm is frozen");
-        require(_price > 0, "price must be greater than 0");
-        LiquidityChangedSnapshot
-            memory lastSnapshot = liquidityChangedSnapshots[
-                liquidityChangedSnapshots.length - 1
-            ];
-        console.log("lastSnapshot.blockNumber", lastSnapshot.timestamp);
-        console.log("indexPricePeriod", indexPricePeriod);
-        console.log("block.number", block.timestamp);
-        require(
-            lastSnapshot.timestamp + indexPricePeriod >= block.timestamp -15 minutes && lastSnapshot.timestamp + indexPricePeriod <= block.timestamp +15 minutes,
-            "Need to wait for time period"
-        );
-        //set last index price
-        lastSnapshot.finalIndexPrice = _price;
-        //set new index price
-        liquidityChangedSnapshots[
-        liquidityChangedSnapshots.length - 1
-        ] = lastSnapshot;
-        indexPrice = _price;
+    function setIndexPrice() internal {
+        require(!isFrozen, "VAmm is not frozen cannot reset index price");
+        // require(_price > 0, "price must be greater than 0");
+       
         adjustFundingPaymentsAll();
     }
 
@@ -157,6 +141,11 @@ contract VAmm {
      */
     function getLastAssetSpotPrice() external view returns (uint) {
         return indexPrice;
+    }
+    function getIndexPriceFromOracle()internal{
+        FakeOracle _oracle = FakeOracle(oracle);
+        uint _price = _oracle.price();
+        indexPrice = _price;
     }
 
     /**
@@ -244,16 +233,18 @@ contract VAmm {
     function openPosition(
         uint totalCollateral,
         int _side
-    ) external returns (int positionSize, uint avgEntryPrice, uint openValue) {
+    ) external returns (int positionSize, uint avgEntryPrice, uint openValue,uint lastFFRIndex) {
         console.log("openPosition");
+            //get oracle index price
+            if(isFrozen){
+                FakeOracle _oracle = FakeOracle(oracle);
+                uint _price = _oracle.price();
+                unFreeze(_price,10000);
+            }
         LiquidityChangedSnapshot
             memory lastSnapshot = liquidityChangedSnapshots[
                 liquidityChangedSnapshots.length - 1
             ];
-            //get oracle index price
-            if(isFrozen){
-                unFreeze(indexPrice,totalCollateral);
-            }
         int _newBaseAsset = int(lastSnapshot.baseAssetReserve) +
             (int(totalCollateral) * _side);
         uint _newQuoteAsset = uint(intToFixed(int(k))) / uint(_newBaseAsset);
@@ -281,6 +272,7 @@ contract VAmm {
             liquidityChangedSnapshots.length - 1
         ] = lastSnapshot;
         updateFutureFundingRate();
+        lastFFRIndex = liquidityChangedSnapshots.length - 1;
     }
 
     /**
@@ -292,16 +284,25 @@ contract VAmm {
             memory lastSnapshot = liquidityChangedSnapshots[
                 liquidityChangedSnapshots.length - 1
             ];
+            FakeOracle _oracle = FakeOracle(oracle);
+            uint _price = _oracle.price();
+            console.log("new price", _price);
         int _newFundingRate = calculateFundingRate(
             int(getAssetPrice()),
-            int(indexPrice)
+            int(_price)
         );
         console.log("new funding rate 111", uint(_newFundingRate * -1));
-        lastSnapshot.fundingRate = _newFundingRate;
-        liquidityChangedSnapshots[
-            liquidityChangedSnapshots.length - 1
-        ] = lastSnapshot;
 
+        //check if snapshot time is over
+        if(lastSnapshot.timestamp + indexPricePeriod >= block.timestamp -15 minutes && lastSnapshot.timestamp + indexPricePeriod <= block.timestamp +15 minutes){
+            adjustFundingPaymentsAll();
+            console.log("adjusting index", indexPrice);
+        }else{
+            lastSnapshot.fundingRate = _newFundingRate;
+            liquidityChangedSnapshots[
+                liquidityChangedSnapshots.length - 1
+            ] = lastSnapshot;
+        }
         return _newFundingRate;
     }
 
@@ -376,19 +377,19 @@ contract VAmm {
      * @dev Adjusts funding payments for all positions.
      */
     function adjustFundingPaymentsAll() internal {
-        updateFutureFundingRate();
+        //getIndexPriceFromOracle
+        console.log("adjusting funding payments");
+        FakeOracle _oracle = FakeOracle(oracle);
+        indexPrice = _oracle.price();
         LiquidityChangedSnapshot
             memory lastSnapshot = liquidityChangedSnapshots[
                 liquidityChangedSnapshots.length - 1
             ];
-        // int nbR =  int(lastSnapshot.baseAssetReserve) *(100000000+lastSnapshot.fundingRate);
-        // uint _newBaseAsset = uint(fixedToInt(nbR>0?nbR:nbR*-1));
-        // uint _newQuoteAsset = k/ _newBaseAsset;
         lastSnapshot.quoteAssetReserve = lastSnapshot.quoteAssetReserve;
         lastSnapshot.baseAssetReserve = lastSnapshot.baseAssetReserve;
         lastSnapshot.blockNumber = block.number;
         lastSnapshot.timestamp = block.timestamp;
-        lastSnapshot.startIndexPrice = lastSnapshot.finalIndexPrice;
+        lastSnapshot.startIndexPrice = indexPrice;
         lastSnapshot.finalIndexPrice = 0;
         liquidityChangedSnapshots.push(lastSnapshot);
         lastFundingRateIndex = liquidityChangedSnapshots.length - 1;

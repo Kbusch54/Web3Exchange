@@ -17,82 +17,92 @@ const {
 } = require("ethers/lib/utils");
 const { hours } = require("@nomicfoundation/hardhat-network-helpers/dist/src/helpers/time/duration");
 describe("depositAndStake", function () {
-  async function deployContracts() {
-    const [owner, otherAccount, oracle, theseusDao] =
-      await hre.ethers.getSigners();
-    const FakeCurrency = await hre.ethers.getContractFactory("FakeUsdc");
-    const name = "Fake USDC";
-    const decimals = 6;
-    const symbol = "USDC";
-    const usdc = await FakeCurrency.deploy(
-      100000000000,
-      name,
-      symbol,
-      decimals
-    );
-
-    const path = "events/json/appl";
-    const indexPrice = parseUnits("370", 6);
-    const quoteAsset = parseUnits("100", 2);
-    const indexPricePeriod =  time.duration.hours(2);
-    console.log("indexPricePeriod", indexPricePeriod);
-
-    const PoolTokens = await hre.ethers.getContractFactory("PoolTokens");
-    const loanToks = await PoolTokens.deploy(owner.address);
-    await loanToks.deployed();
-    const Staking = await hre.ethers.getContractFactory("Staking");
-    const staking = await Staking.deploy(theseusDao.address);
-
-    const Exchange = await hre.ethers.getContractFactory("Exchange");
-    const exchange = await Exchange.deploy(
-      usdc.address,
-      staking.address,
-      theseusDao.address
-    );
-    const stakeAdd = staking.address;
-    console.log("stakeAdd", stakeAdd);
-    const exStakingAdd = await exchange.callStatic.staking();
-    console.log("exStakingAdd", exStakingAdd);
-    console.log("loanpool tokens contract address", loanToks.address);
-    console.log('exhcnage address', exchange.address);
+    async function deployContracts() {
+        const [owner, otherAccount, third, theseusDao] =
+          await hre.ethers.getSigners();
+        const FakeCurrency = await hre.ethers.getContractFactory("FakeUsdc");
+        const name = "Fake USDC";
+        const decimals = 6;
+        const symbol = "USDC";
+        const usdc = await FakeCurrency.deploy(
+          100000000000,
+          name,
+          symbol,
+          decimals
+        );
+        const FakeOracle = await hre.ethers.getContractFactory("FakeOracle");
+        const indexPrice = parseUnits("370", 6);
+        const oracle = await FakeOracle.deploy(indexPrice);
     
-    await loanToks.setStaking(staking.address);
-    await staking.setExchange(exchange.address);
-    await staking.setPoolToken(loanToks.address);
-    const VAmm = await hre.ethers.getContractFactory("VAmm");
-    const amm = await VAmm.deploy();
-    await amm.init(
-      oracle.address,
-      path,
-      indexPrice,
-      quoteAsset,
-      indexPricePeriod,
-      exchange.address
-    );
-    const LoanPool = await hre.ethers.getContractFactory("LoanPool");
-    const loanPool = await LoanPool.deploy(exchange.address);
-    const theseusDaoID = await staking.callStatic.ammPoolToTokenId(theseusDao.address);
-    console.log('theseusDaoID', theseusDaoID);
-    console.log('ex add loanPool', await loanPool.callStatic.exchange());
-    await exchange.addAmm(amm.address);
-    await exchange.registerLoanPool(loanPool.address);
-    await loanPool.initializeVamm(amm.address);
-    const PoolTokenAMmID = await staking.callStatic.ammPoolToTokenId(amm.address);
-    console.log('PoolTokenAMmID', PoolTokenAMmID);
-    console.log("Ready to go here");
+        const path = "events/json/appl";
+        const quoteAsset = parseUnits("100", 2);
+        const indexPricePeriod =  time.duration.hours(2);
+        console.log("indexPricePeriod", indexPricePeriod);
+    
+        const PoolTokens = await hre.ethers.getContractFactory("PoolTokens");
+        const loanToks = await PoolTokens.deploy(owner.address);
+        await loanToks.deployed();
+        const Staking = await hre.ethers.getContractFactory("Staking");
+        const staking = await Staking.deploy(theseusDao.address);
+    
+        const Exchange = await hre.ethers.getContractFactory("Exchange");
+        const exchange = await Exchange.deploy(
+          usdc.address,
+          staking.address,
+          theseusDao.address
+        );
+        const stakeAdd = staking.address;
+        console.log("stakeAdd", stakeAdd);
+        const exStakingAdd = await exchange.callStatic.staking();
+        console.log("exStakingAdd", exStakingAdd);
+        console.log("loanpool tokens contract address", loanToks.address);
+        console.log('exhcnage address', exchange.address);
+        
+        await loanToks.setStaking(staking.address);
+        await staking.setExchange(exchange.address);
+        await staking.setPoolToken(loanToks.address);
+        const VAmm = await hre.ethers.getContractFactory("VAmm");
+        const amm = await VAmm.deploy(oracle.address);
+        await amm.init(
+          path,
+          indexPrice,
+          quoteAsset,
+          indexPricePeriod,
+          exchange.address
+        );
+        const LoanPool = await hre.ethers.getContractFactory("LoanPool");
+        const loanPool = await LoanPool.deploy(exchange.address);
+        const theseusDaoID = await staking.callStatic.ammPoolToTokenId(theseusDao.address);
+        console.log('theseusDaoID', theseusDaoID);
+        console.log('ex add loanPool', await loanPool.callStatic.exchange());
+        await exchange.addAmm(amm.address);
+        await exchange.registerLoanPool(loanPool.address);
+        await loanPool.initializeVamm(amm.address);
+        const PoolTokenAMmID = await staking.callStatic.ammPoolToTokenId(amm.address);
 
-    return {
-      usdc,
-      owner,
-      otherAccount,
-      amm,
-      loanToks,
-      exchange,
-      staking,
-      loanPool,
-      theseusDao,
-    };
-  }
+
+        console.log('PoolTokenAMmID', PoolTokenAMmID);
+
+      
+
+        const ExchangeViewer = await hre.ethers.getContractFactory("ExchangeViewer");
+        const exchangeViewer = await ExchangeViewer.deploy(loanPool.address, usdc.address, staking.address, theseusDao.address, exchange.address, amm.address);
+        await exchange.setExchangeViewer(exchangeViewer.address);
+        console.log("Ready to go here");
+    
+        return {
+          usdc,
+          owner,
+          otherAccount,
+          amm,
+          oracle,
+          loanToks,
+          exchange,
+          staking,
+          loanPool,
+          theseusDao,
+        };
+      }
   async function openPosition() {
     const {
       usdc,

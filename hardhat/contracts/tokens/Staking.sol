@@ -23,7 +23,7 @@ contract Staking {
     }
 
     modifier IfIsFrozen(address _ammPool) {
-        require(!isFrozen[_ammPool], "");
+        require(!isFrozen[_ammPool], "Staking: Pool is frozen");
         _;
     }
     modifier OnlyExchange(){
