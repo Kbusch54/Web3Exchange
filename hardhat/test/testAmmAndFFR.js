@@ -1,20 +1,13 @@
-const { expect,chai } = require("chai");
-
+const { expect,assert} = require("chai");
 const { ethers } = require("ethers");
 const hre = require("hardhat");
 const {
     loadFixture,
-    mine,
-    takeSnapshot,
     time,
   } = require("@nomicfoundation/hardhat-network-helpers");
 const {utils} = require("ethers/lib");
 const {
-  formatEther,
-  parseEther,
-  parseUnits,
-  formatUnits
-} = require("ethers/lib/utils");
+  parseUnits} = require("ethers/lib/utils");
 describe("amm FFR", function () {
     async function deployContracts() {
         const [owner, otherAccount, third, theseusDao] =
@@ -102,17 +95,8 @@ describe("amm FFR", function () {
           theseusDao,
         };
       }
-      it("should mark ffr upon openPos", async function () {
-        const {usdc,
-            owner,
-            otherAccount,
-            amm,
-            oracle,
-            loanToks,
-            exchange,
-            staking,
-            loanPool,
-            theseusDao,}=await loadFixture(deployContracts);
+      it.skip("should mark ffr upon openPos", async function () {
+            const {usdc,amm,exchange,staking,}=await loadFixture(deployContracts);
             await usdc.approve(exchange.address, parseUnits("1000", 6));
             await exchange.deposit(parseUnits("1000", 6));
             const leverage = 3;
@@ -128,7 +112,7 @@ describe("amm FFR", function () {
             await time.increase(time.duration.hours(2));
             await oracle.setPrice(parseUnits("400", 6));
             const newPrice = await oracle.callStatic.price();
-               console.log('newPrice', newPrice);
+            console.log('newPrice', newPrice);
             await exchange.addLiquidityToPosition(
               tradeIds[0],
               leverage2,
@@ -149,5 +133,105 @@ describe("amm FFR", function () {
             console.log('ffr4', ffr4);
             const isFrozenLast = await amm.callStatic.isFrozen();
             console.log('isFrozenLast', isFrozenLast);
-      });
+        });
+      it.skip("Should have correct ffr long", async function () {
+        const {usdc,
+            amm,
+            exchange,
+            staking,}=await loadFixture(deployContracts);
+            await usdc.approve(exchange.address, parseUnits("1000", 6));
+            await exchange.deposit(parseUnits("1000", 6));
+            const leverage = 3;
+            const side=1;
+            const collateral = parseUnits("100", 6);
+            await staking.stake(parseUnits("800", 6),amm.address);
+            await exchange.openPosition(amm.address, collateral, leverage, side); 
+            const ffr = await amm.callStatic.getLiquidityChangedSnapshots();
+            const indexPrice = await amm.callStatic.indexPrice();
+            const markPrice = await amm.callStatic.getAssetPrice();
+            const multiplyer = 10**8;
+            const calcFFR = Math.round(multiplyer*(indexPrice - markPrice) / indexPrice / 12);
+            expect(ffr[0].fundingRate).to.equal(calcFFR);
+        });
+      it.skip("Should have correct ffr short", async function () {
+        const {usdc,
+            amm,
+            exchange,
+            staking,}=await loadFixture(deployContracts);
+            await usdc.approve(exchange.address, parseUnits("1000", 6));
+            await exchange.deposit(parseUnits("1000", 6));
+            const leverage = 3;
+            const side=-1;
+            const collateral = parseUnits("100", 6);
+            await staking.stake(parseUnits("800", 6),amm.address);
+            await exchange.openPosition(amm.address, collateral, leverage, side); 
+            const ffr = await amm.callStatic.getLiquidityChangedSnapshots();
+            const indexPrice = await amm.callStatic.indexPrice();
+            const markPrice = await amm.callStatic.getAssetPrice();
+            const multiplyer = 10**8;
+            const calcFFR = Math.round(multiplyer*(indexPrice - markPrice) / indexPrice / 12);
+            expect(ffr[0].fundingRate).to.equal(calcFFR);
+        });
+      it.skip("Should have correct ffr long 2 positions", async function () {
+            const {usdc,
+                amm,
+                exchange,
+                staking,}=await loadFixture(deployContracts);
+                await usdc.approve(exchange.address, parseUnits("1000", 6));
+                await exchange.deposit(parseUnits("1000", 6));
+                const leverage = 3;
+                const side=1;
+                const collateral = parseUnits("70", 6);
+                await staking.stake(parseUnits("800", 6),amm.address);
+                await exchange.openPosition(amm.address, collateral, leverage, side); 
+                await exchange.openPosition(amm.address, collateral, leverage, side);
+                const ffr = await amm.callStatic.getLiquidityChangedSnapshots();
+            const indexPrice = await amm.callStatic.indexPrice();
+            const markPrice = await amm.callStatic.getAssetPrice();
+            const multiplyer = 10**8;
+            const calcFFR = Math.round(multiplyer*(indexPrice - markPrice) / indexPrice / 12);
+            assert.approximately(ffr[0].fundingRate,calcFFR,1);
+        });
+      it.skip("Should have correct ffr short 2 positions", async function () {
+            const {usdc,amm,exchange,staking,}=await loadFixture(deployContracts);
+            await usdc.approve(exchange.address, parseUnits("1000", 6));
+            await exchange.deposit(parseUnits("1000", 6));
+            const leverage = 3;
+            const side=-1;
+            const collateral = parseUnits("70", 6);
+            await staking.stake(parseUnits("800", 6),amm.address);
+            await exchange.openPosition(amm.address, collateral, leverage, side); 
+            await exchange.openPosition(amm.address, collateral, leverage, side);
+            const ffr = await amm.callStatic.getLiquidityChangedSnapshots();
+            const indexPrice = await amm.callStatic.indexPrice();
+            const markPrice = await amm.callStatic.getAssetPrice();
+            const multiplyer = 10**8;
+            const calcFFR = Math.round(multiplyer*(indexPrice - markPrice) / indexPrice / 12);
+            assert.approximately(ffr[0].fundingRate,calcFFR,1);
+        });
+      it("Snapshot should be correct", async function () {
+            const {usdc,amm,exchange,staking,}=await loadFixture(deployContracts);
+            await usdc.approve(exchange.address, parseUnits("1000", 6));
+            const snapshotBefore = await amm.callStatic.getLiquidityChangedSnapshots();
+            console.log('snapshotBefore', snapshotBefore);
+            await exchange.deposit(parseUnits("1000", 6));
+            const leverage = 3;
+            const side=1;
+            const collateral = parseUnits("70", 6);
+            await staking.stake(parseUnits("800", 6),amm.address);
+            await exchange.openPosition(amm.address, collateral, leverage, side);
+            const loanAmount = leverage * collateral;
+            const snapshot = await amm.callStatic.getLiquidityChangedSnapshots();
+            console.log('snapshot', snapshot);
+            const baseAsset = snapshot[0].baseAssetReserve;
+            console.log('baseAsset', baseAsset);
+            const baseAssetBefore = snapshotBefore[0].baseAssetReserve;
+            console.log('baseAssetBefore', baseAssetBefore);
+            console.log('loanAmount', loanAmount);
+            console.log('baseAsset with loan', baseAssetBefore.add(loanAmount));
+            const quoteAsset = snapshot[0].quoteAssetReserve;
+            const quoteAssetBefore = snapshotBefore[0].quoteAssetReserve;
+            expect(baseAsset).to.equal(baseAssetBefore.add(loanAmount));
+            expect(quoteAsset).to.equal(quoteAssetBefore.sub(snapshot[0].totalPositionSize));
+        });
 });

@@ -233,7 +233,7 @@ contract VAmm {
     function openPosition(
         uint totalCollateral,
         int _side
-    ) external returns (int positionSize, uint avgEntryPrice, uint openValue,uint lastFFRIndex) {
+    ) external onlyExchange returns (int positionSize, uint avgEntryPrice, uint openValue,uint lastFFRIndex) {
         console.log("openPosition");
             //get oracle index price
             if(isFrozen){
@@ -329,7 +329,7 @@ contract VAmm {
     function closePosition(
         int positionSize,
         int side
-    ) external returns (uint exitPrice, int usdcAmt) {
+    ) external onlyExchange returns (uint exitPrice, int usdcAmt) {
         LiquidityChangedSnapshot
             memory lastSnapshot = liquidityChangedSnapshots[
                 liquidityChangedSnapshots.length - 1
