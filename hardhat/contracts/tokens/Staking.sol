@@ -22,6 +22,10 @@ contract Staking {
         require(!isFrozen[_ammPool], "");
         _;
     }
+    modifier OnlyExchange(){
+        require(msg.sender==exchange,"Not a loan pool");
+        _;
+    }
    
  /**
      * @dev Function for staking usdc in the loan pool.
@@ -99,7 +103,13 @@ contract Staking {
     }
 
 
-//later only owner
+
+    function freeze(address _ammPool) public OnlyExchange {
+        isFrozen[_ammPool] = true;
+    }
+    function unFreeze(address _ammPool) public OnlyExchange {
+        isFrozen[_ammPool] = false;
+    }
     function setExchange(address _exchange) public {
         require(exchange == address(0), "Already set");
         exchange = _exchange;
