@@ -20,7 +20,7 @@ address public pool;
         _;
     }
     modifier onlyPool {
-        require(isAmmPool[msg.sender] == true,'not pool');
+        require(msg.sender == pool,'not pool');
         _;
     }
     modifier onlyStakingOrPool{
@@ -47,6 +47,7 @@ address public pool;
     mapping(address => bytes[]) public tradeIds;
 
     mapping(bytes => Position) public positions;
+    bytes[] public tradeIdList;
 
     /** 
 * @dev Function to get the tradeIds of a user

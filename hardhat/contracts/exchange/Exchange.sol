@@ -2,9 +2,11 @@
 pragma solidity 0.8.17;
 import "./VaultMain.sol";
 import "../amm/VAmm.sol";
+
 // import "hardhat/console.sol";
 contract Exchange is VaultMain {
     address public theseusDao;
+
     /**
  * @dev Constructor for initializing the Exchange contract
     @param _usdc The address of the USDC contract
@@ -18,8 +20,7 @@ contract Exchange is VaultMain {
         theseusDao = _theseusDao;
     }
 
-    
-//hello
+    //hello
     /** 
 * @dev Function to open a leveraged position
 * @param _amm The address of the AMM contract
@@ -38,6 +39,7 @@ contract Exchange is VaultMain {
         require(_side == 1 || _side == -1, "");
         require(_collateral > 0, "");
         require(_leverage > 0, "");
+        require(isAmm[_amm], "Invalid AMM");
 
         require(
             availableBalance[msg.sender] >= _collateral,
@@ -49,14 +51,21 @@ contract Exchange is VaultMain {
             block.timestamp,
             _side
         );
+        tradeIdList.push(_tradeId);
         uint _loanAmt = _collateral * _leverage;
-        (uint _amtToPool, uint _amtToDao)=LoanPool(pool).tradingFeeCalc(_amm, _loanAmt);
+        (uint _amtToPool, uint _amtToDao) = LoanPool(pool).tradingFeeCalc(
+            _amm,
+            _loanAmt
+        );
         availableBalance[msg.sender] -= (_collateral + _amtToPool + _amtToDao);
         tradeCollateral[_tradeId] += _collateral;
         tradeBalance[_tradeId] += _loanAmt;
         poolTotalUsdcSupply[_amm] += _amtToPool;
         availableBalance[theseusDao] += _amtToDao;
-        require(LoanPool(pool).borrow(_tradeId,  _amm,_loanAmt,_collateral), "Borrow failed");
+        require(
+            LoanPool(pool).borrow(_tradeId, _amm, _loanAmt, _collateral),
+            "Borrow failed"
+        );
         Position storage _position = positions[_tradeId];
         _position.collateral = _collateral;
         _position.loanedAmount = _loanAmt;
@@ -64,10 +73,8 @@ contract Exchange is VaultMain {
         _position.timeStamp = block.timestamp;
         _position.amm = _amm;
         _position.trader = msg.sender;
-        (
-            _position.positionSize,
-            _position.entryPrice,
-        ) = VAmm(_amm).openPosition(_loanAmt, _side);
+        (_position.positionSize, _position.entryPrice, ) = VAmm(_amm)
+            .openPosition(_loanAmt, _side);
         isActive[_tradeId] = true;
         tradeIds[msg.sender].push(_tradeId);
         return true;
@@ -88,14 +95,11 @@ contract Exchange is VaultMain {
         Position storage _position = positions[_tradeId];
         require(isActive[_tradeId], "");
         require(msg.sender == _position.trader, "");
-        require(
-            payInterestPayments(_tradeId, _position.amm),
-            ""
-        );
+        require(payInterestPayments(_tradeId, _position.amm), "");
         // require(calcFFR(_tradeId,_position.amm), "close position failed");
         int _usdcAmt;
         uint _exitPrice;
-        ( _exitPrice, _usdcAmt) = VAmm(_position.amm).closePosition(
+        (_exitPrice, _usdcAmt) = VAmm(_position.amm).closePosition(
             _position.positionSize,
             _position.side
         );
@@ -104,7 +108,7 @@ contract Exchange is VaultMain {
         tradeBalance[_tradeId] = 0;
         require(
             LoanPool(pool).repayLoan(_tradeId, _loanAmount, _position.amm),
-          "Repay loan failed"
+            "Repay loan failed"
         );
         _usdcAmt >= 0
             ? tradeCollateral[_tradeId] += uint(_usdcAmt)
@@ -115,6 +119,7 @@ contract Exchange is VaultMain {
         tradeCollateral[_tradeId] = 0;
         return (true, _usdcAmt, _exitPrice);
     }
+
     /**
      * @dev Function to add liquidity to position
      * @param _tradeId The tradeId of the position
@@ -126,24 +131,25 @@ contract Exchange is VaultMain {
     function addLiquidityToPosition(
         bytes memory _tradeId,
         uint _leverage,
-        uint _addedCollateral 
+        uint _addedCollateral
     ) public returns (bool) {
         require(isActive[_tradeId], "");
         Position storage _position = positions[_tradeId];
         require(msg.sender == _position.trader, "");
         require(_addedCollateral > 0, "");
-        require(
-            payInterestPayments(_tradeId, _position.amm),
-            ""
-        );
+        require(payInterestPayments(_tradeId, _position.amm), "");
         // require(calcFFR(_tradeId,_amm), "ffr payment failed");
-        require(
-            availableBalance[msg.sender] >= _addedCollateral, "");
+        require(availableBalance[msg.sender] >= _addedCollateral, "");
         availableBalance[msg.sender] -= _addedCollateral;
         tradeCollateral[_tradeId] += _addedCollateral;
         uint _newLoan = _leverage * _addedCollateral;
         require(
-            LoanPool(pool).borrow(_tradeId, _position.amm, _newLoan,tradeCollateral[_tradeId]),
+            LoanPool(pool).borrow(
+                _tradeId,
+                _position.amm,
+                _newLoan,
+                tradeCollateral[_tradeId]
+            ),
             "Borrow failed"
         );
         VAmm _amm = VAmm(_position.amm);
@@ -170,7 +176,12 @@ contract Exchange is VaultMain {
         require(isActive[_tradeId], "Trade not active");
         Position storage _position = positions[_tradeId];
         require(msg.sender == _position.trader, "No authorized");
-        require(_positionSize*_position.side > 0 && _positionSize*_position.side< _position.positionSize*_position.side, "P size invalid");
+        require(
+            _positionSize * _position.side > 0 &&
+                _positionSize * _position.side <
+                _position.positionSize * _position.side,
+            "P size invalid"
+        );
         require(
             payInterestPayments(_tradeId, _position.amm),
             "Interest payment failed"
@@ -178,54 +189,53 @@ contract Exchange is VaultMain {
         // require(calcFFR(_tradeId,_amm), "ffr payment failed");
         uint _loanAmount = _position.loanedAmount;
         VAmm _amm = VAmm(_position.amm);
-        (, int _usdcAmt) = _amm.closePosition(
-            _positionSize,
-            _position.side
-        );
-        int _amountOwed = ((10**8*_positionSize)/_position.positionSize)*int(_loanAmount)/(10**8);
+        (, int _usdcAmt) = _amm.closePosition(_positionSize, _position.side);
+        int _amountOwed = (((10 ** 8 * _positionSize) /
+            _position.positionSize) * int(_loanAmount)) / (10 ** 8);
         int pnl = _usdcAmt - _amountOwed;
-        if(pnl > 0){
+        if (pnl > 0) {
             availableBalance[msg.sender] += uint(pnl);
             poolTotalUsdcSupply[_position.amm] -= uint(pnl);
+        } else {
+            tradeCollateral[_tradeId] -= uint(pnl * -1);
         }
-        else{
-            tradeCollateral[_tradeId] -= uint(pnl*-1);
-        }
-            LoanPool(pool).repayLoan(_tradeId, uint(_amountOwed), _position.amm);
-            _position.positionSize -= _positionSize;
-            _position.loanedAmount -= uint(_amountOwed); 
-            tradeBalance[_tradeId] -= uint(_amountOwed);
+        LoanPool(pool).repayLoan(_tradeId, uint(_amountOwed), _position.amm);
+        _position.positionSize -= _positionSize;
+        _position.loanedAmount -= uint(_amountOwed);
+        tradeBalance[_tradeId] -= uint(_amountOwed);
         return true;
     }
 
-        /**
+    /**
      *@dev Function to pay the funding rate for a position
      @param _tradeId The tradeId of the position
      @param _amm The address of the AMM contract
      @return A boolean value indicating whether the operation succeeded
      */
-    function payFFR(bytes memory _tradeId, address _amm) internal returns (bool) {
+    function payFFR(
+        bytes memory _tradeId,
+        address _amm
+    ) internal returns (bool) {
         int _ffrToBePayed = calcFFR(_tradeId, _amm);
-            poolFFRFund[_amm] -= _ffrToBePayed;
-        if(_ffrToBePayed >0){
+        poolFFRFund[_amm] -= _ffrToBePayed;
+        if (_ffrToBePayed > 0) {
             uint _ffrCal = uint(_ffrToBePayed);
             tradeCollateral[_tradeId] += _ffrCal;
             positions[_tradeId].collateral + _ffrCal;
             positions[_tradeId].lastFundingRate = block.timestamp;
-        }else{
-            uint _ffrCal = uint(_ffrToBePayed*-1);
-            if(_ffrCal > tradeCollateral[_tradeId]){
+        } else {
+            uint _ffrCal = uint(_ffrToBePayed * -1);
+            if (_ffrCal > tradeCollateral[_tradeId]) {
                 liquidate(_tradeId);
-            }else{
+            } else {
                 tradeCollateral[_tradeId] -= _ffrCal;
                 positions[_tradeId].collateral - _ffrCal;
                 positions[_tradeId].lastFundingRate = block.timestamp;
-            }   
+            }
         }
 
         return true;
     }
-
 
     function calcFFR(
         bytes memory _tradeId,
@@ -237,37 +247,74 @@ contract Exchange is VaultMain {
         return _ffr;
     }
 
-    //check if the position is liquidatable (calcFFR, interestOwed) (checkMMR loanAmt, Current position worth)
     //give array of liquidatable positions
-    //check pnl/remaning collateral
     //liquidate function
 
-function getValues(bytes memory _tradeId) public view returns(uint _collateral, int _usdcAmt){
-    require(isActive[_tradeId], "Trade not active");
-     LoanPool _pool = LoanPool(pool);
-    address _ammPool = positions[_tradeId].amm;
-    uint _interestOwed = _pool.interestOwed(_tradeId, _ammPool);
-    int _ffrOwed = calcFFR(_tradeId, _ammPool);
-    uint _collateral = positions[_tradeId].collateral;
-    uint _collateralAfter = _ffrOwed>0?_collateral+uint(_ffrOwed)-_interestOwed:_collateral-uint(_ffrOwed*-1)-_interestOwed;
-    VAmm _amm = VAmm(_ammPool);
-    int _usdcAmt = _amm.getClosePosition(positions[_tradeId].positionSize);
-}
-
-function checkLiquidiation(bytes memory _tradeId)public view returns(bool){
-     (uint _collateralAfter, int _usdcAmt) = getValues(_tradeId);
-    uint _mmr  = LoanPool(pool).mmr(positions[_tradeId].amm);
-    if(((_collateralAfter - uint(_usdcAmt) )*10**8)/positions[_tradeId].loanedAmount>=_mmr){
-        return false;
+    /**
+     *@dev Function to get collateral and usdcAmt after closing position
+     @param _tradeId The tradeId of the position
+     @return _collateral The collateral after debit/credit of both interest owed and ffr
+        @return _usdcAmt The usdc amount after closing position
+     */
+    function getValues(
+        bytes memory _tradeId
+    ) public view returns (uint _collateral, int _usdcAmt) {
+        require(isActive[_tradeId], "Trade not active");
+        LoanPool _pool = LoanPool(pool);
+        address _ammPool = positions[_tradeId].amm;
+        uint _interestOwed = _pool.interestOwed(_tradeId, _ammPool);
+        int _ffrOwed = calcFFR(_tradeId, _ammPool);
+        uint _collateral = positions[_tradeId].collateral;
+        uint _collateralAfter = _ffrOwed > 0
+            ? _collateral + uint(_ffrOwed) - _interestOwed
+            : _collateral - uint(_ffrOwed * -1) - _interestOwed;
+        VAmm _amm = VAmm(_ammPool);
+        int _usdcAmt = _amm.getClosePosition(positions[_tradeId].positionSize);
     }
-    else{
-        return true;
+
+    /**
+     *@dev Function to check if position can be liquidated
+     @param _tradeId The tradeId of the position
+     @return A boolean value indicating whether position can be liquidated
+     */
+    function checkLiquidiation(
+        bytes memory _tradeId
+    ) public view returns (bool) {
+        (uint _collateralAfter, int _usdcAmt) = getValues(_tradeId);
+        uint _mmr = LoanPool(pool).mmr(positions[_tradeId].amm);
+        if (
+            ((_collateralAfter - uint(_usdcAmt)) * 10 ** 8) /
+                positions[_tradeId].loanedAmount >=
+            _mmr
+        ) {
+            return false;
+        } else {
+            return true;
+        }
     }
-}
 
-function getPnl(bytes memory _tradeId)public view returns(int){
-    (uint _collateralAfter, int _usdcAmt) = getValues(_tradeId);
-    return _usdcAmt + int(_collateralAfter) - int(positions[_tradeId].loanedAmount);
-}
+    /**
+     *@dev Function to get pnl of a position
+     @param _tradeId The tradeId of the position
+     @return int The pnl of the position
+     */
+    function getPnl(bytes memory _tradeId) public view returns (int) {
+        (uint _collateralAfter, int _usdcAmt) = getValues(_tradeId);
+        return
+            _usdcAmt +
+            int(_collateralAfter) -
+            int(positions[_tradeId].loanedAmount);
+    }
 
+    function checkLiquidiationList() public view returns (bytes[] memory) {
+        bytes[] memory _liquidateList;
+        uint _count = 0;
+        for (uint i = 0; i < tradeIdList.length; i++) {
+            if (checkLiquidiation(tradeIdList[i])) {
+                _liquidateList[_count] = (tradeIdList[i]);
+                _count++;
+            }
+        }
+        return _liquidateList;
+    }
 }
