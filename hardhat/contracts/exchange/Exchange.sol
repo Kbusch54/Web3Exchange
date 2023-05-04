@@ -246,16 +246,22 @@ contract Exchange is VaultMain {
 function checkLiquidiation(bytes memory _tradeId)public view returns(bool){
     //check collateral 
     //sub interest owed and ffr
-    //mock pnl
-    //loan amt
-    //check MMR
-    // if(((collateralAfterInterest +- pnl )*10**8)/loanAmt>=mmr){
-        // return false;
-    // }
-    // else{
-        // return true;
-    // }
-    return false;
+     require(isActive[_tradeId], "Trade not active");
+     LoanPool _pool = LoanPool(pool);
+    address _ammPool = positions[_tradeId].amm;
+    uint _interestOwed = _pool.interestOwed(_tradeId, _ammPool);
+    int _ffrOwed = calcFFR(_tradeId, _ammPool);
+    uint _collateral = positions[_tradeId].collateral;
+    uint _collateralAfter = _ffrOwed>0?_collateral+uint(_ffrOwed)-_interestOwed:_collateral-uint(_ffrOwed*-1)-_interestOwed;
+    VAmm _amm = VAmm(_ammPool);
+    int _usdcAmt = _amm.getClosePosition(positions[_tradeId].positionSize);
+    uint _mmr = _pool.mmr(_ammPool);
+    if(((_collateralAfter - uint(_usdcAmt) )*10**8)/positions[_tradeId].loanedAmount>=mmr){
+        return false;
+    }
+    else{
+        return true;
+    }
 }
 
 }

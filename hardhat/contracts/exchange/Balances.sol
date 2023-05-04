@@ -2,7 +2,7 @@
 pragma solidity ^0.8.17;
 
 // Import the IERC20 interface from the OpenZeppelin library
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "../../node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
  * @title Balances

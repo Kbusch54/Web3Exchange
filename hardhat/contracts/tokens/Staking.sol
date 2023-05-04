@@ -4,7 +4,7 @@ pragma solidity 0.8.17;
 
 import "../exchange/Exchange.sol";
 import "../tokens/PoolTokens.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "../../node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
  * @title Staking

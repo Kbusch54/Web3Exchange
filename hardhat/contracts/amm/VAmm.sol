@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 import "../../node_modules/@openzeppelin/contracts/utils/math/SafeMath.sol";
 // import "./IVAmm.sol";
-import "hardhat/console.sol";
+import "../../node_modules/hardhat/console.sol";
 
 /**
  * @title VAmm
@@ -322,6 +322,32 @@ contract VAmm {
         exitPrice = uint(intToFixed(int(usdcAmt)) / (positionSize));
 
         updateFutureFundingRate();
+    }
+
+
+    function getClosePosition(
+        int positionSize
+    ) external view returns ( int usdcAmt) {
+        LiquidityChangedSnapshot
+            memory lastSnapshot = liquidityChangedSnapshots[
+                liquidityChangedSnapshots.length - 1
+            ];
+        lastSnapshot.totalPositionSize -= positionSize;
+        int quoteWPsz = int(lastSnapshot.quoteAssetReserve) + (positionSize);
+
+        uint newBaseAsset = uint(intToFixed(int(k)) / quoteWPsz);
+
+        usdcAmt = (int(lastSnapshot.baseAssetReserve) - int(newBaseAsset));
+        usdcAmt > 0 ? usdcAmt : usdcAmt *= -1;
+        // console.log("VAMM: usdc AMT", uint(usdcAmt));
+        // lastSnapshot.cumulativeNotional -= usdcAmt;
+        // lastSnapshot.quoteAssetReserve = uint(quoteWPsz);
+        // lastSnapshot.baseAssetReserve = newBaseAsset;
+    
+
+        // exitPrice = uint(intToFixed(int(usdcAmt)) / (positionSize));
+
+
     }
 
     /**
