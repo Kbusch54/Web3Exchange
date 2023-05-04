@@ -18,7 +18,7 @@ contract VAmm {
     uint16 public indexPricePeriod;
     bool public isFrozen;
     uint public lastFundingRateIndex;
-    uint absolutePositionSize; //when zero and upon new trade set market price to index price
+    uint public absolutePositionSize; //when zero and upon new trade set market price to index price
     /**
      * @dev Struct representing a snapshot of liquidity changes.
      */

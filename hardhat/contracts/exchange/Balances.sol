@@ -54,10 +54,7 @@ contract Balances {
         IERC20(Usdc).transfer(msg.sender, _amount);
         availableBalance[msg.sender] -= _amount;
     }
-    function addAmm(address _amm) public {
-        require(!isAmm[_amm], "amm already added");
-        isAmm[_amm] = true;
-    }
+    
     function registerLoanPool(address _pool) public {
         require(loanPool == address(0), "pool already added");
         loanPool = _pool;

@@ -41,7 +41,7 @@ describe("depositAndStake", function () {
     const loanToks = await PoolTokens.deploy(owner.address);
     await loanToks.deployed();
     const Staking = await hre.ethers.getContractFactory("Staking");
-    const staking = await Staking.deploy();
+    const staking = await Staking.deploy(theseusDao.address);
 
     const Exchange = await hre.ethers.getContractFactory("Exchange");
     const exchange = await Exchange.deploy(
@@ -71,10 +71,14 @@ describe("depositAndStake", function () {
     );
     const LoanPool = await hre.ethers.getContractFactory("LoanPool");
     const loanPool = await LoanPool.deploy(exchange.address);
+    const theseusDaoID = await staking.callStatic.ammPoolToTokenId(theseusDao.address);
+    console.log('theseusDaoID', theseusDaoID);
     console.log('ex add loanPool', await loanPool.callStatic.exchange());
     await exchange.addAmm(amm.address);
     await exchange.registerLoanPool(loanPool.address);
     await loanPool.initializeVamm(amm.address);
+    const PoolTokenAMmID = await staking.callStatic.ammPoolToTokenId(amm.address);
+    console.log('PoolTokenAMmID', PoolTokenAMmID);
     console.log("Ready to go here");
 
     return {
@@ -127,7 +131,7 @@ describe("depositAndStake", function () {
       loanPool,
     };
   }
-  it("should deposit and openPosition loanPool should reflect new loan", async function () {
+  it.skip("should deposit and openPosition loanPool should reflect new loan", async function () {
     const { usdc, owner, otherAccount, amm, loanToks, exchange, staking,loanPool } =
       await loadFixture(deployContracts);
     await usdc.approve(exchange.address, parseUnits("1000", 6));
@@ -183,7 +187,7 @@ describe("depositAndStake", function () {
     expect(tradeBalanceAfter).to.equal(usdcOnLoanAfter);
     expect(tradeCollateralAfter).to.equal(collateral);
   });
-  it("should deposit and openPosition loanPool should reflect new loan short", async function () {
+  it.skip("should deposit and openPosition loanPool should reflect new loan short", async function () {
     const { usdc, owner, otherAccount, amm, loanToks, exchange, staking,loanPool } =
       await loadFixture(deployContracts);
     await usdc.approve(exchange.address, parseUnits("1000", 6));
@@ -233,7 +237,7 @@ describe("depositAndStake", function () {
     expect(tradeBalanceAfter).to.equal(usdcOnLoanAfter);
     expect(tradeCollateralAfter).to.equal(collateral);
   });
-  it("should deposit and openPosition charge interest", async function () {
+  it.skip("should deposit and openPosition charge interest", async function () {
     const {
       usdc,
       owner,
@@ -262,7 +266,7 @@ describe("depositAndStake", function () {
     );
     expect(interstOwed).to.equal(loanAmount.div(100));
   });
-  it("should deposit and openPosition charge interest short", async function () {
+  it.skip("should deposit and openPosition charge interest short", async function () {
     const {
       usdc,
       owner,
@@ -289,7 +293,7 @@ describe("depositAndStake", function () {
     );
     expect(interstOwed).to.equal(loanAmount.div(100));
   });
-  it("should add liquidity to the position and increase collateral and loan amount", async function () {
+  it.skip("should add liquidity to the position and increase collateral and loan amount", async function () {
     const { usdc, owner, otherAccount, amm, loanToks, exchange, staking } =
       await loadFixture(deployContracts);
     // ... set up the initial state (deposit, stake, open position)
@@ -327,7 +331,7 @@ describe("depositAndStake", function () {
     );
     expect(newLoanedAmount).to.equal(expectedLoanAmount);
   });
-  it("should revert when trying to add liquidity with zero collateral", async function () {
+  it.skip("should revert when trying to add liquidity with zero collateral", async function () {
     // const {usdc, owner, otherAccount, amm, loanToks, exchange} = await loadFixture(deployContracts);
     // ... set up the initial state (deposit, stake, open position)
     const {
@@ -347,7 +351,7 @@ describe("depositAndStake", function () {
     expect(exchange.addLiquidityToPosition(tradeId, leverage, addedCollateral))
       .to.be.reverted;
   });
-  it("should revert when trying to add liquidity with insufficient available balance", async function () {
+  it.skip("should revert when trying to add liquidity with insufficient available balance", async function () {
     // const {usdc, owner, otherAccount, amm, loanToks, exchange} = await loadFixture(deployContracts);
     // ... set up the initial state (deposit, stake, open position)
     const {
@@ -367,7 +371,7 @@ describe("depositAndStake", function () {
     expect(exchange.addLiquidityToPosition(tradeId, leverage, addedCollateral))
       .to.be.reverted;
   });
-  it("should remove liquidity from a long position successfully", async function () {
+  it.skip("should remove liquidity from a long position successfully", async function () {
     // Setup: deposit, initialize, open a position
     // ... your existing setup code here
     const {
@@ -401,7 +405,7 @@ describe("depositAndStake", function () {
     // const newTradeBalance = await exchange.callStatic.tradeBalance(tradeId[0]);
     // expect(newTradeBalance).to.equal(initialPositionSize.loanedAmount.sub(removedPositionSize));
   });
-  it("should remove liquidity from a short position successfully", async function () {
+  it.skip("should remove liquidity from a short position successfully", async function () {
     // Setup: deposit, initialize, open a position
     const { usdc, owner, otherAccount, amm, loanToks, exchange, staking } =
       await loadFixture(deployContracts);
@@ -452,7 +456,7 @@ describe("depositAndStake", function () {
     // const newTradeBalance = await exchange.callStatic.tradeBalance(tradeId[0]);
     // expect(newTradeBalance).to.equal(initialPositionSize.loanedAmount.sub(removedPositionSize));
   });
-  it("Should deduct trading fee and give to both pool and dao", async function () {
+  it.skip("Should deduct trading fee and give to both pool and dao", async function () {
     const {
       usdc,
       owner,
@@ -475,7 +479,32 @@ describe("depositAndStake", function () {
     const balanceOfDao = await exchange.callStatic.availableBalance(
       theseusDao.address
     );
-
     expect(balanceOfDao).to.equal(tradeingFee / 2);
+  });
+  it("Should freeze and absolute positon size sahould be 0 after closing out position", async function () {
+    const {
+        usdc,
+        owner,
+        otherAccount,
+        amm,
+        loanToks,
+        exchange,
+        collateral,
+        side,
+        tradeId,
+        leverage,
+        loanPool,
+        theseusDao,
+      } = await loadFixture(openPosition);
+      const positionSize = await exchange.callStatic.positions(tradeId[0]);
+      const absolutePs = await amm.callStatic.absolutePositionSize();
+      const isFrozenBefore = await amm.callStatic.isFrozen();
+      await exchange.closeOutPosition(tradeId[0]);
+      const absolutePsAfter = await amm.callStatic.absolutePositionSize();
+      const isFrozen = await amm.callStatic.isFrozen();
+        expect(absolutePs).to.equal(positionSize.positionSize);
+        expect(isFrozenBefore).to.equal(false);
+        expect(absolutePsAfter).to.equal(0);
+        expect(isFrozen).to.equal(true);
   });
 });

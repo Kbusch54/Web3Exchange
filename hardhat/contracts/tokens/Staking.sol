@@ -15,8 +15,12 @@ contract Staking {
     address public exchange;
     mapping(address => uint) public ammPoolToTokenId;
     mapping(address => bool) public isFrozen;
+    mapping(address=>bool) public hasRegistered;
+    uint8 internal poolCount;
 
-
+    constructor(address _theseusDao) {
+        ammPoolToTokenId[_theseusDao] = 0;
+    }
 
     modifier IfIsFrozen(address _ammPool) {
         require(!isFrozen[_ammPool], "");
@@ -92,14 +96,14 @@ contract Staking {
    /**
      * @dev Function for adding an AMM token to the poolTokens contract .
      * @param _ammPool The address of the AMM pool.
-     * @param _id The ID of the token in the pool.
      */
-    function addAmmTokenToPool(address _ammPool,uint _id) public {
+    function addAmmTokenToPool(address _ammPool) public {
         require(
-            ammPoolToTokenId[_ammPool] == _id,
+            hasRegistered[_ammPool] == false,
             "Already added to poolTokens contract"
         );
-        ammPoolToTokenId[_ammPool] = _id;
+        poolCount++;
+        ammPoolToTokenId[_ammPool] = poolCount;
     }
 
 
@@ -113,6 +117,7 @@ contract Staking {
     function setExchange(address _exchange) public {
         require(exchange == address(0), "Already set");
         exchange = _exchange;
+        
     }
     function setPoolToken(address _poolToken) public {
         require(poolToken == address(0), "Already set");

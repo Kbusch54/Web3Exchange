@@ -2,6 +2,7 @@
 pragma solidity 0.8.17;
 import "../loanPools/LoanPool.sol";
 import "./Balances.sol";
+import "../tokens/Staking.sol";
 
 contract VaultMain is Balances {
 //constructor
@@ -163,6 +164,11 @@ address public staking;
             (address, address, uint, int)
         );
         return (_user, _amm, _timeStamp, _side);
+    }
+    function addAmm(address _amm) public {
+        require(!isAmm[_amm], "amm already added");
+        isAmm[_amm] = true;
+        Staking(staking).addAmmTokenToPool(_amm);
     }
 
       function addPoolTotalUsdcSupply(address _ammPool, uint _amount) external onlyStakingOrPool{
