@@ -242,11 +242,8 @@ contract Exchange is VaultMain {
     //check pnl/remaning collateral
     //liquidate function
 
-
-function checkLiquidiation(bytes memory _tradeId)public view returns(bool){
-    //check collateral 
-    //sub interest owed and ffr
-     require(isActive[_tradeId], "Trade not active");
+function getValues(bytes memory _tradeId) public view returns(uint _collateral, int _usdcAmt){
+    require(isActive[_tradeId], "Trade not active");
      LoanPool _pool = LoanPool(pool);
     address _ammPool = positions[_tradeId].amm;
     uint _interestOwed = _pool.interestOwed(_tradeId, _ammPool);
@@ -255,13 +252,22 @@ function checkLiquidiation(bytes memory _tradeId)public view returns(bool){
     uint _collateralAfter = _ffrOwed>0?_collateral+uint(_ffrOwed)-_interestOwed:_collateral-uint(_ffrOwed*-1)-_interestOwed;
     VAmm _amm = VAmm(_ammPool);
     int _usdcAmt = _amm.getClosePosition(positions[_tradeId].positionSize);
-    uint _mmr = _pool.mmr(_ammPool);
-    if(((_collateralAfter - uint(_usdcAmt) )*10**8)/positions[_tradeId].loanedAmount>=mmr){
+}
+
+function checkLiquidiation(bytes memory _tradeId)public view returns(bool){
+     (uint _collateralAfter, int _usdcAmt) = getValues(_tradeId);
+    uint _mmr  = LoanPool(pool).mmr(positions[_tradeId].amm);
+    if(((_collateralAfter - uint(_usdcAmt) )*10**8)/positions[_tradeId].loanedAmount>=_mmr){
         return false;
     }
     else{
         return true;
     }
+}
+
+function getPnl(bytes memory _tradeId)public view returns(int){
+    (uint _collateralAfter, int _usdcAmt) = getValues(_tradeId);
+    return _usdcAmt + int(_collateralAfter) - int(positions[_tradeId].loanedAmount);
 }
 
 }

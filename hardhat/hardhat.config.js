@@ -15,6 +15,6 @@ module.exports = {
     disambiguatePaths: false,
     runOnCompile: true,
     strict: true,
-    only: ['Exchange','Staking'],
+    only: ['Exchange','Staking','LoanPool'],
   }
 }
