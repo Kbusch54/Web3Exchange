@@ -6,7 +6,6 @@ import "./Balances.sol";
 contract VaultMain is Balances {
 //constructor
 address public staking;
-address public pool;
 
     constructor(
         address _usdc,
@@ -20,11 +19,11 @@ address public pool;
         _;
     }
     modifier onlyPool {
-        require(msg.sender == pool,'not pool');
+        require(msg.sender == loanPool,'not pool');
         _;
     }
     modifier onlyStakingOrPool{
-        require(msg.sender == staking || msg.sender == pool,'not staking or pool');
+        require(msg.sender == staking || msg.sender == loanPool,'not staking or pool');
         _;
     }
 
@@ -128,13 +127,13 @@ address public pool;
         bytes memory _tradeId,
         address _amm
     ) public returns (bool) {
-        uint _interestToBePayed = LoanPool(pool).interestOwed(_tradeId, _amm);
+        uint _interestToBePayed = LoanPool(loanPool).interestOwed(_tradeId, _amm);
         if (tradeCollateral[_tradeId] >= _interestToBePayed) {
             tradeCollateral[_tradeId] -= _interestToBePayed;
             poolAvailableUsdc[_amm] += _interestToBePayed;
             poolTotalUsdcSupply[_amm] += _interestToBePayed;
             positions[_tradeId].collateral - _interestToBePayed;
-            require(LoanPool(pool).payInterest(_tradeId), "");
+            require(LoanPool(loanPool).payInterest(_tradeId), "");
         } else {
             liquidate(_tradeId);
         }
@@ -195,9 +194,5 @@ address public pool;
 
 
 
-    function addPool(
-        address _pool
-    ) external  {
-        pool= _pool;
-    }
+ 
 }

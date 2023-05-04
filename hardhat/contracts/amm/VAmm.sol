@@ -15,7 +15,7 @@ contract VAmm {
     bytes32 public path;
     uint public indexPrice;
     uint public k;
-    uint8 public indexPricePeriod;
+    uint16 public indexPricePeriod;
     bool public isFrozen;
     uint public lastFundingRateIndex;
     uint absolutePositionSize; //when zero and upon new trade set market price to index price
@@ -66,7 +66,7 @@ contract VAmm {
         string memory _path,
         uint _indexPrice,
         uint _quoteAssetAmount,
-        uint8 _indexPricePeriod,
+        uint16 _indexPricePeriod,
         address _exchange
     ) external {
         assest = _assest;
@@ -245,6 +245,7 @@ contract VAmm {
         uint totalCollateral,
         int _side
     ) external returns (int positionSize, uint avgEntryPrice, uint openValue) {
+        console.log("openPosition");
         LiquidityChangedSnapshot
             memory lastSnapshot = liquidityChangedSnapshots[
                 liquidityChangedSnapshots.length - 1
@@ -264,6 +265,7 @@ contract VAmm {
             _avgEntryPrice > 0 ? _avgEntryPrice : _avgEntryPrice * -1
         );
         absolutePositionSize += uint(positionSize* _side);
+        console.log("absolutePositionSize", absolutePositionSize);
         lastSnapshot.quoteAssetReserve = _newQuoteAsset;
         lastSnapshot.baseAssetReserve = uint(_newBaseAsset);
         lastSnapshot.cumulativeNotional += int(totalCollateral) * _side;

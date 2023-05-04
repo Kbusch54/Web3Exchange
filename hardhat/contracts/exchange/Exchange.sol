@@ -52,8 +52,9 @@ contract Exchange is VaultMain {
             _side
         );
         tradeIdList.push(_tradeId);
+        LoanPool _pool=LoanPool(loanPool);
         uint _loanAmt = _collateral * _leverage;
-        (uint _amtToPool, uint _amtToDao) = LoanPool(pool).tradingFeeCalc(
+        (uint _amtToPool, uint _amtToDao) = _pool.tradingFeeCalc(
             _amm,
             _loanAmt
         );
@@ -63,7 +64,7 @@ contract Exchange is VaultMain {
         poolTotalUsdcSupply[_amm] += _amtToPool;
         availableBalance[theseusDao] += _amtToDao;
         require(
-            LoanPool(pool).borrow(_tradeId, _amm, _loanAmt, _collateral),
+            _pool.borrow(_tradeId, _amm, _loanAmt, _collateral),
             "Borrow failed"
         );
         Position storage _position = positions[_tradeId];
@@ -107,7 +108,7 @@ contract Exchange is VaultMain {
         _usdcAmt -= int(_loanAmount);
         tradeBalance[_tradeId] = 0;
         require(
-            LoanPool(pool).repayLoan(_tradeId, _loanAmount, _position.amm),
+            LoanPool(loanPool).repayLoan(_tradeId, _loanAmount, _position.amm),
             "Repay loan failed"
         );
         _usdcAmt >= 0
@@ -144,7 +145,7 @@ contract Exchange is VaultMain {
         tradeCollateral[_tradeId] += _addedCollateral;
         uint _newLoan = _leverage * _addedCollateral;
         require(
-            LoanPool(pool).borrow(
+            LoanPool(loanPool).borrow(
                 _tradeId,
                 _position.amm,
                 _newLoan,
@@ -199,7 +200,7 @@ contract Exchange is VaultMain {
         } else {
             tradeCollateral[_tradeId] -= uint(pnl * -1);
         }
-        LoanPool(pool).repayLoan(_tradeId, uint(_amountOwed), _position.amm);
+        LoanPool(loanPool).repayLoan(_tradeId, uint(_amountOwed), _position.amm);
         _position.positionSize -= _positionSize;
         _position.loanedAmount -= uint(_amountOwed);
         tradeBalance[_tradeId] -= uint(_amountOwed);
@@ -260,7 +261,7 @@ contract Exchange is VaultMain {
         bytes memory _tradeId
     ) public view returns (uint _collateral, int _usdcAmt) {
         require(isActive[_tradeId], "Trade not active");
-        LoanPool _pool = LoanPool(pool);
+        LoanPool _pool = LoanPool(loanPool);
         address _ammPool = positions[_tradeId].amm;
         uint _interestOwed = _pool.interestOwed(_tradeId, _ammPool);
         int _ffrOwed = calcFFR(_tradeId, _ammPool);
@@ -281,7 +282,7 @@ contract Exchange is VaultMain {
         bytes memory _tradeId
     ) public view returns (bool) {
         (uint _collateralAfter, int _usdcAmt) = getValues(_tradeId);
-        uint _mmr = LoanPool(pool).mmr(positions[_tradeId].amm);
+        uint _mmr = LoanPool(loanPool).mmr(positions[_tradeId].amm);
         if (
             ((_collateralAfter - uint(_usdcAmt)) * 10 ** 8) /
                 positions[_tradeId].loanedAmount >=

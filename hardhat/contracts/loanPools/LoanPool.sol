@@ -28,7 +28,7 @@ address public exchange;
     }
    
     modifier onlyExchange {
-        require(msg.sender == exchange,'not vault');
+        require(msg.sender == exchange,'not exchange');
         _;
     }
 
