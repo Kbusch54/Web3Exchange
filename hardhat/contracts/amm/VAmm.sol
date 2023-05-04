@@ -93,6 +93,28 @@ contract VAmm {
         exchange = _exchange;
     }
 
+    function unFreeze(uint _indexPrice,uint _quoteAssetAmount) internal {
+        isFrozen = false;
+        indexPrice = _indexPrice;
+        // k= indexPrice*_quoteAssetAmount*100;
+        // uint _baseAsset  = k/_quoteAssetAmount;
+        uint _baseAsset = _quoteAssetAmount * _indexPrice;
+        k = _baseAsset * _quoteAssetAmount;
+        liquidityChangedSnapshots.push(
+            LiquidityChangedSnapshot({
+                cumulativeNotional: 0,
+                fundingRate: 0,
+                timestamp: block.timestamp,
+                blockNumber: block.number,
+                totalPositionSize: 0,
+                quoteAssetReserve: _quoteAssetAmount * 100000000,
+                baseAssetReserve: _baseAsset,
+                startIndexPrice: _indexPrice,
+                finalIndexPrice: 0
+            })
+        );
+    }
+
     /**
      * @dev Gets the last funding rate index.
      * @return An unsigned integer representing the last funding rate index.
@@ -106,24 +128,24 @@ contract VAmm {
      * @param _price New index price.
      */
     function setIndexPrice(uint _price) external {
-        require(_price > 0, "price must be greater than 0");
         require(!isFrozen, "VAmm is frozen");
+        require(_price > 0, "price must be greater than 0");
         LiquidityChangedSnapshot
             memory lastSnapshot = liquidityChangedSnapshots[
                 liquidityChangedSnapshots.length - 1
             ];
-        console.log("lastSnapshot.blockNumber", lastSnapshot.blockNumber);
+        console.log("lastSnapshot.blockNumber", lastSnapshot.timestamp);
         console.log("indexPricePeriod", indexPricePeriod);
-        console.log("block.number", block.number);
+        console.log("block.number", block.timestamp);
         require(
-            lastSnapshot.blockNumber + indexPricePeriod <= block.number,
-            "Need to wait for loan block period"
+            lastSnapshot.timestamp + indexPricePeriod >= block.timestamp -15 minutes && lastSnapshot.timestamp + indexPricePeriod <= block.timestamp +15 minutes,
+            "Need to wait for time period"
         );
         //set last index price
         lastSnapshot.finalIndexPrice = _price;
         //set new index price
         liquidityChangedSnapshots[
-            liquidityChangedSnapshots.length - 1
+        liquidityChangedSnapshots.length - 1
         ] = lastSnapshot;
         indexPrice = _price;
         adjustFundingPaymentsAll();
@@ -227,6 +249,10 @@ contract VAmm {
             memory lastSnapshot = liquidityChangedSnapshots[
                 liquidityChangedSnapshots.length - 1
             ];
+            //get oracle index price
+            if(isFrozen){
+                unFreeze(indexPrice,totalCollateral);
+            }
         int _newBaseAsset = int(lastSnapshot.baseAssetReserve) +
             (int(totalCollateral) * _side);
         uint _newQuoteAsset = uint(intToFixed(int(k))) / uint(_newBaseAsset);
@@ -237,6 +263,7 @@ contract VAmm {
         avgEntryPrice = uint(
             _avgEntryPrice > 0 ? _avgEntryPrice : _avgEntryPrice * -1
         );
+        absolutePositionSize += uint(positionSize* _side);
         lastSnapshot.quoteAssetReserve = _newQuoteAsset;
         lastSnapshot.baseAssetReserve = uint(_newBaseAsset);
         lastSnapshot.cumulativeNotional += int(totalCollateral) * _side;
@@ -315,6 +342,7 @@ contract VAmm {
         lastSnapshot.cumulativeNotional -= usdcAmt;
         lastSnapshot.quoteAssetReserve = uint(quoteWPsz);
         lastSnapshot.baseAssetReserve = newBaseAsset;
+        absolutePositionSize -= uint(positionSize* side);
         liquidityChangedSnapshots[
             liquidityChangedSnapshots.length - 1
         ] = lastSnapshot;
@@ -322,6 +350,7 @@ contract VAmm {
         exitPrice = uint(intToFixed(int(usdcAmt)) / (positionSize));
 
         updateFutureFundingRate();
+        absolutePositionSize==0? isFrozen = true : isFrozen = false;
     }
 
 
@@ -339,15 +368,6 @@ contract VAmm {
 
         usdcAmt = (int(lastSnapshot.baseAssetReserve) - int(newBaseAsset));
         usdcAmt > 0 ? usdcAmt : usdcAmt *= -1;
-        // console.log("VAMM: usdc AMT", uint(usdcAmt));
-        // lastSnapshot.cumulativeNotional -= usdcAmt;
-        // lastSnapshot.quoteAssetReserve = uint(quoteWPsz);
-        // lastSnapshot.baseAssetReserve = newBaseAsset;
-    
-
-        // exitPrice = uint(intToFixed(int(usdcAmt)) / (positionSize));
-
-
     }
 
     /**
