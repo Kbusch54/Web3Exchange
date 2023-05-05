@@ -76,7 +76,7 @@ describe("depositAndStake", function () {
     console.log('theseusDaoID', theseusDaoID);
     console.log('ex add loanPool', await loanPool.callStatic.exchange());
     await exchange.addAmm(amm.address);
-    await exchange.registerLoanPool(loanPool.address);
+    await exchange.connect(theseusDao).registerLoanPool(loanPool.address);
     await loanPool.initializeVamm(amm.address);
     const PoolTokenAMmID = await staking.callStatic.ammPoolToTokenId(amm.address);
 
@@ -101,6 +101,7 @@ describe("depositAndStake", function () {
       staking,
       loanPool,
       theseusDao,
+      exchangeViewer
     };
   }
     it("should deposit and show balance", async function () {
@@ -192,7 +193,7 @@ describe("depositAndStake", function () {
                     expect(usdcBalAfter).to.equal(usdcBalBefore.add(parseUnits("100", 6)));
         
                 });
-                it('shouldnt allow unstake when frozen', async function () {
+    it('shouldnt allow unstake when frozen', async function () {
                         
                     const {usdc, owner, otherAccount, amm,loanToks,staking,exchange} = await loadFixture(deployContracts);
                     await usdc.approve(exchange.address, parseUnits("100", 6));

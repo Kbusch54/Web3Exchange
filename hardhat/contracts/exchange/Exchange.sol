@@ -6,7 +6,10 @@ import "./ExchangeViewer.sol";
 
 // import "hardhat/console.sol";
 contract Exchange is VaultMain {
-    
+    function _payments(bytes memory _tradeId, address _amm)internal{
+        require(payInterestPayments(_tradeId, _amm));
+        require(payFFR(_tradeId,_amm));
+    }
 
 
     /**
@@ -31,13 +34,7 @@ contract Exchange is VaultMain {
 * @param _side The side of the trade (1 for long, -1 for short)
 @return A boolean value indicating whether the operation succeeded
 */
-    function openPosition(
-        address _amm,
-        uint _collateral,
-        uint _leverage,
-        int _side
-    ) public returns (bool) {
-        // require(!isFrozen[_amm]);
+    function openPosition(address _amm, uint _collateral,uint _leverage,int _side) public returns (bool) {
         require(_side == 1 || _side == -1);
         require(_collateral > 0);
         require(_leverage > 0);
@@ -87,11 +84,7 @@ contract Exchange is VaultMain {
      *    - The USDC amount returned to the user
      *    - The exit price of the position
      */
-
-// TODO: check for not enough usdc
-    function closeOutPosition(
-        bytes memory _tradeId
-    ) public returns (bool, int,uint) {
+    function closeOutPosition(bytes memory _tradeId) public returns (bool, int,uint) {
         Position memory _position = positions[_tradeId];
         require(isActive[_tradeId]);
         require(msg.sender == _position.trader || msg.sender == address(this));
@@ -108,19 +101,13 @@ contract Exchange is VaultMain {
      * @param _leverage The amount of leverage to add
      * @param _addedCollateral The amount of collateral to add
      * @return A boolean value indicating whether the operation succeeded
-     * @notice This function is not implemented yet
      **/
-    function addLiquidityToPosition(
-        bytes memory _tradeId,
-        uint _leverage,
-        uint _addedCollateral
-    ) public returns (bool) {
+    function addLiquidityToPosition(bytes memory _tradeId,uint _leverage,uint _addedCollateral) public returns (bool) {
         require(isActive[_tradeId]);
         Position storage _position = positions[_tradeId];
         require(msg.sender == _position.trader);
         require(_addedCollateral > 0);
-        require(payInterestPayments(_tradeId, _position.amm));
-        require(payFFR(_tradeId,_position.amm));
+        _payments(_tradeId, _position.amm);
         require(availableBalance[msg.sender] >= _addedCollateral);
         availableBalance[msg.sender] -= _addedCollateral;
         tradeCollateral[_tradeId] += _addedCollateral;
@@ -148,11 +135,13 @@ contract Exchange is VaultMain {
         _position.loanedAmount += _newLoan;
         return true;
     }
-
-    function removeLiquidityFromPosition(
-        bytes memory _tradeId,
-        int _positionSize
-    ) public returns (bool) {
+     /**
+     * @dev Function to add liquidity to position
+     * @param _tradeId The tradeId of the position
+     * @param _positionSize The positionSize to remove
+     * @return A boolean value indicating whether the operation succeeded
+     **/
+    function removeLiquidityFromPosition( bytes memory _tradeId,int _positionSize) public returns (bool) {
         require(isActive[_tradeId]);
         Position storage _position = positions[_tradeId];
         require(msg.sender == _position.trader);
@@ -160,8 +149,7 @@ contract Exchange is VaultMain {
             _positionSize * _position.side > 0 &&
                 _positionSize * _position.side <
                 _position.positionSize * _position.side);
-        require(payInterestPayments(_tradeId, _position.amm));
-        require(payFFR(_tradeId,_position.amm));
+        _payments(_tradeId, _position.amm);
         uint _loanAmount = _position.loanedAmount;
         VAmm _amm = VAmm(_position.amm);
         (, int _usdcAmt) = _amm.closePosition(_positionSize, _position.side);
@@ -185,14 +173,12 @@ contract Exchange is VaultMain {
         uint _totalAmount;
         tradeCollateral[_tradeId] += uint(_usdcAmt);
         if(int(_collateral)+_usdcAmt>= _payment + int(_loanAmount)){
-            require(payInterestPayments(_tradeId, _position.amm));
-            require(payFFR(_tradeId,_position.amm));
+            _payments(_tradeId, _position.amm);
             require(LoanPool(loanPool).repayLoan(_tradeId, _loanAmount, _position.amm));
             uint _amountToPay = uint(_usdcAmt)+_collateral- _loanAmount;
             _totalAmount = checkPoolUsdc( _amountToPay,_position.trader,_position.amm);
         }else if(int(_collateral)+_usdcAmt>= _payment){
-            require(payInterestPayments(_tradeId, _position.amm));
-            require(payFFR(_tradeId,_position.amm));
+            _payments(_tradeId,_position.amm);
             uint _remaining =_loanAmount - tradeCollateral[_tradeId];
             require(LoanPool(loanPool).repayLoan(_tradeId, _remaining, _position.amm));
             _totalAmount = checkPoolUsdc( _remaining,address(0),_position.amm);
@@ -218,6 +204,7 @@ contract Exchange is VaultMain {
             poolAvailableUsdc[_amm] = 0;
             poolTotalUsdcSupply[_amm] = poolOutstandingLoans[_amm];
             LoanPool(loanPool).addDebt(_remaining,_amm);
+            freezeStaking(_amm);
             availableBalance[theseusDao]-=_remaining;
             if(_user != address(0)){
                 availableBalance[_user] += _amount;
@@ -239,6 +226,9 @@ contract Exchange is VaultMain {
     function freezeStaking(address _amm)public {
     
         Staking(staking).freeze(_amm);
+    }
+    function unFreezeStaking(address _amm)public onlyPool {
+        Staking(staking).unFreeze(_amm);
     }
   
 }

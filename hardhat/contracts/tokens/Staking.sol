@@ -98,9 +98,7 @@ contract Staking {
      * @param _ammPool The address of the AMM pool.
      */
     function addAmmTokenToPool(address _ammPool) public {
-        require(
-            hasRegistered[_ammPool] == false,
-            "Already added to poolTokens contract"
+        require(hasRegistered[_ammPool] == false,"Already added to poolTokens contract"
         );
         poolCount++;
         ammPoolToTokenId[_ammPool] = poolCount;

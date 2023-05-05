@@ -68,7 +68,7 @@ describe("amm FFR", function () {
         console.log('theseusDaoID', theseusDaoID);
         console.log('ex add loanPool', await loanPool.callStatic.exchange());
         await exchange.addAmm(amm.address);
-        await exchange.registerLoanPool(loanPool.address);
+        await exchange.connect(theseusDao).registerLoanPool(loanPool.address);
         await loanPool.initializeVamm(amm.address);
         const PoolTokenAMmID = await staking.callStatic.ammPoolToTokenId(amm.address);
 
@@ -93,10 +93,11 @@ describe("amm FFR", function () {
           staking,
           loanPool,
           theseusDao,
+          exchangeViewer
         };
       }
-      it.skip("should mark ffr upon openPos", async function () {
-            const {usdc,amm,exchange,staking,}=await loadFixture(deployContracts);
+      it("should mark ffr upon openPos", async function () {
+            const {usdc,amm,exchange,staking,owner,oracle}=await loadFixture(deployContracts);
             await usdc.approve(exchange.address, parseUnits("1000", 6));
             await exchange.deposit(parseUnits("1000", 6));
             const leverage = 3;

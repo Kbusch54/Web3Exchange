@@ -50,9 +50,6 @@ address public exchange;
         (uint _full,)=interestOwed(_tradeId,_ammPool);
         require( _full==0,'Need To pay interest first');
         borrowedAmount[_tradeId] -= _amount;
-        // Exchange _ex = Exchange(exchange);
-        // _ex.subPoolOutstandingLoans(_ammPool,_amount);
-        // _ex.addPoolAvailableUsdc(_ammPool,_amount);
         return true;
     }
 
@@ -129,7 +126,10 @@ address public exchange;
     }
 
     function subDebt(uint _amount,address _ammPool)external onlyExchange{
-        debt[_ammPool] -= _amount;
+        debt[_ammPool]<_amount?debt[_ammPool]=0:debt[_ammPool] -= _amount;
+        if(debt[_ammPool] == 0){
+            Exchange(exchange).unFreezeStaking(_ammPool);
+        }
     }
     function addDebt(uint _amount,address _ammPool)external onlyExchange{
         debt[_ammPool] += _amount;
