@@ -24,6 +24,7 @@ contract Balances {
     mapping(bytes => uint) public tradeBalance;
     mapping(bytes => uint) public tradeCollateral;
     mapping(address => uint) public availableBalance;
+    mapping(address => uint)public reservedUsdc;
     mapping(address => uint) public totalTradeCollateral; // For liquidation purposes
 
         // Mappings for storing pool-related data

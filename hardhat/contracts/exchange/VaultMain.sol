@@ -4,30 +4,46 @@ import "../loanPools/LoanPool.sol";
 import "./Balances.sol";
 import "../tokens/Staking.sol";
 
+import "../amm/VAmm.sol";
+import "./ExchangeViewer.sol";
+
 contract VaultMain is Balances {
 //constructor
 address public staking;
+    address public exchangeViewer;
+    address public theseusDao;
 
     constructor(
         address _usdc,
-        address _staking
+        address _staking,
+        address _theseusDao
     ) Balances(_usdc) {
         staking = _staking;
+        theseusDao = _theseusDao;
     }
 
  modifier onlyStaking {
-        require(msg.sender == staking,'not staking');
+        _onlyStaking();
         _;
     }
     modifier onlyPool {
-        require(msg.sender == loanPool,'not pool');
+        _onlyPool();
         _;
     }
     modifier onlyStakingOrPool{
-        require(msg.sender == staking || msg.sender == loanPool,'not staking or pool');
+        _onlyStakingOrPool();
         _;
     }
 
+function _onlyStaking() private view {
+        require(msg.sender == staking,'not staking');
+    }
+    function _onlyPool() private view {
+        require(msg.sender == loanPool,'not pool');
+    }
+    function _onlyStakingOrPool() private view {
+        require(msg.sender == staking || msg.sender == loanPool,'not staking or pool');
+    }
   
     //mapping of tradeId to collateral
     mapping(bytes => bool) public isActive;
@@ -72,14 +88,12 @@ address public staking;
             address _user,
             address _amm,,
         ) = decodeTradeId(_tradeId);
-        require(isActive[_tradeId] && msg.sender == _user, "");
-        require(payInterestPayments(_tradeId, _amm), "");
+        require(payInterestPayments(_tradeId, _amm));
+        require(isActive[_tradeId] && msg.sender == _user);
         // require(calcFFR(_tradeId,_amm), "ffr payment failed");
-        require(_collateral > 0, "");
+        require(_collateral > 0);
         require(
-            availableBalance[msg.sender] >= _collateral,
-            ""
-        );
+            availableBalance[msg.sender] >= _collateral);
         availableBalance[msg.sender] -= _collateral;
         tradeCollateral[_tradeId] += _collateral;
 
@@ -102,16 +116,12 @@ address public staking;
             address _amm,
             ,
         ) = decodeTradeId(_tradeId);
-        require(isActive[_tradeId] && msg.sender == _user, "");
-        // uint _liquidationCollateral = liquidateCollateral(_tradeId);
-        // require(_liquidationCollateral < tradeCollateral[_tradeId] - _collateralToRemove, "Remove amount to high");
-        require(payInterestPayments(_tradeId, _amm), "");
-        // require(calcFFR(_tradeId,_amm), "ffr payment failed");
-        require(_collateralToRemove > 0, "");
+        require(isActive[_tradeId] && msg.sender == _user);
+        require(payInterestPayments(_tradeId, _amm));
+        require(payFFR(_tradeId,_amm));
+        require(_collateralToRemove > 0);
         require(
-            tradeCollateral[_tradeId] >= _collateralToRemove,
-            ""
-        );
+            tradeCollateral[_tradeId] >= _collateralToRemove);
         tradeCollateral[_tradeId] -= _collateralToRemove;
         availableBalance[msg.sender] += _collateralToRemove;
 
@@ -128,26 +138,60 @@ address public staking;
         bytes memory _tradeId,
         address _amm
     ) public returns (bool) {
-        uint _interestToBePayed = LoanPool(loanPool).interestOwed(_tradeId, _amm);
-        if (tradeCollateral[_tradeId] >= _interestToBePayed) {
-            tradeCollateral[_tradeId] -= _interestToBePayed;
-            poolAvailableUsdc[_amm] += _interestToBePayed;
-            poolTotalUsdcSupply[_amm] += _interestToBePayed;
-            positions[_tradeId].collateral - _interestToBePayed;
-            require(LoanPool(loanPool).payInterest(_tradeId), "");
-        } else {
-            liquidate(_tradeId);
-        }
+        (uint _fullInterest,uint _toPools) = LoanPool(loanPool).interestOwed(_tradeId, _amm);
+        tradeCollateral[_tradeId] -= _fullInterest;
+        console.log("paying interest",_fullInterest);
+        positions[_tradeId].collateral -= _fullInterest;
+        poolAvailableUsdc[_amm] += _toPools;
+        poolTotalUsdcSupply[_amm] += _toPools;
+        _toPools == _fullInterest ? () :payDebt(_toPools,_amm);
+        require(LoanPool(loanPool).payInterest(_tradeId));
+        return true;
+    }
+     /**
+     *@dev Function to pay the funding rate for a position
+     @param _tradeId The tradeId of the position
+     @param _amm The address of the AMM contract
+     @return A boolean value indicating whether the operation succeeded
+     */
 
+    //TODO:take from pool fix
+    function payFFR(
+        bytes memory _tradeId,
+        address _amm
+    ) internal returns (bool) {
+        uint _intialTradeBalance = tradeBalance[_tradeId];
+        (int _ffrToBePayed) = ExchangeViewer(exchangeViewer).calcFFRFull(_tradeId, _amm,_intialTradeBalance);
+        VAmm vamm = VAmm(_amm);
+            uint _lastFFR = vamm.getLastFundingRateIndex();
+        console.log("paying ffr",uint(_ffrToBePayed*-1));
+        if (_ffrToBePayed > 0) {
+            uint _ffrCal = uint(_ffrToBePayed);
+            tradeCollateral[_tradeId] += _ffrCal;
+            poolAvailableUsdc[_amm] -= _ffrCal;
+            poolTotalUsdcSupply[_amm] -= _ffrCal;
+            positions[_tradeId].collateral + _ffrCal;
+            positions[_tradeId].lastFundingRate = _lastFFR;
+        } else {
+            uint _ffrCal = uint(_ffrToBePayed * -1);
+            tradeCollateral[_tradeId] -= _ffrCal;
+            positions[_tradeId].collateral - _ffrCal;
+            poolAvailableUsdc[_amm] += _ffrCal;
+            poolTotalUsdcSupply[_amm] += _ffrCal;
+            positions[_tradeId].lastFundingRate = _lastFFR;
+        }
         return true;
     }
 
-        function liquidate(bytes memory _tradeId) public {
-        2 + 2;
-    }
+     
+   
 
     function getTradeIdList() public view returns (bytes[] memory) {
         return tradeIdList;
+    }
+    function payDebt(uint _amount,address _amm) internal {
+        LoanPool(loanPool).subDebt(_amount,_amm);
+        availableBalance[theseusDao] += _amount;
     }
 
     
@@ -170,13 +214,16 @@ address public staking;
         return (_user, _amm, _timeStamp, _side);
     }
     function addAmm(address _amm) public {
-        require(!isAmm[_amm], "amm already added");
+        require(!isAmm[_amm]);
         isAmm[_amm] = true;
         Staking(staking).addAmmTokenToPool(_amm);
     }
 
       function addPoolTotalUsdcSupply(address _ammPool, uint _amount) external onlyStakingOrPool{
         poolTotalUsdcSupply[_ammPool] += _amount;
+    }
+      function setExchangeViewer(address _exchangeViewer)public {
+        exchangeViewer = _exchangeViewer;
     }
     function subPoolTotalUsdcSupply(address _ammPool, uint _amount) external onlyStakingOrPool{
         poolTotalUsdcSupply[_ammPool] -= _amount;
@@ -202,7 +249,4 @@ address public staking;
         poolOutstandingLoans[_ammPool] -= _amount;
     }
 
-
-
- 
 }

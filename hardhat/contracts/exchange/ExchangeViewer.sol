@@ -4,6 +4,8 @@ import "./VaultMain.sol";
 import "../amm/VAmm.sol";
 import "./Exchange.sol";
 
+import "../loanPools/LoanPool.sol";
+
 // import "hardhat/console.sol";
 contract ExchangeViewer{
 
@@ -49,7 +51,7 @@ contract ExchangeViewer{
         Position memory pos = Position(a,b,c,d,e,f,g,h,i);
         return pos;
     }
-
+   
         function calcFFR(
         bytes memory _tradeId,
         address _amm
@@ -63,6 +65,11 @@ contract ExchangeViewer{
       cumulativeFFR = _cumulativeFFR;
         side = _position.side;
     }
+       function calcFFRFull(bytes memory _tradeId, address _amm, uint _intialTradeBalance) public view returns (int ffrOwed) {
+        (int _cumulativeFFR,int side) = calcFFR(_tradeId, _amm);
+        return (_cumulativeFFR*int(_intialTradeBalance)/100000000*side);
+    }
+
     function getValues(
         bytes memory _tradeId
     ) public view returns (uint _collateralAfter, int _usdcAmt) {
@@ -70,8 +77,8 @@ contract ExchangeViewer{
         LoanPool _pool = LoanPool(loanPool);
         Position memory _position = getPosition(_tradeId);
         address _ammPool = _position.amm;
-        uint _interestOwed = _pool.interestOwed(_tradeId, _ammPool);
-        (int _ffrOwed,) = calcFFR(_tradeId, _ammPool);
+        (uint _interestOwed,) = _pool.interestOwed(_tradeId, _ammPool);
+        int _ffrOwed = calcFFRFull(_tradeId, _ammPool, _position.loanedAmount);
         uint _collateral = _position.collateral;
          _collateralAfter = _ffrOwed > 0
             ? _collateral + uint(_ffrOwed) - _interestOwed
@@ -79,6 +86,18 @@ contract ExchangeViewer{
         VAmm _amm = VAmm(_ammPool);
         _usdcAmt = _amm.getClosePosition(_position.positionSize);
     }
+
+    function getAllValues(bytes memory _tradeId)public view returns(uint collateral, uint interest, int ffr, int usdcAmt,uint loanAmount){
+        Position memory _position = getPosition(_tradeId);
+        address _ammPool = _position.amm;
+        (uint _interestOwed,) = LoanPool(loanPool).interestOwed(_tradeId, _ammPool);
+        int _ffrOwed = calcFFRFull(_tradeId, _ammPool, _position.loanedAmount);
+        uint _collateral = _position.collateral;
+        VAmm _amm = VAmm(_ammPool);
+        (int _usdcAmt) = _amm.getClosePosition(_position.positionSize);
+        return (_collateral, _interestOwed, _ffrOwed, _usdcAmt, _position.loanedAmount);
+    }
+    
 
     /**
      *@dev Function to check if position can be liquidated
@@ -125,5 +144,7 @@ contract ExchangeViewer{
         }
         return _liquidateList;
     }
+
+
   
 }

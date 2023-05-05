@@ -134,7 +134,7 @@ describe("amm FFR", function () {
             const isFrozenLast = await amm.callStatic.isFrozen();
             console.log('isFrozenLast', isFrozenLast);
         });
-      it.skip("Should have correct ffr long", async function () {
+      it("Should have correct ffr long", async function () {
         const {usdc,
             amm,
             exchange,
@@ -153,7 +153,7 @@ describe("amm FFR", function () {
             const calcFFR = Math.round(multiplyer*(indexPrice - markPrice) / indexPrice / 12);
             expect(ffr[0].fundingRate).to.equal(calcFFR);
         });
-      it.skip("Should have correct ffr short", async function () {
+      it("Should have correct ffr short", async function () {
         const {usdc,
             amm,
             exchange,
@@ -172,7 +172,7 @@ describe("amm FFR", function () {
             const calcFFR = Math.round(multiplyer*(indexPrice - markPrice) / indexPrice / 12);
             expect(ffr[0].fundingRate).to.equal(calcFFR);
         });
-      it.skip("Should have correct ffr long 2 positions", async function () {
+      it("Should have correct ffr long 2 positions", async function () {
             const {usdc,
                 amm,
                 exchange,
@@ -192,7 +192,7 @@ describe("amm FFR", function () {
             const calcFFR = Math.round(multiplyer*(indexPrice - markPrice) / indexPrice / 12);
             assert.approximately(ffr[0].fundingRate,calcFFR,1);
         });
-      it.skip("Should have correct ffr short 2 positions", async function () {
+      it("Should have correct ffr short 2 positions", async function () {
             const {usdc,amm,exchange,staking,}=await loadFixture(deployContracts);
             await usdc.approve(exchange.address, parseUnits("1000", 6));
             await exchange.deposit(parseUnits("1000", 6));

@@ -47,11 +47,12 @@ address public exchange;
      */
     function repayLoan(bytes memory _tradeId, uint _amount,address _ammPool)external onlyExchange returns(bool){
         require(_amount <= borrowedAmount[_tradeId],'repaying too much');
-        require(interestOwed(_tradeId,_ammPool) ==0,'Need To pay interest first');
+        (uint _full,)=interestOwed(_tradeId,_ammPool);
+        require( _full==0,'Need To pay interest first');
         borrowedAmount[_tradeId] -= _amount;
-        Exchange _ex = Exchange(exchange);
-        _ex.subPoolOutstandingLoans(_ammPool,_amount);
-        _ex.addPoolAvailableUsdc(_ammPool,_amount);
+        // Exchange _ex = Exchange(exchange);
+        // _ex.subPoolOutstandingLoans(_ammPool,_amount);
+        // _ex.addPoolAvailableUsdc(_ammPool,_amount);
         return true;
     }
 
@@ -82,14 +83,21 @@ address public exchange;
      * @dev Function for calculating the interest owed for a trade.
      * @param _tradeId The unique identifier for the trade.
      * @param _ammPool The address of the AMM pool.
-     * @return The interest owed for the trade.
+     * @return _totalInterest The interest owed for the trade.
+     * @return _toPools The interest owed to the pools.
      */
 
-    function interestOwed(bytes memory _tradeId,address _ammPool)public view returns(uint){
+    function interestOwed(bytes memory _tradeId,address _ammPool)public view returns(uint _totalInterest,uint _toPools){
         uint _interest = interestForTrade[_tradeId]; 
         uint _interestPeriods = (block.timestamp - loanInterestLastPayed[_tradeId])/interestPeriods[_ammPool];
-        uint _interestToPay =  (borrowedAmount[_tradeId]*( _interest * _interestPeriods))/(10**6) ;
-        return _interestToPay;
+        uint _totalInterest =  (borrowedAmount[_tradeId]*( _interest * _interestPeriods))/(10**6) ;
+        if(debt[_ammPool] == 0){
+            return (_totalInterest,_totalInterest);
+        }else{
+            _toPools = _totalInterest/2;
+        return (_totalInterest,_toPools);
+        }
+
     }
 
     /**
@@ -118,6 +126,13 @@ address public exchange;
         }
         debt[_amm] -= _fee;
         return (0,_fee);
+    }
+
+    function subDebt(uint _amount,address _ammPool)external onlyExchange{
+        debt[_ammPool] -= _amount;
+    }
+    function addDebt(uint _amount,address _ammPool)external onlyExchange{
+        debt[_ammPool] += _amount;
     }
 
     
