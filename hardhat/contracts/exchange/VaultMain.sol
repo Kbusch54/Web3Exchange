@@ -8,8 +8,7 @@ import "../amm/VAmm.sol";
 import "./ExchangeViewer.sol";
 
 contract VaultMain is Balances {
-//constructor
-address public staking;
+    address public staking;
     address public exchangeViewer;
     address public theseusDao;
 
@@ -89,14 +88,12 @@ function _onlyStaking() private view {
             address _amm,,
         ) = decodeTradeId(_tradeId);
         require(payInterestPayments(_tradeId, _amm));
+        require(payFFR(_tradeId,_amm));
         require(isActive[_tradeId] && msg.sender == _user);
-        // require(calcFFR(_tradeId,_amm), "ffr payment failed");
         require(_collateral > 0);
-        require(
-            availableBalance[msg.sender] >= _collateral);
+        require(availableBalance[msg.sender] >= _collateral);
         availableBalance[msg.sender] -= _collateral;
         tradeCollateral[_tradeId] += _collateral;
-
         return true;
     }
 
@@ -107,21 +104,13 @@ function _onlyStaking() private view {
      * @param _collateralToRemove the amount of collateral to remove
      * @return A boolean value indicating whether the operation succeeded
      */
-    function removeCollateral(
-        bytes memory _tradeId,
-        uint _collateralToRemove
-    ) public returns (bool) {
-        (
-            address _user,
-            address _amm,
-            ,
-        ) = decodeTradeId(_tradeId);
+    function removeCollateral(bytes memory _tradeId, uint _collateralToRemove) public returns (bool) {
+        (address _user,address _amm,,) = decodeTradeId(_tradeId);
         require(isActive[_tradeId] && msg.sender == _user);
         require(payInterestPayments(_tradeId, _amm));
         require(payFFR(_tradeId,_amm));
         require(_collateralToRemove > 0);
-        require(
-            tradeCollateral[_tradeId] >= _collateralToRemove);
+        require(tradeCollateral[_tradeId] >= _collateralToRemove);
         tradeCollateral[_tradeId] -= _collateralToRemove;
         availableBalance[msg.sender] += _collateralToRemove;
 
@@ -140,7 +129,6 @@ function _onlyStaking() private view {
     ) public returns (bool) {
         (uint _fullInterest,uint _toPools) = LoanPool(loanPool).interestOwed(_tradeId, _amm);
         tradeCollateral[_tradeId] -= _fullInterest;
-        console.log("paying interest",_fullInterest);
         positions[_tradeId].collateral -= _fullInterest;
         poolAvailableUsdc[_amm] += _toPools;
         poolTotalUsdcSupply[_amm] += _toPools;
@@ -164,7 +152,6 @@ function _onlyStaking() private view {
         (int _ffrToBePayed) = ExchangeViewer(exchangeViewer).calcFFRFull(_tradeId, _amm,_intialTradeBalance);
         VAmm vamm = VAmm(_amm);
             uint _lastFFR = vamm.getLastFundingRateIndex();
-        console.log("paying ffr",uint(_ffrToBePayed*-1));
         if (_ffrToBePayed > 0) {
             uint _ffrCal = uint(_ffrToBePayed);
             tradeCollateral[_tradeId] += _ffrCal;
@@ -217,6 +204,11 @@ function _onlyStaking() private view {
         require(!isAmm[_amm]);
         isAmm[_amm] = true;
         Staking(staking).addAmmTokenToPool(_amm);
+    }
+       function registerLoanPool(address _pool) public {
+        require(loanPool == address(0));
+        require(msg.sender == theseusDao);
+        loanPool = _pool;
     }
 
       function addPoolTotalUsdcSupply(address _ammPool, uint _amount) external onlyStakingOrPool{

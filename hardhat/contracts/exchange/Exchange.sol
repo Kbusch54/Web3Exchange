@@ -97,26 +97,6 @@ contract Exchange is VaultMain {
         require(msg.sender == _position.trader || msg.sender == address(this));
         console.log("closeOutPosition");
         (int _usdcAmt,uint _totalAmount) = closePosition(_tradeId);
-        // require(payInterestPayments(_tradeId, _position.amm));
-        // require(payFFR(_tradeId,_position.amm));
-        // int _usdcAmt;
-        // uint _exitPrice;
-        // (_exitPrice, _usdcAmt) = VAmm(_position.amm).closePosition(
-        //     _position.positionSize,
-        //     _position.side
-        // );
-        // uint _loanAmount = tradeBalance[_tradeId];
-        // int _totalAmount = _usdcAmt + int(tradeCollateral[_tradeId]);
-        // _totalAmount -= int(_loanAmount);
-        // tradeBalance[_tradeId] = 0;
-        // require(
-        //     LoanPool(loanPool).repayLoan(_tradeId, _loanAmount, _position.amm),
-        //     ""
-        // );
-
-        // //take from pool
-        // _totalAmount >= 0?availableBalance[msg.sender] += uint(_totalAmount):();
-        //add function to take from pool and check if enough left over
         tradeCollateral[_tradeId] =0;
         isActive[_tradeId] = false;
         return (true,_usdcAmt,_totalAmount);
@@ -180,8 +160,7 @@ contract Exchange is VaultMain {
             _positionSize * _position.side > 0 &&
                 _positionSize * _position.side <
                 _position.positionSize * _position.side);
-        require(
-            payInterestPayments(_tradeId, _position.amm));
+        require(payInterestPayments(_tradeId, _position.amm));
         require(payFFR(_tradeId,_position.amm));
         uint _loanAmount = _position.loanedAmount;
         VAmm _amm = VAmm(_position.amm);
@@ -190,7 +169,6 @@ contract Exchange is VaultMain {
             _position.positionSize) * int(_loanAmount)) / (10 ** 8);
         int pnl = _usdcAmt - _amountOwed;
         pnl > 0?checkPoolUsdc( uint(pnl),  _position.trader,_position.amm):tradeCollateral[_tradeId] -= uint(pnl * -1);
-        
         LoanPool(loanPool).repayLoan(_tradeId, uint(_amountOwed), _position.amm);
         _position.positionSize -= _positionSize;
         _position.loanedAmount -= uint(_amountOwed);
@@ -201,10 +179,7 @@ contract Exchange is VaultMain {
          Position memory _position = positions[_tradeId];
         (uint _collateral, uint _interest, int _ffr,,uint _loanAmount) = ExchangeViewer(exchangeViewer).getAllValues(_tradeId);
                int _usdcAmt;
-          (, _usdcAmt) = VAmm(_position.amm).closePosition(
-            _position.positionSize,
-            _position.side
-        );
+          (, _usdcAmt) = VAmm(_position.amm).closePosition(_position.positionSize, _position.side);
         int _payment = _ffr + int(_interest);
         poolOutstandingLoans[_position.amm] -= _loanAmount;
         uint _totalAmount;

@@ -11,6 +11,7 @@ import "../../node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol";
 contract Balances {
     // Store the address of the USDC token contract
     address Usdc;
+  address public loanPool;
 
     /**
      * @dev Constructor takes the USDC token contract address as an argument.
@@ -24,7 +25,6 @@ contract Balances {
     mapping(bytes => uint) public tradeBalance;
     mapping(bytes => uint) public tradeCollateral;
     mapping(address => uint) public availableBalance;
-    mapping(address => uint)public reservedUsdc;
     mapping(address => uint) public totalTradeCollateral; // For liquidation purposes
 
         // Mappings for storing pool-related data
@@ -35,7 +35,6 @@ contract Balances {
 
 
   mapping(address => bool) public isAmm;
-  address public loanPool;
     /**
      * @dev Function for depositing USDC tokens into the contract.
      * @param _amount The amount of USDC tokens to deposit.
@@ -56,9 +55,6 @@ contract Balances {
         availableBalance[msg.sender] -= _amount;
     }
     
-    function registerLoanPool(address _pool) public {
-        require(loanPool == address(0), "pool already added");
-        loanPool = _pool;
-    }
+ 
 
 } 
