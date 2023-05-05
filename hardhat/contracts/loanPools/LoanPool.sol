@@ -90,7 +90,7 @@ address public exchange;
     function interestOwed(bytes memory _tradeId,address _ammPool)public view returns(uint _totalInterest,uint _toPools){
         uint _interest = interestForTrade[_tradeId]; 
         uint _interestPeriods = (block.timestamp - loanInterestLastPayed[_tradeId])/interestPeriods[_ammPool];
-        uint _totalInterest =  (borrowedAmount[_tradeId]*( _interest * _interestPeriods))/(10**6) ;
+        _totalInterest =  (borrowedAmount[_tradeId]*( _interest * _interestPeriods))/(10**6) ;
         if(debt[_ammPool] == 0){
             return (_totalInterest,_totalInterest);
         }else{

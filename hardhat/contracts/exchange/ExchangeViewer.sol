@@ -72,7 +72,7 @@ contract ExchangeViewer{
 
     function getValues(
         bytes memory _tradeId
-    ) public view returns (uint _collateralAfter, int _usdcAmt) {
+    ) public view returns (int _collateralAfter, int _usdcAmt) {
         require(exchange.isActive(_tradeId), "");
         LoanPool _pool = LoanPool(loanPool);
         Position memory _position = getPosition(_tradeId);
@@ -80,9 +80,7 @@ contract ExchangeViewer{
         (uint _interestOwed,) = _pool.interestOwed(_tradeId, _ammPool);
         int _ffrOwed = calcFFRFull(_tradeId, _ammPool, _position.loanedAmount);
         uint _collateral = _position.collateral;
-         _collateralAfter = _ffrOwed > 0
-            ? _collateral + uint(_ffrOwed) - _interestOwed
-            : _collateral - uint(_ffrOwed * -1) - _interestOwed;
+         _collateralAfter = int(_collateral) + _ffrOwed - int(_interestOwed);
         VAmm _amm = VAmm(_ammPool);
         _usdcAmt = _amm.getClosePosition(_position.positionSize);
     }
@@ -107,14 +105,17 @@ contract ExchangeViewer{
     function checkLiquidiation(
         bytes memory _tradeId
     ) public view returns (bool) {
-        (uint _collateralAfter, int _usdcAmt) = getValues(_tradeId);
+        (int _collateralAfter, int _usdcAmt) = getValues(_tradeId);
         Position memory _position = getPosition(_tradeId);
         uint _mmr = LoanPool(loanPool).mmr(_position.amm);
-        if (
-            ((_collateralAfter - uint(_usdcAmt)) * 10 ** 8) /
-                _position.loanedAmount >=
-            _mmr
-        ) {
+        console.log("mmr",_mmr);
+        console.log("collateralAfter",uint(_collateralAfter));
+        console.log("loanedAmount",_position.loanedAmount);
+        console.log("usdcAmt",uint(_usdcAmt));
+        int _currMMR = int(_collateralAfter  * 10 ** 6) /(int(_position.loanedAmount*2)-_usdcAmt);
+        uint _currMMRUn = _currMMR>0?uint(_currMMR):uint(-_currMMR);
+        console.log("currMMR",_currMMRUn);
+        if ( _currMMRUn >= _mmr ) {
             return false;
         } else {
             return true;
@@ -127,18 +128,19 @@ contract ExchangeViewer{
     //  */
     function getPnl(bytes memory _tradeId) public view returns (int) {
         Position memory _pos = getPosition(_tradeId);
-        (uint _collateralAfter, int _usdcAmt) = getValues(_tradeId);
+        (int _collateralAfter, int _usdcAmt) = getValues(_tradeId);
         uint _loanedAmt = _pos.loanedAmount;
-        return _usdcAmt + int(_collateralAfter) - int(_loanedAmt);
+        return _usdcAmt + _collateralAfter - int(_loanedAmt);
     }
 
     function checkLiquidiationList() public view returns (bytes[] memory) {
-        bytes[] memory _liquidateList;
         uint _count = 0;
         bytes[] memory _tradeIdList = exchange.getTradeIdList();
+        bytes[] memory _liquidateList = new bytes[](_tradeIdList.length);
         for (uint i = 0; i < _tradeIdList.length; i++) {
+            console.log("tradeId",i);
             if (checkLiquidiation(_tradeIdList[i])) {
-                _liquidateList[_count] = (_tradeIdList[i]);
+                _liquidateList[_count]=(_tradeIdList[i]);
                 _count++;
             }
         }

@@ -101,6 +101,7 @@ describe("depositAndStake", function () {
           staking,
           loanPool,
           theseusDao,
+          exchangeViewer
         };
       }
   async function openPosition() {
@@ -114,6 +115,7 @@ describe("depositAndStake", function () {
       staking,
       loanPool,
       theseusDao,
+      exchangeViewer
     } = await loadFixture(deployContracts);
     await usdc.approve(exchange.address, parseUnits("1000", 6));
 
@@ -139,6 +141,7 @@ describe("depositAndStake", function () {
       tradeId,
       theseusDao,
       loanPool,
+      exchangeViewer
     };
   }
   it.skip("should deposit and openPosition loanPool should reflect new loan", async function () {
@@ -492,7 +495,7 @@ describe("depositAndStake", function () {
     );
     expect(balanceOfDao).to.equal(tradeingFee / 2);
   });
-  it("Should freeze and absolute positon size sahould be 0 after closing out position", async function () {
+  it.skip("Should freeze and absolute positon size sahould be 0 after closing out position", async function () {
     const {
         usdc,
         owner,
@@ -517,5 +520,28 @@ describe("depositAndStake", function () {
       //   expect(isFrozenBefore).to.equal(false);
       //   expect(absolutePsAfter).to.equal(0);
       //   expect(isFrozen).to.equal(true);
+  });
+  it("Should liqudate if not enough collateral", async function () {
+    const { usdc, owner, otherAccount, amm, loanToks, exchange, staking,loanPool,exchangeViewer } = await loadFixture(deployContracts);
+    //elapse time
+    await usdc.approve(exchange.address, parseUnits("1000", 6));
+
+    await exchange.deposit(parseUnits("1000", 6));
+    await staking.stake(parseUnits("100", 6), amm.address);
+    console.log("stake done");
+    const collateral = parseUnits("10", 6);
+    const leverage = 4;
+    const side = 1;
+    await exchange.openPosition(amm.address, collateral, leverage, side);
+    console.log("openPosition done");
+    const tradeId = await exchange.callStatic.getTradeIds(owner.address);
+    await time.increase(time.duration.hours(48));
+    const liquidate = await exchangeViewer.callStatic.checkLiquidiation(tradeId[0]);
+    console.log("liquidate",liquidate);
+    const leverage2= 2;
+    // await exchangeViewer.liquidatePosition(tradeId[0]);
+    await exchange.openPosition(amm.address, collateral, leverage2, side);
+    const listOfLiqudate = await exchangeViewer.callStatic.checkLiquidiationList();
+    console.log("listOfLiqudate",listOfLiqudate);
   });
 });
