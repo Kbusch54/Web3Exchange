@@ -3,7 +3,6 @@ pragma solidity 0.8.17;
 import "../loanPools/LoanPool.sol";
 import "./Balances.sol";
 import "../tokens/Staking.sol";
-
 import "../amm/VAmm.sol";
 import "./ExchangeViewer.sol";
 
@@ -142,8 +141,6 @@ function _onlyStaking() private view {
      @param _amm The address of the AMM contract
      @return A boolean value indicating whether the operation succeeded
      */
-
-    //TODO:take from pool fix
     function payFFR(
         bytes memory _tradeId,
         address _amm
@@ -169,10 +166,6 @@ function _onlyStaking() private view {
         }
         return true;
     }
-
-     
-   
-
     function getTradeIdList() public view returns (bytes[] memory) {
         return tradeIdList;
     }
@@ -180,8 +173,6 @@ function _onlyStaking() private view {
         LoanPool(loanPool).subDebt(_amount,_amm);
         availableBalance[theseusDao] += _amount;
     }
-
-    
     /**
     *@dev Function to decode a tradeId
     *@param encodedData The encoded data of the tradeId

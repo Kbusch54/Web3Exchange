@@ -7,7 +7,7 @@ module.exports = {
   settings: {
     optimizer: {
         enabled: true,
-        runs: 200
+        runs: 200,
     },
   },
   contractSizer: {
@@ -15,6 +15,6 @@ module.exports = {
     disambiguatePaths: false,
     runOnCompile: true,
     strict: true,
-    only: ['Exchange','Staking','LoanPool','VAmm',"Balances"],
+    only: ['Exchange','Staking','LoanPool','VAmm',"Balances","VaultMain"],
   }
 }
