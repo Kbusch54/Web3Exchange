@@ -26,7 +26,7 @@ describe("amm FFR", function () {
         const indexPrice = parseUnits("370", 6);
         const oracle = await FakeOracle.deploy(indexPrice);
     
-        const path = "events/json/appl";
+        const path = "TSLA";
         const quoteAsset = parseUnits("100", 2);
         const indexPricePeriod =  time.duration.hours(2);
         console.log("indexPricePeriod", indexPricePeriod);
