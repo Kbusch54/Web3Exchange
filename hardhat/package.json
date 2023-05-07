@@ -11,6 +11,8 @@
   "dependencies": {
     "@nomicfoundation/hardhat-network-helpers": "^1.0.8",
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",
-    "@openzeppelin/contracts": "^4.8.3"
+    "@openzeppelin/contracts": "^4.8.3",
+    "@redstone-finance/evm-connector": "^0.0.22",
+    "redstone-protocol": "^1.0.5"
   }
 }
