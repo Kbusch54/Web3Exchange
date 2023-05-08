@@ -52,6 +52,9 @@ contract Staking {
             ),
             "Failed to mint tokens "
         );
+        //check if dao 
+        //if dao add avaible balance to dao check if DAO
+        //else add to pool
      
         ex.addPoolTotalUsdcSupply(_ammPool, _amount);
         ex.addPoolAvailableUsdc(_ammPool, _amount);

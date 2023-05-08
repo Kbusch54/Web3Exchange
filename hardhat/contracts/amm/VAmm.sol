@@ -307,13 +307,12 @@ contract VAmm {
     /**
      * @dev Calculates the funding rate based on mark price and index price.
      * @param markPrice The mark price of the asset.
-     * @param _indexPrice The index price of the asset.
      * @return An integer representing the calculated funding rate.
      */
     function calculateFundingRate(
         int markPrice
-    ) public pure returns (int) {
-        return intToFixed(indexPrice - markPrice) / indexPrice / 12;
+    ) public view returns (int) {
+        return intToFixed(int(indexPrice) - markPrice) / int(indexPrice) / 12;
     }
 
     //only exchange
