@@ -3,6 +3,7 @@ pragma solidity 0.8.17;
 pragma experimental ABIEncoderV2;
 import "../../node_modules/@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "../tokens/PoolTokens.sol";
+import "./CreateAriadnes.sol";
 
     error NOT_OWNER();
     error NOT_SELF();
@@ -15,19 +16,24 @@ error INVALID_SIGNER();
 error INVALID_SIGNATURES_REQUIRED();
 error INSUFFICIENT_VALID_SIGNATURES();
 error NOT_ENOUGH_SIGNERS();
-contract TheseusDAO {
+error NOT_FACTORY();
+contract AriadneDAO {
     using ECDSA for bytes32;
+       CreateAriadnes private immutable createAriandne;
+       
+    string public name;
+    uint256 public constant factoryVersion = 1;
     address public pt;
     address public staking;
+    address public amm;
+    uint public tokenId;//erc1155 token ID
     uint public currentId;//acting as nonce for proposals
     uint public votingTime;
     uint maxVotingPower; // max quantity of votes allowed per user regardless of tokens held
     uint minVotingPower; //min token req to vote
-    uint public insuranceFundMin; //minimum needed in insurance fund
     uint public votesNeededPercentage; //votes needed to pass a proposal
     mapping(uint => bool) public isProposalPassed;
     mapping(uint => uint) public votesFor;
-    mapping(uint => uint) public votesAgainst;
     mapping(uint => uint) public totalVotes;
     mapping(uint => uint) public proposalTime;
     mapping(uint => bool) public nonceUsed;
@@ -54,7 +60,7 @@ contract TheseusDAO {
         bytes result
     );
     modifier onlyOwner() {
-        if (PoolTokens(pt).balanceOf(msg.sender,0)<=0 ) {
+        if (PoolTokens(pt).balanceOf(msg.sender,tokenId)<=0 ) {
             revert NOT_OWNER();
         }
         _;
@@ -80,19 +86,36 @@ contract TheseusDAO {
         _;
     }
 
-    constructor(
+modifier onlyFactory() {
+        if (msg.sender != address(createAriandne)) {
+            revert NOT_FACTORY();
+        }
+        _;
+    }
+    function init(
+        address  _amm,
         uint _votingTime,
         uint _maxVotingPower,
         uint _minVotingPower,
-        uint _insuranceFundMin,
-        uint _votesNeededPercentage
-    ) {
+        uint _votesNeededPercentage,
+        uint _tokenId,
+        address _staking,
+        address _pt
+    ) public payable onlyFactory  {
         votingTime = _votingTime;
         maxVotingPower = _maxVotingPower;
         minVotingPower = _minVotingPower;
-        insuranceFundMin = _insuranceFundMin;
         votesNeededPercentage = _votesNeededPercentage;
+        tokenId = _tokenId;
+        amm = _amm;
+        staking = _staking;
+        pt = _pt;
     }
+     constructor(string memory _name, address _createAriadne) payable {
+        name = _name;
+        createAriandne = CreateAriadnes(_createAriadne);
+    }
+   
     function newProposal(address payable to,bytes memory data)public onlyOwner(){
         //emit event
         if(nonceUsed[currentId]) {
@@ -113,10 +136,10 @@ contract TheseusDAO {
     }
 
     function isTokenHolder(address _signer) public view returns(bool) { 
-        return PoolTokens(pt).balanceOf(_signer,0)>0;
+        return PoolTokens(pt).balanceOf(_signer,tokenId)>0;
     }
     function getProportionOfVotes(address _signer) public view returns(uint) {
-        uint256 _totalVotes = PoolTokens(pt).balanceOf(_signer,0);
+        uint256 _totalVotes = PoolTokens(pt).balanceOf(_signer,tokenId);
         uint _totalSupply = getTotalSupply();
         if (_totalVotes > maxVotingPower) {
             _totalVotes = maxVotingPower;
@@ -131,12 +154,12 @@ contract TheseusDAO {
     function getCurrentTokenHolders() public view returns(address[] memory,uint[] memory) {
         uint[] memory balances = new uint[](tokenHolders.length);
         for(uint i=0;i<tokenHolders.length;i++) {
-            balances[i] = PoolTokens(pt).balanceOf(tokenHolders[i],0);
+            balances[i] = PoolTokens(pt).balanceOf(tokenHolders[i],tokenId);
         }
         return (tokenHolders,balances);
     }
     function getTotalSupply() public view returns(uint) {
-        return PoolTokens(pt).totalSupplyTok(0);
+        return PoolTokens(pt).totalSupplyTok(tokenId);
     }
      function updateSignaturesRequired(uint256 newVotesNeededPercentage)public onlySelf{
         votesNeededPercentage = newVotesNeededPercentage;
