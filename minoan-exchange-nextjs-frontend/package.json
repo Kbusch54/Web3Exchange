@@ -8,6 +8,7 @@
   "dependencies": {
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
+    "@moralisweb3/next": "^2.19.0",
     "@mui/icons-material": "^5.11.11",
     "@mui/lab": "^5.0.0-alpha.125",
     "@mui/material": "^5.11.14",
@@ -19,15 +20,19 @@
     "chart.js": "^2.9.4",
     "date-fns": "^2.29.3",
     "ethers": "^5.7.2",
+    "iron-session": "^6.3.1",
     "material-ui-popup-state": "^5.0.8",
     "next": "latest",
+    "next-auth": "^4.22.1",
     "node": "^19.6.1",
+    "pino-pretty": "^10.0.0",
     "react": "18.2.0",
     "react-apexcharts": "^1.4.0",
     "react-currency-input-field": "^3.6.10",
     "react-dom": "18.2.0",
     "react-hook-form": "^7.43.9",
     "recharts": "^2.5.0",
+    "siwe": "^2.1.4",
     "wagmi": "^0.12.12"
   },
   "devDependencies": {

@@ -1,4 +1,4 @@
-import Link from "next/link";
+
 import React from "react";
 import Image from "next/image";
 import logo from "../public/assets/minotaur-logo-thing.png";

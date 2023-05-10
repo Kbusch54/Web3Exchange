@@ -54,7 +54,7 @@ export default async function PoolPage({ params }: Props) {
             >
               <Suspense
                 fallback={
-                  <p className="text-white text-3xl">Loading feed...</p>
+                  <div className="text-white text-3xl">Loading feed...</div>
                 }
               >
                 <AreaChartsForPools />
