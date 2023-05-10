@@ -1,8 +1,9 @@
 'use client';
 import '@rainbow-me/rainbowkit/styles.css';
+import { SessionProvider } from "next-auth/react";
 import {
   getDefaultWallets,
-  RainbowKitProvider,darkTheme 
+  RainbowKitProvider, darkTheme
 } from '@rainbow-me/rainbowkit';
 import { configureChains, createClient, WagmiConfig } from 'wagmi';
 import { goerli } from 'wagmi/chains';
@@ -12,7 +13,7 @@ import { publicProvider } from 'wagmi/providers/public';
 const { chains, provider } = configureChains(
   [goerli],
   [
-    alchemyProvider({ apiKey: process.env.ALCHEMY_ID }),
+    alchemyProvider({ apiKey: process.env.NEXT_PUBLIC_ALCHEMY_ID }),
     publicProvider()
   ]
 );
@@ -29,13 +30,17 @@ const wagmiClient = createClient({
 
 
 export default function Providers({ children }) {
-    return   ( 
-        <WagmiConfig client={wagmiClient}>
-            <RainbowKitProvider chains={chains} theme={darkTheme({
-        accentColor: '#7b3fe4',
-        accentColorForeground: 'white',
-        borderRadius: 'medium',
-      })}>{children} </RainbowKitProvider>
-        </WagmiConfig>
-        )
-  }
+  return (
+    <WagmiConfig client={wagmiClient}>
+      <SessionProvider>
+
+        <RainbowKitProvider chains={chains} theme={darkTheme({
+          accentColor: '#7b3fe4',
+          accentColorForeground: 'white',
+          borderRadius: 'medium',
+        })}>{children}
+        </RainbowKitProvider>
+      </SessionProvider>
+    </WagmiConfig>
+  )
+}

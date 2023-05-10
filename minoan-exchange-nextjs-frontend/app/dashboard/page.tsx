@@ -5,12 +5,20 @@ import DashBoardTradeTab from '../../components/tabs/dashboard/DashBoardTradeTab
 import DashboardAssets from '../../components/tabs/dashboard/DashboardAssets'
 import { Stock } from "../../types/custom";
 import { stocks } from "../utils/stockData";
+import { getServerSession } from "../api/auth/[...nextauth]/route";
+import { redirect } from "next/navigation";
 
 interface Props {
 
 }
 
-const page: React.FC<Props> = () => {
+export default async function page  () {
+    
+    const session = await getServerSession();
+    if(!session) {
+        redirect(`/auth/signin?callbackUrl=/dashboard`);
+    }
+    console.log('session from dashboard',session);
     return (
         <div className='mx-4 flex flex-col gap-y-4'>
             <h1 className='text-white'>Dashboard</h1>
@@ -31,5 +39,3 @@ const page: React.FC<Props> = () => {
         </div>
     )
 }
-
-export default page

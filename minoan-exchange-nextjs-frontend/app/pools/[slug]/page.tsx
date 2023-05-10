@@ -9,6 +9,8 @@ import StakingForm from "../../../components/forms/StakingForm";
 import Balances from "../../../components/balances/Balances";
 import InvestorStats from "../../../components/stockData/InvestorStats";
 import StakingStats from "../../../components/stockData/StakingStats";
+import { getServerSession } from "../../api/auth/[...nextauth]/route";
+import { redirect } from "next/navigation";
 
 interface Props {
   params: {
@@ -30,6 +32,10 @@ const AreaChartsForPools = dynamic(
 
 export default async function PoolPage({ params }: Props) {
   const stock = await getStocks(params.slug);
+      const session = await getServerSession();
+      if(!session) {
+          redirect(`/auth/signin?callbackUrl=/pools/${params.slug}`);
+      }
   return (
     <div>
       {stock && (

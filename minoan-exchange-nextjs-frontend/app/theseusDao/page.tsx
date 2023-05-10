@@ -4,10 +4,16 @@ import PurposalModal from "../../components/modals/PurposalModal";
 import DaoTransaction from "../../components/tables/DaoTransactions";
 import TheseusTab from "../../components/tabs/TheseusTab";
 import theseus from "../../public/assets/theseus-removed.png";
+import { getServerSession } from "../api/auth/[...nextauth]/route";
+import { redirect } from "next/navigation";
 
 type Props = {};
 
-const page = (props: Props) => {
+async function page(props: Props)  {
+      const session = await getServerSession();
+      if(!session) {
+          redirect(`/auth/signin?callbackUrl=/theseusdao`);
+      }
   return (
     <div className="m-6">
       <div className="flex flex-row justify-between">

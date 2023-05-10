@@ -13,6 +13,8 @@ import GlobalTrades from "../../../components/tables/GlobalTrades";
 import { Stock } from "../../../types/custom";
 import { stocks } from "../../utils/stockData";
 import ReachartsEx from "../../../components/charts/poolCharts/ReachartsEx";
+import { getServerSession } from "../../api/auth/[...nextauth]/route";
+import { redirect } from "next/navigation";
 type Props = {};
 async function fetchData(slug: string) {
   // Fetch data based on the slug value
@@ -25,7 +27,11 @@ const getStocks = async (slug: string) => {
   return s;
 };
 export default async function page(context: { params: { slug: string; }; }) {
+  const session = await getServerSession();
   const slug = context.params.slug ?? 'tsla'; // Set the default slug value to 'tsla'
+  if(!session) {
+      redirect(`/auth/signin?callbackUrl=/invest/${slug}`);
+  }
   const data = await fetchData(slug);
   const stock = await getStocks(slug);
   return (

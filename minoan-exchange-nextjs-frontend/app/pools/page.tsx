@@ -2,10 +2,16 @@ import React from 'react'
 import helmet from "../../public/assets/silhoute-helmet.png"
 import { stocks } from '../utils/stockData';
 import Image from 'next/image';
+import { getServerSession } from "../api/auth/[...nextauth]/route";
+import { redirect } from "next/navigation";
 interface Props {
   
 }
-const page: React.FC<Props> = () => {
+export default async function page(){
+        const session = await getServerSession();
+        if(!session) {
+            redirect(`/auth/signin?callbackUrl=/pools`);
+        }
   
     return (
         <div className='text-white text-center my-12  m-12 md:mx-24'>
@@ -34,4 +40,3 @@ const page: React.FC<Props> = () => {
     )
 }
 
-export default page
