@@ -38,6 +38,27 @@ address public exchange;
     }
 
 
+
+    event LoanPoolInitialized(address indexed _ammPool, address indexed _dao,uint timeStamp);
+    event LoanPoolValues(address indexed ammPool, uint minLoan, uint maxLoan, uint loanInterestRate, uint loanInterestPeriod, uint mmr, uint minHoldingsReqPercentage, uint tradingFee);
+
+//DAO functions for values events
+    event MMRSet(uint _mmr,address indexed _ammPool);
+    event MinLoanSet(uint _minLoan,address indexed _ammPool);
+    event MaxLoanSet(uint _maxLoan,address indexed _ammPool);
+    event MinHoldingsReqPercentageSet(uint _minHoldingsReqPercentage,address indexed _ammPool);
+    event LoanInterestRateSet(uint _loanInterestRate,address indexed _ammPool);
+    event InterestPeriodsSet(uint _interestPeriods,address indexed _ammPool);
+    event TradingFeeSet(uint _tradingFee,address indexed _ammPool);
+//Theseus events for min and maximums
+    event MinAndMaxInterestRateSet(uint _minInterestRate,uint _maxInterestRate);
+    event MinAndMaxLoanSet(uint _minLoan,uint _maxLoan);
+    event MinAndMaxMMRSet(uint _minMMR,uint _maxMMR);
+    event MinAndMaxHoldingsReqPercentageSet(uint _minHoldingsReqPercentage,uint _maxHoldingsReqPercentage);
+    event MinAndMaxTradingFeeSet(uint _minTradingFee,uint _maxTradingFee);
+    event MinAndMaxInterestPeriodsSet(uint _minInterestPeriods,uint _maxInterestPeriods);
+
+
    /**
      * @dev Function for repaying a loan.
      * @param _tradeId The unique identifier for the trade.
@@ -144,30 +165,44 @@ address public exchange;
 TODO:Require min and max
 */
     function setMMR(uint _mmr,address _ammPool)external onlyDao(_ammPool){
+        require(_mmr >=minMMRLimit && _mmr <= maxMMRLimit,'MMR out of range');
         mmr[_ammPool] = _mmr;
+        emit MMRSet(_mmr,_ammPool);
     }
 
     function setMinLoan(uint _minLoan,address _ammPool)external onlyDao(_ammPool){
+        require(_minLoan >=minLoanLimit && _minLoan <= maxLoanLimit && _minLoan < maxLoan[_ammPool],'Min Loan out of range');
         minLoan[_ammPool] = _minLoan;
+        emit MinLoanSet(_minLoan,_ammPool);
     }
 
     function setMaxLoan(uint _maxLoan,address _ammPool)external onlyDao(_ammPool){
+        require(_maxLoan >=minLoanLimit && _maxLoan <= maxLoanLimit && _maxLoan > minLoan[_ammPool],'Max Loan out of range');
         maxLoan[_ammPool] = _maxLoan;
+        emit MaxLoanSet(_maxLoan,_ammPool);
     }
 
     function setMinHoldingsReqPercentage(uint _minHoldingsReqPercentage,address _ammPool)external onlyDao(_ammPool){
+        require(_minHoldingsReqPercentage >=minHoldingsReqPercentageLimit && _minHoldingsReqPercentage <= maxHoldingsReqPercentageLimit,'Min Holdings Req Percentage out of range');
         minHoldingsReqPercentage[_ammPool] = _minHoldingsReqPercentage;
+        emit MinHoldingsReqPercentageSet(_minHoldingsReqPercentage,_ammPool);
     }
 
     function setLoanInterestRate(uint _loanInterestRate,address _ammPool)external onlyDao(_ammPool){
+        require(_loanInterestRate >=minLoanInterestRateLimit && _loanInterestRate <= maxLoanInterestRateLimit,'Loan Interest Rate out of range');
         loanInterestRate[_ammPool] = _loanInterestRate;
+        emit LoanInterestRateSet(_loanInterestRate,_ammPool);
     }
 
     function setInterestPeriods(uint _interestPeriods,address _ammPool)external onlyDao(_ammPool){
+        require(_interestPeriods >=minInterestPeriodsLimit && _interestPeriods <= maxInterestPeriodsLimit,'Interest Periods out of range');
         interestPeriods[_ammPool] = _interestPeriods;
+        emit InterestPeriodsSet(_interestPeriods,_ammPool);
     }
     function setTradingFee(uint _tradingFee,address _ammPool)external onlyDao(_ammPool){
+        require(_tradingFee >=minTradingFeeLimit && _tradingFee <= maxTradingFeeLimit,'Trading Fee out of range');
         tradingFeeLoanPool[_ammPool] = _tradingFee;
+        emit TradingFeeSet(_tradingFee,_ammPool);
     }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -178,45 +213,60 @@ TODO:Require min and max
         require(_minInterestRate <= _maxInterestRate,'');
         minLoanInterestRateLimit = _minInterestRate;
         maxLoanInterestRateLimit = _maxInterestRate;
+        emit MinAndMaxInterestRateSet(_minInterestRate,_maxInterestRate);
     }
 
     function setMinAndMaxLoan(uint _minLoan,uint _maxLoan)external onlyTheseus{
         require(_minLoan <= _maxLoan,'');
         minLoanLimit = _minLoan;
         maxLoanLimit = _maxLoan;
+        emit MinAndMaxLoanSet(_minLoan,_maxLoan);
     }
 
     function setMinAndMaxMMR(uint _minMMR,uint _maxMMR)external onlyTheseus{
         require(_minMMR <= _maxMMR,'');
         minMMRLimit = _minMMR;
         maxMMRLimit = _maxMMR;
+        emit MinAndMaxMMRSet(_minMMR,_maxMMR);
     }
 
     function setMinAndMaxMinHoldingsReqPercentage(uint _minMinHoldingsReqPercentage,uint _maxMinHoldingsReqPercentage)external onlyTheseus{
         require(_minMinHoldingsReqPercentage <= _maxMinHoldingsReqPercentage,'');
         minHoldingsReqPercentageLimit = _minMinHoldingsReqPercentage;
         maxHoldingsReqPercentageLimit = _maxMinHoldingsReqPercentage;
+        emit MinAndMaxHoldingsReqPercentageSet(_minMinHoldingsReqPercentage,_maxMinHoldingsReqPercentage);
     }
     function setMinAndMaxTradingFee(uint _minTradingFee,uint _maxTradingFee)external onlyTheseus{
         require(_minTradingFee <= _maxTradingFee,'');
         minTradingFeeLimit = _minTradingFee;
         maxTradingFeeLimit = _maxTradingFee;
+        emit MinAndMaxTradingFeeSet(_minTradingFee,_maxTradingFee);
+    }
+    function setMinAndMaxInterestPeriods(uint _minInterestPeriods,uint _maxInterestPeriods)external onlyTheseus{
+        require(_minInterestPeriods <= _maxInterestPeriods,'');
+        minInterestPeriodsLimit = _minInterestPeriods;
+        maxInterestPeriodsLimit = _maxInterestPeriods;
+        emit MinAndMaxInterestPeriodsSet(_minInterestPeriods,_maxInterestPeriods);
     }
 
     
     /**
      * @dev Function to initialize a new AMM
      *  @param _amm The address of the AMM contract
+     * @param _ariadneDao The address of the DAO contract
      */
-    function initializeVamm(address _amm) public {
+    function initializeVamm(address _amm,address _ariadneDao) public onlyTheseus {
         // require(!isFrozen[_amm], "amm already initialized");
-        maxLoan[_amm] = 1000000000;
-        minLoan[_amm] = 1000000;
-        loanInterestRate[_amm] = 10000;
-        interestPeriods[_amm] = 2 hours;
-        mmr[_amm] = 50000;
-        minHoldingsReqPercentage[_amm] = 20000;
-        tradingFeeLoanPool[_amm] = 10000;
+        maxLoan[_amm] = maxLoanLimit;
+        minLoan[_amm] = minLoanLimit;
+        loanInterestRate[_amm] = minLoanInterestRateLimit;
+        interestPeriods[_amm] = minInterestPeriodsLimit;
+        mmr[_amm] = maxMMRLimit;
+        minHoldingsReqPercentage[_amm] = maxHoldingsReqPercentageLimit;
+        tradingFeeLoanPool[_amm] = maxTradingFeeLimit;
+        dao[_amm] = _ariadneDao;
+        emit LoanPoolInitialized(_amm,_ariadneDao,block.timestamp);
+        emit LoanPoolValues(_amm,minLoanLimit,maxLoanLimit,minLoanInterestRateLimit,minInterestPeriodsLimit,maxMMRLimit,maxHoldingsReqPercentageLimit,maxTradingFeeLimit);
     }
 
 }

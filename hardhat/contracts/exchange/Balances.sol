@@ -35,6 +35,11 @@ contract Balances {
 
 
   mapping(address => bool) public isAmm;
+
+
+  
+    event Deposit(address indexed user, uint amount);
+    event Withdraw(address indexed user, uint amount);
     /**
      * @dev Function for depositing USDC tokens into the contract.
      * @param _amount The amount of USDC tokens to deposit.
@@ -43,6 +48,7 @@ contract Balances {
         require(IERC20(Usdc).balanceOf(msg.sender) >= _amount, "not enough balance");
         require(IERC20(Usdc).transferFrom(msg.sender, address(this), _amount), 'transfer failed');
         availableBalance[msg.sender] += _amount;
+        emit Deposit(msg.sender, _amount);
     }
 
     /**
@@ -53,7 +59,9 @@ contract Balances {
         require(availableBalance[msg.sender] >= _amount, "not enough balance");
         IERC20(Usdc).transfer(msg.sender, _amount);
         availableBalance[msg.sender] -= _amount;
+        emit Withdraw(msg.sender, _amount);
     }
+
     
  
 
