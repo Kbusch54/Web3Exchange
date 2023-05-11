@@ -7,7 +7,9 @@ describe("StocksExample", function () {
   beforeEach(async () => {
     // Deploy contract
     const StocksExample = await ethers.getContractFactory("FakeOracle");
-    contract = await StocksExample.deploy(1000000);
+    //get signers
+    const [owner, addr1, addr2] = await ethers.getSigners();
+    contract = await StocksExample.deploy();
   });
 
   it("Get TSLA price securely", async function () {
@@ -15,25 +17,27 @@ describe("StocksExample", function () {
     const wrappedContract = WrapperBuilder.wrap(contract).usingDataService({
       dataServiceId: "redstone-stocks-demo",
       uniqueSignersCount: 1,
-      dataFeeds: ["TSLA","GOOG","META"],
+      dataFeeds: ["TSLA","META"],
     }, ["https://d33trozg86ya9x.cloudfront.net"]);
 
     // Interact with the contract (getting oracle value securely)
-    const tslaPriceFromContract = await wrappedContract.getLatestTslaPrice();
+    const inputTSLA = formatBytes32String("TSLA");
+    const tslaPriceFromContract = await wrappedContract.getStockPrice(inputTSLA);
     console.log({ tslaPriceFromContract });
     
-    const googPriceFromContract = await wrappedContract.getLatestGoogPrice();
-    console.log({ googPriceFromContract });
+    // const googPriceFromContract = await wrappedContract.getLatestGoogPrice();
+    // console.log({ googPriceFromContract });
 
-
-    const metaPriceFromContract = await wrappedContract.getLatestMetaPrice();
+    const inputMETA = formatBytes32String("META");
+    const metaPriceFromContract = await wrappedContract.getStockPrice(inputMETA);
     console.log({ metaPriceFromContract });
 
-    //make to bytes32
+    // make to bytes32
     
-    const input = formatBytes32String("GOOG");
+    // const input = formatBytes32String("META");
+    // console.log('input META: ',input );
 
-    const withInoput = await wrappedContract.getStockPrice(input);
-    console.log({ withInoput });
+    // const withInoput = await wrappedContract.getStockPrice(input);
+    // console.log({ withInoput });
 });
 });

@@ -57,8 +57,8 @@ contract Balances {
      */
     function withdraw(uint _amount) public {
         require(availableBalance[msg.sender] >= _amount, "not enough balance");
-        IERC20(Usdc).transfer(msg.sender, _amount);
         availableBalance[msg.sender] -= _amount;
+        IERC20(Usdc).transfer(msg.sender, _amount);
         emit Withdraw(msg.sender, _amount);
     }
 

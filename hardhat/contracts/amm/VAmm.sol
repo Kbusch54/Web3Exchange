@@ -144,8 +144,9 @@ contract VAmm {
     }
     function getIndexPriceFromOracle()internal{
         FakeOracle _oracle = FakeOracle(oracle);
-        uint _price = _oracle.price();
-        //uint _price = _oracle.getStockPrice(path)/100;
+        // uint _price = _oracle.price();
+        uint _price = _oracle.getStockPrice(path);
+        _price == 0 ? _price = indexPrice : _price/100; 
         indexPrice = _price;
     }
 
