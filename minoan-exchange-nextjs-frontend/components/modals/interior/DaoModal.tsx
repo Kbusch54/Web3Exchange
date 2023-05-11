@@ -8,7 +8,7 @@ interface Props {
 
 const DaoModal: React.FC<Props> = ({handleClose}) => {
     return (
-        <>
+        <div>
             <Typography id="modal-modal-title" variant="h6" component="h2">
                 DAO Purposal
             </Typography>
@@ -17,7 +17,7 @@ const DaoModal: React.FC<Props> = ({handleClose}) => {
                 <Button className="text-white bg-green-500 hover:scale-125 hover:bg-amber-500" onClick={handleClose}>Purpose</Button>
                 <Button className="text-white bg-blue-500 hover:scale-125 hover:bg-amber-500" onClick={handleClose}>Sign And Propose</Button>
             </div>
-        </>
+        </div>
     )
 }
 
