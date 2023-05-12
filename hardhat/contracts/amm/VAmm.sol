@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
-import "./FakeOracle.sol";
+import "./PriceFeed.sol";
 // import "../../node_modules/@openzeppelin/contracts/utils/math/SafeMath.sol";
 // import "./IVAmm.sol";
 // import "hardhat/console.sol";
@@ -143,7 +143,7 @@ contract VAmm {
         return indexPrice;
     }
     function getIndexPriceFromOracle()internal{
-        FakeOracle _oracle = FakeOracle(oracle);
+        PriceFeed _oracle = PriceFeed(oracle);
         // uint _price = _oracle.price();
         uint _price = _oracle.getStockPrice(path);
         _price == 0 ? _price = indexPrice : _price/100; 
