@@ -11,6 +11,7 @@ import "./PriceFeed.sol";
  */
 contract VAmm {
     using SafeMath for int;
+    address public theseusDao;
 
     bytes32 public path;
     uint public indexPrice;
@@ -407,5 +408,13 @@ contract VAmm {
      */
     function fixedToInt(int x) public pure returns (int y) {
         return x / (10 ** 8);
+    }
+    function setTheseusDao(address _theseusDao) external {
+        require(theseusDao == address(0), "Already set");
+        theseusDao = _theseusDao;
+    }
+    function setOracle(address _oracle) external {
+        require(msg.sender == theseusDao, "only theseus dao");
+        oracle = _oracle;
     }
 }

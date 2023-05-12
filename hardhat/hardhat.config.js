@@ -28,6 +28,6 @@ module.exports = {
     disambiguatePaths: false,
     runOnCompile: true,
     strict: true,
-    only: ['Exchange','Staking','LoanPool','VAmm',"Balances","VaultMain"],
+    only: ['Exchange','Staking','LoanPool','VAmm',"Balances","AriadneDAO","CreateAriadnes"],
   }
 }

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 pragma experimental ABIEncoderV2;
-import "../../node_modules/@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "../tokens/PoolTokens.sol";
 
     error NOT_OWNER();
@@ -46,12 +46,16 @@ contract TheseusDAO {
     mapping(uint => Proposal) public proposals;//id to proposal
     event ExecuteTransaction(
         address indexed executor,
-        address payable to,
-        uint256 value,
+        uint256 nonce,
+        bytes result
+    );
+     event ProposalMade(
+        address indexed proposer,
+        address indexed to,
         bytes data,
         uint256 nonce,
-        bytes32 hash,
-        bytes result
+        bytes32 transactionHash,
+        uint256 timeStamp
     );
     modifier onlyOwner() {
         if (PoolTokens(pt).balanceOf(msg.sender,0)<=0 ) {
@@ -93,7 +97,7 @@ contract TheseusDAO {
         insuranceFundMin = _insuranceFundMin;
         votesNeededPercentage = _votesNeededPercentage;
     }
-    function newProposal(address payable to,bytes memory data)public onlyOwner(){
+    function newProposal(address payable to,bytes calldata data)public onlyOwner(){
         //emit event
         if(nonceUsed[currentId]) {
             currentId++;
@@ -110,7 +114,10 @@ contract TheseusDAO {
             proposalTime:block.timestamp,
             isProposalPassed:false
         });
-    }
+        bytes32 transactionHash = getTransactionHash(_id,to,0,data);
+        emit ProposalMade(msg.sender, to,data,_id,transactionHash,block.timestamp);
+        }
+    
 
     function isTokenHolder(address _signer) public view returns(bool) { 
         return PoolTokens(pt).balanceOf(_signer,0)>0;
@@ -142,14 +149,15 @@ contract TheseusDAO {
         votesNeededPercentage = newVotesNeededPercentage;
         //emit event
     }
-
-    function executeTransaction(uint _id,address payable to,uint256 value,bytes calldata data,bytes[] calldata signatures) public onlyOwner checkTime(_id) returns (bytes memory) {
-        bytes32 _hash = getTransactionHash(_id, to, value, data);
-        nonceUsed[_id] = true;
-        uint256 _votes;
+     function checkSignaturesAndVotes(
+        bytes[] calldata _signatures,
+        bytes32 _hash
+    ) internal view  {
+        uint _votes;
         address duplicateGuard;
-        for (uint256 i = 0; i < signatures.length; ) {
-            address recovered = recover(_hash, signatures[i]);
+        for (uint256 i = 0; i < _signatures.length; ) {
+            address recovered = recover(_hash, _signatures[i]);
+
             if (recovered <= duplicateGuard) {
                 revert DUPLICATE_OR_UNORDERED_SIGNATURES();
             }
@@ -164,29 +172,30 @@ contract TheseusDAO {
                 ++i;
             }
         }
-
-        if (_votes < votesNeededPercentage) {
+         if (_votes < votesNeededPercentage) {
             revert INSUFFICIENT_VALID_SIGNATURES();
         }
+    }
 
+    function executeTransaction(uint _id,address payable to,uint256 value,bytes calldata data,bytes[] calldata signatures) public onlyOwner checkTime(_id) returns (bytes memory) {
+        bytes32 _hash = getTransactionHash(_id, to, value, data);
+        nonceUsed[_id] = true;
+       
+        checkSignaturesAndVotes(signatures, _hash);
         (bool success, bytes memory result) = to.call{value: value}(data);
         if (!success) {
             revert TX_FAILED();
         }
 
-        // emit ExecuteTransaction(
-        //     msg.sender,
-        //     to,
-        //     value,
-        //     data,
-        //     _id,
-        //     _hash,
-        //     result
-        // );
+        emit ExecuteTransaction(
+            msg.sender,
+            _id,
+            result
+        );
         return result;
     }
 
-function getTransactionHash(uint256 _nonce,address to, uint256 value,bytes calldata data) public view returns (bytes32) {
+    function getTransactionHash(uint256 _nonce,address to, uint256 value,bytes calldata data) public view returns (bytes32) {
         return
             keccak256(
                 abi.encodePacked(
@@ -198,17 +207,14 @@ function getTransactionHash(uint256 _nonce,address to, uint256 value,bytes calld
                 )
             );
     }
-       function recover(bytes32 _hash, bytes calldata _signature)
+    function recover(bytes32 _hash, bytes calldata _signature)
         public
         pure
-        returns (address)
-    {
+        returns (address){
         return _hash.toEthSignedMessageHash().recover(_signature);
     }
 
-    receive() external payable {
-        // emit Deposit(msg.sender, msg.value, address(this).balance);
-    }
+    receive() external payable {}
 
 
 }

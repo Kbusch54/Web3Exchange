@@ -9,12 +9,25 @@ const hre = require("hardhat");
 async function main() {
 
 
-  const Oracle = await hre.ethers.getContractFactory("PriceFeed");
-  const oracle = await Oracle.deploy();
+  // const Oracle = await hre.ethers.getContractFactory("PriceFeed");
+  // const oracle = await Oracle.deploy();
 
-  await oracle.deployed();
+  // await oracle.deployed();
+  // console.log(
+  //   `Oracle deployed to ${oracle.address}`
+  // );
+  const Payload = await hre.ethers.getContractFactory("Payload");
+  const payload = await Payload.deploy();
+  await payload.deployed();
   console.log(
-    `Oracle deployed to ${oracle.address}`
+    `Payload deployed to ${payload.address}`
+  );
+  const Caller = await hre.ethers.getContractFactory("CallerContract");
+  const caller = await Caller.deploy();
+
+  await caller.deployed();
+  console.log(
+    `Caller deployed to ${caller.address}`
   );
 }
 
