@@ -58,6 +58,12 @@ address public exchange;
     event MinAndMaxTradingFeeSet(uint _minTradingFee,uint _maxTradingFee);
     event MinAndMaxInterestPeriodsSet(uint _minInterestPeriods,uint _maxInterestPeriods);
 
+    //Balances Events
+    event PayDebt(address indexed amm, uint amount);
+    event AddDebt(address indexed amm, uint amount);
+    event PayInterest(bytes tradeId, uint lastPayed);
+    event BorrowAmount(bytes tradeId,address indexed amm, uint amount);
+    event RepayLoan(bytes tradeId,address indexed amm, uint amount);
 
    /**
      * @dev Function for repaying a loan.
@@ -71,6 +77,7 @@ address public exchange;
         (uint _full,)=interestOwed(_tradeId,_ammPool);
         require( _full==0,'Need To pay interest first');
         borrowedAmount[_tradeId] -= _amount;
+        emit RepayLoan(_tradeId,_ammPool,_amount);
         return true;
     }
 
@@ -95,6 +102,7 @@ address public exchange;
         _ex.subPoolAvailableUsdc(_ammPool,_newLoan);
         loanInterestLastPayed[_tradeId] = block.timestamp;
         interestForTrade[_tradeId] = loanInterestRate[_ammPool];
+        emit BorrowAmount(_tradeId,_ammPool,_newLoan); 
         return true;
     }
       /**
@@ -125,6 +133,7 @@ address public exchange;
      */
     function payInterest(bytes memory _tradeId)external onlyExchange returns(bool){
         loanInterestLastPayed[_tradeId] = block.timestamp;
+        emit PayInterest(_tradeId,block.timestamp);
         return true;
     }
 
@@ -143,6 +152,7 @@ address public exchange;
             return (_fee,_fee);
         }
         debt[_amm] -= _fee;
+        emit PayDebt(_amm,_fee);
         return (0,_fee);
     }
 
@@ -151,9 +161,11 @@ address public exchange;
         if(debt[_ammPool] == 0){
             Exchange(exchange).unFreezeStaking(_ammPool);
         }
+        emit PayDebt(_ammPool,_amount);
     }
     function addDebt(uint _amount,address _ammPool)external onlyExchange{
         debt[_ammPool] += _amount;
+        emit AddDebt(_ammPool,_amount);
     }
 
     
@@ -161,9 +173,7 @@ address public exchange;
 ////////////////////////////////////////////////////Dao Functions////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/*
-TODO:Require min and max
-*/
+
     function setMMR(uint _mmr,address _ammPool)external onlyDao(_ammPool){
         require(_mmr >=minMMRLimit && _mmr <= maxMMRLimit,'MMR out of range');
         mmr[_ammPool] = _mmr;

@@ -34,7 +34,7 @@ describe("depositAndStake", function () {
     const indexPrice = parseUnits("370", 6);
     const oracle = await FakeOracle.deploy(indexPrice);
 
-    const path = "TSLA";
+    const path = formatBytes32String("TSLA");
     const quoteAsset = parseUnits("100", 2);
     const indexPricePeriod =  time.duration.hours(2);
     console.log("indexPricePeriod", indexPricePeriod);

@@ -30,6 +30,11 @@ contract Staking {
         require(msg.sender==exchange,"Not a loan pool");
         _;
     }
+    event Stake(address user,uint usdcAmount, uint tokenId,address ammPool);
+    event Unstake(address user,uint usdcAmount, uint tokenId,address ammPool);
+    event AddTokenToPool(address ammPool,uint tokenId);
+    event FrozenStake(address ammPool);
+    event UnFrozenStake(address ammPool);
    
  /**
      * @dev Function for staking usdc in the loan pool.
@@ -52,13 +57,11 @@ contract Staking {
             ),
             "Failed to mint tokens "
         );
-        //check if dao 
-        //if dao add avaible balance to dao check if DAO
-        //else add to pool
+
+        emit Stake(msg.sender,_amount,ammPoolToTokenId[_ammPool],_ammPool);
      
         ex.addPoolTotalUsdcSupply(_ammPool, _amount);
         ex.addPoolAvailableUsdc(_ammPool, _amount);
-        //event stake(address _user,uint _amount,uint _porportion);
     }
 
  /**
@@ -89,10 +92,10 @@ contract Staking {
             poolTokCon.burn(msg.sender, ammPoolToTokenId[_ammPool], _amount),
             "Failed to burn tokens"
         );
+        emit Unstake(msg.sender,_amount,ammPoolToTokenId[_ammPool],_ammPool);
         ex.subPoolAvailableUsdc(_ammPool, _amount);
         ex.subPoolTotalUsdcSupply(_ammPool, _amount);
         ex.addAvailableBalance(msg.sender, _amount);
-        //event unstake(address _user,uint _amount,uint _porportion);
     }
 
 
@@ -105,16 +108,20 @@ contract Staking {
         );
         poolCount++;
         ammPoolToTokenId[_ammPool] = poolCount;
+        emit AddTokenToPool(_ammPool,poolCount);
     }
 
 
 
     function freeze(address _ammPool) public OnlyExchange {
         isFrozen[_ammPool] = true;
+        emit FrozenStake(_ammPool);
     }
     function unFreeze(address _ammPool) public OnlyExchange {
         isFrozen[_ammPool] = false;
+        emit UnFrozenStake(_ammPool);
     }
+
     function setExchange(address _exchange) public {
         require(exchange == address(0), "Already set");
         exchange = _exchange;

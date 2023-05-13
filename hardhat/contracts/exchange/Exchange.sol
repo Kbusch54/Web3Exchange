@@ -25,15 +25,51 @@ contract Exchange is VaultMain {
     ) VaultMain(_usdc, _staking,_theseusDao) {
         
     }
+    event NewPosition(
+        bytes indexed tradeId,
+        address indexed trader,
+        address indexed amm,
+        int side,
+        uint timeStamp
+    );
+    event OpenPosition(
+        bytes indexed tradeId,
+        uint collateral,
+        uint loanAmt,
+        int positionSize,
+        uint entryPrice,
+        uint lastFundingRate
+    );
+    event AddLiquidity(
+        bytes indexed tradeId,
+        uint amount,
+        uint newLoan,
+        int addiotionalPositionSize
+    );
+    event RemoveLiquidity(
+        bytes indexed tradeId,
+        int positionSizeRemoved,
+        int amountOwed,
+        int usdcReturned
+    );
+    event ClosePosition(
+        bytes indexed tradeId,
+        uint closePrice,
+        uint closeTime,
+        int pnl
+    );
+    event Liquidated(
+        bytes indexed tradeId
+    );
 
     /** 
-* @dev Function to open a leveraged position
-* @param _amm The address of the AMM contract
-* @param _collateral The amount of collateral to deposit
-* @param _leverage The leverage to apply
-* @param _side The side of the trade (1 for long, -1 for short)
-@return A boolean value indicating whether the operation succeeded
-*/
+    * @dev Function to open a leveraged position
+    * @param _amm The address of the AMM contract
+    * @param _collateral The amount of collateral to deposit
+    * @param _leverage The leverage to apply
+    * @param _side The side of the trade (1 for long, -1 for short)
+    @return A boolean value indicating whether the operation succeeded
+    */
     function openPosition(address _amm, uint _collateral,uint _leverage,int _side) public returns (bool) {
         require(_side == 1 || _side == -1);
         require(_collateral > 0);
@@ -48,6 +84,7 @@ contract Exchange is VaultMain {
             block.timestamp,
             _side
         );
+        emit NewPosition(_tradeId, msg.sender, _amm, _side, block.timestamp);
         tradeIdList.push(_tradeId);
         LoanPool _pool=LoanPool(loanPool);
         uint _loanAmt = _collateral * _leverage;
@@ -73,6 +110,14 @@ contract Exchange is VaultMain {
             .openPosition(_loanAmt, _side);
         isActive[_tradeId] = true;
         tradeIds[msg.sender].push(_tradeId);
+        emit OpenPosition(
+            _tradeId,
+            _collateral,
+            _loanAmt,
+            _position.positionSize,
+            _position.entryPrice,
+            _position.lastFundingRate
+        );
         return true;
     }
 
@@ -88,7 +133,6 @@ contract Exchange is VaultMain {
         Position memory _position = positions[_tradeId];
         require(isActive[_tradeId]);
         require(msg.sender == _position.trader || msg.sender == address(this));
-        console.log("closeOutPosition");
         (int _usdcAmt,uint _totalAmount) = closePosition(_tradeId);
         tradeCollateral[_tradeId] =0;
         isActive[_tradeId] = false;
@@ -133,6 +177,7 @@ contract Exchange is VaultMain {
         );
         _position.positionSize += additionalPositionSize;
         _position.loanedAmount += _newLoan;
+        emit AddLiquidity(_tradeId, _addedCollateral, _newLoan, additionalPositionSize);
         return true;
     }
      /**
@@ -161,34 +206,41 @@ contract Exchange is VaultMain {
         _position.positionSize -= _positionSize;
         _position.loanedAmount -= uint(_amountOwed);
         tradeBalance[_tradeId] -= uint(_amountOwed);
+        emit RemoveLiquidity(_tradeId, _positionSize, _amountOwed, _usdcAmt);
         return true;
     }
     function closePosition(bytes memory _tradeId)internal returns(int,uint){
          Position memory _position = positions[_tradeId];
         (uint _collateral, uint _interest, int _ffr,,uint _loanAmount) = ExchangeViewer(exchangeViewer).getAllValues(_tradeId);
                int _usdcAmt;
-          (, _usdcAmt) = VAmm(_position.amm).closePosition(_position.positionSize, _position.side);
+               uint _closePrice;
+          ( _closePrice, _usdcAmt) = VAmm(_position.amm).closePosition(_position.positionSize, _position.side);
         int _payment = _ffr + int(_interest);
         poolOutstandingLoans[_position.amm] -= _loanAmount;
         uint _totalAmount;
         tradeCollateral[_tradeId] += uint(_usdcAmt);
+        emit ClosePosition(_tradeId, _closePrice,block.timestamp, int(_collateral)+_usdcAmt- _payment + int(_loanAmount));
         if(int(_collateral)+_usdcAmt>= _payment + int(_loanAmount)){
+            //made profit
             _payments(_tradeId, _position.amm);
             require(LoanPool(loanPool).repayLoan(_tradeId, _loanAmount, _position.amm));
             uint _amountToPay = uint(_usdcAmt)+_collateral- _loanAmount;
             _totalAmount = checkPoolUsdc( _amountToPay,_position.trader,_position.amm);
         }else if(int(_collateral)+_usdcAmt>= _payment){
+            //made enough to payments but not enough to pay loan
             _payments(_tradeId,_position.amm);
             uint _remaining =_loanAmount - tradeCollateral[_tradeId];
             require(LoanPool(loanPool).repayLoan(_tradeId, _remaining, _position.amm));
             _totalAmount = checkPoolUsdc( _remaining,address(0),_position.amm);
         }else{
+            //pay what you can
             require(LoanPool(loanPool).repayLoan(_tradeId, uint(_usdcAmt), _position.amm));
             uint _amountToPay = _loanAmount>tradeCollateral[_tradeId]? _loanAmount -tradeCollateral[_tradeId]:tradeCollateral[_tradeId]-_loanAmount;
             _totalAmount = checkPoolUsdc( _amountToPay,address(0),_position.amm);
         }
         tradeCollateral[_tradeId] =0;
         tradeBalance[_tradeId] =0;
+        isActive[_tradeId] = false;
         return (_usdcAmt,_totalAmount);
     }
 
@@ -214,13 +266,9 @@ contract Exchange is VaultMain {
     }
    
    function liquidate(bytes memory _tradeId) public {
-        (
-            address _user,
-            address _amm,
-            ,
-        ) = decodeTradeId(_tradeId);
         require(ExchangeViewer(exchangeViewer).checkLiquidiation(_tradeId));
         closePosition(_tradeId);
+        emit Liquidated(_tradeId);
     } 
 
     function freezeStaking(address _amm)public {

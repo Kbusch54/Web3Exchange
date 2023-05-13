@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 import "./PriceFeed.sol";
+import './AmmViewer.sol';
 // import "../../node_modules/@openzeppelin/contracts/utils/math/SafeMath.sol";
 // import "./IVAmm.sol";
 // import "hardhat/console.sol";
@@ -11,7 +12,7 @@ import "./PriceFeed.sol";
  */
 contract VAmm {
     using SafeMath for int;
-    address public theseusDao;
+    AmmViewer public  ammViewer;
 
     bytes32 public path;
     uint public indexPrice;
@@ -51,8 +52,9 @@ contract VAmm {
 
     address public exchange;
     address public oracle;
-    constructor(address _oracle) {
+    constructor(address _oracle,address _ammViewer) {
         oracle = _oracle;
+        ammViewer = AmmViewer(_ammViewer);
     }
 
     LiquidityChangedSnapshot[] public liquidityChangedSnapshots;
@@ -66,13 +68,13 @@ contract VAmm {
      * @param _exchange Address of the exchange contract.
      */
     function init(
-        string memory _path,
+        bytes32 _path,
         uint _indexPrice,
         uint _quoteAssetAmount,
         uint16 _indexPricePeriod,
         address _exchange
     ) external {
-        path = keccak256(abi.encodePacked(_path));
+        path = _path;
         indexPrice = _indexPrice;
         // k= indexPrice*_quoteAssetAmount*100;
         // uint _baseAsset  = k/_quoteAssetAmount;
@@ -116,6 +118,8 @@ contract VAmm {
                 finalIndexPrice: 0
             })
         );
+        ammViewer.emitUnFreeze();
+        ammViewer.emitNewSnappshot(liquidityChangedSnapshots.length-1);
     }
 
     /**
@@ -144,11 +148,8 @@ contract VAmm {
         return indexPrice;
     }
     function getIndexPriceFromOracle()internal{
-        PriceFeed _oracle = PriceFeed(oracle);
-        // uint _price = _oracle.price();
-        uint _price = _oracle.getStockPrice(path);
-        _price == 0 ? _price = indexPrice : _price/100; 
-        indexPrice = _price;
+        uint _newPrice = ammViewer.getPriceValue(path);
+        indexPrice = _newPrice/100;
     }
 
     /**
@@ -258,7 +259,6 @@ contract VAmm {
             _avgEntryPrice > 0 ? _avgEntryPrice : _avgEntryPrice * -1
         );
         absolutePositionSize += uint(positionSize* _side);
-        // console.log("absolutePositionSize", absolutePositionSize);
         lastSnapshot.quoteAssetReserve = _newQuoteAsset;
         lastSnapshot.baseAssetReserve = uint(_newBaseAsset);
         lastSnapshot.cumulativeNotional += int(totalCollateral) * _side;
@@ -275,6 +275,8 @@ contract VAmm {
         ] = lastSnapshot;
         updateFutureFundingRate();
         lastFFRIndex = liquidityChangedSnapshots.length - 1;
+        ammViewer.emitAmmOpenPosition(positionSize);
+        return (positionSize, avgEntryPrice, openValue,lastFFRIndex);
     }
 
     /**
@@ -296,12 +298,12 @@ contract VAmm {
         //check if snapshot time is over
         if(lastSnapshot.timestamp + indexPricePeriod >= block.timestamp -15 minutes && lastSnapshot.timestamp + indexPricePeriod <= block.timestamp +15 minutes){
             adjustFundingPaymentsAll();
-            // console.log("adjusting index", indexPrice);
         }else{
             lastSnapshot.fundingRate = _newFundingRate;
             liquidityChangedSnapshots[
                 liquidityChangedSnapshots.length - 1
             ] = lastSnapshot;
+            ammViewer.emitPriceChange(liquidityChangedSnapshots.length - 1, indexPrice, lastSnapshot.baseAssetReserve, lastSnapshot.quoteAssetReserve, lastSnapshot.fundingRate);
         }
         return _newFundingRate;
     }
@@ -349,7 +351,7 @@ contract VAmm {
         ] = lastSnapshot;
 
         exitPrice = uint(intToFixed(int(usdcAmt)) / (positionSize));
-
+        ammViewer.emitAmmClosePosition(positionSize);
         updateFutureFundingRate();
         absolutePositionSize==0? isFrozen = true : isFrozen = false;
     }
@@ -389,6 +391,7 @@ contract VAmm {
         lastSnapshot.finalIndexPrice = 0;
         liquidityChangedSnapshots.push(lastSnapshot);
         lastFundingRateIndex = liquidityChangedSnapshots.length - 1;
+        ammViewer.emitNewSnappshot(lastFundingRateIndex);
         updateFutureFundingRate();
     }
 
@@ -409,12 +412,9 @@ contract VAmm {
     function fixedToInt(int x) public pure returns (int y) {
         return x / (10 ** 8);
     }
-    function setTheseusDao(address _theseusDao) external {
-        require(theseusDao == address(0), "Already set");
-        theseusDao = _theseusDao;
-    }
+
     function setOracle(address _oracle) external {
-        require(msg.sender == theseusDao, "only theseus dao");
+        require(msg.sender == address(ammViewer), "only theseus dao");
         oracle = _oracle;
     }
 }

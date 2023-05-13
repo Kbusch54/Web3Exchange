@@ -33,6 +33,18 @@ contract VaultMain is Balances {
         _;
     }
 
+
+    event AddCollateral(
+        bytes tradeId,
+        uint amount
+    );
+
+    event RemoveCollateral(
+        bytes tradeId,
+        uint amount
+    );
+    event PayInterest(bytes tradeId, uint amount,uint amountToPool);
+    event FfrAdjust(bytes tradeId, int amount);
 function _onlyStaking() private view {
         require(msg.sender == staking,'not staking');
     }
@@ -93,6 +105,7 @@ function _onlyStaking() private view {
         require(availableBalance[msg.sender] >= _collateral);
         availableBalance[msg.sender] -= _collateral;
         tradeCollateral[_tradeId] += _collateral;
+        emit AddCollateral(_tradeId, _collateral);
         return true;
     }
 
@@ -112,7 +125,7 @@ function _onlyStaking() private view {
         require(tradeCollateral[_tradeId] >= _collateralToRemove);
         tradeCollateral[_tradeId] -= _collateralToRemove;
         availableBalance[msg.sender] += _collateralToRemove;
-
+        emit RemoveCollateral(_tradeId, _collateralToRemove);
         return true;
     }
 
@@ -131,6 +144,7 @@ function _onlyStaking() private view {
         positions[_tradeId].collateral -= _fullInterest;
         poolAvailableUsdc[_amm] += _toPools;
         poolTotalUsdcSupply[_amm] += _toPools;
+        emit PayInterest(_tradeId, _fullInterest,_toPools);
         _toPools == _fullInterest ? () :payDebt(_toPools,_amm);
         require(LoanPool(loanPool).payInterest(_tradeId));
         return true;
@@ -164,6 +178,7 @@ function _onlyStaking() private view {
             poolTotalUsdcSupply[_amm] += _ffrCal;
             positions[_tradeId].lastFundingRate = _lastFFR;
         }
+            emit FfrAdjust(_tradeId, _ffrToBePayed);
         return true;
     }
     function getTradeIdList() public view returns (bytes[] memory) {
@@ -172,6 +187,7 @@ function _onlyStaking() private view {
     function payDebt(uint _amount,address _amm) internal {
         LoanPool(loanPool).subDebt(_amount,_amm);
         availableBalance[theseusDao] += _amount;
+        
     }
     /**
     *@dev Function to decode a tradeId

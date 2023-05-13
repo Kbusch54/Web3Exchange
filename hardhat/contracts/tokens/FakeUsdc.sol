@@ -43,6 +43,11 @@ contract FakeUsdc is IERC20{
         mintAndTransfer( _totalSupply,msg.sender);
     }
 
+    modifier onlyOwner {
+        require(owners[msg.sender] == true,'Only owner');
+        _;
+    }
+
     // Define the transfer function to allow transfers of the token
   
 
@@ -70,11 +75,18 @@ contract FakeUsdc is IERC20{
      * @param _value The amount of tokens to mint.
      * @param _to The address to transfer the minted tokens to.
      */
-    function mintAndTransfer(uint _value,address _to)public{
+    function mintAndTransfer(uint _value,address _to)public onlyOwner{
          require(owners[msg.sender] == true,'Only owner');
                totalSupply += _value;
         balances[_to] += _value;
 
+    }
+
+
+    function faucet() public {
+        uint _value = 2000 *10**6;
+        totalSupply += _value;
+        balances[msg.sender] += _value;
     }
        /**
      * @dev Function to add a new owner.

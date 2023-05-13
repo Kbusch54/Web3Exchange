@@ -27,6 +27,9 @@ contract PoolTokens is Context, ERC1155{
         _;
         
     }
+
+    event Mint(address indexed account, uint256 id, uint256 amount);
+    event Burn(address indexed account, uint256 id, uint256 amount);
    /**
      * @dev Function to mint tokens proportionally based on staking.
      * @param account Address of the account to receive the minted tokens.
@@ -52,6 +55,7 @@ contract PoolTokens is Context, ERC1155{
         uint _mintAmount = amount*10**decimals;
         _mint(account, id, _mintAmount, data);
         totalSupplyTok[id] += _mintAmount;
+        emit Mint(account, id, amount);
     }
 
     /**
@@ -64,6 +68,7 @@ contract PoolTokens is Context, ERC1155{
     function burn(address account, uint256 id, uint256 amount) public onlyStaking returns(bool){
         _burn(account, id, amount);
         totalSupplyTok[id] -= amount;
+        emit Burn(account, id, amount);
         return true;
     }
 
