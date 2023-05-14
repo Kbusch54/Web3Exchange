@@ -129,8 +129,10 @@ contract TheseusDAO {
         uint _totalSupply = getTotalSupply();
 
         if (_totalVotes > maxVotingPower) {
+            console.log("inside if");
             _totalVotes = maxVotingPower;
         }else if(_totalVotes < minVotingPower) {
+            console.log("inside else if");
             return 0;
         }
         if(_totalVotes * 10**4<_totalSupply){

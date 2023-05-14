@@ -2,7 +2,7 @@ const { WrapperBuilder } = require("@redstone-finance/evm-connector");
 const { formatBytes32String } = require("ethers/lib/utils");
 const sdk = require("redstone-sdk");
 const { expect,chai } = require("chai");
-const theseusABI = require("../artifacts/contracts/daos/TheseusDAO.sol/TheseusDAO.json");
+// const theseusDaoAbi = require("../artifacts/contracts/daos/TheseusDAO.sol/TheseusDAO.json");
 const { ethers } = require("ethers");
 const hre = require("hardhat");
 const {
@@ -32,7 +32,7 @@ describe("Testing Full deployment", function () {
     const Theseus = await hre.ethers.getContractFactory('TheseusDAO');
     //votingTime, maxVotingPower, minVotingPower,InsuranceFund, votesNeededePercentage
     const votingTime = time.duration.hours(2);
-    const maxVotingPower = 100000000000000;
+    const maxVotingPower = parseUnits("100000000", 20);
     const minVotingPower = 10000;
     const InsuranceFund = ethers.utils.parseUnits("250000", 6);
     const votesNeededePercentage = 7500;//75%
@@ -269,24 +269,758 @@ it('should stake and allow theseus dao vote',async function(){
 
     const newVotesNeededPercentage = 9500; // Example value
 
-    const transaction = await theseus.populateTransaction.updateSignaturesRequired(newVotesNeededPercentage);
-    console.log('transaction',transaction);
+    const ABI = [
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "_votingTime",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "_maxVotingPower",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "_minVotingPower",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "_insuranceFundMin",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "_votesNeededPercentage",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "constructor"
+        },
+        {
+          "inputs": [],
+          "name": "DUPLICATE_OR_UNORDERED_SIGNATURES",
+          "type": "error"
+        },
+        {
+          "inputs": [],
+          "name": "INSUFFICIENT_VALID_SIGNATURES",
+          "type": "error"
+        },
+        {
+          "inputs": [],
+          "name": "NOT_OWNER",
+          "type": "error"
+        },
+        {
+          "inputs": [],
+          "name": "NOT_SELF",
+          "type": "error"
+        },
+        {
+          "inputs": [],
+          "name": "NOT_STAKING",
+          "type": "error"
+        },
+        {
+          "inputs": [],
+          "name": "TIME_EXPIRED",
+          "type": "error"
+        },
+        {
+          "inputs": [],
+          "name": "TX_FAILED",
+          "type": "error"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "executor",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "nonce",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "bytes",
+              "name": "result",
+              "type": "bytes"
+            }
+          ],
+          "name": "ExecuteTransaction",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "proposer",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "to",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "bytes",
+              "name": "data",
+              "type": "bytes"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "nonce",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "bytes32",
+              "name": "transactionHash",
+              "type": "bytes32"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "timeStamp",
+              "type": "uint256"
+            }
+          ],
+          "name": "ProposalMade",
+          "type": "event"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_pt",
+              "type": "address"
+            }
+          ],
+          "name": "addPoolTokens",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_staking",
+              "type": "address"
+            }
+          ],
+          "name": "addStaking",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_tokenHolder",
+              "type": "address"
+            }
+          ],
+          "name": "addTokenHolder",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "currentId",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "_id",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address payable",
+              "name": "to",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "value",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bytes",
+              "name": "data",
+              "type": "bytes"
+            },
+            {
+              "internalType": "bytes[]",
+              "name": "signatures",
+              "type": "bytes[]"
+            }
+          ],
+          "name": "executeTransaction",
+          "outputs": [
+            {
+              "internalType": "bytes",
+              "name": "",
+              "type": "bytes"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "getCurrentTokenHolders",
+          "outputs": [
+            {
+              "internalType": "address[]",
+              "name": "",
+              "type": "address[]"
+            },
+            {
+              "internalType": "uint256[]",
+              "name": "",
+              "type": "uint256[]"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_signer",
+              "type": "address"
+            }
+          ],
+          "name": "getProportionOfVotes",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "getTotalSupply",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "_nonce",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "to",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "value",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bytes",
+              "name": "data",
+              "type": "bytes"
+            }
+          ],
+          "name": "getTransactionHash",
+          "outputs": [
+            {
+              "internalType": "bytes32",
+              "name": "",
+              "type": "bytes32"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "insuranceFundMin",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "name": "isProposalPassed",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_signer",
+              "type": "address"
+            }
+          ],
+          "name": "isTokenHolder",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address payable",
+              "name": "to",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes",
+              "name": "data",
+              "type": "bytes"
+            }
+          ],
+          "name": "newProposal",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "name": "nonceUsed",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "name": "proposalTime",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "name": "proposals",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "id",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "proposer",
+              "type": "address"
+            },
+            {
+              "internalType": "address payable",
+              "name": "to",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes",
+              "name": "data",
+              "type": "bytes"
+            },
+            {
+              "internalType": "bytes",
+              "name": "result",
+              "type": "bytes"
+            },
+            {
+              "internalType": "uint256",
+              "name": "votesFor",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "proposalTime",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bool",
+              "name": "isProposalPassed",
+              "type": "bool"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "pt",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32",
+              "name": "_hash",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes",
+              "name": "_signature",
+              "type": "bytes"
+            }
+          ],
+          "name": "recover",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "pure",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "staking",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "name": "tokenHolders",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "name": "totalVotes",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_pt",
+              "type": "address"
+            }
+          ],
+          "name": "updatePoolTokens",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "newVotesNeededPercentage",
+              "type": "uint256"
+            }
+          ],
+          "name": "updateSignaturesRequired",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_staking",
+              "type": "address"
+            }
+          ],
+          "name": "updateStaking",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "name": "votesAgainst",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "name": "votesFor",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "votesNeededPercentage",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "votingTime",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "stateMutability": "payable",
+          "type": "receive"
+        }
+      ]
 
-  
-    await theseus.newProposal(transaction.to,transaction.data);
+    const getTransactionHash = (_nonce, to, value, data, address) => {
+        return ethers.utils.solidityKeccak256(
+          ["address", "uint256", "address", "uint256", "bytes"],
+          [address, _nonce, to, value, data]
+        );
+      };
+
+
+      const getFunctionCallData = (
+        methodName,
+        votesNeeded
+      ) => {
+        let iface = new ethers.utils.Interface(ABI);
+      
+        return iface.encodeFunctionData(methodName, [
+          votesNeeded
+        ]);
+      };
+
+const getMethodNameHash = (
+  votesNeeded,
+  nonce,
+  methodName,
+  multiAddress
+) => {
+  let value = "0x0";
+
+  let callData = getFunctionCallData(
+    methodName,
+    votesNeeded
+      );
+  return getTransactionHash(
+    nonce,
+    multiAddress,
+    value,
+    callData,
+    multiAddress,
+  );
+};
+
+// const transactionhash = getMethodNameHash(newVotesNeededPercentage, 0, "updateSignaturesRequired", theseus.address);
+const callData = getFunctionCallData('updateSignaturesRequired', newVotesNeededPercentage);
+      console.log('callData',callData);
+    // console.log('transaction hash',transactionhash);
+    const decodeCallData = (calldata, value) => {
+        const data = calldata.toString();
+        //  ethers.BigNum
+      
+        let val = parseInt(value);
+      
+        const iface = new ethers.utils.Interface(ABI);
+        let decodedData = iface.parseTransaction({
+          data: data,
+          value: val,
+        });
+        return decodedData;
+      };
+      const decodeTransaction = (methodName, transactionCalldata) => {
+        let iface = new ethers.utils.Interface(ABI);
+        return iface.decodeFunctionData(methodName, transactionCalldata);
+      };
+      const calldatat = decodeTransaction("updateSignaturesRequired", callData);
+        console.log('calldatat',calldatat);
+
+        // const signature = await owner.signMessage(callData);
+
+    await theseus.newProposal(theseus.address,callData);
     const proposal = await theseus.callStatic.proposals(0);
     console.log('proposal',proposal);
-    console.log('owner address: ',owner.address);
-    const hash = ethers.utils.keccak256(transaction.data);
-    const trasnactionHash = await theseus.callStatic.getTransactionHash(0,transaction.to,0,transaction.data);
-    const signature = await owner.signMessage(trasnactionHash);
-      console.log('signature',signature);
-      console.log('hash',hash);
-        console.log('transaction hash',trasnactionHash);
-      const verified = await theseus.callStatic.recover(trasnactionHash, signature);
-        console.log('verified',verified);
-    const signatures = [signature];
-    // await theseus.executeTransaction(0,theseus.address,0,encodedFunctionCall.data,signatures);
+
+    const sign = async(hash) => {
+        const signature = await owner.provider.send("personal_sign", [hash, owner.address])
+        return signature;
+    }
+    const transactionHash  = getTransactionHash(0,theseus.address,0,callData,theseus.address)
+    const signature = await sign(transactionHash);
+    console.log('signature',signature);
+    let signatures = [signature];
+    await theseus.executeTransaction(0,theseus.address,0,callData,signatures);
+  
+    //     console.log('transaction hash',trasnactionHash);
+    //   const verified = await theseus.callStatic.recover(transactionHash, signature);
+    //     console.log('verified',verified);
+
     // const postProposal = await theseus.callStatic.proposals(0);
     // console.log('post proposal',postProposal);
 
