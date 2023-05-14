@@ -3,6 +3,7 @@ pragma solidity 0.8.17;
 pragma experimental ABIEncoderV2;
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "../tokens/PoolTokens.sol";
+import 'hardhat/console.sol';
 
     error NOT_OWNER();
     error NOT_SELF();
@@ -78,7 +79,7 @@ contract TheseusDAO {
         _;
     }
     modifier checkTime(uint _id) {
-        if( proposals[_id].proposalTime + votingTime>block.timestamp) {
+        if( proposals[_id].proposalTime + votingTime<block.timestamp) {
             revert TIME_EXPIRED();
         }
         _;
@@ -123,8 +124,10 @@ contract TheseusDAO {
         return PoolTokens(pt).balanceOf(_signer,0)>0;
     }
     function getProportionOfVotes(address _signer) public view returns(uint) {
+        console.log("signer: inside getProportionOfVotes",_signer);
         uint256 _totalVotes = PoolTokens(pt).balanceOf(_signer,0);
         uint _totalSupply = getTotalSupply();
+
         if (_totalVotes > maxVotingPower) {
             _totalVotes = maxVotingPower;
         }else if(_totalVotes < minVotingPower) {
@@ -133,6 +136,9 @@ contract TheseusDAO {
         if(_totalVotes * 10**4<_totalSupply){
             return 0;
         }
+        console.log("total votes: ",_totalVotes);
+        console.log("total supply: ",_totalSupply);
+        console.log("proportion of votes: ",(_totalVotes*10**4)/_totalSupply);
         return (_totalVotes*10**4)/_totalSupply;
     }
     function addTokenHolder(address _tokenHolder) public onlyStaking {
@@ -161,6 +167,7 @@ contract TheseusDAO {
         for (uint256 i = 0; i < _signatures.length; ) {
             address recovered = recover(_hash, _signatures[i]);
 
+console.log("recovered: ",recovered);
             if (recovered <= duplicateGuard) {
                 revert DUPLICATE_OR_UNORDERED_SIGNATURES();
             }
@@ -175,6 +182,8 @@ contract TheseusDAO {
                 ++i;
             }
         }
+        console.log("votes: ",_votes);
+        console.log("votes needed: ",votesNeededPercentage);
          if (_votes < votesNeededPercentage) {
             revert INSUFFICIENT_VALID_SIGNATURES();
         }
@@ -183,12 +192,15 @@ contract TheseusDAO {
     function executeTransaction(uint _id,address payable to,uint256 value,bytes calldata data,bytes[] calldata signatures) public onlyOwner checkTime(_id) returns (bytes memory) {
         bytes32 _hash = getTransactionHash(_id, to, value, data);
         nonceUsed[_id] = true;
-       
+       console.log("here now");
         checkSignaturesAndVotes(signatures, _hash);
+        console.log("passed check sigs");
         (bool success, bytes memory result) = to.call{value: value}(data);
         if (!success) {
             revert TX_FAILED();
         }
+        proposals[_id].result = result;
+        proposals[_id].isProposalPassed = true;
 
         emit ExecuteTransaction(
             msg.sender,

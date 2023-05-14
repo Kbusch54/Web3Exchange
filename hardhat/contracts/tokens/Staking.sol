@@ -86,14 +86,14 @@ contract Staking {
         uint _tokenSupply = poolTokCon.totalSupplyTok(
             ammPoolToTokenId[_ammPool]
         );
-        uint _porportion = (_amountToBurn * 1e18) / _tokenSupply;
-        uint _amount = (_poolTotalUsdcSupply * _porportion) / 1e18;
+        uint _porportion = (_amountToBurn * 1e6) / _tokenSupply;
+        uint _amount = (_poolTotalUsdcSupply * _porportion) / 1e6;
         require(
             _amount <= _poolAvailableUsdc,
             "Not enough usdc in pool "
         );
         require(
-            poolTokCon.burn(msg.sender, ammPoolToTokenId[_ammPool], _amount),
+            poolTokCon.burn(msg.sender, ammPoolToTokenId[_ammPool], _amountToBurn),
             "Failed to burn tokens"
         );
         emit Unstake(msg.sender,_amount,ammPoolToTokenId[_ammPool],_ammPool);

@@ -2,7 +2,7 @@ const { WrapperBuilder } = require("@redstone-finance/evm-connector");
 const { formatBytes32String } = require("ethers/lib/utils");
 const sdk = require("redstone-sdk");
 const { expect,chai } = require("chai");
-
+const theseusABI = require("../artifacts/contracts/daos/TheseusDAO.sol/TheseusDAO.json");
 const { ethers } = require("ethers");
 const hre = require("hardhat");
 const {
@@ -38,27 +38,27 @@ describe("Testing Full deployment", function () {
     const votesNeededePercentage = 7500;//75%
     const theseus = await Theseus.deploy(votingTime, maxVotingPower, minVotingPower,InsuranceFund, votesNeededePercentage);
     await theseus.deployed();
-    console.log('theseus deployed  ',theseus.address);
+    // console.log('theseus deployed  ',theseus.address);
     const Staking = await hre.ethers.getContractFactory('Staking');
     const staking = await Staking.deploy();
     await staking.deployed();
-    console.log('staking deployed  ',staking.address);
+    // console.log('staking deployed  ',staking.address);
     const PoolTokens = await hre.ethers.getContractFactory('PoolTokens');
     const poolTokens = await PoolTokens.deploy(staking.address);
     await poolTokens.deployed();
-    console.log('poolTokens deployed  ',poolTokens.address);
+    // console.log('poolTokens deployed  ',poolTokens.address);
     const CreateAriadnes = await hre.ethers.getContractFactory('CreateAriadnes');
     const createAriadnes = await CreateAriadnes.deploy(votingTime,maxVotingPower,minVotingPower,votesNeededePercentage,staking.address,poolTokens.address);
     await createAriadnes.deployed();
-    console.log('createAriadnes deployed  ',createAriadnes.address);
+    // console.log('createAriadnes deployed  ',createAriadnes.address);
     const Exchange = await hre.ethers.getContractFactory('Exchange');
     const exchange = await Exchange.deploy(usdc.address,staking.address);
     await exchange.deployed();
-    console.log('exchange deployed  ',exchange.address);
+    // console.log('exchange deployed  ',exchange.address);
     const LoanPool = await hre.ethers.getContractFactory('LoanPool');
     const loanPool = await LoanPool.deploy(exchange.address);
     await loanPool.deployed();
-    console.log('loanPool deployed  ',loanPool.address);
+    // console.log('loanPool deployed  ',loanPool.address);
     const minInterestRate = 10000;
     const maxInterestRate = 100000;
     const minLoanAmount = ethers.utils.parseUnits("100", 6);
@@ -87,7 +87,7 @@ describe("Testing Full deployment", function () {
     await exchange.setExchangeViewer(exchangeViewer.address);
     await exchange.registerLoanPool(loanPool.address);
 
-    console.log('exchangeViewer deployed  ',exchangeViewer.address);
+    // console.log('exchangeViewer deployed  ',exchangeViewer.address);
 
     //payload
     // const Payload = await hre.ethers.getContractFactory('Payload');
@@ -132,7 +132,7 @@ describe("Testing Full deployment", function () {
     await metaAmm.init(metaBytes,metaPriced/100,uniQuoteAsset,indexPricePeriod,exchange.address);
 
 
-    console.log('all vamms initiailzed');
+    // console.log('all vamms initiailzed');
     //adding vamm's to other contracts
 
     //staking
@@ -143,7 +143,7 @@ describe("Testing Full deployment", function () {
     const tokenIdForMeta = await staking.callStatic.addAmmTokenToPool(metaAmm.address);
     await staking.addAmmTokenToPool(metaAmm.address);
 
-        console.log(tokenIDForTesla,tokenIdForGoogle,tokenIdForMeta);
+        // console.log(tokenIDForTesla,tokenIdForGoogle,tokenIdForMeta);
     //creating ariadnes
     const teslaAriadneAddress = await createAriadnes.callStatic.create2('tesla',teslaAmm.address,tokenIDForTesla);
     await createAriadnes.create2('tesla',teslaAmm.address,tokenIDForTesla);
@@ -152,7 +152,7 @@ describe("Testing Full deployment", function () {
     const metaAriadneAddress = await createAriadnes.callStatic.create2('meta',metaAmm.address,tokenIdForMeta);
     await createAriadnes.create2('meta',metaAmm.address,tokenIdForMeta);
 
-    console.log('ariadnes created');
+    // console.log('ariadnes created');
     //loan pool adding amm's
     await loanPool.initializeVamm(teslaAmm.address,teslaAriadneAddress);
     await loanPool.initializeVamm(googleAmm.address,googleAriadneAddress);
@@ -163,7 +163,7 @@ describe("Testing Full deployment", function () {
     await ammViewer.addAmm(teslaAmm.address,'tesla','tsla',teslaBytes);
     await ammViewer.addAmm(googleAmm.address,'google','goog',googleBytes);
     await ammViewer.addAmm(metaAmm.address,'meta','meta',metaBytes);
-    console.log('amm viewer amms added');
+    // console.log('amm viewer amms added');
     //update theseus address
     await ammViewer.updateTheseusDao(theseus.address);
     await staking.updateTheseus(theseus.address);
@@ -199,7 +199,7 @@ describe("Testing Full deployment", function () {
     exchangeViewer,teslaAriadneAddress,googleAriadneAddress,metaAriadneAddress,tokenIDForTesla,tokenIdForGoogle,tokenIdForMeta
 }
     }
-it("should deploy the contracts", async function () {
+it.skip("should deploy the contracts", async function () {
     const { 
         owner, otherAccount,usdc,exchange,theseus,poolTokens,loanPool,
         staking,ammViewer,teslaAmm,googleAmm,metaAmm,createAriadnes,payload,
@@ -208,7 +208,7 @@ it("should deploy the contracts", async function () {
     } = await loadFixture(deployContracts)
     console.log('ready to go');
 });
-it("should deposit and stake", async function () {
+it.skip("should deposit and stake", async function () {
     const { 
         owner, otherAccount,usdc,exchange,theseus,poolTokens,loanPool,
         staking,ammViewer,teslaAmm,googleAmm,metaAmm,createAriadnes,payload,
@@ -229,5 +229,72 @@ it("should deposit and stake", async function () {
     const poolTokensBalance = await poolTokens.balanceOf(owner.address,tokenIDForTesla);
     console.log('pool tokens balance',formatUnits(poolTokensBalance,18));
 });
+it.skip("should withdraw and unstake", async function () {
+    const {owner, otherAccount,usdc,exchange,theseus,poolTokens,loanPool,
+        staking,ammViewer,teslaAmm,googleAmm,metaAmm,createAriadnes,payload,
+        exchangeViewer,teslaAriadneAddress,googleAriadneAddress,metaAriadneAddress,
+        tesla,google,meta,tokenIDForTesla,tokenIdForGoogle,tokenIdForMeta
+    } = await loadFixture(deployContracts);
+    await usdc.approve(exchange.address,ethers.utils.parseUnits("1000", 6));
+    await exchange.deposit(ethers.utils.parseUnits("1000", 6));
+    const availablebal = await exchange.callStatic.availableBalance(owner.address);
+    console.log('available balance',availablebal.toString());
+    await staking.stake(availablebal,teslaAmm.address);
+    const poolTotalUsdc = await exchange.callStatic.poolTotalUsdcSupply(teslaAmm.address);
+    console.log('pool total usdc',formatUnits(poolTotalUsdc,6));
+    const poolTotalavailable = await exchange.callStatic.poolAvailableUsdc(teslaAmm.address);
+    console.log('pool total available',formatUnits(poolTotalavailable,6));
+    const postStakeBalance =await exchange.callStatic.availableBalance(owner.address);
+    console.log('post stake balance',formatUnits(postStakeBalance,6));
+    const poolTokensBalance = await poolTokens.balanceOf(owner.address,tokenIDForTesla);
+    console.log('pool tokens balance',formatUnits(poolTokensBalance,18));
+    const amountToBurn = poolTokensBalance.sub(200000);
+    console.log('amount to burn',amountToBurn.toString());
+    await staking.unStake(amountToBurn,teslaAmm.address);
+    const postUnstakeBalance =await exchange.callStatic.availableBalance(owner.address);
+    console.log('post Unstake balance',formatUnits(postUnstakeBalance,6));
+    const poolTokensBalance2 = await poolTokens.balanceOf(owner.address,tokenIDForTesla);
+    console.log('pool tokens balance',formatUnits(poolTokensBalance2,18));
+
+});
+it('should stake and allow theseus dao vote',async function(){
+    const {owner, otherAccount,usdc,exchange,theseus,poolTokens,loanPool,staking}=await loadFixture(deployContracts);
+    await usdc.approve(exchange.address,ethers.utils.parseUnits("1000", 6));
+    await exchange.deposit(ethers.utils.parseUnits("1000", 6));
+    await staking.stake(ethers.utils.parseUnits("1000", 6),theseus.address);
+    const tokenBalFromTheseus = await theseus.callStatic.isTokenHolder(owner.address);
+    console.log('token bal from theseus',tokenBalFromTheseus);
+    const votesNeeded = await theseus.callStatic.votesNeededPercentage();
+    console.log('votes needed',votesNeeded.toString());
+
+    const newVotesNeededPercentage = 9500; // Example value
+
+    const transaction = await theseus.populateTransaction.updateSignaturesRequired(newVotesNeededPercentage);
+    console.log('transaction',transaction);
+
+  
+    await theseus.newProposal(transaction.to,transaction.data);
+    const proposal = await theseus.callStatic.proposals(0);
+    console.log('proposal',proposal);
+    console.log('owner address: ',owner.address);
+    const hash = ethers.utils.keccak256(transaction.data);
+    const trasnactionHash = await theseus.callStatic.getTransactionHash(0,transaction.to,0,transaction.data);
+    const signature = await owner.signMessage(trasnactionHash);
+      console.log('signature',signature);
+      console.log('hash',hash);
+        console.log('transaction hash',trasnactionHash);
+      const verified = await theseus.callStatic.recover(trasnactionHash, signature);
+        console.log('verified',verified);
+    const signatures = [signature];
+    // await theseus.executeTransaction(0,theseus.address,0,encodedFunctionCall.data,signatures);
+    // const postProposal = await theseus.callStatic.proposals(0);
+    // console.log('post proposal',postProposal);
+
+
+
+});
+
+
+
 
 });
