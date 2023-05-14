@@ -28,22 +28,19 @@ contract ExchangeViewer{
     address public staking;
     address public theseusDao;
     Exchange public exchange;
-    VAmm public vamm;
     
     constructor(
         address _loanPool,
         address _usdc,
         address _staking,
-        address _theseusDao,
         address _exchange,
-        address _vamm
+        address _theseusDao
     ) {
         loanPool = _loanPool;
         usdc = _usdc;
         staking = _staking;
         theseusDao = _theseusDao;
         exchange = Exchange(_exchange);
-        vamm = VAmm(_vamm);
     }
 
          function getPosition(bytes memory _tradeId) public view returns (Position memory) {
@@ -51,16 +48,16 @@ contract ExchangeViewer{
         Position memory pos = Position(a,b,c,d,e,f,g,h,i);
         return pos;
     }
-   
         function calcFFR(
         bytes memory _tradeId,
         address _amm
     ) public view returns (int cumulativeFFR,int side) {
         Position memory _position = getPosition(_tradeId);
-        uint lastFFr = vamm.getLastFundingRateIndex();
+        VAmm _vamm = VAmm(_amm);
+        uint lastFFr = _vamm.getLastFundingRateIndex();
         int _cumulativeFFR;
         for(uint i = _position.lastFundingRate; i <= lastFFr; i++){
-            _cumulativeFFR += vamm.getSnapshotByIndex(i).fundingRate;
+            _cumulativeFFR += _vamm.getSnapshotByIndex(i).fundingRate;
         }
       cumulativeFFR = _cumulativeFFR;
         side = _position.side;
@@ -108,13 +105,8 @@ contract ExchangeViewer{
         (int _collateralAfter, int _usdcAmt) = getValues(_tradeId);
         Position memory _position = getPosition(_tradeId);
         uint _mmr = LoanPool(loanPool).mmr(_position.amm);
-        console.log("mmr",_mmr);
-        console.log("collateralAfter",uint(_collateralAfter));
-        console.log("loanedAmount",_position.loanedAmount);
-        console.log("usdcAmt",uint(_usdcAmt));
         int _currMMR = int(_collateralAfter  * 10 ** 6) /(int(_position.loanedAmount*2)-_usdcAmt);
         uint _currMMRUn = _currMMR>0?uint(_currMMR):uint(-_currMMR);
-        console.log("currMMR",_currMMRUn);
         if ( _currMMRUn >= _mmr ) {
             return false;
         } else {
@@ -138,7 +130,6 @@ contract ExchangeViewer{
         bytes[] memory _tradeIdList = exchange.getTradeIdList();
         bytes[] memory _liquidateList = new bytes[](_tradeIdList.length);
         for (uint i = 0; i < _tradeIdList.length; i++) {
-            console.log("tradeId",i);
             if (checkLiquidiation(_tradeIdList[i])) {
                 _liquidateList[_count]=(_tradeIdList[i]);
                 _count++;

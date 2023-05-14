@@ -128,9 +128,12 @@ contract TheseusDAO {
         if (_totalVotes > maxVotingPower) {
             _totalVotes = maxVotingPower;
         }else if(_totalVotes < minVotingPower) {
-            _totalVotes = 0;
+            return 0;
         }
-        return (_totalVotes*10**6)/_totalSupply;
+        if(_totalVotes * 10**4<_totalSupply){
+            return 0;
+        }
+        return (_totalVotes*10**4)/_totalSupply;
     }
     function addTokenHolder(address _tokenHolder) public onlyStaking {
         tokenHolders.push(_tokenHolder);
@@ -212,6 +215,21 @@ contract TheseusDAO {
         pure
         returns (address){
         return _hash.toEthSignedMessageHash().recover(_signature);
+    }
+    function addStaking(address _staking) public {
+        require(staking == address(0),"staking already set");
+        staking = _staking;
+    }
+    function addPoolTokens(address _pt) public {
+        require(pt == address(0),"pool tokens already set");
+        pt = _pt;
+    }
+
+    function updatePoolTokens(address _pt) public onlySelf {
+        pt = _pt;
+    }
+    function updateStaking(address _staking) public onlySelf {
+        staking = _staking;
     }
 
     receive() external payable {}

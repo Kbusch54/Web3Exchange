@@ -6,6 +6,7 @@ pragma solidity ^0.8.17;
  * @dev A contract for managing loan pool balances and related parameters.
  */
 contract LoanPoolBalances {
+    address public theseusDao;
     // Theseus DAO limits
     uint public maxLoanLimit;
     uint public minLoanLimit;
@@ -50,7 +51,7 @@ contract LoanPoolBalances {
 
     // Mappings for storing DAO-related data
     mapping(address => address) public dao;
-    address public theseusDao;
+    
 
   
     

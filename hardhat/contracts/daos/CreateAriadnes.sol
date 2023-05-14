@@ -61,18 +61,25 @@ contract CreateAriadnes {
         bytes result
     );
     modifier onlyTheseusDAO() {
-        require(msg.sender == theseusDAO, "Only TheseusDAO can call this.");
+        _onlyTheseusDAO();
         _;
     }
 
     modifier onlyRegistered() {
+        _onlyRegistered();
+        _;
+    }
+    function _onlyRegistered() private view {
         if (!existsAriadne[msg.sender]) {
             revert CALLER_NOT_REGISTERED();
         }
-        _;
     }
-    constructor(address _theseusDAO,uint _votingTime,uint _maxVotingPower,uint _minVotingPower,uint _votesNeededPercentage,address _staking,address _pt) {
-        theseusDAO = _theseusDAO;
+
+    function _onlyTheseusDAO() private view {
+        require(msg.sender == theseusDAO, "Only TheseusDAO can call this.");
+    }
+    constructor(uint _votingTime,uint _maxVotingPower,uint _minVotingPower,uint _votesNeededPercentage,address _staking,address _pt) {
+        theseusDAO = msg.sender;
         votingTime = _votingTime;
         maxVotingPower = _maxVotingPower;
         minVotingPower = _minVotingPower;
@@ -134,7 +141,7 @@ contract CreateAriadnes {
         string calldata _name,
         address  _amm,
         uint _tokenId
-    ) public onlyTheseusDAO payable {
+    ) public onlyTheseusDAO payable returns(address){
         // uint256 id = numberOfAriadnes();
 
         bytes32 _salt = keccak256(
@@ -171,6 +178,7 @@ contract CreateAriadnes {
             address(ariadneDAO),
             _amm
         );
+        return address(ariadne_address);
     }
 
     /**----------------------
@@ -210,5 +218,8 @@ contract CreateAriadnes {
     }
     function setPT(address _pt) external onlyTheseusDAO{
         pt = _pt;
+    }
+    function updateTheseusDao(address _theseusDAO) external onlyTheseusDAO{
+        theseusDAO = _theseusDAO;
     }
 }

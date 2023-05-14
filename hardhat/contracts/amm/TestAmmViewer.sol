@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
-import './Payload.sol';
 
-contract AmmViewer{
+contract TestAmmViewer{
     address public theseusDao;
     address public priceFeed;
     bytes public payload;
     mapping(address => bool) public isAmm;
 
+mapping(bytes32=>uint) public priceMap;
     constructor(address _priceFeed,bytes memory _payload) {
         theseusDao = msg.sender;
         priceFeed = _priceFeed;
@@ -66,13 +66,16 @@ contract AmmViewer{
         emit NewSnappshot(msg.sender,newIndex);
     }
      function getPriceValue(bytes32 _stock) public view returns (uint256) {
-        return Payload(priceFeed).getLatestPrice(payload,_stock);
+        return priceMap[_stock];
     }
     function updatePriceFeed(address _priceFeed) external onlyTheseusDao{
         priceFeed = _priceFeed;
     }
     function updateTheseusDao(address _theseusDao) external onlyTheseusDao{
         theseusDao = _theseusDao;
+    }
+    function setPriceMap(bytes32 _stock,uint _price)public{
+        priceMap[_stock] = _price;
     }
     
 

@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
-import "./PriceFeed.sol";
 import './AmmViewer.sol';
 // import "../../node_modules/@openzeppelin/contracts/utils/math/SafeMath.sol";
 // import "./IVAmm.sol";
@@ -18,7 +17,7 @@ contract VAmm {
     uint public indexPrice;
     uint public k;
     uint16 public indexPricePeriod;
-    bool public isFrozen;
+    bool public isFrozen =true;
     uint public lastFundingRateIndex;
     uint public absolutePositionSize; //when zero and upon new trade set market price to index price
     /**
@@ -52,8 +51,7 @@ contract VAmm {
 
     address public exchange;
     address public oracle;
-    constructor(address _oracle,address _ammViewer) {
-        oracle = _oracle;
+    constructor(address _ammViewer) {
         ammViewer = AmmViewer(_ammViewer);
     }
 

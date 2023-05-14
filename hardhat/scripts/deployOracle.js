@@ -5,29 +5,34 @@
 // will compile your contracts, add the Hardhat Runtime Environment's members to the
 // global scope, and execute the script.
 const hre = require("hardhat");
+const { formatBytes32String } = require("ethers/lib/utils");
+const sdk = require("redstone-sdk");
 
 async function main() {
-
-
-  // const Oracle = await hre.ethers.getContractFactory("PriceFeed");
-  // const oracle = await Oracle.deploy();
-
-  // await oracle.deployed();
-  // console.log(
-  //   `Oracle deployed to ${oracle.address}`
-  // );
   const Payload = await hre.ethers.getContractFactory("Payload");
   const payload = await Payload.deploy();
   await payload.deployed();
   console.log(
     `Payload deployed to ${payload.address}`
   );
-  const Caller = await hre.ethers.getContractFactory("CallerContract");
-  const caller = await Caller.deploy();
 
-  await caller.deployed();
+  const unsignedMetadata = "manual-payload";
+  const redstonePayload = await sdk.requestRedstonePayload(
+    {
+      dataServiceId: "redstone-main-demo",
+      uniqueSignersCount: 1,
+      dataFeeds: ["TSLA","META","GOOG"],
+    },
+    ["https://d33trozg86ya9x.cloudfront.net"],
+    unsignedMetadata
+  );
+
+  const AmmViewer = await hre.ethers.getContractFactory("AmmViewer");
+  const ammViewer = await AmmViewer.deploy();
+
+  await ammViewer.deployed();
   console.log(
-    `Caller deployed to ${caller.address}`
+    `ammViewer deployed to ${ammViewer.address}`
   );
 }
 

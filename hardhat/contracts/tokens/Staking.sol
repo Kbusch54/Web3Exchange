@@ -18,8 +18,8 @@ contract Staking {
     mapping(address=>bool) public hasRegistered;
     uint8 internal poolCount;
 
-    constructor(address _theseusDao) {
-        ammPoolToTokenId[_theseusDao] = 0;
+    constructor() {
+        ammPoolToTokenId[msg.sender] = 0;
     }
 
     modifier IfIsFrozen(address _ammPool) {
@@ -28,6 +28,10 @@ contract Staking {
     }
     modifier OnlyExchange(){
         require(msg.sender==exchange,"Not a loan pool");
+        _;
+    }
+    modifier OnlyTheseusDao(){
+        require(ammPoolToTokenId[msg.sender]==0,"Not TheseusDao");
         _;
     }
     event Stake(address user,uint usdcAmount, uint tokenId,address ammPool);
@@ -103,12 +107,13 @@ contract Staking {
      * @dev Function for adding an AMM token to the poolTokens contract .
      * @param _ammPool The address of the AMM pool.
      */
-    function addAmmTokenToPool(address _ammPool) public {
+    function addAmmTokenToPool(address _ammPool) external OnlyTheseusDao returns(uint){
         require(hasRegistered[_ammPool] == false,"Already added to poolTokens contract"
         );
         poolCount++;
         ammPoolToTokenId[_ammPool] = poolCount;
         emit AddTokenToPool(_ammPool,poolCount);
+        return poolCount;
     }
 
 
@@ -122,13 +127,16 @@ contract Staking {
         emit UnFrozenStake(_ammPool);
     }
 
-    function setExchange(address _exchange) public {
+    function setExchange(address _exchange) public OnlyTheseusDao{
         require(exchange == address(0), "Already set");
         exchange = _exchange;
         
     }
-    function setPoolToken(address _poolToken) public {
+    function setPoolToken(address _ammAddress) public OnlyTheseusDao{
         require(poolToken == address(0), "Already set");
-        poolToken = _poolToken;
+        poolToken = _ammAddress;
+    }
+    function updateTheseus(address _theseusDao) public OnlyTheseusDao{
+        ammPoolToTokenId[_theseusDao] = 0;
     }
 }

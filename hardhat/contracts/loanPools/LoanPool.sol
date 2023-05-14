@@ -34,7 +34,13 @@ address public exchange;
 
     constructor(address _exchange)  {
         exchange = _exchange;
+        theseusDao = msg.sender;
+        
 
+    }
+
+    function setTheseusDao(address _theseusDao) external onlyTheseus{
+        theseusDao = _theseusDao;
     }
 
 
@@ -271,9 +277,9 @@ address public exchange;
         minLoan[_amm] = minLoanLimit;
         loanInterestRate[_amm] = minLoanInterestRateLimit;
         interestPeriods[_amm] = minInterestPeriodsLimit;
-        mmr[_amm] = maxMMRLimit;
+        mmr[_amm] = minMMRLimit;
         minHoldingsReqPercentage[_amm] = maxHoldingsReqPercentageLimit;
-        tradingFeeLoanPool[_amm] = maxTradingFeeLimit;
+        tradingFeeLoanPool[_amm] = minTradingFeeLimit;
         dao[_amm] = _ariadneDao;
         emit LoanPoolInitialized(_amm,_ariadneDao,block.timestamp);
         emit LoanPoolValues(_amm,minLoanLimit,maxLoanLimit,minLoanInterestRateLimit,minInterestPeriodsLimit,maxMMRLimit,maxHoldingsReqPercentageLimit,maxTradingFeeLimit);

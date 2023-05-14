@@ -19,8 +19,12 @@ contract VaultMain is Balances {
         staking = _staking;
         theseusDao = _theseusDao;
     }
-
- modifier onlyStaking {
+    modifier onlyTheseusDao {
+        _onlyTheseusDao();
+        _;
+    }
+  
+    modifier onlyStaking {
         _onlyStaking();
         _;
     }
@@ -45,6 +49,9 @@ contract VaultMain is Balances {
     );
     event PayInterest(bytes tradeId, uint amount,uint amountToPool);
     event FfrAdjust(bytes tradeId, int amount);
+function _onlyTheseusDao() private view {
+    require(msg.sender == theseusDao,'not theseusDao');
+}
 function _onlyStaking() private view {
         require(msg.sender == staking,'not staking');
     }
@@ -53,6 +60,10 @@ function _onlyStaking() private view {
     }
     function _onlyStakingOrPool() private view {
         require(msg.sender == staking || msg.sender == loanPool,'not staking or pool');
+    }
+
+    function updateTheseus(address _theseusDao) public onlyTheseusDao {
+        theseusDao = _theseusDao;
     }
   
     //mapping of tradeId to collateral
@@ -207,21 +218,20 @@ function _onlyStaking() private view {
         );
         return (_user, _amm, _timeStamp, _side);
     }
-    function addAmm(address _amm) public {
+    function addAmm(address _amm) public onlyTheseusDao{
         require(!isAmm[_amm]);
         isAmm[_amm] = true;
         Staking(staking).addAmmTokenToPool(_amm);
     }
-       function registerLoanPool(address _pool) public {
+       function registerLoanPool(address _pool) public onlyTheseusDao {
         require(loanPool == address(0));
-        require(msg.sender == theseusDao);
         loanPool = _pool;
     }
 
       function addPoolTotalUsdcSupply(address _ammPool, uint _amount) external onlyStakingOrPool{
         poolTotalUsdcSupply[_ammPool] += _amount;
     }
-      function setExchangeViewer(address _exchangeViewer)public {
+      function setExchangeViewer(address _exchangeViewer)public onlyTheseusDao{
         exchangeViewer = _exchangeViewer;
     }
     function subPoolTotalUsdcSupply(address _ammPool, uint _amount) external onlyStakingOrPool{

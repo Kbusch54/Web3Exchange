@@ -16,13 +16,12 @@ contract Exchange is VaultMain {
  * @dev Constructor for initializing the Exchange contract
     @param _usdc The address of the USDC contract
      @param _staking The address of the staking contract
-        @param _theseusDao The address of the TheseusDao contract
  * */
     constructor(
         address _usdc,
-        address _staking,
-        address _theseusDao
-    ) VaultMain(_usdc, _staking,_theseusDao) {
+        address _staking
+        
+    ) VaultMain(_usdc, _staking,msg.sender) {
         
     }
     event NewPosition(
