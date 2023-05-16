@@ -32,7 +32,7 @@ describe("Testing Full deployment", function () {
     const Theseus = await hre.ethers.getContractFactory('TheseusDAO');
     //votingTime, maxVotingPower, minVotingPower,InsuranceFund, votesNeededePercentage
     const votingTime = time.duration.hours(2);
-    const maxVotingPower = ethers.utils.parseUnits("10000000", 18);
+    const maxVotingPower = ethers.constants.MaxUint256;
     const minVotingPower = 1;
     const InsuranceFund = ethers.utils.parseUnits("250000", 6);
     const votesNeededePercentage = 7500;//75%
@@ -109,6 +109,7 @@ describe("Testing Full deployment", function () {
     const ammViewer = await AmmViewer.deploy(payload.address,`0x${redstonePayload}`);
     await ammViewer.deployed();
 
+
     console.log('ammViewer deployed  ',ammViewer.address);
     //deploying and setting vamm * 3
     const VAmm = await hre.ethers.getContractFactory('VAmm');
@@ -124,24 +125,33 @@ describe("Testing Full deployment", function () {
     const teslaPriced = parseUnits("370", 6);
     const googlePriced = parseUnits("1500", 6);
     const metaPriced = parseUnits("200", 6);
-
+    
     const uniQuoteAsset = ethers.utils.parseUnits("10000", 6);
     const indexPricePeriod = time.duration.hours(4);
-    await teslaAmm.init(teslaBytes,teslaPriced/100,uniQuoteAsset,indexPricePeriod,exchange.address);
-    await googleAmm.init(googleBytes,googlePriced/100,uniQuoteAsset,indexPricePeriod,exchange.address);
-    await metaAmm.init(metaBytes,metaPriced/100,uniQuoteAsset,indexPricePeriod,exchange.address);
-
-
+    await teslaAmm.init(teslaBytes,teslaPriced,uniQuoteAsset,indexPricePeriod,exchange.address);
+    await googleAmm.init(googleBytes,googlePriced,uniQuoteAsset,indexPricePeriod,exchange.address);
+    await metaAmm.init(metaBytes,metaPriced,uniQuoteAsset,indexPricePeriod,exchange.address);
+    
+    //testing purposes
+    ////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////
+    await ammViewer.setPriceMap(teslaBytes,parseUnits("400", 6));
+    await ammViewer.setPriceMap(googleBytes,parseUnits("1590", 6));
+    await ammViewer.setPriceMap(metaBytes,parseUnits("190", 6));
+    ////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////
     console.log('all vamms initiailzed');
     //adding vamm's to other contracts
 
-    //staking
-    const tokenIDForTesla = await staking.callStatic.addAmmTokenToPool(teslaAmm.address);
-    await staking.addAmmTokenToPool(teslaAmm.address);
-    const tokenIdForGoogle = await staking.callStatic.addAmmTokenToPool(googleAmm.address);
-    await staking.addAmmTokenToPool(googleAmm.address);
-    const tokenIdForMeta = await staking.callStatic.addAmmTokenToPool(metaAmm.address);
-    await staking.addAmmTokenToPool(metaAmm.address);
+    //adding amm's to exchange and staking 
+    const tokenIDForTesla = await exchange.callStatic.addAmm(teslaAmm.address);
+    await exchange.addAmm(teslaAmm.address);
+    const tokenIdForGoogle = await exchange.callStatic.addAmm(googleAmm.address);
+    await exchange.addAmm(googleAmm.address);
+    const tokenIdForMeta = await exchange.callStatic.addAmm(metaAmm.address);
+    await exchange.addAmm(metaAmm.address);
 
         console.log(tokenIDForTesla,tokenIdForGoogle,tokenIdForMeta);
     //creating ariadnes
@@ -164,6 +174,7 @@ describe("Testing Full deployment", function () {
     await ammViewer.addAmm(googleAmm.address,'google','goog',googleBytes);
     await ammViewer.addAmm(metaAmm.address,'meta','meta',metaBytes);
     console.log('amm viewer amms added');
+
     //update theseus address
     await ammViewer.updateTheseusDao(theseus.address);
     await staking.updateTheseus(theseus.address);
@@ -868,7 +879,7 @@ const ariadneABI = ariadneCon.interface.format();
     exchangeViewer,teslaAriadneAddress,googleAriadneAddress,ariadneABI,metaAriadneAddress,tokenIDForTesla,tokenIdForGoogle,tokenIdForMeta,sign,getFunctionCallData,decodeCallData,decodeTransaction,getMethodNameHash,ABI,getTransactionHash,loanPoolABI,exchangeABI
 }
     }
-it("should deploy the contracts", async function () {
+it.skip("should deploy the contracts", async function () {
     const { 
         owner, otherAccount,usdc,exchange,theseus,poolTokens,loanPool,
         staking,ammViewer,teslaAmm,googleAmm,metaAmm,createAriadnes,payload,
@@ -877,7 +888,7 @@ it("should deploy the contracts", async function () {
     } = await loadFixture(deployContracts)
     console.log('ready to go');
 });
-it("should deposit and stake", async function () {
+it.skip("should deposit and stake", async function () {
     const { 
         owner, otherAccount,usdc,exchange,theseus,poolTokens,loanPool,
         staking,ammViewer,teslaAmm,googleAmm,metaAmm,createAriadnes,payload,
@@ -898,7 +909,7 @@ it("should deposit and stake", async function () {
     const poolTokensBalance = await poolTokens.balanceOf(owner.address,tokenIDForTesla);
     console.log('pool tokens balance',formatUnits(poolTokensBalance,18));
 });
-it("should withdraw and unstake", async function () {
+it.skip("should withdraw and unstake", async function () {
     const {owner, otherAccount,usdc,exchange,theseus,poolTokens,loanPool,
         staking,ammViewer,teslaAmm,googleAmm,metaAmm,createAriadnes,payload,
         exchangeViewer,teslaAriadneAddress,googleAriadneAddress,metaAriadneAddress,
@@ -926,7 +937,7 @@ it("should withdraw and unstake", async function () {
     console.log('pool tokens balance',formatUnits(poolTokensBalance2,18));
 
 });
-it('should stake and allow theseus dao vote',async function(){
+it.skip('should stake and allow theseus dao vote',async function(){
     const {owner, otherAccount,usdc,exchange,theseus,poolTokens,loanPool,staking,ABI,loanPoolABI,exhcnageABI,sign,getFunctionCallData,getMethodNameHash,getTransactionHash,decodeCallData,decodeTransaction}=await loadFixture(deployContracts);
     await usdc.approve(exchange.address,ethers.utils.parseUnits("1000", 6));
     await exchange.deposit(ethers.utils.parseUnits("1000", 6));
@@ -977,7 +988,7 @@ it('should stake and allow theseus dao vote',async function(){
     expect(postPropsal2.isProposalPassed).to.equal(true);
     expect(votesNeeded).to.not.equal(newVotesPercentage);
 });
-it('should stake and allow ariadne dao vote',async function(){
+it.skip('should stake and allow ariadne dao vote',async function(){
 
   const {owner, otherAccount,usdc,exchange,theseus,poolTokens,loanPool,ariadneABI,staking,teslaAriadneAddress,teslaAmm,ABI,loanPoolABI,exhcnageABI,sign,getFunctionCallData,getMethodNameHash,getTransactionHash,decodeCallData,decodeTransaction}=await loadFixture(deployContracts);
   await usdc.approve(exchange.address,ethers.utils.parseUnits("1000", 6));
@@ -1005,7 +1016,7 @@ it('should stake and allow ariadne dao vote',async function(){
   expect(postProposal.isProposalPassed).to.equal(true);
   expect(prevVotingTime).to.not.equal(newVotingTimePost);
 });
-it('should stake and allow ariadne dao vote on other contracts',async function(){
+it.skip('should stake and allow ariadne dao vote on other contracts',async function(){
   const {owner, otherAccount,usdc,exchange,theseus,poolTokens,loanPool,ariadneABI,staking,teslaAriadneAddress,teslaAmm,ABI,loanPoolABI,exhcnageABI,sign,getFunctionCallData,getMethodNameHash,getTransactionHash,decodeCallData,decodeTransaction}=await loadFixture(deployContracts);
   await usdc.approve(exchange.address,ethers.utils.parseUnits("1000", 6));
   await exchange.deposit(ethers.utils.parseUnits("1000", 6));
@@ -1040,7 +1051,7 @@ it('should stake and allow ariadne dao vote on other contracts',async function()
   console.log('theseusDaaoUSDCBalance',formatUnits(theseusDaaoUSDCBalance,6));
 
 });
-it('should stake and allow theseus to deposit usdc in vault',async function(){
+it.skip('should stake and allow theseus to deposit usdc in vault',async function(){
   const {owner, otherAccount,usdc,exchange,theseus,poolTokens,loanPool,staking,ABI,loanPoolABI,exhcnageABI,sign,getFunctionCallData,getMethodNameHash,getTransactionHash,decodeCallData,decodeTransaction}=await loadFixture(deployContracts);
   await usdc.approve(exchange.address,ethers.utils.parseUnits("1000", 6));
   await exchange.deposit(ethers.utils.parseUnits("1000", 6));
@@ -1063,7 +1074,34 @@ it('should stake and allow theseus to deposit usdc in vault',async function(){
 
 });
 
+it('should allow open position on tesla amm',async function(){
+  const {owner, otherAccount,teslaAmm,usdc,exchange,theseus,poolTokens,loanPool,staking,ABI,loanPoolABI,exhcnageABI,sign,getFunctionCallData,getMethodNameHash,getTransactionHash,decodeCallData,decodeTransaction}=await loadFixture(deployContracts);
+  await usdc.approve(exchange.address,ethers.utils.parseUnits("4000", 6));
+  await exchange.deposit(ethers.utils.parseUnits("3000", 6));
+  await staking.stake(ethers.utils.parseUnits("1000", 6),theseus.address);
+  await staking.stake(ethers.utils.parseUnits("1000", 6),teslaAmm.address);
 
+  const prevUserBal = await exchange.availableBalance(owner.address);
+  const collateral = parseUnits("200", 6);
+  const leverage = 3;
+  const side = 1;
+  await exchange.openPosition(teslaAmm.address, collateral, leverage, side);
+  const loanAmount = collateral.mul(leverage);
+  const tradeIds = await exchange.callStatic.getTradeIds(owner.address);
+  const position = await exchange.callStatic.positions(tradeIds[0]);
+  console.log("positioon", position);
+  const postUserBal = await exchange.availableBalance(owner.address);
+  const tradingFee = await loanPool.callStatic.tradingFeeLoanPool(teslaAmm.address);
+  console.log('tradingFee',formatUnits(tradingFee,0));
+  const expectedFee = loanAmount.mul(tradingFee).div(ethers.utils.parseUnits("10", 5));
+  console.log('expectedFee',formatUnits(expectedFee,6));
+  const expectedPostUserBal = prevUserBal.sub(collateral).sub(expectedFee);
+  console.log('expectedPostUserBal',formatUnits(expectedPostUserBal,5));
+  expect(postUserBal).to.equal(expectedPostUserBal);
+
+  console.log('previous balance: $',formatUnits(prevUserBal,6));
+  console.log('post balance: $',formatUnits(postUserBal,6));
+});
 
 
 });

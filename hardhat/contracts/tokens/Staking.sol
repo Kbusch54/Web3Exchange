@@ -107,7 +107,7 @@ contract Staking {
      * @dev Function for adding an AMM token to the poolTokens contract .
      * @param _ammPool The address of the AMM pool.
      */
-    function addAmmTokenToPool(address _ammPool) external OnlyTheseusDao returns(uint){
+    function addAmmTokenToPool(address _ammPool) external OnlyExchange returns(uint){
         require(hasRegistered[_ammPool] == false,"Already added to poolTokens contract"
         );
         poolCount++;

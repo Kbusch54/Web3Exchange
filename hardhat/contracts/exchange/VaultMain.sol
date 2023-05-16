@@ -43,7 +43,7 @@ contract VaultMain is Balances {
         bytes tradeId,
         uint amount
     );
-    event PayInterest(bytes tradeId, uint amount,uint amountToPool);
+    event PayInterest(bytes tradeId, uint totalAmount,uint amountToPool);
     event FfrAdjust(bytes tradeId, int amount);
 
 function _onlyStaking() private view {
@@ -210,10 +210,10 @@ function _onlyStaking() private view {
         );
         return (_user, _amm, _timeStamp, _side);
     }
-    function addAmm(address _amm) public onlyTheseusDao{
+    function addAmm(address _amm) public onlyTheseusDao returns(uint){
         require(!isAmm[_amm]);
         isAmm[_amm] = true;
-        Staking(staking).addAmmTokenToPool(_amm);
+        return Staking(staking).addAmmTokenToPool(_amm);
     }
        function registerLoanPool(address _pool) public onlyTheseusDao {
         require(loanPool == address(0));
