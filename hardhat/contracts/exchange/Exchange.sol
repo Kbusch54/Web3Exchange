@@ -3,8 +3,6 @@ pragma solidity 0.8.17;
 import "./VaultMain.sol";
 import "../amm/VAmm.sol";
 import "./ExchangeViewer.sol";
-
-// import "hardhat/console.sol";
 contract Exchange is VaultMain {
     function _payments(bytes memory _tradeId, address _amm)internal{
         require(payInterestPayments(_tradeId, _amm));

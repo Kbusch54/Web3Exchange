@@ -33,12 +33,7 @@ contract AriadneDAO {
     uint maxVotingPower; // max quantity of votes allowed per user regardless of tokens held
     uint minVotingPower; //min token req to vote
     uint public votesNeededPercentage; //votes needed to pass a proposal
-    mapping(uint => bool) public isProposalPassed;
-    mapping(uint => uint) public votesFor;
-    mapping(uint => uint) public totalVotes;
-    mapping(uint => uint) public proposalTime;
     mapping(uint => bool) public nonceUsed;
-    address[] public tokenHolders;
 
     struct Proposal {
         uint id;
@@ -46,7 +41,6 @@ contract AriadneDAO {
         address payable to;
         bytes data;
         bytes result;
-        uint votesFor;
         uint proposalTime;
         bool isProposalPassed;
         bytes32 transactionHash;
@@ -74,7 +68,7 @@ contract AriadneDAO {
         _;
     }
     modifier checkTime(uint _id) {
-        if (proposals[_id].proposalTime + votingTime > block.timestamp) {
+        if (proposals[_id].proposalTime + votingTime < block.timestamp) {
             revert TIME_EXPIRED();
         }
         _;
@@ -129,7 +123,6 @@ contract AriadneDAO {
             to: to,
             data: data,
             result: bytes(""),
-            votesFor: 0,
             proposalTime: block.timestamp,
             isProposalPassed: false,
             transactionHash: _transactionHash
@@ -148,31 +141,19 @@ contract AriadneDAO {
         return PoolTokens(pt).balanceOf(_signer, tokenId) > 0;
     }
 
-    function getProportionOfVotes(address _signer) public view returns (uint) {
-        uint256 _totalVotes = PoolTokens(pt).balanceOf(_signer, tokenId);
+    function getProportionOfVotes(address _signer) public view returns(uint) {
+        uint256 _totalVotes = PoolTokens(pt).balanceOf(_signer,tokenId);
         uint _totalSupply = getTotalSupply();
+
         if (_totalVotes > maxVotingPower) {
             _totalVotes = maxVotingPower;
-        } else if (_totalVotes < minVotingPower) {
-            _totalVotes = 0;
+        }else if(_totalVotes < minVotingPower) {
+            return 0;
         }
-        return (_totalVotes * 10 ** 6) / _totalSupply;
-    }
-
-    function addTokenHolder(address _tokenHolder) public onlyStaking {
-        tokenHolders.push(_tokenHolder);
-    }
-
-    function getCurrentTokenHolders()
-        public
-        view
-        returns (address[] memory, uint[] memory)
-    {
-        uint[] memory balances = new uint[](tokenHolders.length);
-        for (uint i = 0; i < tokenHolders.length; i++) {
-            balances[i] = PoolTokens(pt).balanceOf(tokenHolders[i], tokenId);
+        if(_totalVotes * 10**6<_totalSupply){
+            return 0;
         }
-        return (tokenHolders, balances);
+        return (_totalVotes*10**6)/_totalSupply;
     }
 
     function getTotalSupply() public view returns (uint) {
@@ -248,6 +229,8 @@ contract AriadneDAO {
         }
 
         createAriandne.emitExectuedTransaction(msg.sender, _id, result);
+        proposals[_id].result = result;
+        proposals[_id].isProposalPassed = true;
         return result;
     }
 

@@ -1,9 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 import './AmmViewer.sol';
-// import "../../node_modules/@openzeppelin/contracts/utils/math/SafeMath.sol";
-// import "./IVAmm.sol";
-// import "hardhat/console.sol";
 
 /**
  * @title VAmm
@@ -96,7 +93,6 @@ contract VAmm {
     }
 
     function unFreeze(uint _indexPrice,uint _quoteAssetAmount) internal {
-        // console.log("unfreeze new price %s",_indexPrice);
         isFrozen = false;
         indexPrice = _indexPrice;
         // k= indexPrice*_quoteAssetAmount*100;
@@ -236,7 +232,6 @@ contract VAmm {
         uint totalCollateral,
         int _side
     ) external onlyExchange returns (int positionSize, uint avgEntryPrice, uint openValue,uint lastFFRIndex) {
-        // console.log("openPosition");
             //get oracle index price
             if(isFrozen){
                 getIndexPriceFromOracle();
@@ -287,11 +282,9 @@ contract VAmm {
                 liquidityChangedSnapshots.length - 1
             ];
             getIndexPriceFromOracle();
-            // console.log("new price", _price);
         int _newFundingRate = calculateFundingRate(
             int(getAssetPrice())
         );
-        // console.log("new funding rate 111", uint(_newFundingRate * -1));
 
         //check if snapshot time is over
         if(lastSnapshot.timestamp + indexPricePeriod >= block.timestamp -15 minutes && lastSnapshot.timestamp + indexPricePeriod <= block.timestamp +15 minutes){
@@ -339,7 +332,6 @@ contract VAmm {
 
         usdcAmt = (int(lastSnapshot.baseAssetReserve) - int(newBaseAsset));
         usdcAmt > 0 ? usdcAmt *= 1 : usdcAmt *= -1;
-        // console.log("VAMM: usdc AMT", uint(usdcAmt));
         lastSnapshot.cumulativeNotional -= usdcAmt;
         lastSnapshot.quoteAssetReserve = uint(quoteWPsz);
         lastSnapshot.baseAssetReserve = newBaseAsset;

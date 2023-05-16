@@ -9,7 +9,6 @@ import "./ExchangeViewer.sol";
 contract VaultMain is Balances {
     address public staking;
     address public exchangeViewer;
-    address public theseusDao;
 
     constructor(
         address _usdc,
@@ -19,10 +18,7 @@ contract VaultMain is Balances {
         staking = _staking;
         theseusDao = _theseusDao;
     }
-    modifier onlyTheseusDao {
-        _onlyTheseusDao();
-        _;
-    }
+  
   
     modifier onlyStaking {
         _onlyStaking();
@@ -49,9 +45,7 @@ contract VaultMain is Balances {
     );
     event PayInterest(bytes tradeId, uint amount,uint amountToPool);
     event FfrAdjust(bytes tradeId, int amount);
-function _onlyTheseusDao() private view {
-    require(msg.sender == theseusDao,'not theseusDao');
-}
+
 function _onlyStaking() private view {
         require(msg.sender == staking,'not staking');
     }
@@ -62,9 +56,7 @@ function _onlyStaking() private view {
         require(msg.sender == staking || msg.sender == loanPool,'not staking or pool');
     }
 
-    function updateTheseus(address _theseusDao) public onlyTheseusDao {
-        theseusDao = _theseusDao;
-    }
+   
   
     //mapping of tradeId to collateral
     mapping(bytes => bool) public isActive;

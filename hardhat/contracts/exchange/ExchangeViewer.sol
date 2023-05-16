@@ -5,8 +5,6 @@ import "../amm/VAmm.sol";
 import "./Exchange.sol";
 
 import "../loanPools/LoanPool.sol";
-
-// import "hardhat/console.sol";
 contract ExchangeViewer{
 
 

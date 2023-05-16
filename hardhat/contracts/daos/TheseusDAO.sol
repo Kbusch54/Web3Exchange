@@ -3,7 +3,8 @@ pragma solidity 0.8.17;
 pragma experimental ABIEncoderV2;
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "../tokens/PoolTokens.sol";
-import 'hardhat/console.sol';
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "../exchange/Exchange.sol";
 
     error NOT_OWNER();
     error NOT_SELF();
@@ -20,6 +21,8 @@ contract TheseusDAO {
     using ECDSA for bytes32;
     address public pt;
     address public staking;
+    address public usdc;
+    address exchange;
     uint public currentId;//acting as nonce for proposals
     uint public votingTime;
     uint maxVotingPower; // max quantity of votes allowed per user regardless of tokens held
@@ -27,10 +30,6 @@ contract TheseusDAO {
     uint public insuranceFundMin; //minimum needed in insurance fund
     uint public votesNeededPercentage; //votes needed to pass a proposal
     mapping(uint => bool) public isProposalPassed;
-    mapping(uint => uint) public votesFor;
-    mapping(uint => uint) public votesAgainst;
-    mapping(uint => uint) public totalVotes;
-    mapping(uint => uint) public proposalTime;
     mapping(uint => bool) public nonceUsed;
     address[] public tokenHolders;
 
@@ -40,7 +39,6 @@ contract TheseusDAO {
         address payable to;
         bytes data;
         bytes result;
-        uint votesFor;
         uint proposalTime;
         bool isProposalPassed;
     }
@@ -90,16 +88,17 @@ contract TheseusDAO {
         uint _maxVotingPower,
         uint _minVotingPower,
         uint _insuranceFundMin,
-        uint _votesNeededPercentage
+        uint _votesNeededPercentage,
+        address _usdc
     ) {
         votingTime = _votingTime;
         maxVotingPower = _maxVotingPower;
         minVotingPower = _minVotingPower;
         insuranceFundMin = _insuranceFundMin;
         votesNeededPercentage = _votesNeededPercentage;
+        usdc = _usdc;
     }
     function newProposal(address payable to,bytes calldata data)public onlyOwner(){
-        //emit event
         if(nonceUsed[currentId]) {
             currentId++;
         }
@@ -111,7 +110,6 @@ contract TheseusDAO {
             to:to,
             data:data,
             result:bytes(""),
-            votesFor:0,
             proposalTime:block.timestamp,
             isProposalPassed:false
         });
@@ -124,34 +122,18 @@ contract TheseusDAO {
         return PoolTokens(pt).balanceOf(_signer,0)>0;
     }
     function getProportionOfVotes(address _signer) public view returns(uint) {
-        console.log("signer: inside getProportionOfVotes",_signer);
         uint256 _totalVotes = PoolTokens(pt).balanceOf(_signer,0);
         uint _totalSupply = getTotalSupply();
 
         if (_totalVotes > maxVotingPower) {
-            console.log("inside if");
             _totalVotes = maxVotingPower;
         }else if(_totalVotes < minVotingPower) {
-            console.log("inside else if");
             return 0;
         }
-        if(_totalVotes * 10**4<_totalSupply){
+        if(_totalVotes * 10**6<_totalSupply){
             return 0;
         }
-        console.log("total votes: ",_totalVotes);
-        console.log("total supply: ",_totalSupply);
-        console.log("proportion of votes: ",(_totalVotes*10**4)/_totalSupply);
-        return (_totalVotes*10**4)/_totalSupply;
-    }
-    function addTokenHolder(address _tokenHolder) public onlyStaking {
-        tokenHolders.push(_tokenHolder);
-    }
-    function getCurrentTokenHolders() public view returns(address[] memory,uint[] memory) {
-        uint[] memory balances = new uint[](tokenHolders.length);
-        for(uint i=0;i<tokenHolders.length;i++) {
-            balances[i] = PoolTokens(pt).balanceOf(tokenHolders[i],0);
-        }
-        return (tokenHolders,balances);
+        return (_totalVotes*10**6)/_totalSupply;
     }
     function getTotalSupply() public view returns(uint) {
         return PoolTokens(pt).totalSupplyTok(0);
@@ -168,13 +150,10 @@ contract TheseusDAO {
         address duplicateGuard;
         for (uint256 i = 0; i < _signatures.length; ) {
             address recovered = recover(_hash, _signatures[i]);
-
-console.log("recovered: ",recovered);
             if (recovered <= duplicateGuard) {
                 revert DUPLICATE_OR_UNORDERED_SIGNATURES();
             }
             duplicateGuard = recovered;
-
             if (isTokenHolder(recovered)) {
                 //get voting power per signer
                 uint _votingPower = getProportionOfVotes(recovered);
@@ -184,8 +163,6 @@ console.log("recovered: ",recovered);
                 ++i;
             }
         }
-        console.log("votes: ",_votes);
-        console.log("votes needed: ",votesNeededPercentage);
          if (_votes < votesNeededPercentage) {
             revert INSUFFICIENT_VALID_SIGNATURES();
         }
@@ -194,9 +171,7 @@ console.log("recovered: ",recovered);
     function executeTransaction(uint _id,address payable to,uint256 value,bytes calldata data,bytes[] calldata signatures) public onlyOwner checkTime(_id) returns (bytes memory) {
         bytes32 _hash = getTransactionHash(_id, to, value, data);
         nonceUsed[_id] = true;
-       console.log("here now");
         checkSignaturesAndVotes(signatures, _hash);
-        console.log("passed check sigs");
         (bool success, bytes memory result) = to.call{value: value}(data);
         if (!success) {
             revert TX_FAILED();
@@ -237,6 +212,10 @@ console.log("recovered: ",recovered);
     function addPoolTokens(address _pt) public {
         require(pt == address(0),"pool tokens already set");
         pt = _pt;
+    } 
+    function addExchange(address _exchange) public {
+        require(exchange == address(0),"exchange already set");
+        exchange = _exchange;
     }
 
     function updatePoolTokens(address _pt) public onlySelf {
@@ -244,6 +223,15 @@ console.log("recovered: ",recovered);
     }
     function updateStaking(address _staking) public onlySelf {
         staking = _staking;
+    }
+    function updateExchange(address _exchange) public onlySelf {
+        exchange = _exchange;
+    }
+    function depositFunds(uint _amount)public onlySelf{
+        require(_amount>0,"amount must be greater than 0");
+        require(IERC20(usdc).balanceOf(address(this)) >=_amount,"Not enough balance");
+        IERC20(usdc).approve(exchange,_amount);
+        Exchange(exchange).deposit(_amount);
     }
 
     receive() external payable {}
