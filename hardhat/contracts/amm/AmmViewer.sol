@@ -29,8 +29,8 @@ contract AmmViewer{
         
     event AddAmm(address ammAddr,string name,string symbol, bytes32 payload);
     event RemoveAmm(address ammAddr);
-    event AmmOpenPosition(address ammAddr,  int amount);
-    event AmmClosePosition(address ammAddr,  int amount);
+    event AmmOpenPosition(address ammAddr,int amount,uint timestamp);
+    event AmmClosePosition(address ammAddr,int amount,uint timestamp);
     event Freeze(address amm);
     event UnFreeze(address amm);
     event PriceChange(address amm, uint currentIndex,uint indexPrice,uint baseAsset,uint quoteAsset,int ffr);
@@ -53,10 +53,10 @@ contract AmmViewer{
         require(success, "setBaseAssetStarter failed");
     }
     function emitAmmOpenPosition( int amount) external onlyAmmContract{
-        emit AmmOpenPosition(msg.sender,amount);
+        emit AmmOpenPosition(msg.sender,amount,block.timestamp);
     }
     function emitAmmClosePosition( int amount) external onlyAmmContract{
-        emit AmmClosePosition(msg.sender,amount);
+        emit AmmClosePosition(msg.sender,amount,block.timestamp);
     }
     function emitFreeze() external onlyAmmContract{
         emit Freeze(msg.sender);

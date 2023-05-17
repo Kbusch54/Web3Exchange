@@ -216,14 +216,13 @@ contract Exchange is VaultMain {
         poolOutstandingLoans[_position.amm] -= _loanAmount;
         uint _totalAmount;
         tradeCollateral[_tradeId] += uint(_usdcAmt);
-        emit ClosePosition(_tradeId, _closePrice,block.timestamp, int(_collateral)+_usdcAmt- _payment + int(_loanAmount));
         if(int(_collateral)+_usdcAmt>= _payment + int(_loanAmount)){
             //made profit
             _payments(_tradeId, _position.amm);
             require(LoanPool(loanPool).repayLoan(_tradeId, _loanAmount, _position.amm));
             uint _amountToPay = uint(_usdcAmt)+_collateral- _loanAmount;
             _totalAmount = checkPoolUsdc( _amountToPay,_position.trader,_position.amm);
-        }else if(int(_collateral)+_usdcAmt>= _payment){
+        }else if(int(_collateral)+_usdcAmt>= _payment && int(_collateral)+_usdcAmt<int(_loanAmount)){
             //made enough to payments but not enough to pay loan
             _payments(_tradeId,_position.amm);
             uint _remaining =_loanAmount - tradeCollateral[_tradeId];
@@ -235,9 +234,8 @@ contract Exchange is VaultMain {
             uint _amountToPay = _loanAmount>tradeCollateral[_tradeId]? _loanAmount -tradeCollateral[_tradeId]:tradeCollateral[_tradeId]-_loanAmount;
             _totalAmount = checkPoolUsdc( _amountToPay,address(0),_position.amm);
         }
-        tradeCollateral[_tradeId] =0;
+         emit ClosePosition(_tradeId, _closePrice,block.timestamp, (int(_collateral)+_usdcAmt)- (_payment + int(_loanAmount)));
         tradeBalance[_tradeId] =0;
-        isActive[_tradeId] = false;
         return (_usdcAmt,_totalAmount);
     }
 

@@ -75,7 +75,7 @@ mapping(bytes32=>uint) public priceMap;
     function updateTheseusDao(address _theseusDao) external onlyTheseusDao{
         theseusDao = _theseusDao;
     }
-    function updateQuoteAssetStarter(address _amm, uint _quoteAssetStarter) external onlyTheseusDao isAmmContract(_amm){
+    function updateQuoteAssetStarter(address _amm, uint _quoteAssetStarter) external isAmmContract(_amm){
         bytes memory data = abi.encodeWithSignature("setBaseAssetStarter(uint256)",_quoteAssetStarter);
         (bool success, ) = _amm.call(data);
         require(success, "setBaseAssetStarter failed");

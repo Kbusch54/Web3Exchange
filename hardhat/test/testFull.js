@@ -22,7 +22,7 @@ const {
 describe("Testing Full deployment", function () {
     async function deployContracts() {
         const [owner, otherAccount,payload] =await hre.ethers.getSigners();
-        const USDC = await hre.ethers.getContractFactory("FakeUsdc");
+    const USDC = await hre.ethers.getContractFactory("FakeUsdc");
     const totalSupply = ethers.utils.parseUnits("500000", 6);
     const usdcName = 'USDC';
     const usdcSymbol = 'USDC';
@@ -155,12 +155,13 @@ describe("Testing Full deployment", function () {
 
         console.log(tokenIDForTesla,tokenIdForGoogle,tokenIdForMeta);
     //creating ariadnes
-    const teslaAriadneAddress = await createAriadnes.callStatic.create2('tesla',teslaAmm.address,tokenIDForTesla);
-    await createAriadnes.create2('tesla',teslaAmm.address,tokenIDForTesla);
-    const googleAriadneAddress = await createAriadnes.callStatic.create2('google',googleAmm.address,tokenIdForGoogle);
-    await createAriadnes.create2('google',googleAmm.address,tokenIdForGoogle);
-    const metaAriadneAddress = await createAriadnes.callStatic.create2('meta',metaAmm.address,tokenIdForMeta);
-    await createAriadnes.create2('meta',metaAmm.address,tokenIdForMeta);
+    const teslaAriadneAddress =  await createAriadnes.computedAddress('tesla');
+await createAriadnes.create2('tesla',teslaAmm.address,tokenIDForTesla);
+const googleAriadneAddress = await createAriadnes.computedAddress('google');
+await createAriadnes.create2('google',googleAmm.address,tokenIdForGoogle);
+const metaAriadneAddress = await createAriadnes.computedAddress('meta');
+await createAriadnes.create2('meta',metaAmm.address,tokenIdForMeta)
+
 
     console.log('ariadnes created');
     //loan pool adding amm's
@@ -856,23 +857,22 @@ const loanPoolABI = loanPoolCon.interface.format();
 
 const ariadneCon = await hre.ethers.getContractFactory("AriadneDAO");
 const ariadneABI = ariadneCon.interface.format();
-    //logging outy the addresses
-    // console.log('ariadne tesla',teslaAriadneAddress);
-    // console.log('ariadne google',googleAriadneAddress);
-    // console.log('ariadne meta',metaAriadneAddress);
-    // console.log("Tesla amm",teslaAmm.address);
-    // console.log("Google amm",googleAmm.address);
-    // console.log("Meta amm",metaAmm.address);
-    // console.log("amm viewer",ammViewer.address);
-    // console.log("loan pool",loanPool.address);
-    // console.log("staking",staking.address);
-    // console.log("exchange",exchange.address);
-    // console.log("theseus",theseus.address);
-    // console.log("pool tokens",poolTokens.address);
-    // console.log("usdc",usdc.address);
-    // console.log("payload",payload.address);
-    // console.log("exchange viewer",exchangeViewer.address);
-    // console.log("create ariadnes",createAriadnes.address);
+console.log('const ariadneTesla =',teslaAriadneAddress);
+console.log('const ariadneGoogle =',googleAriadneAddress);
+console.log('const ariadneMeta =',metaAriadneAddress);
+console.log("const createAriadnes = ",createAriadnes.address);
+console.log("const TeslaAmm = ",teslaAmm.address);
+console.log("const GoogleAmm = ",googleAmm.address);
+console.log("const MetaAmm = ",metaAmm.address);
+console.log("const ammViewer = ",ammViewer.address);
+console.log("const loanpool = ",loanPool.address);
+console.log("const staking = ",staking.address);
+console.log("const exchange = ",exchange.address);
+console.log("const theseus = ",theseus.address);
+console.log("const poolTokens = ",poolTokens.address);
+console.log("const usdc = ",usdc.address);
+console.log("const payload = ",payload.address);
+console.log("const exchangeViewer = ",exchangeViewer.address);
         return { 
     owner, otherAccount,usdc,exchange,theseus,poolTokens,loanPool,
     staking,ammViewer,teslaAmm,googleAmm,metaAmm,createAriadnes,payload,
@@ -1075,7 +1075,7 @@ it.skip('should stake and allow theseus to deposit usdc in vault',async function
 });
 
 it('should allow open position on tesla amm',async function(){
-  const {owner, otherAccount,teslaAmm,usdc,exchange,theseus,poolTokens,loanPool,staking,ABI,loanPoolABI,exhcnageABI,sign,getFunctionCallData,getMethodNameHash,getTransactionHash,decodeCallData,decodeTransaction}=await loadFixture(deployContracts);
+  const {owner, otherAccount,ammViewer,teslaAmm,usdc,exchange,theseus,poolTokens,loanPool,staking,ABI,loanPoolABI,exhcnageABI,sign,getFunctionCallData,getMethodNameHash,getTransactionHash,decodeCallData,decodeTransaction}=await loadFixture(deployContracts);
   await usdc.approve(exchange.address,ethers.utils.parseUnits("5000", 6));
   await exchange.deposit(ethers.utils.parseUnits("5000", 6));
   await staking.stake(ethers.utils.parseUnits("1000", 6),theseus.address);
@@ -1089,6 +1089,7 @@ it('should allow open position on tesla amm',async function(){
   const collateral = parseUnits("250", 6);
   const leverage = 3;
   const side = 1;
+  await ammViewer.updateQuoteAssetStarter(teslaAmm.address,100);
   await exchange.openPosition(teslaAmm.address, collateral, leverage, side);
   const loanAmount = collateral.mul(leverage);
   const tradeIds = await exchange.callStatic.getTradeIds(owner.address);
@@ -1114,7 +1115,16 @@ it('should allow open position on tesla amm',async function(){
   console.log('quoteAssets: $',quoteAssets);
   const remainder = quoteAssets.sub(position.positionSize);
   console.log('remainder: #',formatUnits(remainder,8));
+
+
+  await exchange.closeOutPosition(tradeIds[0]);
+  const postQuoteAssets = await teslaAmm.callStatic.getQuoteReserve();
+  console.log('postQuoteAssets: $',formatUnits(postQuoteAssets,6));
+  const postPosition = await exchange.callStatic.positions(tradeIds[0]);
+  console.log("postPosition", postPosition);
+  console.log('new balance: $',formatUnits(await exchange.availableBalance(owner.address),6));
 });
+
 
 
 });
