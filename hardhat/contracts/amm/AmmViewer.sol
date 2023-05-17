@@ -47,6 +47,11 @@ contract AmmViewer{
         isAmm[ammAddr] = false;
         emit RemoveAmm(ammAddr);
     }
+    function updateQuoteAssetStarter(address _amm, uint _quoteAssetStarter) external onlyTheseusDao isAmmContract(_amm){
+        bytes memory data = abi.encodeWithSignature("setBaseAssetStarter(uint256)",_quoteAssetStarter);
+        (bool success, ) = _amm.call(data);
+        require(success, "setBaseAssetStarter failed");
+    }
     function emitAmmOpenPosition( int amount) external onlyAmmContract{
         emit AmmOpenPosition(msg.sender,amount);
     }

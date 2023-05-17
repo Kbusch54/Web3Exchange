@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
+import "./VAmm.sol";
 
 contract TestAmmViewer{
     address public theseusDao;
@@ -73,6 +74,11 @@ mapping(bytes32=>uint) public priceMap;
     }
     function updateTheseusDao(address _theseusDao) external onlyTheseusDao{
         theseusDao = _theseusDao;
+    }
+    function updateQuoteAssetStarter(address _amm, uint _quoteAssetStarter) external onlyTheseusDao isAmmContract(_amm){
+        bytes memory data = abi.encodeWithSignature("setBaseAssetStarter(uint256)",_quoteAssetStarter);
+        (bool success, ) = _amm.call(data);
+        require(success, "setBaseAssetStarter failed");
     }
     function setPriceMap(bytes32 _stock,uint _price)public{
         priceMap[_stock] = _price;

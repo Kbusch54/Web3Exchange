@@ -16,6 +16,7 @@ contract VAmm {
     uint16 public indexPricePeriod;
     bool public isFrozen =true;
     uint public lastFundingRateIndex;
+    uint public baseAssetStarter=250;
     uint public absolutePositionSize; //when zero and upon new trade set market price to index price
     /**
      * @dev Struct representing a snapshot of liquidity changes.
@@ -82,7 +83,7 @@ contract VAmm {
                 timestamp: block.timestamp,
                 blockNumber: block.number,
                 totalPositionSize: 0,
-                quoteAssetReserve: _quoteAssetAmount * 100000000,
+                quoteAssetReserve: _quoteAssetAmount * 10**8,
                 baseAssetReserve: _baseAsset,
                 startIndexPrice: _indexPrice,
                 finalIndexPrice: 0
@@ -106,7 +107,7 @@ contract VAmm {
                 timestamp: block.timestamp,
                 blockNumber: block.number,
                 totalPositionSize: 0,
-                quoteAssetReserve: _quoteAssetAmount * 100000000,
+                quoteAssetReserve: _quoteAssetAmount * 10**8,
                 baseAssetReserve: _baseAsset,
                 startIndexPrice: _indexPrice,
                 finalIndexPrice: 0
@@ -156,7 +157,7 @@ contract VAmm {
                 liquidityChangedSnapshots.length - 1
             ];
         return
-            (lastSnapshot.baseAssetReserve * 100000000) /
+            (lastSnapshot.baseAssetReserve * 10**8) /
             lastSnapshot.quoteAssetReserve;
     }
 
@@ -235,7 +236,7 @@ contract VAmm {
             //get oracle index price
             if(isFrozen){
                 getIndexPriceFromOracle();
-                unFreeze(indexPrice,10000);
+                unFreeze(indexPrice,baseAssetStarter);
             }
         LiquidityChangedSnapshot
             memory lastSnapshot = liquidityChangedSnapshots[
@@ -404,7 +405,11 @@ contract VAmm {
     }
 
     function setOracle(address _oracle) external {
-        require(msg.sender == address(ammViewer), "only theseus dao");
+        require(msg.sender == address(ammViewer), "only amm viewer");
         oracle = _oracle;
+    }
+    function setBaseAssetStarter(uint _baseAssetStarter) external {
+        require(msg.sender == address(ammViewer), "only amm viewer");
+        baseAssetStarter = _baseAssetStarter;
     }
 }

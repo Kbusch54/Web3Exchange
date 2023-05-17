@@ -126,7 +126,7 @@ describe("Testing Full deployment", function () {
     const googlePriced = parseUnits("1500", 6);
     const metaPriced = parseUnits("200", 6);
     
-    const uniQuoteAsset = ethers.utils.parseUnits("10000", 6);
+    const uniQuoteAsset = ethers.utils.parseUnits("1", 6);
     const indexPricePeriod = time.duration.hours(4);
     await teslaAmm.init(teslaBytes,teslaPriced,uniQuoteAsset,indexPricePeriod,exchange.address);
     await googleAmm.init(googleBytes,googlePriced,uniQuoteAsset,indexPricePeriod,exchange.address);
@@ -136,9 +136,9 @@ describe("Testing Full deployment", function () {
     ////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////
-    await ammViewer.setPriceMap(teslaBytes,parseUnits("400", 6));
-    await ammViewer.setPriceMap(googleBytes,parseUnits("1590", 6));
-    await ammViewer.setPriceMap(metaBytes,parseUnits("190", 6));
+    await ammViewer.setPriceMap(teslaBytes,parseUnits("300", 8));
+    await ammViewer.setPriceMap(googleBytes,parseUnits("1590", 8));
+    await ammViewer.setPriceMap(metaBytes,parseUnits("190", 8));
     ////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////
@@ -1076,13 +1076,17 @@ it.skip('should stake and allow theseus to deposit usdc in vault',async function
 
 it('should allow open position on tesla amm',async function(){
   const {owner, otherAccount,teslaAmm,usdc,exchange,theseus,poolTokens,loanPool,staking,ABI,loanPoolABI,exhcnageABI,sign,getFunctionCallData,getMethodNameHash,getTransactionHash,decodeCallData,decodeTransaction}=await loadFixture(deployContracts);
-  await usdc.approve(exchange.address,ethers.utils.parseUnits("4000", 6));
-  await exchange.deposit(ethers.utils.parseUnits("3000", 6));
+  await usdc.approve(exchange.address,ethers.utils.parseUnits("5000", 6));
+  await exchange.deposit(ethers.utils.parseUnits("5000", 6));
   await staking.stake(ethers.utils.parseUnits("1000", 6),theseus.address);
-  await staking.stake(ethers.utils.parseUnits("1000", 6),teslaAmm.address);
+  await staking.stake(ethers.utils.parseUnits("3000", 6),teslaAmm.address);
+
+
+  const quoteAssets1 = await teslaAmm.callStatic.getQuoteReserve();
+  console.log('quoteAssets: $',quoteAssets1);
 
   const prevUserBal = await exchange.availableBalance(owner.address);
-  const collateral = parseUnits("200", 6);
+  const collateral = parseUnits("250", 6);
   const leverage = 3;
   const side = 1;
   await exchange.openPosition(teslaAmm.address, collateral, leverage, side);
@@ -1096,11 +1100,20 @@ it('should allow open position on tesla amm',async function(){
   const expectedFee = loanAmount.mul(tradingFee).div(ethers.utils.parseUnits("10", 5));
   console.log('expectedFee',formatUnits(expectedFee,6));
   const expectedPostUserBal = prevUserBal.sub(collateral).sub(expectedFee);
-  console.log('expectedPostUserBal',formatUnits(expectedPostUserBal,5));
+  console.log('expectedPostUserBal: $',formatUnits(expectedPostUserBal,6));
   expect(postUserBal).to.equal(expectedPostUserBal);
 
   console.log('previous balance: $',formatUnits(prevUserBal,6));
   console.log('post balance: $',formatUnits(postUserBal,6));
+  const marketPrice = await teslaAmm.callStatic.getAssetPrice();
+  console.log('marketPrice: $',formatUnits(marketPrice,6));
+  const indexPrice = await teslaAmm.callStatic.indexPrice();
+  console.log('indexPrice: $',formatUnits(indexPrice,6));
+
+  const quoteAssets = await teslaAmm.callStatic.getQuoteReserve();
+  console.log('quoteAssets: $',quoteAssets);
+  const remainder = quoteAssets.sub(position.positionSize);
+  console.log('remainder: #',formatUnits(remainder,8));
 });
 
 
