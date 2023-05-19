@@ -25,7 +25,8 @@ contract CreateAriadnes {
          uint256 indexed contractId,
         string name,
         address indexed contractAddress,
-        address indexed ammAddress
+        address indexed ammAddress,
+        uint256 tokenId
     );
   event AriadneVotingTimeChanged(
         address indexed ariadneDAO,
@@ -176,7 +177,8 @@ contract CreateAriadnes {
             ariadneDAOs.length-1,
             _name,
             address(ariadneDAO),
-            _amm
+            _amm,
+            _tokenId
         );
         return address(ariadne_address);
     }

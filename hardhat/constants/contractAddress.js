@@ -1,22 +1,22 @@
-const ariadneTesla = '0xF4Bc8B895c906A23d88da2C7FeEB8875E3A3Af45'
-const ariadneGoogle = '0xf5B4F62029E248060D3e9746AB8e00c51143d55f'
-const ariadneMeta = '0xf71FE73b94b209CEEb73eAC8d2c11F97eeF4218c'
-const createAriadnes =  '0xeA0b45d79DfFf9D0eA96d549d5247700dEa7e149'//
-const TeslaAmm =  '0xFe8c55ae33E7980aeC84a9655706f838a6e1Cc9f'
-const GoogleAmm =  '0x787B370D9e4DCc9B2E642b9f952a14844253C2d6'
-const MetaAmm =  '0x216371705423F981fc91590F06CB54b243c7569b'
-const ammViewer =  '0x0c2BacF2DB04a25EA5DEF92aB115Ba5770Be3f6E'//
-const loanpool =  '0x31a6314fE6a87EA0F98969765753f7e6573963CF'//
-const staking =  '0x37f5CEC042b1E78E8a60cDF5A11867108Ae0b17c'//
-const exchange =  '0xd98387fC0Dcdf7FF2DF0E252B0E351f608Aad48A'//
-const theseus =  '0xc4b9f4e8d1ccbc5fad290840ee8f5fc96479a7d5'//
-const poolTokens =  '0x4aA13F7D3618594BfE3171C66E8283c9d7d4eB34'
-const payload =  '0x487A152E164675219F40Ec5113ee50BEbb5957be'
-const exchangeViewer =  '0x17e02A7CDeC532f1CdcC090b8dDBbDD40E512C4f'
-const usdc =  '0x3741fe87b3adb8eda54aee2ea8ffdc9af536a7e9'
+const ariadneTesla = "0x5Eb36bFf2aA86235e7173E803135751368FB5b25"
+const ariadneGoogle = "0xAE9EF33B3f3D397C774251F95B49df272e91E5fD"
+const ariadneMeta = "0xc05e5d85bfed9754169853dFdFCCAF245533b43E"
+const createAriadnes =  "0x65e939FC9982a97cc082AF28E7745AE57fA1Ddd5"
+const TeslaAmm =  "0xFE9303aC577adDFa41458D13BAA0023180a7C489"
+const GoogleAmm =  "0xBB1116C005A889C281006EAC840FDF1346070e32"
+const MetaAmm =  "0xaD0AB2020FE77C5bC768d99E3E12201BFee2495A"
+const ammViewer =  "0xe503841ca51216514d1638bE712a6a88A349bF4E"
+const loanpool =  "0xc37E852B05500e0FB4312003c757b250BB5c1c32"
+const staking =  "0xF5f8b38bFf710d3deFfBf40d776976104d11151b"
+const exchange =  "0xce30471cA2438e49409B2f07Ad7256f8f43A9302"
+const theseus =  "0x77BC795BedA4DA1f45339DC85126a7fcb1F90671"
+const poolTokens =  "0xbF5413ac1f9F808D284B702C743eC55Fb8eA64c5"
+const payload =  "0xDd997bc170d6EeCF8a06166578f42Aa1b5C5089a"
+const exchangeViewer =  "0x01704426449723Cf7A72c5e2F3EF07ed859b74A2"
+const usdc =  "0x242d0DC7eD9D52c9bF45187e5B344Ae757D9a835"
 
+// npx graph add 0x77BC795BedA4DA1f45339DC85126a7fcb1F90671 --abi ../hardhat/artifacts/contracts/daos/TheseusDAO.sol/TheseusDAO.json --contract-name TheseusDAO     
 
-
-const block =9016915;
+const block =9029015;
 
 // npx graph add 0x37f5CEC042b1E78E8a60cDF5A11867108Ae0b17c --abi ../hardhat/artifacts/contracts/tokens/Staking.sol/Staking.json --contract-name Staking 

@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "../tokens/PoolTokens.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../exchange/Exchange.sol";
+import "hardhat/console.sol";
 
     error NOT_OWNER();
     error NOT_SELF();
@@ -18,15 +19,15 @@ error INVALID_SIGNATURES_REQUIRED();
 error INSUFFICIENT_VALID_SIGNATURES();
 error NOT_ENOUGH_SIGNERS();
 contract TheseusDAO {
-    using ECDSA for bytes32;
+       using ECDSA for bytes32;
     address public pt;
     address public staking;
     address public usdc;
     address exchange;
     uint public currentId;//acting as nonce for proposals
     uint public votingTime;
-    uint maxVotingPower; // max quantity of votes allowed per user regardless of tokens held
-    uint minVotingPower; //min token req to vote
+    uint public maxVotingPower; // max quantity of votes allowed per user regardless of tokens held
+    uint public minVotingPower; //min token req to vote
     uint public insuranceFundMin; //minimum needed in insurance fund
     uint public votesNeededPercentage; //votes needed to pass a proposal
     mapping(uint => bool) public isProposalPassed;
@@ -56,6 +57,12 @@ contract TheseusDAO {
         bytes32 transactionHash,
         uint256 timeStamp
     );
+   
+   event VotesNeededPercentageChanged(uint256 newVotesNeededPercentage);
+    event VotingTimeChanged(uint256 newVotingTime);
+    event MaxVotingPowerChanged(uint256 newMaxVotingPower);
+    event MinVotingPowerChanged(uint256 newMinVotingPower);
+    event InsuranceFundMinChanged(uint256 newInsuranceFundMin);
     modifier onlyOwner() {
         if (PoolTokens(pt).balanceOf(msg.sender,0)<=0 ) {
             revert NOT_OWNER();
@@ -138,10 +145,7 @@ contract TheseusDAO {
     function getTotalSupply() public view returns(uint) {
         return PoolTokens(pt).totalSupplyTok(0);
     }
-     function updateSignaturesRequired(uint256 newVotesNeededPercentage)public onlySelf{
-        votesNeededPercentage = newVotesNeededPercentage;
-        //emit event
-    }
+   
      function checkSignaturesAndVotes(
         bytes[] calldata _signatures,
         bytes32 _hash
@@ -232,6 +236,35 @@ contract TheseusDAO {
         require(IERC20(usdc).balanceOf(address(this)) >=_amount,"Not enough balance");
         IERC20(usdc).approve(exchange,_amount);
         Exchange(exchange).deposit(_amount);
+    }
+
+
+    function updateSignaturesRequired(
+        uint256 newVotesNeededPercentage
+    ) public onlySelf {
+        votesNeededPercentage = newVotesNeededPercentage;
+        emit VotesNeededPercentageChanged(
+            newVotesNeededPercentage
+        );
+    }
+
+    function updateVotingTime(uint256 newVotingTime) public onlySelf {
+        votingTime = newVotingTime;
+        emit VotingTimeChanged(newVotingTime);
+    }
+
+    function updateMaxVotingPower(uint256 newmaxVotingPower) public onlySelf {
+        maxVotingPower = newmaxVotingPower;
+        emit MaxVotingPowerChanged(newmaxVotingPower);
+    }
+
+    function updateMinVotingPower(uint256 newMinVotingPower) public onlySelf {
+        minVotingPower = newMinVotingPower;
+        emit MinVotingPowerChanged(newMinVotingPower);
+    }
+    function updateInsuranceFundMin(uint256 newInsuranceFundMin) public onlySelf {
+        insuranceFundMin = newInsuranceFundMin;
+        emit InsuranceFundMinChanged(newInsuranceFundMin);
     }
 
     receive() external payable {}

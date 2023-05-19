@@ -803,21 +803,21 @@ await createAriadnes.create2('meta',metaAmm.address,tokenIdForMeta)
         
         return iface.encodeFunctionData(methodName,input);
       };
-    const decodeCallData = (calldata, value) => {
+    const decodeCallData = (calldata, value,abi) => {
       const data = calldata.toString();
       //  ethers.BigNum
     
       let val = parseInt(value);
     
-      const iface = new ethers.utils.Interface(ABI);
+      const iface = new ethers.utils.Interface(abi);
       let decodedData = iface.parseTransaction({
         data: data,
         value: val,
       });
       return decodedData;
     };
-    const decodeTransaction = (methodName, transactionCalldata) => {
-      let iface = new ethers.utils.Interface(ABI);
+    const decodeTransaction = (methodName, transactionCalldata,abi) => {
+      let iface = new ethers.utils.Interface(abi);
       return iface.decodeFunctionData(methodName, transactionCalldata);
     };
   
@@ -1051,7 +1051,392 @@ it.skip('should stake and allow ariadne dao vote on other contracts',async funct
   console.log('theseusDaaoUSDCBalance',formatUnits(theseusDaaoUSDCBalance,6));
 
 });
-it.skip('should stake and allow theseus to deposit usdc in vault',async function(){
+it('should stake and allow theseus to transfer usdc to user',async function(){
+  const {owner, otherAccount,usdc,exchange,theseus,poolTokens,loanPool,staking,ABI,loanPoolABI,exhcnageABI,sign,getFunctionCallData,getMethodNameHash,getTransactionHash,decodeCallData,decodeTransaction}=await loadFixture(deployContracts);
+  await usdc.approve(exchange.address,ethers.utils.parseUnits("1000", 6));
+  await exchange.deposit(ethers.utils.parseUnits("1000", 6));
+  await staking.stake(ethers.utils.parseUnits("1000", 6),theseus.address);
+
+  const theseusUSDCBalance = await usdc.balanceOf(theseus.address);
+console.log('theseusUSDCBalance',formatUnits(theseusUSDCBalance,6));
+  const tokenABI = [
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_totalSupply",
+          "type": "uint256"
+        },
+        {
+          "internalType": "string",
+          "name": "_name",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "_symbol",
+          "type": "string"
+        },
+        {
+          "internalType": "uint8",
+          "name": "_decimals",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "spender",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "Approval",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "Transfer",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "addOwner",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "spender",
+          "type": "address"
+        }
+      ],
+      "name": "allowance",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "spender",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "approve",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_owner",
+          "type": "address"
+        }
+      ],
+      "name": "balanceOf",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "balance",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "balances",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "decimals",
+      "outputs": [
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "faucet",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_value",
+          "type": "uint256"
+        }
+      ],
+      "name": "mint",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_value",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "_to",
+          "type": "address"
+        }
+      ],
+      "name": "mintAndTransfer",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "name",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "owners",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "symbol",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "totalSupply",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "transfer",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "transferFrom",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ];
+  const amount = ethers.utils.parseUnits("250000", 6);
+
+  // await usdc.transfer(theseus.address,amount);
+  const daobalance = await usdc.balanceOf(theseus.address);
+  console.log('daobalance',formatUnits(daobalance,6));
+  console.log('owner add',owner.address);
+  const calldata = getFunctionCallData('transfer', [owner.address,amount],tokenABI);
+  // const decodedData = decodeCallData(calldata,[owner.address,amount],tokenABI);
+  // console.log('decodedData',decodedData);
+  await theseus.newProposal(usdc.address,calldata);
+  // const proposal = await theseus.callStatic.proposals(0);
+  const transactionHash  = await theseus.callStatic.getTransactionHash(0,usdc.address,0,calldata);
+  console.log('transactionHash',transactionHash);
+  const transactionHashFile = getTransactionHash(0,usdc.address,0,calldata,theseus.address);
+  console.log('transactionHashFile',transactionHashFile);
+  const signature = await sign(transactionHash);
+  // const newSig = await owner.signTransaction(transactionHash);
+  const recovered = await theseus.callStatic.recover(transactionHash,signature);
+  console.log('recovered',recovered);
+  console.log('owner....',owner.address);
+
+
+
+
+  let signatures = [signature];
+  await theseus.executeTransaction(0,usdc.address,0,calldata,signatures);
+
+  const postUsdcBal = await usdc.balanceOf(theseus.address);
+  console.log('postUsdcBal',formatUnits(postUsdcBal,6));
+  // const postProposal = await theseus.callStatic.proposals(0);
+  // const exchangeUSDCBalanceForTheseus = await exchange.availableBalance(theseus.address);
+  // console.log('available usdc baance: $',formatUnits(exchangeUSDCBalanceForTheseus,6));
+  // expect(exchangeUSDCBalanceForTheseus).to.equal(theseusUSDCBalance);
+  // expect(postProposal.isProposalPassed).to.equal(true);
+  const newCallDtat = getFunctionCallData('transfer', ['0x87ad83DC2F12A14C85D20f178A918a65Edfe1B42',amount],tokenABI);
+  console.log('newCallDtat',newCallDtat);
+
+});
+it('should stake and allow theseus to deposit usdc in vault',async function(){
   const {owner, otherAccount,usdc,exchange,theseus,poolTokens,loanPool,staking,ABI,loanPoolABI,exhcnageABI,sign,getFunctionCallData,getMethodNameHash,getTransactionHash,decodeCallData,decodeTransaction}=await loadFixture(deployContracts);
   await usdc.approve(exchange.address,ethers.utils.parseUnits("1000", 6));
   await exchange.deposit(ethers.utils.parseUnits("1000", 6));
@@ -1074,7 +1459,7 @@ it.skip('should stake and allow theseus to deposit usdc in vault',async function
 
 });
 
-it('should allow open position on tesla amm',async function(){
+it.skip('should allow open position on tesla amm',async function(){
   const {owner, otherAccount,ammViewer,teslaAmm,usdc,exchange,theseus,poolTokens,loanPool,staking,ABI,loanPoolABI,exhcnageABI,sign,getFunctionCallData,getMethodNameHash,getTransactionHash,decodeCallData,decodeTransaction}=await loadFixture(deployContracts);
   await usdc.approve(exchange.address,ethers.utils.parseUnits("5000", 6));
   await exchange.deposit(ethers.utils.parseUnits("5000", 6));

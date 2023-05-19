@@ -21,6 +21,7 @@ const signer = new ethers.Wallet(process.env.GOERLI_PRIVATE_KEY, alchemyProvider
 //   const usdcDecimals = 6;
 //   const usdc = await USDC.deploy(totalSupply,usdcName,usdcSymbol,usdcDecimals);
 //   await usdc.deployed();
+//   console.log('usdc deployed',usdc.address);
 //   const Theseus = await hre.ethers.getContractFactory('TheseusDAO');
 //   //votingTime, maxVotingPower, minVotingPower,InsuranceFund, votesNeededePercentage
 //   const votingTime = time.duration.hours(2);
@@ -30,7 +31,7 @@ const signer = new ethers.Wallet(process.env.GOERLI_PRIVATE_KEY, alchemyProvider
 //   const votesNeededePercentage = 7500;//75%
 //   const theseus = await Theseus.deploy(votingTime, maxVotingPower, minVotingPower,InsuranceFund, votesNeededePercentage,usdc.address);
 //   await theseus.deployed();
-//   console.log('theseus deployed');
+//   console.log('theseus deployed',theseus.address);
 //   const Staking = await hre.ethers.getContractFactory('Staking');
 //   const staking = await Staking.deploy();
 //   await staking.deployed();
@@ -105,26 +106,8 @@ const signer = new ethers.Wallet(process.env.GOERLI_PRIVATE_KEY, alchemyProvider
 // const ammViewer = await AmmViewer.deploy(payload.address,`0x${redstonePayload}`);
 // await ammViewer.deployed();
 
-const theseusAddress = '0xc4b9f4e8d1ccbc5fad290840ee8f5fc96479a7d5';
-const stakingAddress = '0x37f5CEC042b1E78E8a60cDF5A11867108Ae0b17c';
-const exchangeAddress = '0xd98387fC0Dcdf7FF2DF0E252B0E351f608Aad48A';
-const loanPoolAddress= '0x31a6314fE6a87EA0F98969765753f7e6573963CF';
-const exchangeViewerAddresss='0x17e02A7CDeC532f1CdcC090b8dDBbDD40E512C4f';
-const ammviewerAddress = '0x0c2BacF2DB04a25EA5DEF92aB115Ba5770Be3f6E';
-const createAriadnesAddress = '0xeA0b45d79DfFf9D0eA96d549d5247700dEa7e149';
-const poolTokensAddress = '0x4aA13F7D3618594BfE3171C66E8283c9d7d4eB34';
-const payloadAddress='0x487A152E164675219F40Ec5113ee50BEbb5957be';
-const usdcAddress = '0x3741fe87b3adb8eda54aee2ea8ffdc9af536a7e9';
-
-const theseus = await ethers.getContractAt('TheseusDAO',theseusAddress);
-const staking = await ethers.getContractAt('Staking',stakingAddress);
-const exchange = await ethers.getContractAt('Exchange',exchangeAddress);
-const loanPool = await ethers.getContractAt('LoanPool',loanPoolAddress);
-const exchangeViewer = await ethers.getContractAt('ExchangeViewer',exchangeViewerAddresss);
-const ammViewer = await ethers.getContractAt('AmmViewer',ammviewerAddress);
-const createAriadnes = await ethers.getContractAt('CreateAriadnes',createAriadnesAddress);
-console.log('ammViewer deployed  ',ammViewer.address);
-// //deploying and setting vamm * 3
+// console.log('ammViewer deployed  ',ammViewer.address);
+// // //deploying and setting vamm * 3
 // const VAmm = await hre.ethers.getContractFactory('VAmm');
 // const teslaAmm = await VAmm.deploy(ammViewer.address);
 // await teslaAmm.deployed();
@@ -137,90 +120,97 @@ console.log('ammViewer deployed  ',ammViewer.address);
 // console.log('vamm deployed  ',teslaAmm.address);
 // console.log('vamm deployed  ',googleAmm.address);
 // console.log('vamm deployed  ',metaAmm.address);
-const teslaBytes = ethers.utils.formatBytes32String("TSLA");
-const googleBytes = ethers.utils.formatBytes32String("GOOG");
-const metaBytes = ethers.utils.formatBytes32String("META");
-const teslaPriced = ethers.utils.parseUnits("300", 6);
-const googlePriced = ethers.utils.parseUnits("1500", 6);
-const metaPriced = ethers.utils.parseUnits("190", 6);
+// const teslaBytes = ethers.utils.formatBytes32String("TSLA");
+// const googleBytes = ethers.utils.formatBytes32String("GOOG");
+// const metaBytes = ethers.utils.formatBytes32String("META");
+// const teslaPriced = ethers.utils.parseUnits("300", 6);
+// const googlePriced = ethers.utils.parseUnits("1500", 6);
+// const metaPriced = ethers.utils.parseUnits("190", 6);
 
-const uniQuoteAsset = ethers.utils.parseUnits("10000", 6);
-const indexPricePeriod = time.duration.hours(4);
+// const uniQuoteAsset = ethers.utils.parseUnits("10000", 6);
+// const indexPricePeriod = time.duration.hours(4);
 // await teslaAmm.init(teslaBytes,teslaPriced,uniQuoteAsset,indexPricePeriod,exchange.address);
 // await googleAmm.init(googleBytes,googlePriced,uniQuoteAsset,indexPricePeriod,exchange.address);
 // await metaAmm.init(metaBytes,metaPriced,uniQuoteAsset,indexPricePeriod,exchange.address);
 
-const teslaAmmAddress = '0xFe8c55ae33E7980aeC84a9655706f838a6e1Cc9f';
-const googleAmmAddress = '0x787B370D9e4DCc9B2E642b9f952a14844253C2d6';
-const metaAmmAddress = '0x216371705423F981fc91590F06CB54b243c7569b';
 
-console.log('all vamms initiailzed');
-//adding vamm's to other contracts
+// console.log('all vamms initiailzed');
+// console.log('vamm init tesla ',teslaAmm.address);
+// console.log('vamm init google ',googleAmm.address);
+// console.log('vamm init meta ',metaAmm.address);
+// //adding vamm's to other contracts
 
-    //adding amm's to exchange and staking 
-const tokenIDForTesla = 1;
-const tokenIdForGoogle = 2;
-const tokenIdForMeta = 3;
-// await exchange.addAmm(teslaAmmAddress);
-// await exchange.addAmm(googleAmmAddress);
-// await exchange.addAmm(metaAmmAddress);
-console.log('amms added to exchange/staking');
+//     //adding amm's to exchange and staking 
+// const tokenIDForTesla = 1;
+// const tokenIdForGoogle = 2;
+// const tokenIdForMeta = 3;
+// await exchange.addAmm(teslaAmm.address);
+// await exchange.addAmm(googleAmm.address);
+// await exchange.addAmm(metaAmm.address);
+// console.log('amms added to exchange/staking');
 
-//creating ariadnes
-const teslaAriadneAddress =  await createAriadnes.computedAddress('tesla');
-// await createAriadnes.create2('tesla',teslaAmmAddress,tokenIDForTesla);
-const googleAriadneAddress = await createAriadnes.computedAddress('google');
-// await createAriadnes.create2('google',googleAmmAddress,tokenIdForGoogle);
-const metaAriadneAddress = await createAriadnes.computedAddress('meta');
-// await createAriadnes.create2('meta',metaAmmAddress,tokenIdForMeta);
-console.log('ariadnes created');
-//loan pool adding amm's
-// await loanPool.initializeVamm(teslaAmmAddress,teslaAriadneAddress);
-// await loanPool.initializeVamm(googleAmmAddress,googleAriadneAddress);
-// await loanPool.initializeVamm(metaAmmAddress,metaAriadneAddress);
+// //creating ariadnes
+// const teslaAriadneAddress =  await createAriadnes.computedAddress('tesla');
+// await createAriadnes.create2('tesla',teslaAmm.address,tokenIDForTesla);
+// const googleAriadneAddress = await createAriadnes.computedAddress('google');
+// await createAriadnes.create2('google',googleAmm.address,tokenIdForGoogle);
+// const metaAriadneAddress = await createAriadnes.computedAddress('meta');
+// await createAriadnes.create2('meta',metaAmm.address,tokenIdForMeta);
+// console.log('ariadnes created');
+// //loan pool adding amm's
+// await loanPool.initializeVamm(teslaAmm.address,teslaAriadneAddress);
+// await loanPool.initializeVamm(googleAmm.address,googleAriadneAddress);
+// await loanPool.initializeVamm(metaAmm.address,metaAriadneAddress);
 
-console.log('loan pool amms initialized');
-//amm viewer add amm's
-// await ammViewer.addAmm(teslaAmmAddress,'tesla','tsla',teslaBytes);
-// await ammViewer.addAmm(googleAmmAddress,'google','goog',googleBytes);
-// await ammViewer.addAmm(metaAmmAddress,'meta','meta',metaBytes);
-console.log('amm viewer amms added');
-//update theseus address
+// console.log('loan pool amms initialized');
+// //amm viewer add amm's
+// await ammViewer.addAmm(teslaAmm.address,'tesla','tsla',teslaBytes);
+// await ammViewer.addAmm(googleAmm.address,'google','goog',googleBytes);
+// await ammViewer.addAmm(metaAmm.address,'meta','meta',metaBytes);
+// console.log('amm viewer amms added');
+// //update theseus address
 // await ammViewer.updateTheseusDao(theseus.address);
 // await staking.updateTheseus(theseus.address);
 // await loanPool.setTheseusDao(theseus.address);
 // await exchange.updateTheseus(theseus.address);
 
-console.log('theseus updated');
+// console.log('theseus updated');
 
 // await theseus.addStaking(staking.address);
-// await theseus.addPoolTokens(poolTokensAddress);
-// a wait theseus.addExchange(exchange.address);
 
-const usdc = await ethers.getContractAt('IERC20',usdcAddress);
-await usdc.transfer(theseus.address,ethers.utils.parseUnits("250000", 6));
+const theseus = await hre.ethers.getContractAt('TheseusDAO','0x77BC795BedA4DA1f45339DC85126a7fcb1F90671');
+const usdc = await hre.ethers.getContractAt('FakeUsdc','0x242d0DC7eD9D52c9bF45187e5B344Ae757D9a835');
+const loanPool = await hre.ethers.getContractAt('LoanPool','0xc37E852B05500e0FB4312003c757b250BB5c1c32');
+const createAriadnes = await hre.ethers.getContractAt('CreateAriadnes','0x65e939FC9982a97cc082AF28E7745AE57fA1Ddd5');
+// await theseus.addPoolTokens('0xbF5413ac1f9F808D284B702C743eC55Fb8eA64c5');
+const exchange = await hre.ethers.getContractAt('Exchange','0xce30471cA2438e49409B2f07Ad7256f8f43A9302');
+// await theseus.addExchange(exchange.address);
+// await usdc.transfer(theseus.address,ethers.utils.parseUnits("250000", 6));
+const ammViewer = await hre.ethers.getContractAt('AmmViewer','0xe503841ca51216514d1638bE712a6a88A349bF4E');
 
 console.log('all ready here are the addresses');
 
-
+const teslaAriadneAddress =  await createAriadnes.computedAddress('tesla');
+const googleAriadneAddress = await createAriadnes.computedAddress('google');
+const metaAriadneAddress = await createAriadnes.computedAddress('meta');
 
 //logging outy the addresses
     console.log('const ariadneTesla =',teslaAriadneAddress);
     console.log('const ariadneGoogle =',googleAriadneAddress);
     console.log('const ariadneMeta =',metaAriadneAddress);
     console.log("const createAriadnes = ",createAriadnes.address);
-    console.log("const TeslaAmm = ",teslaAmmAddress);
-    console.log("const GoogleAmm = ",googleAmmAddress);
-    console.log("const MetaAmm = ",metaAmmAddress);
+    console.log("const TeslaAmm = ",'0xFE9303aC577adDFa41458D13BAA0023180a7C489');
+    console.log("const GoogleAmm = ",'0xBB1116C005A889C281006EAC840FDF1346070e32');
+    console.log("const MetaAmm = ",'0xaD0AB2020FE77C5bC768d99E3E12201BFee2495A');
     console.log("const ammViewer = ",ammViewer.address);
     console.log("const loanpool = ",loanPool.address);
-    console.log("const staking = ",staking.address);
+    console.log("const staking = ",'0xF5f8b38bFf710d3deFfBf40d776976104d11151b');
     console.log("const exchange = ",exchange.address);
     console.log("const theseus = ",theseus.address);
-    console.log("const poolTokens = ",poolTokensAddress);
-    console.log("const payload = ",payloadAddress);
-    console.log("const exchangeViewer = ",exchangeViewer.address);
-    console.log("const usdc = ",usdcAddress);
+    console.log("const poolTokens = ",'0xbF5413ac1f9F808D284B702C743eC55Fb8eA64c5');
+    console.log("const payload = ",'0xDd997bc170d6EeCF8a06166578f42Aa1b5C5089a');
+    console.log("const exchangeViewer = ",'0x01704426449723Cf7A72c5e2F3EF07ed859b74A2');
+    console.log("const usdc = ",usdc.address);
 
 }
 
