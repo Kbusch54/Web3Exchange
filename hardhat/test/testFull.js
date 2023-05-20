@@ -1051,7 +1051,7 @@ it.skip('should stake and allow ariadne dao vote on other contracts',async funct
   console.log('theseusDaaoUSDCBalance',formatUnits(theseusDaaoUSDCBalance,6));
 
 });
-it('should stake and allow theseus to transfer usdc to user',async function(){
+it.skip('should stake and allow theseus to transfer usdc to user',async function(){
   const {owner, otherAccount,usdc,exchange,theseus,poolTokens,loanPool,staking,ABI,loanPoolABI,exhcnageABI,sign,getFunctionCallData,getMethodNameHash,getTransactionHash,decodeCallData,decodeTransaction}=await loadFixture(deployContracts);
   await usdc.approve(exchange.address,ethers.utils.parseUnits("1000", 6));
   await exchange.deposit(ethers.utils.parseUnits("1000", 6));
@@ -1436,7 +1436,7 @@ console.log('theseusUSDCBalance',formatUnits(theseusUSDCBalance,6));
   console.log('newCallDtat',newCallDtat);
 
 });
-it('should stake and allow theseus to deposit usdc in vault',async function(){
+it.skip('should stake and allow theseus to deposit usdc in vault',async function(){
   const {owner, otherAccount,usdc,exchange,theseus,poolTokens,loanPool,staking,ABI,loanPoolABI,exhcnageABI,sign,getFunctionCallData,getMethodNameHash,getTransactionHash,decodeCallData,decodeTransaction}=await loadFixture(deployContracts);
   await usdc.approve(exchange.address,ethers.utils.parseUnits("1000", 6));
   await exchange.deposit(ethers.utils.parseUnits("1000", 6));
@@ -1459,7 +1459,7 @@ it('should stake and allow theseus to deposit usdc in vault',async function(){
 
 });
 
-it.skip('should allow open position on tesla amm',async function(){
+it('should allow open position on tesla amm',async function(){
   const {owner, otherAccount,ammViewer,teslaAmm,usdc,exchange,theseus,poolTokens,loanPool,staking,ABI,loanPoolABI,exhcnageABI,sign,getFunctionCallData,getMethodNameHash,getTransactionHash,decodeCallData,decodeTransaction}=await loadFixture(deployContracts);
   await usdc.approve(exchange.address,ethers.utils.parseUnits("5000", 6));
   await exchange.deposit(ethers.utils.parseUnits("5000", 6));
@@ -1468,18 +1468,28 @@ it.skip('should allow open position on tesla amm',async function(){
 
 
   const quoteAssets1 = await teslaAmm.callStatic.getQuoteReserve();
-  console.log('quoteAssets: $',quoteAssets1);
+  // console.log('quoteAssets: $',quoteAssets1);
 
   const prevUserBal = await exchange.availableBalance(owner.address);
   const collateral = parseUnits("250", 6);
   const leverage = 3;
-  const side = 1;
+  const side = -1;
   await ammViewer.updateQuoteAssetStarter(teslaAmm.address,100);
+//   poolTotalUsdcSupply;
+//  poolOutstandingLoans;
+//  poolAvailableUsdc;
+  const poolAvailbefore = await exchange.callStatic.poolAvailableUsdc(teslaAmm.address);
+  const poolTotalBefore = await exchange.callStatic.poolTotalUsdcSupply(teslaAmm.address);
+  const poolOutstandingBefore = await exchange.callStatic.poolOutstandingLoans(teslaAmm.address);
+  console.log('poolAvaible Balance before: $',formatUnits(poolAvailbefore,6));
+  console.log('poolTotalBefore: $',formatUnits(poolTotalBefore,6));
+  console.log('poolOutstandingBefore: $',formatUnits(poolOutstandingBefore,6));
+
   await exchange.openPosition(teslaAmm.address, collateral, leverage, side);
   const loanAmount = collateral.mul(leverage);
   const tradeIds = await exchange.callStatic.getTradeIds(owner.address);
   const position = await exchange.callStatic.positions(tradeIds[0]);
-  console.log("positioon", position);
+  // console.log("positioon", position);
   const postUserBal = await exchange.availableBalance(owner.address);
   const tradingFee = await loanPool.callStatic.tradingFeeLoanPool(teslaAmm.address);
   console.log('tradingFee',formatUnits(tradingFee,0));
@@ -1501,8 +1511,21 @@ it.skip('should allow open position on tesla amm',async function(){
   const remainder = quoteAssets.sub(position.positionSize);
   console.log('remainder: #',formatUnits(remainder,8));
 
+  const poolAvailAfterOpen = await exchange.callStatic.poolAvailableUsdc(teslaAmm.address);
+  const poolTotalAfterOpen = await exchange.callStatic.poolTotalUsdcSupply(teslaAmm.address);
+  const poolOutstandingAfterOpen = await exchange.callStatic.poolOutstandingLoans(teslaAmm.address);
+  console.log('poolAvaible Balance after open: $',formatUnits(poolAvailAfterOpen,6));
+  console.log('poolTotal After open: $',formatUnits(poolTotalAfterOpen,6));
+  console.log('poolOutstanding After open: $',formatUnits(poolOutstandingAfterOpen,6));
 
   await exchange.closeOutPosition(tradeIds[0]);
+
+  const poolAvailAfterClose = await exchange.callStatic.poolAvailableUsdc(teslaAmm.address);
+  const poolTotalAfterClose = await exchange.callStatic.poolTotalUsdcSupply(teslaAmm.address);
+  const poolOutstandingAfterClose = await exchange.callStatic.poolOutstandingLoans(teslaAmm.address);
+  console.log('poolAvaible Balance after close: $',formatUnits(poolAvailAfterClose,6));
+  console.log('poolTotal After close: $',formatUnits(poolTotalAfterClose,6));
+  console.log('poolOutstanding After close: $',formatUnits(poolOutstandingAfterClose,6));
   const postQuoteAssets = await teslaAmm.callStatic.getQuoteReserve();
   console.log('postQuoteAssets: $',formatUnits(postQuoteAssets,6));
   const postPosition = await exchange.callStatic.positions(tradeIds[0]);

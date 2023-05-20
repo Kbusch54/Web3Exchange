@@ -10,6 +10,13 @@ contract VaultMain is Balances {
     address public staking;
     address public exchangeViewer;
 
+    mapping(bytes => bool) public isActive;
+       mapping(bytes => Position) public positions;
+    //array of tradIds for each user
+    mapping(address => bytes[]) public tradeIds;
+
+    bytes[] public tradeIdList;
+
     constructor(
         address _usdc,
         address _staking,
@@ -47,19 +54,21 @@ contract VaultMain is Balances {
     event FfrAdjust(bytes tradeId, int amount);
 
 function _onlyStaking() private view {
-        require(msg.sender == staking,'not staking');
+        require(msg.sender == staking);
     }
     function _onlyPool() private view {
-        require(msg.sender == loanPool,'not pool');
+        require(msg.sender == loanPool);
     }
     function _onlyStakingOrPool() private view {
-        require(msg.sender == staking || msg.sender == loanPool,'not staking or pool');
+        require(msg.sender == staking || msg.sender == loanPool);
+    }
+    function _checkIfAuthorized(bytes memory _tradeId, address _user) internal view {
+        require(isActive[_tradeId] && (msg.sender == _user || msg.sender == theseusDao));
     }
 
    
   
-    //mapping of tradeId to collateral
-    mapping(bytes => bool) public isActive;
+
     /// @dev Position struct to store details about a user's position
     struct Position {
         uint collateral;
@@ -72,11 +81,7 @@ function _onlyStaking() private view {
         address amm;
         address trader;
     }
-    mapping(bytes => Position) public positions;
-    //array of tradIds for each user
-    mapping(address => bytes[]) public tradeIds;
-
-    bytes[] public tradeIdList;
+ 
 
     /** 
 * @dev Function to get the tradeIds of a user
@@ -86,6 +91,11 @@ function _onlyStaking() private view {
     function getTradeIds(address _user) public view returns (bytes[] memory) {
         return tradeIds[_user];
     }
+     function getTradeIdList() public view returns (bytes[] memory) {
+        return tradeIdList;
+    }
+
+   
 
         /**
      * @dev Function to add collateral to a position
@@ -98,12 +108,12 @@ function _onlyStaking() private view {
         uint _collateral
     ) public returns (bool) {
         (
-            address _user,
+            ,
             address _amm,,
         ) = decodeTradeId(_tradeId);
         require(payInterestPayments(_tradeId, _amm));
         require(payFFR(_tradeId,_amm));
-        require(isActive[_tradeId] && msg.sender == _user);
+        _checkIfAuthorized(_tradeId, msg.sender);
         require(_collateral > 0);
         require(availableBalance[msg.sender] >= _collateral);
         availableBalance[msg.sender] -= _collateral;
@@ -121,9 +131,8 @@ function _onlyStaking() private view {
      */
     function removeCollateral(bytes memory _tradeId, uint _collateralToRemove) public returns (bool) {
         (address _user,address _amm,,) = decodeTradeId(_tradeId);
-        require(isActive[_tradeId] && msg.sender == _user);
-        require(payInterestPayments(_tradeId, _amm));
-        require(payFFR(_tradeId,_amm));
+        _checkIfAuthorized(_tradeId, _user);
+        _payments(_tradeId, _amm);
         require(_collateralToRemove > 0);
         require(tradeCollateral[_tradeId] >= _collateralToRemove);
         tradeCollateral[_tradeId] -= _collateralToRemove;
@@ -184,9 +193,12 @@ function _onlyStaking() private view {
             emit FfrAdjust(_tradeId, _ffrToBePayed);
         return true;
     }
-    function getTradeIdList() public view returns (bytes[] memory) {
-        return tradeIdList;
+
+       function _payments(bytes memory _tradeId, address _amm)internal{
+        require(payInterestPayments(_tradeId, _amm));
+        require(payFFR(_tradeId,_amm));
     }
+   
     function payDebt(uint _amount,address _amm) internal {
         LoanPool(loanPool).subDebt(_amount,_amm);
         availableBalance[theseusDao] += _amount;
@@ -227,6 +239,7 @@ function _onlyStaking() private view {
         exchangeViewer = _exchangeViewer;
     }
     function subPoolTotalUsdcSupply(address _ammPool, uint _amount) external onlyStakingOrPool{
+
         poolTotalUsdcSupply[_ammPool] -= _amount;
     }
 
