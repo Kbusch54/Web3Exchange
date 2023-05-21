@@ -82,8 +82,6 @@ address public exchange;
         require(_amount <= borrowedAmount[_tradeId],'repaying too much');
         borrowedAmount[_tradeId] -= _amount;
         Exchange _ex = Exchange(exchange);
-        console.log('repayLoan');
-        console.log('_amount',_amount/10**6);
         _ex.subPoolOutstandingLoans(_ammPool,_amount);
         _ex.addPoolAvailableUsdc(_ammPool,_amount);
         emit RepayLoan(_tradeId,_ammPool,_amount);
