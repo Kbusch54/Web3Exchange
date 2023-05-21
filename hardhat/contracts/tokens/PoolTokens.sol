@@ -37,12 +37,12 @@ contract PoolTokens is Context, ERC1155{
      * @param proportionAmt Proportional amount of tokens to be minted.
      * @return A boolean value indicating whether the operation succeeded.
      */
-    function stakeMint(address account, uint256 id, uint256 proportionAmt) public onlyStaking returns(bool){
+    function stakeMint(address account, uint256 id, uint256 proportionAmt) public onlyStaking returns(bool,uint){
         uint _totalSupplyTok = totalSupplyTok[id]>0?totalSupplyTok[id]:1;
         uint _mintAmount = _totalSupplyTok * proportionAmt;
         _mint(account, id, _mintAmount, '');
         totalSupplyTok[id] += _mintAmount;
-        return true;
+        return (true,_mintAmount);
     }
    /**
      * @dev Function to mint tokens.

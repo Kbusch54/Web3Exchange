@@ -3,7 +3,6 @@ pragma solidity 0.8.17;
 import "./LoanPoolBalances.sol";
 import "../exchange/Balances.sol";
 import "../exchange/Exchange.sol";
-import "hardhat/console.sol";
 
 
 /**
@@ -40,11 +39,14 @@ address public exchange;
     }
 
     function setTheseusDao(address _theseusDao) external onlyTheseus{
+        emit UpdateTheseus(theseusDao,_theseusDao);
         theseusDao = _theseusDao;
     }
 
 
 
+
+    event UpdateTheseus(address oldTheseus,address newTheseus);
     event LoanPoolInitialized(address indexed _ammPool, address indexed _dao,uint timeStamp);
     event LoanPoolValues(address indexed ammPool, uint minLoan, uint maxLoan, uint loanInterestRate, uint loanInterestPeriod, uint mmr, uint minHoldingsReqPercentage, uint tradingFee);
 

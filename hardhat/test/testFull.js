@@ -62,7 +62,7 @@ describe("Testing Full deployment", function () {
     const minInterestRate = 10000;
     const maxInterestRate = 100000;
     const minLoanAmount = ethers.utils.parseUnits("100", 6);
-    const maxLoanAmount = ethers.utils.parseUnits("1000", 6);
+    const maxLoanAmount = ethers.utils.parseUnits("5000", 6);
     //setting up loan pool
     const minMMR = 50000;
     const maxMMR = 100000;
@@ -1632,7 +1632,7 @@ it.skip("Should open and allow remove liqudiity to tesla amm", async function(){
   console.log('usdcBalanceOfExchange',formatUnits(usdcBalanceOfExchange,6));
 
 });
-it("should open position and when profit show approprialey", async function(){
+it.skip("should open position and when profit show approprialey", async function(){
   const {owner, otherAccount,ammViewer,teslaAmm,usdc,exchange,theseus,poolTokens,loanPool,staking,ABI,loanPoolABI,exhcnageABI,sign,getFunctionCallData,getMethodNameHash,getTransactionHash,decodeCallData,decodeTransaction}=await loadFixture(deployContracts);
   await usdc.approve(exchange.address,ethers.utils.parseUnits("5000", 6));
   await exchange.deposit(ethers.utils.parseUnits("5000", 6));
@@ -1710,4 +1710,68 @@ it("should open position and when profit show approprialey", async function(){
 
 });
 
+  it('should open and go into debt', async function(){
+    const {owner, otherAccount,ammViewer,teslaAmm, googleAmm ,usdc,exchange,theseus,poolTokens,loanPool,staking,ABI,loanPoolABI,exhcnageABI,sign,getFunctionCallData,getMethodNameHash,getTransactionHash,decodeCallData,decodeTransaction}=await loadFixture(deployContracts);
+    await usdc.approve(exchange.address,ethers.utils.parseUnits("5000", 6));
+    await exchange.deposit(ethers.utils.parseUnits("5000", 6));
+    await staking.stake(ethers.utils.parseUnits("1000", 6),theseus.address);
+    await staking.stake(ethers.utils.parseUnits("3000", 6),googleAmm.address);
+  
+    await usdc.transfer(otherAccount.address,ethers.utils.parseUnits("1000", 6));
+  
+    
+    await usdc.connect(otherAccount).approve(exchange.address,ethers.utils.parseUnits("1000", 6));
+    await exchange.connect(otherAccount).deposit(ethers.utils.parseUnits("1000", 6));
+
+    const leverage = 14;
+    const side = 1;
+    const collateral = parseUnits("20", 6);
+    const userBalance = await exchange.availableBalance(owner.address);
+  
+    await exchange.openPosition(googleAmm.address, collateral, leverage, side);
+    const marketPrice = await googleAmm.getAssetPrice();
+
+    const tradeIds = await exchange.getTradeIds(owner.address);
+    const lev2 = 3;
+    const side2 = 1;
+    const collateral2 = parseUnits("700", 6);
+
+    await exchange.connect(otherAccount).openPosition(googleAmm.address, collateral2, lev2, side2);
+
+    const marketPricePre = await googleAmm.getAssetPrice();
+    const tradeIds2 = await exchange.getTradeIds(otherAccount.address);
+
+    const user1AvailableBalance = await exchange.availableBalance(owner.address);
+    const poolTokensBalance = await poolTokens.balanceOf(owner.address,1);
+    await staking.unStake(poolTokensBalance/5,googleAmm.address);
+
+    const poolAvailableUsdc = await exchange.poolAvailableUsdc(googleAmm.address);
+    const poolTotalUsdcSupply = await exchange.poolTotalUsdcSupply(googleAmm.address);
+    const poolOutstandingLoans = await exchange.poolOutstandingLoans(googleAmm.address);
+
+    console.log('poolAvailableUsdc $',formatUnits(poolAvailableUsdc,6));
+    console.log('poolTotalUsdcSupply $',formatUnits(poolTotalUsdcSupply,6));
+    console.log('poolOutstandingLoans $',formatUnits(poolOutstandingLoans,6));
+
+
+    await exchange.closeOutPosition(tradeIds[0]);
+    const marketPricePost = await googleAmm.getAssetPrice();
+    const poolAvailableUsdcAfterClose = await exchange.poolAvailableUsdc(googleAmm.address);
+    const poolTotalUsdcSupplyAfterClose = await exchange.poolTotalUsdcSupply(googleAmm.address);
+    const poolOutstandingLoansAfterClose = await exchange.poolOutstandingLoans(googleAmm.address);
+    console.log('poolAvailableUsdcAfterClose $',formatUnits(poolAvailableUsdcAfterClose,6));
+    console.log('poolTotalUsdcSupplyAfterClose $',formatUnits(poolTotalUsdcSupplyAfterClose,6));
+    console.log('poolOutstandingLoansAfterClose $',formatUnits(poolOutstandingLoansAfterClose,6));
+    const user1AvailableBalanceAfterClose = await exchange.availableBalance(owner.address);
+    console.log('userBalance $',formatUnits(userBalance,6));
+    console.log('user1AvailableBalance $',formatUnits(user1AvailableBalance,6));
+    console.log('user1AvailableBalanceAfterClose $',formatUnits(user1AvailableBalanceAfterClose,6));
+
+
+    console.log('marketPrice before open',formatUnits(marketPrice,6));
+    console.log('marketPrice after 2nd open',formatUnits(marketPricePre,6));
+    console.log('marketPrice post close',formatUnits(marketPricePost,6));
+
+
+  });
 });

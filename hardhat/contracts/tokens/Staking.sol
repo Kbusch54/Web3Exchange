@@ -34,8 +34,8 @@ contract Staking {
         require(ammPoolToTokenId[msg.sender]==0,"Not TheseusDao");
         _;
     }
-    event Stake(address user,uint usdcAmount, uint tokenId,address ammPool);
-    event Unstake(address user,uint usdcAmount, uint tokenId,address ammPool);
+    event Stake(address user,uint usdcAmount, uint tokenId,address ammPool,uint tokensMinted);
+    event Unstake(address user,uint usdcAmount, uint tokenId,address ammPool,uint tokensBurned);
     event AddTokenToPool(address ammPool,uint tokenId);
     event FrozenStake(address ammPool);
     event UnFrozenStake(address ammPool);
@@ -52,17 +52,10 @@ contract Staking {
         require(_userBal >= _amount,'Not enough balance');
         ex.subAvailableBalance(msg.sender, _amount);
         uint _denominator = _poolTotalUsdcSupply>0?_poolTotalUsdcSupply:1;
-        uint _porportion = (_amount * 1e18) / _denominator;
-        require(
-            PoolTokens(poolToken).stakeMint(
-                msg.sender,
-                ammPoolToTokenId[_ammPool],
-                _porportion
-            ),
-            "Failed to mint tokens "
-        );
-
-        emit Stake(msg.sender,_amount,ammPoolToTokenId[_ammPool],_ammPool);
+        uint _porportion = (_amount * 1e6) / _denominator;
+        (bool _check,uint  _mintAmount) =PoolTokens(poolToken).stakeMint(msg.sender,ammPoolToTokenId[_ammPool],_porportion);
+        require(_check,"Failed to mint tokens");
+        emit Stake(msg.sender,_amount,ammPoolToTokenId[_ammPool],_ammPool,_mintAmount);
      
         ex.addPoolTotalUsdcSupply(_ammPool, _amount);
         ex.addPoolAvailableUsdc(_ammPool, _amount);
@@ -96,7 +89,7 @@ contract Staking {
             poolTokCon.burn(msg.sender, ammPoolToTokenId[_ammPool], _amountToBurn),
             "Failed to burn tokens"
         );
-        emit Unstake(msg.sender,_amount,ammPoolToTokenId[_ammPool],_ammPool);
+        emit Unstake(msg.sender,_amount,ammPoolToTokenId[_ammPool],_ammPool, _amountToBurn);
         ex.subPoolAvailableUsdc(_ammPool, _amount);
         ex.subPoolTotalUsdcSupply(_ammPool, _amount);
         ex.addAvailableBalance(msg.sender, _amount);
