@@ -76,7 +76,7 @@ export default async function page(context: { params: { slug: string; }; }) {
   if(!session) {
       redirect(`/auth/signin?callbackUrl=/invest/${slug}`);
   }
-  const graphData = await fetchLoanPoolData(slug.toLowerCase(),session.user.name);
+  const graphData = await fetchLoanPoolData(slug.toString().toLowerCase(),session.user.name);
   const stock = await getStocks(slug);
   return (
     <div className="m-2">

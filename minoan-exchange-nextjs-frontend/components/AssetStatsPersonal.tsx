@@ -12,7 +12,7 @@ const AssetStatsPersonal: React.FC<Props> = ({ stockData }) => {
         <div>
             <div className='flex flex-row justify-between mx-24 mt-8'>
                 <div>
-                    <a href={`/invest/${stockData.symbol.toUpperCase()}`}>
+                    <a href={`/invest/${stockData.symbol.toLowerCase()}`}>
                         Invest
                     </a></div>
                 <div className='flex flex-col'>
@@ -23,7 +23,7 @@ const AssetStatsPersonal: React.FC<Props> = ({ stockData }) => {
                     <div className='text-center'>{stockData.symbol}</div>
                 </div>
                 <div>
-                    <a href={`/pools/${stockData.slug}`}>
+                    <a href={`/pools/${stockData.symbol.toUpperCase()}`}>
                         Pool</a>
                 </div>
             </div>
