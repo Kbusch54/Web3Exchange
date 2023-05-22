@@ -34,6 +34,7 @@
     "react-hook-form": "^7.43.9",
     "recharts": "^2.5.0",
     "siwe": "^2.1.4",
+    "swiper": "^9.3.2",
     "wagmi": "^0.12.12"
   },
   "devDependencies": {

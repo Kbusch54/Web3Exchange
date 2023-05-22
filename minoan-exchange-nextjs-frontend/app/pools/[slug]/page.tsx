@@ -12,6 +12,7 @@ import StakingStats from "../../../components/stockData/StakingStats";
 import { getServerSession } from "../../api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
 import { request, gql } from 'graphql-request';
+import VaultUSDCForm from "../../../components/forms/VaultUSDCForm";
 
 interface Props {
   params: {
@@ -159,6 +160,18 @@ export default async function PoolPage({ params }: Props) {
             >
               <InvestorStats loanPool={graphData.loanPool} />
               <StakingStats />
+            </section>
+            <section
+              id={"staking"}
+              className=" flex flex-col col-span-9 lg:col-span-9 text-center text-lg justify-center items-center "
+            >
+              <h1 className="my-4">Deposit and Withdraw</h1>
+
+             <div className="">
+
+                <VaultUSDCForm availableUsdc={graphData.loanPool.poolToken.tokenBalance[0].user.balances.availableUsdc} user={session.user.name} />
+             </div>
+           
             </section>
             <section
               id={"staking"}

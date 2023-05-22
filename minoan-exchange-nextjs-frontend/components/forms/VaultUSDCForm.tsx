@@ -1,16 +1,16 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
-import CurrencyInput from "react-currency-input-field";
-import { getWalletBalanceForAddress } from "../../utils/acountdata";
-import { getVaultBalanceForAddress } from "../../utils/vaultBalances";
-interface Props { }
-
+import React, {  useEffect, useRef, useState } from "react";
+import { Address, useBalance } from "wagmi";
+import { useSession } from "next-auth/react";
+import Swiper from 'swiper';
+interface Props {
+  availableUsdc: number;
+  user: Address;
+ }
 //fetch data from acount data and vaultBalances then pass it to the form revalidating every 30 seconds
 
-const VaultUSDCForm: React.FC<Props> = () => {
+const VaultUSDCForm: React.FC<Props> = ({availableUsdc,user}) => {
   const [walletBalance, setWalletBalance] = useState<number | null>(null);
-  const [vaultBalance, setVaultBalance] = useState<number | null>(null);
-  const address = "0x87ad83DC2F12A14C85D20f178A918a65Edfe1B42";
   const depositRef = useRef<HTMLInputElement>(null);
   const withdrawRef = useRef<HTMLInputElement>(null);
   const [errorMessage, setErrorMessage] = useState("");
@@ -21,6 +21,15 @@ const VaultUSDCForm: React.FC<Props> = () => {
   const [depositDisplayValue, setDepositDisplayValue] = useState<string | undefined>("");
   const [buttonValue, setButtonValue] = useState<string | undefined>("Deposit");
   const [isError, setIsError] = useState(true);
+  const [domLoaded, setDomLoaded] = useState(false);
+
+  useEffect(() => {
+    setDomLoaded(true);
+    return () => {
+      setDomLoaded(false);
+    };
+  }, []);
+
 
   function rawToDisplay(value: number | null) {
     if (value === undefined) {
@@ -29,38 +38,16 @@ const VaultUSDCForm: React.FC<Props> = () => {
       return "$" + (Number(value) / 1000000).toFixed(2);
     }
   }
-  useEffect(() => {
-    const fetchBalance = async () => {
-      const fetchedBalance = getWalletBalanceForAddress(address);
-      fetchedBalance != null
-        ? setWalletBalance(fetchedBalance)
-        : setWalletBalance(0);
-    };
 
-    fetchBalance();
-
-    const intervalId = setInterval(fetchBalance, 30 * 1000);
-
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, [address]);
+  const {data,isLoading,error} = useBalance({
+    address: user,
+    token: '0xAADbde5D0ED979b0a88770be054017fC40Bc43d1',
+ 
+  });
 
   useEffect(() => {
-    const fetchBalance = async () => {
-      const fetchedBalance = getVaultBalanceForAddress(address);
-      fetchedBalance != null ? setVaultBalance(fetchedBalance) : 0;
-    };
-
-    fetchBalance();
-
-    const intervalId = setInterval(fetchBalance, 30 * 1000);
-
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, [address]);
-  
+    if(data?.value) setWalletBalance((prevState) =>prevState = data.value.toNumber());
+  }, [data]);
 
   const handleDepositFocus = (e: React.ChangeEvent<HTMLInputElement>): void => {
     /* @ts-ignore */
@@ -94,7 +81,7 @@ const VaultUSDCForm: React.FC<Props> = () => {
     const rawValue = e.target.value === null ? 0 : Number(e.target.value);
     setWithdrawRawValue(Number(rawValue) * 1000000 || 0);
     setWithdrawDisplayValue(rawToDisplay(rawValue*1000000));
-    if (Number(rawValue)*1000000 > Number(vaultBalance)) {
+    if (Number(rawValue)*1000000 > Number(availableUsdc)) {
       setErrorMessage(
         "Value you entered is more USDC than available in the vault"
       );
@@ -141,9 +128,9 @@ const VaultUSDCForm: React.FC<Props> = () => {
   const handleMaxWithdraw = (e: React.MouseEvent<HTMLButtonElement>): void => {
     //@ts-ignore
     handleWithdrawFocus(e);
-    setWithdrawRawValue(vaultBalance);
-    setWithdrawDisplayValue(rawToDisplay(vaultBalance));
-    const maxWithdrawValueFormatted = parseFloat(String(vaultBalance !=null? vaultBalance/1000000:0)).toFixed(2);
+    setWithdrawRawValue(availableUsdc);
+    setWithdrawDisplayValue(rawToDisplay(availableUsdc));
+    const maxWithdrawValueFormatted = parseFloat(String(availableUsdc !=null? availableUsdc/1000000:0)).toFixed(2);
     setWithdrawDisplayValue(maxWithdrawValueFormatted);
     if (withdrawRef.current) {
       withdrawRef.current.value = maxWithdrawValueFormatted;
@@ -152,28 +139,34 @@ const VaultUSDCForm: React.FC<Props> = () => {
     setIsError(false);
   };
   const handleFormButton = (e: React.MouseEvent<HTMLButtonElement>): void => {
+    e.preventDefault();
     console.log("button value", buttonValue);
     console.log("deposit raw value", depositRawValue);
     console.log("withdraw raw value", withdrawRawValue);
     console.log('deposit display value', depositDisplayValue);
     console.log('withdraw display value', withdrawDisplayValue);
   };
+  if(isLoading) return <div>Fetching dtaa</div>
+  if(error) return <div>Something went wrong</div>
+  
   return (
-    <div className="outside-box mt-8 ">
+    <>
+    {domLoaded && (
+    <div className="swiper-container outside-box mt-8 ">
       <div className="flex flex-col text-center inside-box text-white ">
         <h3>USDC</h3>
         <p className="text-red-500 animate-pulse">{errorMessage}</p>
         <div className="flex flex-col md:flex-row lg:flex-col xl:flex-row justify-between m-2">
           <div className="flex flex-col">
-            <p className="input-bg">
-              {rawToDisplay(vaultBalance)}
+            <p className="bg-white rounded-full text-slate-600 text-center  tracking-wide md:w-[18rem] lg:w-[11rem] xl:w-[8rem] 2xl:w-[12.5rem] md:h-[2rem]">
+              {rawToDisplay(availableUsdc)}
             </p>
             <p className="text-sm xl:text-lg text-amber-400">
               Available Vault Balance
             </p>
           </div>
           <div className="flex flex-col">
-            <p className="input-bg">
+            <p className="bg-white rounded-full text-slate-600 text-center  tracking-wide md:w-[18rem] lg:w-[11rem] xl:w-[8rem] 2xl:w-[12.5rem] md:h-[2rem]">
               {rawToDisplay(walletBalance)}
             </p>
             <p className="text-sm xl:text-lg text-amber-400">Wallet Balance</p>
@@ -181,13 +174,13 @@ const VaultUSDCForm: React.FC<Props> = () => {
         </div>
         <div className="flex flex-col md:flex-row lg:flex-col xl:flex-row justify-between m-2">
           <div className="flex flex-col">
-            <div className={`flex flex-row justify-between input-bg ${!isError && buttonValue === "Withdraw"? 'border-2 border-green-500':className}`}>
+            <div className={`flex flex-row justify-between bg-white rounded-full text-slate-600 text-center  tracking-wide md:w-[18rem] lg:w-[11rem] xl:w-[8rem] 2xl:w-[12.5rem] md:h-[2rem] ${!isError && buttonValue === "Withdraw"? 'border-2 border-green-500':className}`}>
               <input
                 type="number"
                 ref={withdrawRef}
-                className={`text-slate-600 w-32 lg:w-20 xl-w-32  rounded-l-full text-center ${className} `}
+                className={`text-slate-600 w-full text-md md:text-sm lg:text-lg rounded-l-full text-center pl-2 ${className} `}
                 onFocus={handleWithdrawFocus}
-                max={vaultBalance?vaultBalance:0}
+                max={availableUsdc?availableUsdc:0}
                 step="0.01"
                 placeholder="$0.00"
                 prefix="$"
@@ -200,11 +193,11 @@ const VaultUSDCForm: React.FC<Props> = () => {
             <p className="text-sm xl:text-lg text-amber-400">Withdraw</p>
           </div>
           <div className="flex flex-col">
-            <div className={`flex flex-row justify-between input-bg ${!isError && buttonValue === "Deposit"? 'border-2 border-green-500':className}`}>
+            <div className={`flex flex-row justify-between bg-white rounded-full text-slate-600 text-center  tracking-wide md:w-[18rem] lg:w-[11rem] xl:w-[8rem] 2xl:w-[12.5rem] md:h-[2rem] ${!isError && buttonValue === "Deposit"? 'border-2 border-green-500':className}`}>
               <input
               ref={depositRef}
                 type="number"
-                className={`text-slate-600 w-32 lg:w-20 xl-w-32  rounded-l-full text-center ${className} `}
+                className={`text-slate-600 w-full text-md md:text-sm lg:text-lg rounded-l-full text-center pl-2 ${className} `}
                 onFocus={handleDepositFocus}
                 step="0.01"
                 placeholder="$0.00"
@@ -228,6 +221,8 @@ const VaultUSDCForm: React.FC<Props> = () => {
         </button>
       </div>
     </div>
+    )}
+    </>
   );
 };
 
