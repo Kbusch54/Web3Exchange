@@ -19,7 +19,7 @@ export default async function page(){
             <div className='flex flex-wrap  items-center justify-between gap-12 '>
                 {stocks.map(stock => (
                 <div key={stock.slug}  className='pool-card'>
-                    <a href={`/pools/${stock.slug}`}>
+                    <a href={`/pools/${stock.symbol}`}>
 
                         <div className='flex flex-row justify-between relative'>
                             <Image src={helmet} alt={'helmet'} width={120}/>

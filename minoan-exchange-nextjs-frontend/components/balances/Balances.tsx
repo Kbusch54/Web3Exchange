@@ -1,38 +1,64 @@
+import { ethers } from 'ethers';
 import React from 'react'
 
 interface Props {
-    
+    poolBalances:poolBalance;
+    poolToken: poolToken;
+}
+interface poolBalance {
+    totalUsdcSupply: number;
+    availableUsdc: number;
+    outstandingLoanUsdc: number;
+}
+interface poolToken {
+    tokenId: string;
+    totalSupply: number;
+    tokenBalance: tokenBalance[];
+}
+interface tokenBalance {
+    tokensOwnedbByUser: number;
+    totalStaked: number;
+    user: user;
+}
+interface user {
+    balances: balances;
+}
+interface balances {
+    availableUsdc: number;
 }
 
-const Balances: React.FC<Props> = () => {
+
+const Balances: React.FC<Props> = ({poolBalances,poolToken}) => {
+  const currrentValue = poolToken.tokenBalance[0] !=null? poolToken.tokenBalance[0].tokensOwnedbByUser/poolToken.totalSupply* poolBalances.totalUsdcSupply:0 ;
+  
     return (
         <section
         id={"balances"}
         className="balance-container"
       >
         <div>
-          <h1>0.00</h1>
-          <h3> Your Balance</h3>
+          <h1>{poolToken.tokenBalance[0] !=null?ethers.utils.formatUnits(poolToken.tokenBalance[0].tokensOwnedbByUser,12):0}</h1>
+          <h3> Your Token Balance</h3>
         </div>
         <div>
-          <h1>$0.00</h1>
-          <h3> Current Value</h3>
+          <h1>${ethers.utils.formatUnits(currrentValue,6)}</h1>
+          <h3> Current Token Value</h3>
         </div>
         <div>
-          <h1>134533</h1>
+          <h1>{ethers.utils.formatUnits(poolToken.totalSupply,12)}</h1>
           <h3> Total Supply</h3>
         </div>
         <div>
-          <h1>$9382.02</h1>
-          <h3> Total Value</h3>
+          <h1>${ethers.utils.formatUnits(poolBalances.availableUsdc,6)}</h1>
+          <h3> Available USDC Supply</h3>
         </div>
         <div>
-          <h1>$6983.39</h1>
+          <h1>${ethers.utils.formatUnits(poolBalances.outstandingLoanUsdc,6)}</h1>
           <h3> Loaned Out</h3>
         </div>
         <div>
-          <h1>$2398.63</h1>
-          <h3> In Vault</h3>
+          <h1>${ethers.utils.formatUnits(poolBalances.totalUsdcSupply,6)}</h1>
+          <h3>Total USDC Supply</h3>
         </div>
       </section>
     )

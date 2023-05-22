@@ -11,6 +11,7 @@ import InvestorStats from "../../../components/stockData/InvestorStats";
 import StakingStats from "../../../components/stockData/StakingStats";
 import { getServerSession } from "../../api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
+import { request, gql } from 'graphql-request';
 
 interface Props {
   params: {
@@ -18,9 +19,86 @@ interface Props {
   };
 }
 
+
+async function fetchLoanPoolData(symbol: string, user: string) {
+  const query = gql` 
+    query getLoanPool($id: String!,$user: String!) {
+      vamms(where: { symbol: $id}) {
+        name
+        loanPool {
+          id
+          created
+          minLoan
+          maxLoan
+          interestRate
+          interestPeriod
+          mmr
+          minHoldingsReqPercentage
+          tradingFee
+          poolBalance {
+            totalUsdcSupply
+            availableUsdc
+            outstandingLoanUsdc
+          }
+          poolToken{
+            tokenId
+            totalSupply
+            tokenBalance(where:{user:$user}){
+              tokensOwnedbByUser
+              totalStaked
+              user{
+                balances{
+                  availableUsdc
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  
+
+  const endpoint = process.env.NEXT_PUBLIC_API_URL ||"https://api.studio.thegraph.com/query/46803/subgraph-minoan/v0.1.1";
+  const variables = { id: symbol, user: user };
+  const data = await request(endpoint, query, variables);
+  //@ts-ignore
+  return data.vamms[0];
+}
+
+async function fetchTokenBalances(id: string, user: string) {
+  const query = gql`
+    query getLoanPool($id: String!, $user: String!) {
+      {
+        poolToken(id: $id) {
+        
+        tokenId
+        totalSupply
+        tokenBalance(where:{user:$user}){
+          
+          totalStaked
+          tokensOwnedbByUser
+          token {
+            isFrozen
+          }
+        }
+        
+      }
+    }
+    }
+  `;
+
+  const endpoint = 'https://api.studio.thegraph.com/query/46803/subgraph-minoan/v0.1.1';
+  const variables = { id: id, user: user };
+  const data = await request(endpoint, query, variables);
+  //@ts-ignore
+  return data;
+}
+
 const getStocks = async (slug: string) => {
   const s: Stock | undefined = stocks.find(
-    (stock) => stock.slug === Number(slug)
+    (stock) => stock.symbol === slug
   );
   return s;
 };
@@ -32,10 +110,18 @@ const AreaChartsForPools = dynamic(
 
 export default async function PoolPage({ params }: Props) {
   const stock = await getStocks(params.slug);
-      const session = await getServerSession();
-      if(!session) {
-          redirect(`/auth/signin?callbackUrl=/pools/${params.slug}`);
-      }
+  const session = await getServerSession();
+  if(!session) {
+    redirect(`/auth/signin?callbackUrl=/pools/${params.slug}`);
+  }
+  const graphData = await fetchLoanPoolData(params.slug.toLowerCase(),session.user.name);
+  // console.log(graphData);
+  
+  // console.log('amm',graphData.loanPool.id);
+  // const tokenBal = await fetchTokenBalances(String(loanPool.loanPool.id),String(session.user.name));
+  // console.log('this is tokenBal',tokenBal);
+  // console.log('user',session.user.name);
+  // console.log('poolabalce',graphData.loanPool.poolToken.tokenBalance[0]);
   return (
     <div>
       {stock && (
@@ -50,10 +136,11 @@ export default async function PoolPage({ params }: Props) {
               />
             </div>
             <div className="col-span-1 flex flex-col gap-y-24 text-center">
-              <h1>{stock.name}</h1>
+              <h1>{graphData.name}</h1>
               <h3 className="text-xl">{stock.symbol}</h3>
             </div>
-            <Balances />
+    
+              <Balances poolBalances={graphData.loanPool.poolBalance} poolToken={graphData.loanPool.poolToken}  /> 
             <section
               id={"charts"}
               className="hidden md:block col-span-9  shadow-xl shadow-slate-500"
@@ -70,7 +157,7 @@ export default async function PoolPage({ params }: Props) {
               id={"stats"}
               className="col-span-9 lg:col-span-9 flex flex-wrap justify-evenly items-center text-center gap-y-12"
             >
-              <InvestorStats />
+              <InvestorStats loanPool={graphData.loanPool} />
               <StakingStats />
             </section>
             <section

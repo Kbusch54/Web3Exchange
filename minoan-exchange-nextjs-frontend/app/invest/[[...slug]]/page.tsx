@@ -15,9 +15,53 @@ import { stocks } from "../../utils/stockData";
 import ReachartsEx from "../../../components/charts/poolCharts/ReachartsEx";
 import { getServerSession } from "../../api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
+import {request,gql} from "graphql-request";
 type Props = {};
-async function fetchData(slug: string) {
-  // Fetch data based on the slug value
+async function fetchLoanPoolData(symbol: string, user: string) {
+  const query = gql`
+    query getLoanPool($id: String!,$user: String!) {
+      vamms(where: { symbol: $id}) {
+        name
+        loanPool {
+          id
+          created
+          minLoan
+          maxLoan
+          interestRate
+          interestPeriod
+          mmr
+          minHoldingsReqPercentage
+          tradingFee
+          poolBalance {
+            totalUsdcSupply
+            availableUsdc
+            outstandingLoanUsdc
+          }
+          poolToken{
+            tokenId
+            totalSupply
+            tokenBalance(where:{user:$user}){
+              tokensOwnedbByUser
+              totalStaked
+              user{
+                balances{
+                  availableUsdc
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  
+
+  const endpoint = process.env.NEXT_PUBLIC_API_URL ||"https://api.studio.thegraph.com/query/46803/subgraph-minoan/v0.1.1";
+  const variables = { id: symbol, user: user };
+  const data = await request(endpoint, query, variables);
+  //@ts-ignore
+  return data.vamms[0];
 }
 
 const getStocks = async (slug: string) => {
@@ -32,7 +76,7 @@ export default async function page(context: { params: { slug: string; }; }) {
   if(!session) {
       redirect(`/auth/signin?callbackUrl=/invest/${slug}`);
   }
-  const data = await fetchData(slug);
+  const graphData = await fetchLoanPoolData(slug.toLowerCase(),session.user.name);
   const stock = await getStocks(slug);
   return (
     <div className="m-2">
@@ -78,7 +122,7 @@ export default async function page(context: { params: { slug: string; }; }) {
 
             <FFRData />
             <InterestData />
-            <InvestorStats />
+            <InvestorStats loanPool={graphData.loanPool}/>
           </div>
           <div className="my-4 col-start-2 col-span-9 ">
             <CurrentTradesTable />
