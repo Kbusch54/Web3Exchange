@@ -16,7 +16,7 @@ const exchangeViewer =  "0x04e9f83966711A9341d4A81327613872e10B444d"
 const usdc =  "0xAADbde5D0ED979b0a88770be054017fC40Bc43d1"
 
 // npx graph add 0xdE6B4693B7bD623Ab2614Ed2D76593D791e19F65 --abi ../hardhat/artifacts/contracts/daos/CreateAriadnes.sol/CreateAriadnes.json --contract-name CreateAriadnes     
-
+// QmcgfoUh2vLv5bF52Uyc8NFtM9orLPepERsaFRqhYSRhnu
 const block =9040708;
 
 // npx graph add 0xa71Cb4B8850063e8cdddC1438FbFF20d901ef0e5 --abi ../hardhat/artifacts/contracts/loanPools/LoanPool.sol/LoanPool.json --contract-name LoanPool 
