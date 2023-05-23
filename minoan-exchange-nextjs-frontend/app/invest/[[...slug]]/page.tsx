@@ -111,8 +111,8 @@ export default async function page(context: { params: { slug: string; }; }) {
           </div>
 
           <div className="col-span-3">
-            <InvestForm />
-            <VaultUSDCForm availableUsdc={graphData.loanPool.poolToken.tokenBalance[0].user.balances.availableUsdc} user={session.user.name}/>
+            <InvestForm stockData={stocks} currentData={graphData}/>
+            <VaultUSDCForm availableUsdc={graphData.loanPool.poolToken.tokenBalance[0]?.user? graphData.loanPool.poolToken.tokenBalance[0].user.balances.availableUsdc:0} user={session.user.name}/>
           </div>
           <div className="col-span-12 flex flex-col lg:flex-row items-center justify-evenly gap-y-8 mt-8">
 
