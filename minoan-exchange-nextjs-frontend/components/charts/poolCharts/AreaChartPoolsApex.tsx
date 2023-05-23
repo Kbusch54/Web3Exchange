@@ -1,6 +1,9 @@
 "use client";
 import React from "react";
-import ReactApexChart from "react-apexcharts";
+// import ReactApexChart from "react-apexcharts";
+import dynamic from 'next/dynamic';
+
+const ReactApexChart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
 type ChartData = {
   period: string;
@@ -94,12 +97,15 @@ const options: ApexCharts.ApexOptions = {
 
 const AreaChartPoolsApex: React.FC = () => {
   return (
-    <ReactApexChart
-      options={options}
-      series={options.series}
-      type="area"
-      height={400}
-    />
+    <div className="w-full">
+
+      <ReactApexChart
+        options={options}
+        series={options.series}
+        type="area"
+        
+      />
+    </div>
   );
 };
 

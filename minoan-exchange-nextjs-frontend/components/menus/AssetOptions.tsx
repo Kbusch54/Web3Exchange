@@ -21,7 +21,7 @@ const AssetOptions: React.FC<Props> = ({stockData,assetName}) => {
             </Button>
             <Menu {...bindMenu(popupState)}>
               {stockData.map((stock: Stock) => (
-                <MenuItem className=' hover:bg-slate-900 hover:text-white' >
+                <MenuItem key={stock.slug} className=' hover:bg-slate-900 hover:text-white' >
                   <a href={`/invest/${stock.symbol}`} onClick={popupState.close} >
                     <div className='w-12 flex flex-row justify-between mx-4'>
                       <div className='self-center'>

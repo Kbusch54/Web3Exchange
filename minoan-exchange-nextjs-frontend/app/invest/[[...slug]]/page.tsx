@@ -16,6 +16,7 @@ import ReachartsEx from "../../../components/charts/poolCharts/ReachartsEx";
 import { getServerSession } from "../../api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
 import {request,gql} from "graphql-request";
+import GlobalTradesBox from "../../../components/tables/GlobalTradesBox";
 type Props = {};
 async function fetchLoanPoolData(symbol: string, user: string) {
   const query = gql`
@@ -57,7 +58,7 @@ async function fetchLoanPoolData(symbol: string, user: string) {
 
   
 
-  const endpoint = process.env.NEXT_PUBLIC_API_URL ||"https://api.studio.thegraph.com/query/46803/subgraph-minoan/v0.1.1";
+  const endpoint = process.env.NEXT_PUBLIC_API_URL ||"https://api.studio.thegraph.com/query/46803/subgraph-minoan/v0.1.3";
   const variables = { id: symbol, user: user };
   const data = await request(endpoint, query, variables);
   //@ts-ignore
@@ -86,6 +87,7 @@ export default async function page(context: { params: { slug: string; }; }) {
             <div className="flex flex-col text-center justify-center">
               {stock && (
                 <StockOptionMenu stockData={stocks} />
+            
               )}
               {stock && (
                 <div className="object-contain  self-center">
@@ -102,7 +104,7 @@ export default async function page(context: { params: { slug: string; }; }) {
           <div className="hidden lg:block lg:col-span-7 mr-8 ">
             <div className="grid grid-rows-6 ">
               <div className="row-span-4">
-                <AreaChartPoolsApex />
+                {/* <AreaChartPoolsApex /> */}
               </div>
               <div className="row-span-2">
                 <ReachartsEx />
@@ -124,11 +126,14 @@ export default async function page(context: { params: { slug: string; }; }) {
             <InterestData />
             <InvestorStats loanPool={graphData.loanPool}/>
           </div>
-          <div className="my-4 col-start-2 col-span-9 ">
+          <div className="my-4 col-start-2 col-span-9  w-full">
             <CurrentTradesTable />
           </div>
-          <div className="my-4  lg:col-start-2 lg:col-span-9 ">
-            <GlobalTrades />
+          <div className="my-4  lg:col-start-2 lg:col-span-9 w-full text-white ">
+            {/* <GlobalTrades />
+             */}
+             <h1 className="text-white text-3xl text-center my-4">Recent {stock?.name.toUpperCase()  } Trades</h1>
+             <GlobalTradesBox />
           </div>
         </div>
       )}

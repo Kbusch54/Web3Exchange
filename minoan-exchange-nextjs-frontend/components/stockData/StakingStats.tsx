@@ -1,10 +1,28 @@
 import React from 'react'
 
 interface Props {
-    
+    stakes: stake[];
+}
+interface stake {
+  id:string
+  user: user[]
+  totalStaked: number
+  tokensOwnedbByUser: number
+  ammPool: string | null
+  theseusDAO: string | null
+  token: string
+}
+interface user {
+  id: string
+  balances: balance[]
+}
+interface balance {
+  id: string
+  availableUsdc: number
 }
 
-const StakingStats: React.FC<Props> = () => {
+
+const StakingStats: React.FC<Props> = ({stakes}) => {
     return (
         <div className="outside-box">
                 <div className="inside-box">
@@ -12,7 +30,7 @@ const StakingStats: React.FC<Props> = () => {
                     <h1>Staking Information</h1>
                     <div >
                       <h3>Stakers:</h3>
-                      <h3>126</h3>
+                      <h3>{stakes?stakes.length:0}</h3>
                     </div>
                     <div>
                       <h3>USDC to Tok:</h3>

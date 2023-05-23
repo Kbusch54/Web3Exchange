@@ -67,15 +67,15 @@ interface Props {
 
 const GlobalTrades: React.FC<Props> = () => {
     return (
-        <div className='global-trades'>
-            <Box sx={{ height: 390, width: '100%' }} >
+        // <div className='text-center flex bg-slate-800 rounded-2xl shadow-xl shadow-amber-400 text-white flex-col pb-12  lg:mx-24 my-12'>
+        // <h1 className='my-2'>Global Active Trades</h1>
+        <Box sx={{ height: 400, width: '100%' }}>
 
-                <h1 className='my-2'>Global Active Trades</h1>
                 <DataGrid
+                className='text-white flex justify-self-center'
                     autoHeight
-                    columnHeaderHeight={40}
-                    className='global-trades-table '
                     rows={rows}
+                    rowCount={rows.length}
                     columns={columns }
                     initialState={{
                         pagination: {
@@ -92,7 +92,7 @@ const GlobalTrades: React.FC<Props> = () => {
                     disableRowSelectionOnClick
                 />
             </Box>
-        </div>
+        // </div>
     );
 }
 export default GlobalTrades

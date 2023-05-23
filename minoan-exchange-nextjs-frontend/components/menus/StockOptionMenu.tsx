@@ -13,7 +13,6 @@ interface Props {
 
 const StockOptionMenu: React.FC<Props> = ({stockData}) => {
 
-    console.log(stockData);
     return (
         <PopupState variant="popover" popupId="demo-popup-menu">
             {(popupState) => (
@@ -23,7 +22,7 @@ const StockOptionMenu: React.FC<Props> = ({stockData}) => {
                     </Button>
                     <Menu {...bindMenu(popupState)}>
                         {stockData.map((stock: Stock) => (
-                            <MenuItem className=' hover:bg-slate-900 hover:text-white' >
+                            <MenuItem key={stock.slug} className=' hover:bg-slate-900 hover:text-white' >
                              <a href={`/invest/${stock.symbol}`} onClick={popupState.close} >
                                 <div className='w-72 flex flex-row justify-between mx-4'>
                                     <div>
