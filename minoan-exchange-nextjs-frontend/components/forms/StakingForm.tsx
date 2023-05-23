@@ -1,20 +1,43 @@
 "use client";
-import React, { useState } from "react";
+import { set } from "date-fns";
+import { ethers } from "ethers";
+import React, { useState,useEffect, use } from "react";
 import CurrencyInput from "react-currency-input-field";
 
 // TODO:pull data
-// users usdc
-// minimum stake allowed
-// total usdc supply
-// total token supply
 
-export default function StakingForm() {
+interface Props {
+  poolToken: poolToken;
+  totalUSDCSupply: number;
+}
+interface poolToken {
+  tokenId: string;
+  totalSupply: number;
+  tokenBalance: tokenBalance[];
+}
+interface tokenBalance {
+  tokensOwnedbByUser: number;
+  totalStaked: number;
+  user: user;
+}
+interface user {
+  balances: balances;
+}
+interface balances {
+  availableUsdc: number;
+}
+
+export default function StakingForm({poolToken,totalUSDCSupply}: Props) {
   const [errorMessage, setErrorMessage] = useState("");
   const [className, setClassName] = useState("");
   const [rawValue, setRawValue] = useState<string | undefined>(" ");
-  const [maxValue, setMaxValue] = useState<Number | undefined>(99000000);
+  const [isError, setIsError] = useState<boolean>(true);
   const [estToken, setEstToken] = useState<Number>(0);
-
+  const [percentage, setPercentage] = useState<Number>(0);
+  const maxValue = poolToken.tokenBalance[0]? poolToken.tokenBalance[0].user.balances.availableUsdc: 0; 
+  const totalUsdc = totalUSDCSupply? totalUSDCSupply:0;
+  const totalSupply = poolToken.totalSupply? poolToken.totalSupply:0;
+  const currentStakeTok = poolToken.tokenBalance[0]? poolToken.tokenBalance[0].tokensOwnedbByUser:0;
   function isGreatMax(num: string) {
     if (maxValue != undefined) {
       if (Number(num) * 1000000 <= maxValue) {
@@ -26,33 +49,49 @@ export default function StakingForm() {
       return false;
     }
   }
-  function calcTokenAmt(usdc: number, totalUsdc: number, totalSupply: number) {
+  function calcTokenAmt(usdc: number) {
+
+    console.log('total usdsdsdc',usdc/totalUsdc);
     return Math.floor((usdc / totalUsdc) * totalSupply);
-    // _usdcAmt) / tUsdcS)*ts
+  }
+  function calcPercentage(usdc: number) {
+    let newTOkenAmt= Math.floor((usdc / totalUsdc) * totalSupply);
+    return ((newTOkenAmt+ currentStakeTok) /(totalSupply  + newTOkenAmt))*100;
   }
   const validateValue = (value: string | undefined): void => {
     const rawValue = value === undefined ? "$0.00" : value;
-    setRawValue(String(Number(rawValue) * 1000000) || "$0.00");
+    setRawValue(rawValue => String(Number(value) * 1000000) || '0');
+    
 
-    console.log("rawvalue with usdc dec", Number(rawValue) * 1000000);
-
-    if (!value) {
+    if (!value || value === "0") {
       setClassName("");
       setEstToken(0);
+      setPercentage(0);
+      setErrorMessage("Enter a value greater than 0");
+      setIsError(error=>true);
     } else if (Number.isNaN(Number(value))) {
       setErrorMessage("Please enter a valid number");
       setClassName("border border-red-500 bg-red-500");
       setEstToken(0);
+      setPercentage(0);
+      setIsError(error=>true);
     } else if (isGreatMax(value)) {
-      setErrorMessage("Value you entered is more USDC than you own");
+      setErrorMessage("Please Deposit more USDC");
       setClassName("border border-red-500 bg-red-500");
       setEstToken(0);
+      setIsError(error=>true);
+      setPercentage(0);
     } else {
       setClassName("border-2 border-green-500 ");
       setErrorMessage("");
-      setEstToken(calcTokenAmt(Number(rawValue) * 1000000, 2000000000, 90828));
+      setIsError(error=>false);
+      setEstToken(calcTokenAmt(Number(rawValue) * 1000000));
+      setPercentage(calcPercentage(Number(rawValue) * 1000000));
     }
   };
+
+  useEffect(() => {
+  }, [rawValue, totalUsdc, totalSupply]);
 
   return (
     <form className="flex flex-col justify-evenly bg-cyan-700 bg-opacity-10 rounded-2xl shadow-xl shadow-amber-400 text-lg p-4 mx-4 lg:mx-36 relative ">
@@ -87,26 +126,26 @@ export default function StakingForm() {
         </div>
         <div className="flex flex-col m-[1.45rem]  md:ml-8 lg:ml-8">
           <div className="bg-white rounded-full text-slate-600 text-center w-[12.5rem] h-[2rem]">
-            <p>{rawValue}</p>
+            <p id='rawValue'>{rawValue}</p>
           </div>
           <p className="text-xs text-amber-400">With Decimals</p>
         </div>
         <div className="flex flex-col m-[1.45rem]  md:ml-8 lg:ml-2">
           <div className="bg-white rounded-full text-slate-600 text-center w-[12.5rem] h-[2rem]">
-            <p>{String(estToken)}</p>
+            <p id='estToken'>{ethers.utils.formatUnits(String(estToken),5)}</p>
           </div>
           <p className="text-xs text-amber-400">Aprox Token AMT</p>
         </div>
         <div className="flex flex-col m-[1.45rem]  md:ml-8 lg:ml-2">
           <div className="bg-white rounded-full text-slate-600 text-center w-[12.5rem] h-[2rem]">
-            <p>$2.40</p>
+            <p id='percentage'>{String(percentage)}%</p>
           </div>
           <p className="text-xs text-amber-400">
-            Estimated Rewards Next Period
+            % of Total Supply 
           </p>
         </div>
       </div>
-      <button className="px-4 py-2 bg-amber-400 text-white rounded-3xl mt-4 hover:animate-pulse">
+      <button className={`px-4 py-2 ${isError?'bg-red-500/50 ' :'bg-amber-400 hover:animate-pulse'} text-white rounded-3xl mt-4 `} disabled={isError}>
         STAKE
       </button>
     </form>

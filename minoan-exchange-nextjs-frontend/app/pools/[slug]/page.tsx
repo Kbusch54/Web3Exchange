@@ -159,7 +159,7 @@ export default async function PoolPage({ params }: Props) {
               className="col-span-9 lg:col-span-9 flex flex-wrap justify-evenly items-center text-center gap-y-12"
             >
               <InvestorStats loanPool={graphData.loanPool} />
-              <StakingStats />
+              <StakingStats  />
             </section>
             <section
               id={"staking"}
@@ -180,7 +180,7 @@ export default async function PoolPage({ params }: Props) {
               <h1 className="my-4">Stake</h1>
 
               <div className="">
-                <StakingForm />
+                <StakingForm poolToken={graphData.loanPool.poolToken} totalUSDCSupply={graphData.loanPool.poolBalance.totalUsdcSupply} />
               </div>
             </section>
           </div>

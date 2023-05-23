@@ -152,7 +152,7 @@ const VaultUSDCForm: React.FC<Props> = ({availableUsdc,user}) => {
   return (
     <>
     {domLoaded && (
-    <div className="swiper-container outside-box mt-8 ">
+    <div className="outside-box mt-8 ">
       <div className="flex flex-col text-center inside-box text-white ">
         <h3>USDC</h3>
         <p className="text-red-500 animate-pulse">{errorMessage}</p>
@@ -161,7 +161,7 @@ const VaultUSDCForm: React.FC<Props> = ({availableUsdc,user}) => {
             <p className="bg-white rounded-full text-slate-600 text-center  tracking-wide md:w-[18rem] lg:w-[11rem] xl:w-[8rem] 2xl:w-[12.5rem] md:h-[2rem]">
               {rawToDisplay(availableUsdc)}
             </p>
-            <p className="text-sm xl:text-lg text-amber-400">
+            <p className="text-sm xl:text-md text-amber-400">
               Available Vault Balance
             </p>
           </div>
@@ -169,7 +169,7 @@ const VaultUSDCForm: React.FC<Props> = ({availableUsdc,user}) => {
             <p className="bg-white rounded-full text-slate-600 text-center  tracking-wide md:w-[18rem] lg:w-[11rem] xl:w-[8rem] 2xl:w-[12.5rem] md:h-[2rem]">
               {rawToDisplay(walletBalance)}
             </p>
-            <p className="text-sm xl:text-lg text-amber-400">Wallet Balance</p>
+            <p className="text-sm xl:text-md text-amber-400">Wallet Balance</p>
           </div>
         </div>
         <div className="flex flex-col md:flex-row lg:flex-col xl:flex-row justify-between m-2">
@@ -190,7 +190,7 @@ const VaultUSDCForm: React.FC<Props> = ({availableUsdc,user}) => {
                 MAX
               </button>
             </div>
-            <p className="text-sm xl:text-lg text-amber-400">Withdraw</p>
+            <p className="text-sm xl:text-md text-amber-400">Withdraw</p>
           </div>
           <div className="flex flex-col">
             <div className={`flex flex-row justify-between bg-white rounded-full text-slate-600 text-center  tracking-wide md:w-[18rem] lg:w-[11rem] xl:w-[8rem] 2xl:w-[12.5rem] md:h-[2rem] ${!isError && buttonValue === "Deposit"? 'border-2 border-green-500':className}`}>
@@ -210,7 +210,7 @@ const VaultUSDCForm: React.FC<Props> = ({availableUsdc,user}) => {
                 MAX
               </button>
             </div>
-            <p className="text-sm xl:text-lg text-amber-400">Deposit</p>
+            <p className="text-sm xl:text-md text-amber-400">Deposit</p>
           </div>
         </div>
         <button
