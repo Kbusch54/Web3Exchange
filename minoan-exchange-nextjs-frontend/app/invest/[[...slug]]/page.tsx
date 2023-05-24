@@ -67,7 +67,7 @@ async function fetchLoanPoolData(symbol: string, user: string) {
 
 const getStocks = async (slug: string) => {
   const s: Stock | undefined = stocks.find(
-    (stock: { symbol: String; }) => stock.symbol.toUpperCase() === String(slug).toUpperCase()
+    (stock: { symbol: string; }) => stock.symbol.toUpperCase() === String(slug).toUpperCase()
   );
   return s;
 };

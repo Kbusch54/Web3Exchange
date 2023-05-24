@@ -3,37 +3,23 @@ import { set } from "date-fns";
 import { ethers } from "ethers";
 import React, { useState,useEffect, use } from "react";
 import CurrencyInput from "react-currency-input-field";
+import { PoolToken } from "../../types/custom";
 
 // TODO:pull data
 
 interface Props {
-  poolToken: poolToken;
+  poolToken: PoolToken;
   totalUSDCSupply: number;
 }
-interface poolToken {
-  tokenId: string;
-  totalSupply: number;
-  tokenBalance: tokenBalance[];
-}
-interface tokenBalance {
-  tokensOwnedbByUser: number;
-  totalStaked: number;
-  user: user;
-}
-interface user {
-  balances: balances;
-}
-interface balances {
-  availableUsdc: number;
-}
+
 
 export default function StakingForm({poolToken,totalUSDCSupply}: Props) {
   const [errorMessage, setErrorMessage] = useState("");
   const [className, setClassName] = useState("");
   const [rawValue, setRawValue] = useState<string | undefined>(" ");
   const [isError, setIsError] = useState<boolean>(true);
-  const [estToken, setEstToken] = useState<Number>(0);
-  const [percentage, setPercentage] = useState<Number>(0);
+  const [estToken, setEstToken] = useState<number>(0);
+  const [percentage, setPercentage] = useState<number>(0);
   const maxValue = poolToken.tokenBalance[0]? poolToken.tokenBalance[0].user.balances.availableUsdc: 0; 
   const totalUsdc = totalUSDCSupply? totalUSDCSupply:0;
   const totalSupply = poolToken.totalSupply? poolToken.totalSupply:0;
@@ -91,6 +77,10 @@ export default function StakingForm({poolToken,totalUSDCSupply}: Props) {
   };
 
   useEffect(() => {
+
+    return () => {
+      
+    }
   }, [rawValue, totalUsdc, totalSupply]);
 
   return (

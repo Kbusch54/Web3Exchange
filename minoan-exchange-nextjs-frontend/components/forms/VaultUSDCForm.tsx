@@ -42,7 +42,6 @@ const VaultUSDCForm: React.FC<Props> = ({availableUsdc,user}) => {
   const {data,isLoading,error} = useBalance({
     address: user,
     token: '0xAADbde5D0ED979b0a88770be054017fC40Bc43d1',
- 
   });
 
   useEffect(() => {

@@ -2,63 +2,63 @@ import { StaticImageData } from "next/image";
 import { Address } from "wagmi";
 
 export type Stock = {
-    name: String;
-    symbol: String;
+    name: string;
+    symbol: string;
     img: StaticImageData;
-    slug: Number;
-    address: String;
-    poolAddress: String;
+    slug: number;
+    address: string;
+    poolAddress: string;
 }
 
 export type User = {
-    id: String
+    id: string
     address: Address
     balances: Balance
     stakes: Stake[]
     trades: Trade[]
   }
 export type Trade = {
-    id:String
-    tradeId: String
+    id:string
+    tradeId: string
     user: User
     ammPool: LoanPool 
     vamm: VAmm
     tradeBalance: TradeBalance
-    created: Number
-    startingCost: Number
+    created: number
+    startingCost: number
     isActive: Boolean
     liquidated: Boolean
 }   
 export type TradeBalance ={
-    id:String
-    tradeId: String
-    LastInterestPayed: Number
-    LastFFRPayed: Number
-    interestRate: Number
-    side: Number
-    collateral: Number
-    leverage: Number
-    loanAmt: Number
-    positionSize: Number
-    entryPrice: Number
-    exitPrice: Number
-    exitTime: Number
-    pnl: Number
+    id:string
+    tradeId: string
+    LastInterestPayed: number
+    LastFFRPayed: number
+    interestRate: number
+    side: number
+    collateral: number
+    leverage: number
+    loanAmt: number
+    positionSize: number
+    entryPrice: number
+    exitPrice: number
+    exitTime: number
+    pnl: number
   }
 
 
   export type LoanPool = {
-    id:String
+    id:string
     amm: VAmm
     ariadneDAO: AriadneDAO
-    created: Number
-    minLoan: Number
-    maxLoan: Number
-    interestRate: Number
-    interestPeriod: Number
-    mmr: Number
-    minHoldingsReqPercentage: Number
-    tradingFee: Number
+    created: number
+    minLoan: number
+    maxLoan: number
+    interestRate: number
+    interestPeriod: number
+    mmr: number
+    minHoldingsReqPercentage: number
+    tradingFee: number
     poolBalance: PoolBalance
     trades: Trade[]
     debt: Debt
@@ -67,86 +67,86 @@ export type TradeBalance ={
     stakes: Stake[]
   }
   export type PoolBalance = {
-    id:String
+    id:string
     amm:  VAmm
-    totalUsdcSupply: Number
-    availableUsdc: Number
-    outstandingLoanUsdc: Number
+    totalUsdcSupply: number
+    availableUsdc: number
+    outstandingLoanUsdc: number
     loanPool: LoanPool 
   }
   export type TheseusDAO = {
-    id:String
+    id:string
     proposals: Proposal[]
     poolTokens: PoolToken[]
-    currentId: Number
-    votingTime: Number
-    maxVotingPower: Number
-    minVotingPower: Number
-    tokenId: Number
-    votesNeededPercentage: Number
-    insuranceFundMin: Number
+    currentId: number
+    votingTime: number
+    maxVotingPower: number
+    minVotingPower: number
+    tokenId: number
+    votesNeededPercentage: number
+    insuranceFundMin: number
     loanPoolTheseus: LoanPoolTheseus
     balances: Balance[]
     stakes: Stake[]
   }
 
    export type LoanPoolTheseus = {
-    id:String
-    minMMR: Number
-    maxMMR: Number
-    minInterestRate: Number
-    maxInterestRate: Number
-    minTradingFee: Number
-    maxTradingFee: Number
-    minLoan: Number
-    maxLoan: Number
-    minHoldingsReqPercentage: Number
-    maxHoldingsReqPercentage: Number
-    minInterestPeriod: Number
-    maxInterestPeriod: Number
+    id:string
+    minMMR: number
+    maxMMR: number
+    minInterestRate: number
+    maxInterestRate: number
+    minTradingFee: number
+    maxTradingFee: number
+    minLoan: number
+    maxLoan: number
+    minHoldingsReqPercentage: number
+    maxHoldingsReqPercentage: number
+    minInterestPeriod: number
+    maxInterestPeriod: number
     theseusDAO: TheseusDAO
   }
    export type AriadneDAO = {
-    id:String
-    currentId: Number
+    id:string
+    currentId: number
     ammPool: VAmm
-    votingTime: Number
-    maxVotingPower: Number
-    minVotingPower: Number
-    votesNeededPercentage: Number
-    tokenId: Number
+    votingTime: number
+    maxVotingPower: number
+    minVotingPower: number
+    votesNeededPercentage: number
+    tokenId: number
     poolToken: PoolToken
     proposals: Proposal[]
   }
    export type Proposal = {
-    id:String
+    id:string
     dAO: AriadneDAO
-    nonce: Number
+    nonce: number
     theseusDAO: TheseusDAO
     proposer: Address
     to: Address
-    value: Number
-    data: String
-    result: String
+    value: number
+    data: string
+    result: string
     executor: Address
-    proposedAt: Number
-    transactionHash: String
+    proposedAt: number
+    transactionHash: string
     isPassed: Boolean
   }
   
    export type Stake = {
-    id:String
+    id:string
     user: User
-    totalStaked: Number
-    tokensOwnedbByUser: Number
+    totalStaked: number
+    tokensOwnedbByUser: number
     ammPool: LoanPool
     theseusDAO: TheseusDAO
     token: PoolToken
   }
    export type PoolToken = {
-    id:String
-    tokenId: Number
-    totalSupply: Number
+    id:string
+    tokenId: number
+    totalSupply: number
     tokenBalance: Stake[]
     ammPool: LoanPool
     isFrozen: Boolean
@@ -154,57 +154,57 @@ export type TradeBalance ={
   
   
    export type VAmm = {
-    id:String
+    id:string
     loanPool: LoanPool
     ffrs: FFR[]
-    currentIndex: Number
-    totalPositionSize: Number
+    currentIndex: number
+    totalPositionSize: number
     isFrozen: Boolean
-    name: String
-    symbol: String
-    payload: String
+    name: string
+    symbol: string
+    payload: string
     snapshots: Snapshot[]
     priceData: PriceData[]
   }
    export type Snapshot = {
-    id:String
-    index: Number
+    id:string
+    index: number
     vamm: VAmm
-    blockTimestamp: Number
+    blockTimestamp: number
     marketPrice: BigInt
-    quoteAssetReserve: Number
-    baseAssetReserve: Number
-    indexPrice: Number
-    ffr: Number
+    quoteAssetReserve: number
+    baseAssetReserve: number
+    indexPrice: number
+    ffr: number
     totalPositionSize: BigInt
   }
   
    export type FFR = {
-    id:String
-    timeStamp: Number
+    id:string
+    timeStamp: number
     vAmm: VAmm
-    ffr: Number
-    index: Number
+    ffr: number
+    index: number
   }
    export type PriceData = {
-    id:String
-    timeStamp: Number
+    id:string
+    timeStamp: number
     vAmm: VAmm
     marketPrice: BigInt 
-    indexPrice: Number
+    indexPrice: number
   }
   
    export type Balance = {
-    id:String
+    id:string
     user: User
-    availableUsdc: Number
-    totalCollateralUsdc: Number
+    availableUsdc: number
+    totalCollateralUsdc: number
   }
   
   
   
    export type Debt = {
-    id:String
-    amountOwed: Number
+    id:string
+    amountOwed: number
     loanPool: LoanPool
   }
