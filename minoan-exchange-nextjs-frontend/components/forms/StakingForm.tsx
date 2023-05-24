@@ -5,7 +5,6 @@ import React, { useState,useEffect, use } from "react";
 import CurrencyInput from "react-currency-input-field";
 import { PoolToken } from "../../types/custom";
 
-// TODO:pull data
 
 interface Props {
   poolToken: PoolToken;
@@ -24,6 +23,24 @@ export default function StakingForm({poolToken,totalUSDCSupply}: Props) {
   const totalUsdc = totalUSDCSupply? totalUSDCSupply:0;
   const totalSupply = poolToken.totalSupply? poolToken.totalSupply:0;
   const currentStakeTok = poolToken.tokenBalance[0]? poolToken.tokenBalance[0].tokensOwnedbByUser:0;
+  const maxInput = (e:React.MouseEvent<HTMLButtonElement>)=>{
+    e.preventDefault();
+    const inputFiled = document.getElementById("field");
+    if(maxValue != undefined){
+      validateValue(String(maxValue/1000000));
+      // @ts-ignore
+      inputFiled.value = ('$'.concat(String(maxValue)));
+    }else{
+      return 0;
+    }
+  }
+  const minInput = (e:React.MouseEvent<HTMLButtonElement>)=>{
+    e.preventDefault();
+    const inputFiled = document.getElementById("field");
+    validateValue(String(1));
+    // @ts-ignore
+    inputFiled.value = ('$1.00');
+  }
   function isGreatMax(num: string) {
     if (maxValue != undefined) {
       if (Number(num) * 1000000 <= maxValue) {
@@ -36,8 +53,6 @@ export default function StakingForm({poolToken,totalUSDCSupply}: Props) {
     }
   }
   function calcTokenAmt(usdc: number) {
-
-    console.log('total usdsdsdc',usdc/totalUsdc);
     return Math.floor((usdc / totalUsdc) * totalSupply);
   }
   function calcPercentage(usdc: number) {
@@ -63,6 +78,12 @@ export default function StakingForm({poolToken,totalUSDCSupply}: Props) {
       setIsError(error=>true);
     } else if (isGreatMax(value)) {
       setErrorMessage("Please Deposit more USDC");
+      setClassName("border border-red-500 bg-red-500");
+      setEstToken(0);
+      setIsError(error=>true);
+      setPercentage(0);
+    }else if(Number(value) <1){
+      setErrorMessage("Minimum is $1");
       setClassName("border border-red-500 bg-red-500");
       setEstToken(0);
       setIsError(error=>true);
@@ -94,10 +115,10 @@ export default function StakingForm({poolToken,totalUSDCSupply}: Props) {
         </p>
         <div className="flex flex-col ">
           <div className="flex flex-row mb-1 ml-12">
-            <button className="bg-amber-400 px-2 mt-1 mx-2 text-xs rounded-tl-full ">
+            <button onClick={(e)=>minInput(e)} className="bg-amber-400 px-2 mt-1 mx-2 text-xs rounded-tl-full ">
               MIN
             </button>
-            <button className="bg-amber-400 px-2 mt-1 mx-2 text-xs rounded-tr-full ">
+            <button onClick={(e)=>maxInput(e)} className="bg-amber-400 px-2 mt-1 mx-2 text-xs rounded-tr-full ">
               MAX
             </button>
           </div>

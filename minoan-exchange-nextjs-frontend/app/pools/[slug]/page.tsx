@@ -12,6 +12,8 @@ import { redirect } from "next/navigation";
 import { request, gql } from 'graphql-request';
 import VaultUSDCForm from "../../../components/forms/VaultUSDCForm";
 import ReachartsEx from "../../../components/charts/poolCharts/ReachartsEx";
+import { use } from "react";
+import { useBalance } from "wagmi";
 
 interface Props {
   params: {
@@ -86,6 +88,8 @@ export default async function PoolPage({ params }: Props) {
   if(!session) {
     redirect(`/auth/signin?callbackUrl=/pools/${params.slug}`);
   }
+
+
   const graphData = await fetchLoanPoolData(params.slug.toLowerCase(),session.user.name);
   return (
     <div>
