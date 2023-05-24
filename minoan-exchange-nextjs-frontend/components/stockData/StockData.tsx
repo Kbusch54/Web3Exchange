@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 
 interface Props {
-  stockSymbol: string;
+  stockSymbol: String;
 }
 const StockInfo: React.FC<Props> = ({ stockSymbol }) => {
   const [stockData, setStockData] = useState<any>(null);

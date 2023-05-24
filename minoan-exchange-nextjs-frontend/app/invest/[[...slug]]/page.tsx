@@ -67,7 +67,7 @@ async function fetchLoanPoolData(symbol: string, user: string) {
 
 const getStocks = async (slug: string) => {
   const s: Stock | undefined = stocks.find(
-    (stock: { symbol: string; }) => stock.symbol.toUpperCase() === String(slug).toUpperCase()
+    (stock: { symbol: String; }) => stock.symbol.toUpperCase() === String(slug).toUpperCase()
   );
   return s;
 };
@@ -101,7 +101,7 @@ export default async function page(context: { params: { slug: string; }; }) {
 
           </div>
 
-          <div className="hidden lg:block lg:col-span-7 mr-8 ">
+          <div className=" mr-8 lg:col-span-7  ">
             <div className="grid grid-rows-6 ">
               <div className="row-span-4">
                 {/* <AreaChartPoolsApex /> */}
@@ -116,14 +116,14 @@ export default async function page(context: { params: { slug: string; }; }) {
             <InvestForm stockData={stocks} currentData={graphData}/>
             <VaultUSDCForm availableUsdc={graphData.loanPool.poolToken.tokenBalance[0]?.user? graphData.loanPool.poolToken.tokenBalance[0].user.balances.availableUsdc:0} user={session.user.name}/>
           </div>
-          <div className="col-span-12 flex flex-col lg:flex-row items-center justify-evenly gap-y-8 mt-8">
+          <div className="col-span-12 grid grid-cols-2 xl:grid-cols-4 gap-x-6 items-center justify-evenly gap-y-8  mt-8">
 
             {stock?.symbol && (
               <StockData stockSymbol={stock?.symbol} />
             )}
 
-            <FFRData />
             <InterestData />
+            <FFRData />
             <InvestorStats loanPool={graphData.loanPool}/>
           </div>
           <div className="my-4 col-start-2 col-span-9  w-full">
