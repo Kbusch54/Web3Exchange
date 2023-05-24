@@ -3,6 +3,8 @@ import React,{useRef} from 'react'
 import { LoanPool, Stock } from '../../types/custom';
 import AssetOptions from '../menus/AssetOptions';
 import SideSelection from './SideSelection';
+import TradeButton from './buttons/TradeButton';
+import { Address } from 'wagmi';
 
 
 interface Props {
@@ -11,13 +13,16 @@ interface Props {
     name:string,
     loanPool:LoanPool
   }
+  user:Address
+  availableUsdc:number
   
 }
 
 
 
-const InvestForm: React.FC<Props> = ({ stockData, currentData }) => {
+const InvestForm: React.FC<Props> = ({ stockData, currentData,user,availableUsdc }) => {
   const [side, setSide] = React.useState<number>(1);
+  const [check, setCheck] = React.useState<boolean>(false);
   const sizeInputRef = useRef<HTMLInputElement>(null);
   const psizeInputRef = useRef<HTMLInputElement>(null);
   const leverageInputRef = useRef<HTMLInputElement>(null);
@@ -48,10 +53,40 @@ const InvestForm: React.FC<Props> = ({ stockData, currentData }) => {
       }
     }
   }
+  checkIfReady();
   }
-  
+  const checkIfReady = () => {
+    console.log('checkIfReady');
+    console.log('collateralInputRef.current', collateralInputRef.current?.valueAsNumber);
+    console.log('leverageInputRef.current', leverageInputRef.current?.valueAsNumber);
+    // console.log('totalCostRef.current', parseFloat(totalCostRef.current?.value.replace('$','')));
+    console.log('side', side);
+    console.log('availableUsdc', availableUsdc);
+    //@ts-ignore
+    const totalCost = parseFloat(totalCostRef.current?.value.replace('$',''));
+        //@ts-ignore
+    const size = parseFloat(sizeInputRef.current?.value.replace('$',''));
+    console.log('checkIfReady min loan ', size, currentData.loanPool.minLoan/10**6);
+    console.log('checkIfReady max loan ', size, currentData.loanPool.maxLoan/10**6);
+    if(collateralInputRef.current&& leverageInputRef.current &&totalCostRef.current&& side && (parseFloat(collateralInputRef.current.value) + totalCost)*10**6 <= availableUsdc){
+      if(size * 10 **6 >= currentData.loanPool.minLoan && size * 10 **6 <= currentData.loanPool.maxLoan){
+        setCheck((prevState) => true);
+      }else{
+        setCheck((prevState) => false);
+      }
+    }else{
+      setCheck((prevState) => false);
+    }
+  }
+
   React.useEffect(() => {
-  }, [side])
+    console.log('check', check);
+    console.log('availableUsdc', availableUsdc);
+    checkIfReady();
+    return () => {
+      setCheck((prevState) => false);
+    }
+  }, [side,check])
 
   console.log('currentData HELLO', currentData);
   const sideSelection = (newSide:string) => {
@@ -90,9 +125,12 @@ const InvestForm: React.FC<Props> = ({ stockData, currentData }) => {
           <h3>Fee Amount</h3>
           <input type="text"  id="totalCost" ref={totalCostRef} name="totalCost" className='rounded-xl w-32 ml-2 text-slate-200 text-center' disabled/>
         </div>
-        <button className="bg-amber-400 px-2 py-1 rounded-2xl text-white mt-4 hover:scale-125">
-          TRADE
-        </button>
+        {leverageInputRef.current && collateralInputRef.current && side &&check ?(
+
+          <TradeButton leverage={Number(leverageInputRef.current.value)} side={side} collateral={Number(collateralInputRef.current.value)} disabled={check} ammId={currentData.name} user={user}/>
+        ):(
+          <button disabled className='bg-slate-700 px-2 py-1 rounded-2xl text-white mt-4'>Trade</button>
+        )}
         
       </div>
     </div>

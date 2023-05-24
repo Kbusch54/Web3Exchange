@@ -1,6 +1,7 @@
 import { ExchangeAbi } from "../../abis";
 import { usePrepareContractWrite, Address } from "wagmi";
 import { usdc,exchange,TeslaAmm as teslaAmm,GoogleAmm as googleAmm, MetaAmm as metaAmm} from "../../address";
+import { parseUnits } from "ethers/lib/utils.js";
 
 export const useOpenPosition = (
     side:number,
@@ -18,7 +19,9 @@ export const useOpenPosition = (
       args: [amm,collateral,leverage,side],
       overrides: {
         from: signer,
+        gasLimit: parseUnits("200000", "wei"),
       },
+      
     });
     return { config, error };
   };
