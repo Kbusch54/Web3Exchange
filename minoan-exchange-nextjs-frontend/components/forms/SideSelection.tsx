@@ -18,7 +18,6 @@ const SideSelection: React.FC<Props> = ({sideSelection}) => {
     ) => {
       setSide(newSide);
       sideSelection(newSide)
-      console.log(newSide)
     };
     return (
         <ToggleButtonGroup
