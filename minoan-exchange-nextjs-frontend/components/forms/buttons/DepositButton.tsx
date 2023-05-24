@@ -28,41 +28,41 @@ export default  function  DepositButton({value,user,disabled}:Props)  {
         e.preventDefault();
         setLoadingStage((prev) => true);
         //@ts-ignore
-        await contractWrite.writeAsync()
+        // await contractWrite.writeAsync()
         
-        console.log('contractWrite',contractWrite);
-        //  await contractWrite.writeAsync()
-        //   .then((con: { wait: (arg0: number) => Promise<any>; hash: any; }) => {
-        //     con.wait(1).then((res) => {
-        //       if (contractWrite.isSuccess || res.status == 1) {
-        //         console.log(res.transactionHash);
-        //       } else if (
-        //         contractWrite.status == "idle" ||
-        //         contractWrite.status == "error" ||
-        //         contractWrite.isIdle == true ||
-        //         res.status == 0
-        //       ) {
-        //         console.log("error see traNSACITON HASH", con.hash);
-        //         console.log(contractWrite?.error?.message);
-        //       } else {
-        //         console.log("error see traNSACITON HASH", con.hash);
-        //         console.log(contractWrite?.error?.message);
-        //       }
-        //     });
-        //   })
-        //   .catch((err: any) => {
-        //     console.log("didnt event fire", err);
-        //   });
+        // console.log('contractWrite',contractWrite);
+         await contractWrite.writeAsync()
+          .then((con: { wait: (arg0: number) => Promise<any>; hash: any; }) => {
+            con.wait(1).then((res) => {
+              if (contractWrite.isSuccess || res.status == 1) {
+                console.log(res.transactionHash);
+              } else if (
+                contractWrite.status == "idle" ||
+                contractWrite.status == "error" ||
+                contractWrite.isIdle == true ||
+                res.status == 0
+              ) {
+                console.log("error see traNSACITON HASH", con.hash);
+                console.log(contractWrite?.error?.message);
+              } else {
+                console.log("error see traNSACITON HASH", con.hash);
+                console.log(contractWrite?.error?.message);
+              }
+            });
+          })
+          .catch((err: any) => {
+            console.log("didnt event fire", err);
+          });
       };
       if (contractWrite.isLoading || loadingStage)
         return (
-          <div className="absolute bottom-8 right-8 px-8 py-2  rounded-3xl bg-teal-400 text-white">
+          <div className="px-2 py-1 rounded-2xl mt-4 font-extrabold bg-teal-400 text-white">
             Processing…
           </div>
         );
       if (errorWithContractLoad)
         return (
-          <div className="absolute bottom-8 right-8 px-8 py-2  rounded-3xl bg-red-600 text-white animate-pulse">
+          <div className="px-2 py-1 rounded-2xl  mt-4 font-extrabold bg-red-600 text-white animate-pulse">
             Error WIth current transaciton…
           </div>
         );

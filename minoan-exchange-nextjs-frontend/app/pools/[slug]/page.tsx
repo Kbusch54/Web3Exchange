@@ -20,6 +20,50 @@ interface Props {
     slug: string;
   };
 }
+interface GraphData {
+  vamms: {
+    name: string;
+    loanPool: {
+      id: string;
+      created: string;
+      minLoan: string;
+      maxLoan: string;
+      interestRate: string;
+      interestPeriod: string;
+      mmr: string;
+      minHoldingsReqPercentage: string;
+      tradingFee: string;
+      poolBalance: {
+        totalUsdcSupply: string;
+        availableUsdc: string;
+        outstandingLoanUsdc: string;
+      };
+      stakes: {
+        totalStaked: string;
+      };
+      poolToken: {
+        tokenId: string;
+        totalSupply: string;
+        tokenBalance: {
+          tokensOwnedbByUser: string;
+          totalStaked: string;
+          user: {
+            balances: {
+              availableUsdc: string;
+            };
+          };
+        };
+      };
+    };
+  };
+  users: {
+    id: string;
+    balances: {
+      availableUsdc: string;
+    };
+  };
+}
+
 
 
 async function fetchLoanPoolData(symbol: string, user: string) {
@@ -60,6 +104,12 @@ async function fetchLoanPoolData(symbol: string, user: string) {
           }
         }
       }
+      users(where:{id:$user}){
+        id
+        balances{
+          availableUsdc
+        }
+      }
     }
   `;
 
@@ -68,8 +118,8 @@ async function fetchLoanPoolData(symbol: string, user: string) {
   const endpoint = process.env.NEXT_PUBLIC_API_URL ||"https://api.studio.thegraph.com/query/46803/subgraph-minoan/v0.1.3";
   const variables = { id: symbol, user: user };
   const data = await request(endpoint, query, variables);
-  //@ts-ignore
-  return data.vamms[0];
+
+  return data;
 }
 
 
@@ -90,7 +140,12 @@ export default async function PoolPage({ params }: Props) {
   }
 
 
-  const graphData = await fetchLoanPoolData(params.slug.toLowerCase(),session.user.name);
+  const allData = await fetchLoanPoolData(params.slug.toLowerCase(),session.user.name);
+  //@ts-ignore
+  const graphData = allData.vamms[0];
+  //@ts-ignore
+  const userData = allData.users[0].balances.availableUsdc;
+  console.log('user data',userData)
   return (
     <div>
       {stock && graphData? (
@@ -129,7 +184,7 @@ export default async function PoolPage({ params }: Props) {
               <h1 className="my-4">Deposit and Withdraw</h1>
 
              <div className="">
-                <VaultUSDCForm availableUsdc={graphData.loanPool.poolToken.tokenBalance[0].user.balances.availableUsdc} user={session.user.name} />
+                <VaultUSDCForm availableUsdc={userData} user={session.user.name} />
              </div>
            
             </div>
@@ -138,7 +193,7 @@ export default async function PoolPage({ params }: Props) {
               className="col-span-9 lg:col-span-9 text-center "
             >
               <h1 className="my-4">Stake</h1>
-                <StakingForm poolToken={graphData.loanPool.poolToken} totalUSDCSupply={graphData.loanPool.poolBalance.totalUsdcSupply} />
+                <StakingForm availableUsdc={userData} poolToken={graphData.loanPool.poolToken} totalUSDCSupply={graphData.loanPool.poolBalance.totalUsdcSupply} />
             </div>
           </div>
           <div id={"dao"} className="m-2 md:m-12">

@@ -1,7 +1,7 @@
 "use client";
 import { set } from "date-fns";
 import { ethers } from "ethers";
-import React, { useState,useEffect, use } from "react";
+import React, { useState,useEffect, useRef } from "react";
 import CurrencyInput from "react-currency-input-field";
 import { PoolToken } from "../../types/custom";
 
@@ -9,20 +9,28 @@ import { PoolToken } from "../../types/custom";
 interface Props {
   poolToken: PoolToken;
   totalUSDCSupply: number;
+  availableUsdc: number;
 }
 
 
-export default function StakingForm({poolToken,totalUSDCSupply}: Props) {
+export default function StakingForm({poolToken,totalUSDCSupply,availableUsdc}: Props) {
   const [errorMessage, setErrorMessage] = useState("");
   const [className, setClassName] = useState("");
   const [rawValue, setRawValue] = useState<string | undefined>(" ");
   const [isError, setIsError] = useState<boolean>(true);
   const [estToken, setEstToken] = useState<number>(0);
   const [percentage, setPercentage] = useState<number>(0);
-  const maxValue = poolToken.tokenBalance[0]? poolToken.tokenBalance[0].user.balances.availableUsdc: 0; 
+  const maxValue = availableUsdc; 
   const totalUsdc = totalUSDCSupply? totalUSDCSupply:0;
   const totalSupply = poolToken.totalSupply? poolToken.totalSupply:0;
   const currentStakeTok = poolToken.tokenBalance[0]? poolToken.tokenBalance[0].tokensOwnedbByUser:0;
+
+  const sizeInputRef = useRef(null);
+const psizeInputRef = useRef(null);
+const leverageInputRef = useRef(null);
+const collateralInputRef = useRef(null);
+const totalCostRef = useRef(null);
+
   const maxInput = (e:React.MouseEvent<HTMLButtonElement>)=>{
     e.preventDefault();
     const inputFiled = document.getElementById("field");
@@ -143,7 +151,7 @@ export default function StakingForm({poolToken,totalUSDCSupply}: Props) {
         </div>
         <div className="flex flex-col m-[1.45rem]  md:ml-8 lg:ml-2">
           <div className="bg-white rounded-full text-slate-600 text-center w-[12.5rem] h-[2rem]">
-            <p id='estToken'>{ethers.utils.formatUnits(String(estToken),5)}</p>
+            {/* <p id='estToken'>{ethers.utils.formatUnits(String(estToken),5)}</p> */}
           </div>
           <p className="text-xs text-amber-400">Aprox Token AMT</p>
         </div>
