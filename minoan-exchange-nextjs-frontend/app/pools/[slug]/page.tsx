@@ -14,6 +14,7 @@ import VaultUSDCForm from "../../../components/forms/VaultUSDCForm";
 import ReachartsEx from "../../../components/charts/poolCharts/ReachartsEx";
 import { use } from "react";
 import { useBalance } from "wagmi";
+import StakingSection from "../../../components/forms/StakingSection";
 
 interface Props {
   params: {
@@ -188,13 +189,7 @@ export default async function PoolPage({ params }: Props) {
              </div>
            
             </div>
-            <div
-              id={"staking"}
-              className="col-span-9 lg:col-span-9 text-center "
-            >
-              <h1 className="my-4">Stake</h1>
-                <StakingForm availableUsdc={userData} poolToken={graphData.loanPool.poolToken} user={session.user.name} name={stock.name} totalUSDCSupply={graphData.loanPool.poolBalance.totalUsdcSupply} />
-            </div>
+            <StakingSection availableUsdc={userData} poolToken={graphData.loanPool.poolToken} user={session.user.name} name={stock.name} poolBalance={graphData.loanPool.poolBalance}  />
           </div>
           <div id={"dao"} className="m-2 md:m-12">
             <DaoTransaction />
