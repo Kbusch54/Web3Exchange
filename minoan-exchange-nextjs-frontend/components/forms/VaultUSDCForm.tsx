@@ -259,7 +259,7 @@ const VaultUSDCForm: React.FC<Props> = ({ availableUsdc, user }) => {
               <ApproveButton value={depositRawValue} user={user} disabled={isError} />
             )}
             {!withdrawRawValue && !depositRawValue && (
-              <button className={'px-2 py-1 rounded-2xl text-white mt-4 font-extrabold bg-slate-700 '} disabled>Trade </button>
+              <button className={'px-2 py-1 rounded-2xl text-white mt-4 font-extrabold bg-slate-700 '} disabled>Deposit </button>
     
                )}
           </div>

@@ -16,6 +16,7 @@ const TradeButton: React.FC<Props> = ({leverage,collateral,side,user,ammId,disab
     const [approved, setApproved] = React.useState<boolean>(false);
     const [errorWithContractLoad, setErrorWithContractLoad] = React.useState<boolean>(false);   
     const [loadingStage, setLoadingStage] = useState(false); 
+    const [customMessage, setCustomMessage] = useState<string|null>(null);
     const collateralAmount = collateral * 10 ** 6;
     const {config,error} = useOpenPosition(side,collateralAmount,leverage,ammId, user);
     console.log('config',config);
@@ -32,14 +33,19 @@ const TradeButton: React.FC<Props> = ({leverage,collateral,side,user,ammId,disab
         e.preventDefault();
         setLoadingStage((prev) => true);
         //@ts-ignore
-        // await contractWrite.writeAsync()
-        
-        // console.log('contractWrite',contractWrite);
          await contractWrite.writeAsync()
-          .then((con: { wait: (arg0: number) => Promise<any>; hash: any; }) => {
+         .then((con: { wait: (arg0: number) => Promise<any>; hash: any; }) => {
             con.wait(1).then((res) => {
               if (contractWrite.isSuccess || res.status == 1) {
-                console.log(res.transactionHash);
+                //success
+                console.log(res.transactionHash); contractWrite.reset();
+                setLoadingStage((prev) => false);
+                //custom message for 3 seconds then reset
+                setCustomMessage('Trade Successful');
+                setTimeout(() => {
+                  setCustomMessage(null);
+                }
+                , 3000);
               } else if (
                 contractWrite.status == "idle" ||
                 contractWrite.status == "error" ||
@@ -55,7 +61,22 @@ const TradeButton: React.FC<Props> = ({leverage,collateral,side,user,ammId,disab
             });
           })
           .catch((err: any) => {
+            
+            if(err.message.includes('User rejected request')){
+              console.log('user rejected');
+              contractWrite.reset();
+              setLoadingStage((prev) => false);
+              //error isContractError for 3 seconds then reset
+              setErrorWithContractLoad(true);
+              setCustomMessage('User rejected request');
+              setTimeout(() => {
+                setErrorWithContractLoad(false);
+                setCustomMessage(null);
+              }
+              , 3000);
+            };
             console.log("didnt event fire", err);
+            console.log('message',err.message);
           });
       };
       if (contractWrite.isLoading || loadingStage)
@@ -67,12 +88,16 @@ const TradeButton: React.FC<Props> = ({leverage,collateral,side,user,ammId,disab
       if (errorWithContractLoad)
         return (
           <div className="px-2 py-1 rounded-2xl  mt-4 font-extrabold bg-red-600 text-white animate-pulse">
-            Error WIth current transaciton…
+            {customMessage? (
+              <p>{customMessage}</p>
+            ):(
+              <p>Error With current transaciton…</p>
+            )}
           </div>
         );
     return (
         <div className='bg-amber-400 px-2 py-1 rounded-2xl text-white mt-4 hover:scale-125'>
-            <button disabled={disabled} onClick={handleWrite} className="">Trade</button>
+            <button disabled={disabled} onClick={handleWrite} className="">{customMessage?customMessage:'Trade'}</button>
         </div>
     )
 }

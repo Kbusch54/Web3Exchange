@@ -15,6 +15,7 @@ export const useOpenPosition = (
     const { config, error } = usePrepareContractWrite({
         address:exchange,
        abi:ExchangeAbi,
+       chainId:5,
       functionName: "openPosition",
       args: [amm,collateral,leverage,side],
       overrides: {
@@ -26,12 +27,13 @@ export const useOpenPosition = (
     return { config, error };
   };
 
-function getAmmAddress(ammId: string) {
-    if(ammId === "tesla"){
+  function getAmmAddress(ammId: string) {
+    const amm =ammId.toLowerCase();
+    if(amm === "tesla"){
         return teslaAmm;
-    }else if(ammId === "google"){
+    }else if(amm === "google"){
         return googleAmm;
-    }else if(ammId === "meta"){
+    }else if(amm === "meta"){
         return metaAmm;
     }
     else{

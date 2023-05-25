@@ -1,5 +1,5 @@
 'use client'
-import React, { useRef } from 'react'
+import React, { use, useEffect, useRef } from 'react'
 import { LoanPool, Stock } from '../../types/custom';
 import AssetOptions from '../menus/AssetOptions';
 import SideSelection from './SideSelection';
@@ -21,8 +21,10 @@ interface Props {
 
 
 const InvestForm: React.FC<Props> = ({ stockData, currentData, user, availableUsdc }) => {
-  const [side, setSide] = React.useState<number>(1);
+  const [side, setSide] = React.useState<number>(-1);
   const [check, setCheck] = React.useState<boolean>(false);
+  const [collateral, setCollateral] = React.useState<number>(0);
+  const [leverage, setLeverage] = React.useState<number>(0);
   const sizeInputRef = useRef<HTMLInputElement>(null);
   const psizeInputRef = useRef<HTMLInputElement>(null);
   const leverageInputRef = useRef<HTMLInputElement>(null);
@@ -35,9 +37,11 @@ const InvestForm: React.FC<Props> = ({ stockData, currentData, user, availableUs
     if (leverageInputRef.current) {
       if (parseFloat(leverageInputRef.current.value) > 15) leverageInputRef.current.value = '15';
       if (parseFloat(leverageInputRef.current.value) < 1) leverageInputRef.current.value = '1';
+      setLeverage(parseFloat(leverageInputRef.current.value));
     }
     if (collateralInputRef.current) {
       if (parseFloat(collateralInputRef.current.value) < 1) collateralInputRef.current.value = '1';
+      setCollateral(parseFloat(collateralInputRef.current.value));
     }
     if (sizeInputRef.current && leverageInputRef.current && collateralInputRef.current) {
       if (leverageInputRef.current && collateralInputRef.current) {
@@ -70,12 +74,20 @@ const InvestForm: React.FC<Props> = ({ stockData, currentData, user, availableUs
     }
   }
 
-  React.useEffect(() => {
+  useEffect(() => {
     checkIfReady();
     return () => {
       setCheck((prevState) => false);
     }
   }, [side, check])
+
+  useEffect(() => {
+    calculateThirdValue();
+    return () => {
+      setCollateral((prevState) => 0);
+      setLeverage((prevState) => 0);
+    }
+  }, [collateral, leverage])
   const sideSelection = (newSide: string) => {
     setSide((prev) => newSide == 'long' ? 1 : -1);
   }
@@ -112,9 +124,9 @@ const InvestForm: React.FC<Props> = ({ stockData, currentData, user, availableUs
           <h3>Fee Amount</h3>
           <input type="text" id="totalCost" ref={totalCostRef} name="totalCost" className='rounded-xl w-32 ml-2 text-slate-200 text-center' disabled />
         </div>
-        {leverageInputRef.current && collateralInputRef.current && side && check ? (
+        {collateral >0 && leverage>0 && side && check ? (
 
-          <TradeButton leverage={Number(leverageInputRef.current.value)} side={side} collateral={Number(collateralInputRef.current.value)} disabled={check} ammId={currentData.name} user={user} />
+          <TradeButton leverage={leverage} side={side} collateral={collateral} disabled={!check} ammId={currentData.name} user={user} />
         ) : (
           <button disabled className='bg-slate-700 px-2 py-1 rounded-2xl text-white mt-4'>Trade</button>
         )}
