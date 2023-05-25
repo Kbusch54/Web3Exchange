@@ -180,14 +180,7 @@ const VaultUSDCForm: React.FC<Props> = ({ availableUsdc, user }) => {
       }
     }
   };
-  const handleFormButton = (e: React.MouseEvent<HTMLButtonElement>): void => {
-    e.preventDefault();
-    console.log("button value", buttonValue);
-    console.log("deposit raw value", depositRawValue);
-    console.log("withdraw raw value", withdrawRawValue);
-    console.log('deposit display value', depositDisplayValue);
-    console.log('withdraw display value', withdrawDisplayValue);
-  };
+
 
   return (
     <>
@@ -256,22 +249,19 @@ const VaultUSDCForm: React.FC<Props> = ({ availableUsdc, user }) => {
             
 
             {
-              buttonValue === "Withdraw"&& (
-                <WithdrawButton />
+              buttonValue === "Withdraw"&& withdrawRawValue&& (
+                <WithdrawButton value={withdrawRawValue} user={user} disabled={isError} />
               )}
             {buttonValue === "Deposit" && depositRawValue && (
               <DepositButton value={depositRawValue} user={user} disabled={isError}/>
             )}
             {buttonValue === "Approve" && depositRawValue && (
               <ApproveButton value={depositRawValue} user={user} disabled={isError} />
-            )
-            }
-            {/* <button
-              className={` px-2 py-1 rounded-2xl text-white mt-4 font-extrabold ${isError ? 'bg-slate-700' : "bg-amber-400 hover:scale-125"} `}
-              disabled={isError} onClick={handleFormButton}
-            >
-              {buttonValue}
-            </button> */}
+            )}
+            {!withdrawRawValue && !depositRawValue && (
+              <button className={'px-2 py-1 rounded-2xl text-white mt-4 font-extrabold bg-slate-700 '} disabled>Trade </button>
+    
+               )}
           </div>
         </div>
       )}

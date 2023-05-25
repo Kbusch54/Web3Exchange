@@ -64,6 +64,7 @@ async function fetchLoanPoolData(symbol: string, user: string) {
         }
       }
     }
+   
   `;
 
 

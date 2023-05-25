@@ -1,4 +1,5 @@
 import { UsdcAbi } from "./UsdcAbi";
 import { ExchangeAbi } from "./ExchangeAbi";
+import { StakingAbi } from "./StakingAbi";
 
-export { UsdcAbi, ExchangeAbi };
+export { UsdcAbi, ExchangeAbi, StakingAbi };

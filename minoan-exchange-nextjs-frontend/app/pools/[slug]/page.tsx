@@ -193,7 +193,7 @@ export default async function PoolPage({ params }: Props) {
               className="col-span-9 lg:col-span-9 text-center "
             >
               <h1 className="my-4">Stake</h1>
-                <StakingForm availableUsdc={userData} poolToken={graphData.loanPool.poolToken} totalUSDCSupply={graphData.loanPool.poolBalance.totalUsdcSupply} />
+                <StakingForm availableUsdc={userData} poolToken={graphData.loanPool.poolToken} user={session.user.name} name={stock.name} totalUSDCSupply={graphData.loanPool.poolBalance.totalUsdcSupply} />
             </div>
           </div>
           <div id={"dao"} className="m-2 md:m-12">

@@ -2,56 +2,54 @@
 import { set } from "date-fns";
 import { ethers } from "ethers";
 import React, { useState,useEffect, useRef } from "react";
-import CurrencyInput from "react-currency-input-field";
 import { PoolToken } from "../../types/custom";
+import StakingButton from "./buttons/StakingButton";
+import { Address } from "wagmi";
+
 
 
 interface Props {
   poolToken: PoolToken;
   totalUSDCSupply: number;
   availableUsdc: number;
+  name: string;
+  user:Address;
 }
 
 
-export default function StakingForm({poolToken,totalUSDCSupply,availableUsdc}: Props) {
+export default function StakingForm({poolToken,totalUSDCSupply,availableUsdc,name,user}: Props) {
   const [errorMessage, setErrorMessage] = useState("");
   const [className, setClassName] = useState("");
-  const [rawValue, setRawValue] = useState<string | undefined>(" ");
   const [isError, setIsError] = useState<boolean>(true);
-  const [estToken, setEstToken] = useState<number>(0);
-  const [percentage, setPercentage] = useState<number>(0);
+  const [rawDecimal, setRawDecimal] = useState<number>(0);
   const maxValue = availableUsdc; 
   const totalUsdc = totalUSDCSupply? totalUSDCSupply:0;
   const totalSupply = poolToken.totalSupply? poolToken.totalSupply:0;
-  const currentStakeTok = poolToken.tokenBalance[0]? poolToken.tokenBalance[0].tokensOwnedbByUser:0;
 
-  const sizeInputRef = useRef(null);
-const psizeInputRef = useRef(null);
-const leverageInputRef = useRef(null);
-const collateralInputRef = useRef(null);
-const totalCostRef = useRef(null);
-
+  const usdcRef = useRef<HTMLInputElement>(null);
+  const decimalsRef = useRef<HTMLInputElement>(null);
+  const estTokensRef = useRef<HTMLInputElement>(null);
   const maxInput = (e:React.MouseEvent<HTMLButtonElement>)=>{
     e.preventDefault();
-    const inputFiled = document.getElementById("field");
     if(maxValue != undefined){
-      validateValue(String(maxValue/1000000));
-      // @ts-ignore
-      inputFiled.value = ('$'.concat(String(maxValue)));
+      if(usdcRef.current) usdcRef.current.value = ('$'.concat(String((maxValue/10**6).toFixed(2))));
+      validateValue(String(maxValue));
     }else{
       return 0;
     }
   }
   const minInput = (e:React.MouseEvent<HTMLButtonElement>)=>{
     e.preventDefault();
-    const inputFiled = document.getElementById("field");
-    validateValue(String(1));
-    // @ts-ignore
-    inputFiled.value = ('$1.00');
+    if(maxValue != undefined){
+      if(usdcRef.current) usdcRef.current.value = ('$'.concat(String((2.05).toFixed(2))));
+      validateValue(String(2050000));
+    }else{
+      return 0;
+    }
   }
   function isGreatMax(num: string) {
     if (maxValue != undefined) {
-      if (Number(num) * 1000000 <= maxValue) {
+      if (Number(num) <= maxValue) {
         return false;
       } else {
         return true;
@@ -61,56 +59,58 @@ const totalCostRef = useRef(null);
     }
   }
   function calcTokenAmt(usdc: number) {
-    return Math.floor((usdc / totalUsdc) * totalSupply);
+    const ts = totalSupply==0?1:totalSupply;
+    const tu = totalUsdc==0?1:totalUsdc;
+    return Math.floor((usdc / tu) * ts);
   }
-  function calcPercentage(usdc: number) {
-    let newTOkenAmt= Math.floor((usdc / totalUsdc) * totalSupply);
-    return ((newTOkenAmt+ currentStakeTok) /(totalSupply  + newTOkenAmt))*100;
+
+  const validate = () => {
+    if (usdcRef.current) {
+      if(decimalsRef.current) decimalsRef.current.value ='0'
+      validateValue(String(parseFloat(usdcRef.current.value.replace('$', ""))*10**6));
+    }
   }
-  const validateValue = (value: string | undefined): void => {
-    const rawValue = value === undefined ? "$0.00" : value;
-    setRawValue(rawValue => String(Number(value) * 1000000) || '0');
-    
+
+  const validateValue = (value: string | undefined ): void => {
+    if(decimalsRef.current) decimalsRef.current.value = String(Number(value)) || '0';
 
     if (!value || value === "0") {
       setClassName("");
-      setEstToken(0);
-      setPercentage(0);
       setErrorMessage("Enter a value greater than 0");
       setIsError(error=>true);
+      if(estTokensRef.current) estTokensRef.current.value = '0';
     } else if (Number.isNaN(Number(value))) {
       setErrorMessage("Please enter a valid number");
       setClassName("border border-red-500 bg-red-500");
-      setEstToken(0);
-      setPercentage(0);
       setIsError(error=>true);
+      if(estTokensRef.current) estTokensRef.current.value = '0';
     } else if (isGreatMax(value)) {
       setErrorMessage("Please Deposit more USDC");
       setClassName("border border-red-500 bg-red-500");
-      setEstToken(0);
       setIsError(error=>true);
-      setPercentage(0);
+      if(estTokensRef.current) estTokensRef.current.value = '0';
     }else if(Number(value) <1){
       setErrorMessage("Minimum is $1");
       setClassName("border border-red-500 bg-red-500");
-      setEstToken(0);
       setIsError(error=>true);
-      setPercentage(0);
+      if(estTokensRef.current) estTokensRef.current.value = '0';
     } else {
       setClassName("border-2 border-green-500 ");
       setErrorMessage("");
       setIsError(error=>false);
-      setEstToken(calcTokenAmt(Number(rawValue) * 1000000));
-      setPercentage(calcPercentage(Number(rawValue) * 1000000));
+      setRawDecimal(prevState=>Number(value));
+      if(estTokensRef.current) estTokensRef.current.value = (calcTokenAmt(Number(value))/10**8).toFixed(2);
     }
   };
 
   useEffect(() => {
-
     return () => {
-      
+      setErrorMessage("");
+      setClassName("");
+      setIsError(error=>false);
     }
-  }, [rawValue, totalUsdc, totalSupply]);
+  }, [totalUsdc, totalSupply,rawDecimal]);
+
 
   return (
     <form className="flex flex-col justify-evenly bg-cyan-700 bg-opacity-10 rounded-2xl shadow-xl shadow-amber-400 text-lg p-4 mx-4 lg:mx-36 relative ">
@@ -130,13 +130,13 @@ const totalCostRef = useRef(null);
               MAX
             </button>
           </div>
-          <CurrencyInput
-            id="field"
+          <input
+            id="usdc"
             max={"99.00"}
+            ref={usdcRef}
             placeholder="$0.00"
-            allowDecimals={true}
             className={`text-slate-600  rounded-full text-center ${className} `}
-            onValueChange={validateValue}
+            onInput={()=>validate()}
             prefix={"$"}
           />
           <label htmlFor="" className="px-2 text-xs text-amber-400 ">
@@ -144,29 +144,20 @@ const totalCostRef = useRef(null);
           </label>
         </div>
         <div className="flex flex-col m-[1.45rem]  md:ml-8 lg:ml-8">
-          <div className="bg-white rounded-full text-slate-600 text-center w-[12.5rem] h-[2rem]">
-            <p id='rawValue'>{rawValue}</p>
-          </div>
+            <input className="bg-white rounded-full text-slate-600 text-center w-[12.5rem] h-[2rem]" id='rawValue' ref={decimalsRef}/>
           <p className="text-xs text-amber-400">With Decimals</p>
         </div>
         <div className="flex flex-col m-[1.45rem]  md:ml-8 lg:ml-2">
-          <div className="bg-white rounded-full text-slate-600 text-center w-[12.5rem] h-[2rem]">
-            {/* <p id='estToken'>{ethers.utils.formatUnits(String(estToken),5)}</p> */}
-          </div>
+            <input className="bg-white rounded-full text-slate-600 text-center w-[12.5rem] h-[2rem]" id='estToken' ref={estTokensRef}/>
           <p className="text-xs text-amber-400">Aprox Token AMT</p>
         </div>
-        <div className="flex flex-col m-[1.45rem]  md:ml-8 lg:ml-2">
-          <div className="bg-white rounded-full text-slate-600 text-center w-[12.5rem] h-[2rem]">
-            <p id='percentage'>{String(percentage)}%</p>
-          </div>
-          <p className="text-xs text-amber-400">
-            % of Total Supply 
-          </p>
-        </div>
       </div>
-      <button className={`px-4 py-2 ${isError?'bg-red-500/50 ' :'bg-amber-400 hover:animate-pulse'} text-white rounded-3xl mt-4 `} disabled={isError}>
-        STAKE
-      </button>
+      {!decimalsRef.current &&rawDecimal?(
+          <button className={`px-4 py-2 ${isError?'bg-red-500/50 ' :'bg-amber-400 hover:animate-pulse'} text-white rounded-3xl mt-4 `} disabled={isError}>Stake</button>
+      ):
+      (
+        <StakingButton disabled={isError} ammId={name} value={rawDecimal} user={user}   />
+      )}
     </form>
   );
 }

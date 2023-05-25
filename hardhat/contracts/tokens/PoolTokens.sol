@@ -39,7 +39,7 @@ contract PoolTokens is Context, ERC1155{
      */
     function stakeMint(address account, uint256 id, uint256 proportionAmt) public onlyStaking returns(bool,uint){
         uint _totalSupplyTok = totalSupplyTok[id]>0?totalSupplyTok[id]:1;
-        uint _mintAmount = _totalSupplyTok * proportionAmt;
+        uint _mintAmount = _totalSupplyTok * proportionAmt/10**6;
         _mint(account, id, _mintAmount, '');
         totalSupplyTok[id] += _mintAmount;
         return (true,_mintAmount);
