@@ -17,6 +17,7 @@ import { getServerSession } from "../../api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
 import { request, gql } from "graphql-request";
 import GlobalTradesBox from "../../../components/tables/GlobalTradesBox";
+import UserTrades from "../../../components/tables/UserTrades";
 type Props = {};
 
 async function fetchLoanPoolData(symbol: string, user: string) {
@@ -144,7 +145,9 @@ export default async function page(context: { params: { slug: string; }; }) {
               <InvestorStats loanPool={graphData.loanPool} />
             </div>
             <div className="my-4 col-start-2 col-span-9  w-full">
-              <CurrentTradesTable />
+              {/* <CurrentTradesTable />
+               */}
+               <UserTrades />
             </div>
             <div className="my-4  lg:col-start-2 lg:col-span-9 w-full text-white ">
               {/* <GlobalTrades />
