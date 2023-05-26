@@ -135,9 +135,9 @@ export default function StakingForm({poolToken,totalUSDCSupply,availableUsdc,nam
             max={"99.00"}
             ref={usdcRef}
             placeholder="$0.00"
+            prefix={"$"}
             className={`text-slate-600  rounded-full text-center ${className} `}
             onInput={()=>validate()}
-            prefix={"$"}
           />
           <label htmlFor="" className="px-2 text-xs text-amber-400 ">
             Staking Amount

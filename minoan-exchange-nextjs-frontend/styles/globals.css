@@ -72,6 +72,27 @@
 h1{
   @apply text-3xl
 }
+.modal-background{
+
+  /* ff 3.6+ */
+  background:-moz-linear-gradient(10deg, rgba(0, 221, 255, 1) 23%, rgba(95, 45, 173, 1) 91%); 
+
+  /* safari 5.1+,chrome 10+ */
+  background:-webkit-linear-gradient(10deg, rgba(0, 221, 255, 1) 23%, rgba(95, 45, 173, 1) 91%);
+
+  /* opera 11.10+ */
+  background:-o-linear-gradient(10deg, rgba(0, 221, 255, 1) 23%, rgba(95, 45, 173, 1) 91%);
+
+  /* ie 6-9 */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00DDFF', endColorstr='#5F2DAD', GradientType=1 );
+
+  /* ie 10+ */
+  background:-ms-linear-gradient(10deg, rgba(0, 221, 255, 1) 23%, rgba(95, 45, 173, 1) 91%);
+
+  /* global 94%+ browsers support */
+  background:linear-gradient(10deg, rgba(0, 221, 255, 1) 23%, rgba(95, 45, 173, 1) 91%);
+
+}
 .background-style {
   /* ff 3.6+ */
   background: -moz-linear-gradient(

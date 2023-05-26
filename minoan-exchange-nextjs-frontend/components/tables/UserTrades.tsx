@@ -1,19 +1,21 @@
 import React from 'react'
 import SideSelection from './utils/SideSelection';
 import SingleTrade from './SingleTrade';
+import { Address } from 'wagmi';
 
 interface Props {
-
+    user: Address;
+    userAvailableBalance: number;
 }
 const rows = [
-    { id: 1, side: 1, asset: 'TSLA', size: 3.5, lev: '10', pnl: '200.47', created: 29304 },
-    { id: 3, side: -1, asset: 'TSLA', size: 33.8, lev: '7', pnl: '20.47', created: 29304 },
-    { id: 2, side: 1, asset: 'TSLA', size: 12.2, lev: '14', pnl: '30.47', created: 29304 },
-    { id: 4, side: -1, asset: 'TSLA', size: 2.5, lev: '2', pnl: '5.29', created: 29304 },
-    { id: 5, side: -1, asset: 'TSLA', size: 0.5, lev: '19', pnl: '-50.99', created: 29304 },
+    { id: '0x783gbd874', side: 1, asset: 'TSLA', size: 3.5, lev: '10', pnl: '200.47', created: 29304 },
+    { id: '0x783gbd874', side: -1, asset: 'TSLA', size: 33.8, lev: '7', pnl: '20.47', created: 29304 },
+    { id: '0x783gbd874', side: 1, asset: 'TSLA', size: 12.2, lev: '14', pnl: '30.47', created: 29304 },
+    { id: '0x783gbd874', side: -1, asset: 'TSLA', size: 2.5, lev: '2', pnl: '5.29', created: 29304 },
+    { id: '0x783gbd874', side: -1, asset: 'TSLA', size: 0.5, lev: '19', pnl: '-50.99', created: 29304 },
 ];
 
-const UserTrades: React.FC<Props> = () => {
+const UserTrades: React.FC<Props> = ({user,userAvailableBalance}) => {
     const getInterestPayment = (loanAmt: number, interestRate: number, now: number, lastInterestPayed: number, interestPeriod: number) => {
         return (now - lastInterestPayed) / interestPeriod * (loanAmt / interestRate);
     }
@@ -36,7 +38,7 @@ const UserTrades: React.FC<Props> = () => {
             </div>
             <hr className='border-white' />
             {rows.map((row,index) => (
-                <SingleTrade key={row.id} row={row} index={index}/>
+                <SingleTrade key={row.id} row={row} index={index} user={user} userAvailableBalance={userAvailableBalance}/>
             ))}
         </div>
     )

@@ -147,7 +147,7 @@ export default async function page(context: { params: { slug: string; }; }) {
             <div className="my-4 col-start-2 col-span-9  w-full">
               {/* <CurrentTradesTable />
                */}
-               <UserTrades />
+               <UserTrades user={session.user.name} userAvailableBalance={userData} />
             </div>
             <div className="my-4  lg:col-start-2 lg:col-span-9 w-full text-white ">
               {/* <GlobalTrades />
