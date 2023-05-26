@@ -2,14 +2,14 @@
 import React,{useState,useEffect,useRef} from 'react';
 import ReactDOM from 'react-dom';
 import Modal from 'react-modal';
-import AddCollateralButton from '../../forms/buttons/AddCollateralButton';
 import { Address } from 'wagmi';
 import { ethers } from 'ethers';
+import RemoveCollateralButton from '../../forms/buttons/RemoveCollateralButton';
 
 interface Props {
     tradeId: string;
     user: Address;
-    vaultBalance: number;
+    minimummarginReq: number;
     currentCollateral: number;
 
 
@@ -35,8 +35,8 @@ const customStyles = {
 
 };
 // Modal.setAppElement('#yourAppElement');
-const AddCollateralModal: React.FC<Props> = ({tradeId,user,vaultBalance,currentCollateral}) => {
-    const maxAllowed = vaultBalance; //would be  vault balacne
+const RemoveCollateralModal: React.FC<Props> = ({tradeId,user,minimummarginReq,currentCollateral}) => {
+    const maxAllowed = (currentCollateral - minimummarginReq) - 1000; //would be  mmr*loanAmt
 
     let subtitle;
     const [modalIsOpen, setIsOpen] = useState(false);
@@ -86,18 +86,18 @@ const AddCollateralModal: React.FC<Props> = ({tradeId,user,vaultBalance,currentC
     }, [check,rawValue]);
     return (
         <div>
-            <button className='lg:px-2 py-1 bg-green-500 rounded-xl hover:scale-125' onClick={openModal}>Add Collateral</button>
+            <button className='lg:px-2 py-1 bg-orange-500 rounded-xl hover:scale-125' onClick={openModal}>Remove Collateral</button>
             <Modal
                 isOpen={modalIsOpen}
                 onAfterOpen={afterOpenModal}
                 onRequestClose={closeModal}
                 ariaHideApp={false}
                 style={customStyles}
-                contentLabel="Add Collateral Modal"
+                contentLabel="Remove Collateral Modal"
             >
                 <div className='flex flex-col  modal-background opacity-90 gap-y-8 w-[80vw] md:w-auto p-12 md:p-12 text-lg relative'>
                     <button onClick={closeModal} className='text-lg text-white bg-red-500 rounded-full py-[.07rem] px-[.375rem] absolute top-5 right-4'>X</button>
-                    <h1 className='text-white text-center text-3xl '>Add Collateral</h1>
+                    <h1 className='text-white text-center text-3xl '>Remove Collateral</h1>
                     {isError && <p className='text-red-500 text-center gap-y-0'>{errorMessage}</p>}
                     <div className='flex flex-col  text-center  gap-x-4 border-2 border-white bg-sky-500 text-white w-full'>
                         <div className='flex flex-row justify-around m-2 '>
@@ -110,7 +110,14 @@ const AddCollateralModal: React.FC<Props> = ({tradeId,user,vaultBalance,currentC
                         <div className='flex flex-row justify-around m-2'>
                             <p className='text-md lg:text-xl'>Current Collateral</p>
                             <div className='flex-col'>
-                                <p className='text-sm  md:text-md lg:text-lg text-sky-100 '>${currentCollateral}</p>
+                                <p className='text-sm  md:text-md lg:text-lg text-sky-100 '>${currentCollateral?String(Number(ethers.utils.formatUnits(currentCollateral,6)).toFixed(2)):'0.00'}</p>
+                                <hr />
+                            </div>
+                        </div>
+                        <div className='flex flex-row justify-around m-2'>
+                            <p className='textsm lg:textlg'>Remove Maximum</p>
+                            <div className='flex-col'>
+                                <p className='text-xs  md:text-sm lg:text-md text-sky-100 '>${maxAllowed?String(Number(ethers.utils.formatUnits(maxAllowed-10000,6)).toFixed(2)):'0.00'}</p>
                                 <hr />
                             </div>
                         </div>
@@ -125,8 +132,8 @@ const AddCollateralModal: React.FC<Props> = ({tradeId,user,vaultBalance,currentC
                         </div>
                         <div className='flex flex-row justify-around'>
                             <div className='flex flex-col text-xs'>
-                                <p className='text-gray-800 text-sm lg:text-md'>Balance</p>
-                                <p className=' md:text-md lg:text-xl text-sky-100'>${vaultBalance?String(Number(ethers.utils.formatUnits(vaultBalance,6)).toFixed(2)):'0.00'}</p>
+                                <p className='text-gray-800 text-sm lg:text-md'>Minimum Margin</p>
+                                <p className=' md:text-md lg:text-xl text-sky-100'>${minimummarginReq?String(Number(ethers.utils.formatUnits(minimummarginReq,6)).toFixed(2)):'0.00'}</p>
                             </div>
                             <div className='flex flex-col '>
                                 <input type='number' placeholder="$0.00"prefix={"$"} className='text-center text-md lg:text-lg bg-sky-700 w-[5rem] rounded-3xl text-sky-200'ref={usdcAmtRef} onInput={handleValidation} />
@@ -136,7 +143,7 @@ const AddCollateralModal: React.FC<Props> = ({tradeId,user,vaultBalance,currentC
                     </div>
                     <div className='flex flex-row justify-evenly gap-x-8'>
                         <button className='px-2 py-1 text-white bg-sky-200 rounded-lg text-sm md:text-md lg:text-lg' onClick={closeModal}>Cancel</button>
-                        <AddCollateralButton value={rawValue} tradeId={tradeId} disabled={check && rawValue > 0} user={user} />
+                        <RemoveCollateralButton value={rawValue} tradeId={tradeId} disabled={check && rawValue > 0} user={user} />
                     </div>
                 </div>
             </Modal>
@@ -144,4 +151,4 @@ const AddCollateralModal: React.FC<Props> = ({tradeId,user,vaultBalance,currentC
     )
 }
 
-export default AddCollateralModal
+export default RemoveCollateralModal

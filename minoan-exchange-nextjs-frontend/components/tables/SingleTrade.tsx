@@ -3,6 +3,8 @@ import React,{useEffect, useState} from 'react'
 import SideSelection from './utils/SideSelection';
 import AddCollateralModal from '../modals/trade/AddCollateralModal';
 import { Address } from 'wagmi';
+import RemoveCollateralButton from '../forms/buttons/RemoveCollateralButton';
+import RemoveCollateralModal from '../modals/trade/RemoveCollateralModal';
 
 interface Props {
     user:Address;
@@ -34,7 +36,8 @@ interface Props {
 
 const SingleTrade: React.FC<Props> = ({row,index,userAvailableBalance,user}) => {
     const [toggle, setToggle] = useState(true)
-    
+    const loanAmt = 222898822;
+    const mmr= 100000;
     const handleToggle = () => {
         setToggle(!toggle)
     }
@@ -103,7 +106,7 @@ const SingleTrade: React.FC<Props> = ({row,index,userAvailableBalance,user}) => 
                 </div>
                 <div className='flex flex-row justify-evenly text-center text-white mt-4 pb-4 text-sm md:text-md lg:text-xl'>
                     <AddCollateralModal user={user} tradeId={row.id} vaultBalance={userAvailableBalance} currentCollateral={10.22}/>
-                    <button className='lg:px-2 py-1 bg-orange-500 rounded-xl hover:scale-125'>Remove Collateral</button>
+                    <RemoveCollateralModal user={user} tradeId={row.id} minimummarginReq={Math.floor(mmr*loanAmt/10**6)} currentCollateral={49330000}/>
                     <button className='lg:px-2 py-1 bg-blue-500 rounded-xl hover:scale-125'>Add Liquidity</button>
                     <button className='lg:px-2 py-1 bg-amber-500 rounded-xl hover:scale-125'>Remove Liquidity</button>
                     <button className='lg:px-2 py-1 bg-red-500 rounded-xl hover:scale-125'>Close Position</button>
