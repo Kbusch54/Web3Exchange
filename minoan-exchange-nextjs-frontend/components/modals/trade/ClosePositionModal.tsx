@@ -45,10 +45,7 @@ const customStyles = {
 };
 // Modal.setAppElement('#yourAppElement');
 const ClosePositionModal: React.FC<Props> = ({ tradeId, user, currentCollateral, currrentLoanAmt, vammData,currentPositionSize }) => {
-    const maxAllowed = currentPositionSize; //would be current positon size
     const k = vammData.baseAsset * vammData.quoteAsset;
-
-    let subtitle;
     const [modalIsOpen, setIsOpen] = useState(false);
     const getExitPriceAndUsdc = (positionSize:number) => {
         const newBase = (k)/(vammData.quoteAsset + positionSize );
