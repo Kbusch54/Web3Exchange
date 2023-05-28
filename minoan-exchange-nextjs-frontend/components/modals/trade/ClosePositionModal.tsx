@@ -51,9 +51,6 @@ const ClosePositionModal: React.FC<Props> = ({ tradeId, user, currentCollateral,
 
     let subtitle;
     const [modalIsOpen, setIsOpen] = useState(false);
-    const [isError, setIsError] = useState(false);
-    const [errorMessage, setErrorMessage] = useState('');
-    const [check, setCheck] = useState(false);
     const getExitPriceAndUsdc = (positionSize:number) => {
         const newBase = (k)/(vammData.quoteAsset + positionSize );
         const usdc = (vammData.baseAsset - newBase)/100;
@@ -146,7 +143,7 @@ const ClosePositionModal: React.FC<Props> = ({ tradeId, user, currentCollateral,
                     </div>
                     <div className='flex flex-row justify-evenly gap-x-8'>
                         <button className='px-2 py-1 text-white bg-sky-200 rounded-lg text-sm md:text-md lg:text-lg' onClick={closeModal}>Cancel</button>
-                        <CloseOutPositionButton  tradeId={tradeId} disabled={check} user={user}  />
+                        <CloseOutPositionButton  tradeId={tradeId} disabled={true} user={user}  />
                     </div>
                 </div>
             </Modal>
