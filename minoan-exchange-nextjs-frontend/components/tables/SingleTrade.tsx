@@ -5,6 +5,7 @@ import AddCollateralModal from '../modals/trade/AddCollateralModal';
 import { Address } from 'wagmi';
 import RemoveCollateralButton from '../forms/buttons/RemoveCollateralButton';
 import RemoveCollateralModal from '../modals/trade/RemoveCollateralModal';
+import AddLiquidityModal from '../modals/trade/AddLiquidityModal';
 
 interface Props {
     user:Address;
@@ -15,7 +16,7 @@ interface Props {
         side: number;
         asset: string;
         size: number;
-        lev: string;
+        lev: number;
         pnl: string;
         created: number;
         // information: {
@@ -107,7 +108,9 @@ const SingleTrade: React.FC<Props> = ({row,index,userAvailableBalance,user}) => 
                 <div className='flex flex-row justify-evenly text-center text-white mt-4 pb-4 text-sm md:text-md lg:text-xl'>
                     <AddCollateralModal user={user} tradeId={row.id} vaultBalance={userAvailableBalance} currentCollateral={10.22}/>
                     <RemoveCollateralModal user={user} tradeId={row.id} minimummarginReq={Math.floor(mmr*loanAmt/10**6)} currentCollateral={49330000}/>
-                    <button className='lg:px-2 py-1 bg-blue-500 rounded-xl hover:scale-125'>Add Liquidity</button>
+                    <AddLiquidityModal user={user} tradeId={row.id} vaultBalance={userAvailableBalance} leverage={row.lev} 
+                    positionSize={row.size} vammData={{baseAsset:108000000000,quoteAsset:400000000}} minimummarginReq={mmr} 
+                    currentCollateral={102020073} currrentLoanAmt={273214059} maxLoanAmt={5000000000} side={row.side}/>
                     <button className='lg:px-2 py-1 bg-amber-500 rounded-xl hover:scale-125'>Remove Liquidity</button>
                     <button className='lg:px-2 py-1 bg-red-500 rounded-xl hover:scale-125'>Close Position</button>
                 </div>

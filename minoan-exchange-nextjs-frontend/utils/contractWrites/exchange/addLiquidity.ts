@@ -3,7 +3,7 @@ import { usePrepareContractWrite, Address } from "wagmi";
 import { exchange} from "../../address";
 import { parseUnits } from "ethers/lib/utils.js";
 
-export const useAddCollateral = (
+export const useAddLiquidity = (
     signer: Address,
     tradeId:string,
     leverage: number,
