@@ -117,7 +117,7 @@ const AddLiquidityModal: React.FC<Props> = ({ tradeId, user, vaultBalance, curre
                 const [newEntryPrice,newPs] = getEntryPriceAndPsize(rawValue * leverageValue);
                 entryPriceRef.current ? entryPriceRef.current.value = '$'.concat(String((newEntryPrice/10**6).toFixed(2))) : null;
                 newPSizeRef.current ? newPSizeRef.current.value = ethers.utils.formatUnits(Math.floor(newPs),6) : null;
-                newTotalPSizeRef.current ? newTotalPSizeRef.current.value = ethers.utils.formatUnits(Math.floor(newPs + positionSize),6) : null;
+                newTotalPSizeRef.current ? newTotalPSizeRef.current.value = ethers.utils.formatUnits(Math.floor(newPs + positionSize),8) : null;
             }
         }
     };
@@ -210,7 +210,7 @@ const AddLiquidityModal: React.FC<Props> = ({ tradeId, user, vaultBalance, curre
                             <div className='flex flex-row justify-between gap-x-4 mt-1'>
                                 <p className='text-sm text-white '>New Loan Amount: </p>
                                 <div className='flex flex-col'>
-                                    <p className='text-xs md:text-md lg:text:lg text-sky-100'>${leverageValue && rawValue ? parseFloat(ethers.utils.formatUnits(leverageValue * rawValue, 6)).toFixed(2) : '0.00'}</p>
+                                    <p className='text-xs md:text-md lg:text:lg text-sky-100'>${leverageValue && rawValue ? parseFloat(ethers.utils.formatUnits(Math.floor(leverageValue * rawValue), 6)).toFixed(2) : '0.00'}</p>
                                     <hr />
                                 </div>
                             </div>

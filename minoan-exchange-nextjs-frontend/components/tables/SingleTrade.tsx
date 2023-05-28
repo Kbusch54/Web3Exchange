@@ -6,6 +6,7 @@ import { Address } from 'wagmi';
 import RemoveCollateralButton from '../forms/buttons/RemoveCollateralButton';
 import RemoveCollateralModal from '../modals/trade/RemoveCollateralModal';
 import AddLiquidityModal from '../modals/trade/AddLiquidityModal';
+import RemoveLiquidityModal from '../modals/trade/RemoveLiquidityModal';
 
 interface Props {
     user:Address;
@@ -54,7 +55,7 @@ const SingleTrade: React.FC<Props> = ({row,index,userAvailableBalance,user}) => 
             </div>
             <div className='text-white text-md  lg:text-xl m-2'>{row.asset}</div>
             <div className='text-white text-md  lg:text-xl m-2'><SideSelection side={row.side} /></div>
-            <div className='text-white text-md  lg:text-xl m-2'>{row.size}</div>
+            <div className='text-white text-md  lg:text-xl m-2'>{(row.size/10**8).toFixed(4)}</div>
             <div className='text-white text-md  lg:text-xl m-2'>{row.lev}</div>
             <div className='text-white text-md  lg:text-xl m-2'>{row.pnl}</div>
             <div className='text-white text-md  lg:text-xl m-2'>{row.created}</div>
@@ -111,7 +112,9 @@ const SingleTrade: React.FC<Props> = ({row,index,userAvailableBalance,user}) => 
                     <AddLiquidityModal user={user} tradeId={row.id} vaultBalance={userAvailableBalance} leverage={row.lev} 
                     positionSize={row.size} vammData={{baseAsset:108000000000,quoteAsset:400000000}} minimummarginReq={mmr} 
                     currentCollateral={102020073} currrentLoanAmt={273214059} maxLoanAmt={5000000000} side={row.side}/>
-                    <button className='lg:px-2 py-1 bg-amber-500 rounded-xl hover:scale-125'>Remove Liquidity</button>
+                    <RemoveLiquidityModal user={user} tradeId={row.id} vaultBalance={userAvailableBalance} leverage={row.lev} 
+                    currentPositionSize={row.size} vammData={{baseAsset:108000000000,quoteAsset:400000000}} minimummarginReq={mmr} 
+                    currentCollateral={102020073} currrentLoanAmt={273214059} maxLoanAmt={5000000000} side={row.side}/>
                     <button className='lg:px-2 py-1 bg-red-500 rounded-xl hover:scale-125'>Close Position</button>
                 </div>
             </div>
