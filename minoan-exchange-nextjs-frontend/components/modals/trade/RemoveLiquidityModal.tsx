@@ -53,11 +53,10 @@ const RemoveLiquidityModal: React.FC<Props> = ({ tradeId, user, vaultBalance, cu
     const [isError, setIsError] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
     const [check, setCheck] = useState(false);
-    const [rawValue, setRawValue] = useState<number>(0); //in usdc
+    const [rawValue, setRawValue] = useState<number>(0);
     const positionRef = useRef<HTMLInputElement>(null);
     const usdcAmtRef = useRef<HTMLInputElement>(null);
     const exitPriceRef = useRef<HTMLInputElement>(null);
-    const newTotalPSizeRef = useRef<HTMLInputElement>(null);
     const [newLoanAmt, setNewLoanAmt] = useState<number>(currrentLoanAmt);
 
     function openModal() {
@@ -74,10 +73,7 @@ const RemoveLiquidityModal: React.FC<Props> = ({ tradeId, user, vaultBalance, cu
     }
     const handleValidation = () => {
         if (positionRef.current ) {
-
-
             const value = parseFloat(positionRef.current.value) * 10 ** 8 ;
-            // const leverageValue = parseFloat(levRef.current.value);
             const rawValue = parseFloat(positionRef.current.value) * 10 ** 8;
             console.log('mmr', minimummarginReq);
             if (value > maxAllowed) {
@@ -100,7 +96,6 @@ const RemoveLiquidityModal: React.FC<Props> = ({ tradeId, user, vaultBalance, cu
                 const [pnl,amountOwedFromLoan]=amountOwed(rawValue,usdcAmt)
                 usdcAmtRef.current ? usdcAmtRef.current.value = '$'.concat(String((pnl/10**6).toFixed(2))) : null;
                 setNewLoanAmt(currrentLoanAmt -amountOwedFromLoan);
-                // newTotalPSizeRef.current ? newTotalPSizeRef.current.value = ethers.utils.formatUnits(Math.floor(newPs + positionSize),6) : null;
             }
         }
     };
@@ -156,15 +151,12 @@ const RemoveLiquidityModal: React.FC<Props> = ({ tradeId, user, vaultBalance, cu
                                 <p className='text-gray-800 text-sm lg:text-md'>Current Position Size</p>
                                 <p className='text-xs md:text-sm lg:text-md text-sky-100'>{currentPositionSize?parseFloat(ethers.utils.formatUnits(currentPositionSize,8)).toFixed(4):0}</p>
                                 <hr />
-
                             </div>
                             <div className='flex flex-col'>
                                 <p className='text-gray-800 text-sm lg:text-md'>Current Loan Amt</p>
                                 <p className='text-xs md:text-sm lg:text-md text-sky-100'>${currrentLoanAmt ? String(parseFloat(ethers.utils.formatUnits(currrentLoanAmt, 6)).toFixed(2)) : 0}</p>
                                 <hr />
-
                             </div>
-                            
                         </div>
                     </div>
                     <div className='flex flex-col  text-center justify-between gap-x-4 border-2 border-white bg-sky-500 px-4'>
@@ -173,11 +165,9 @@ const RemoveLiquidityModal: React.FC<Props> = ({ tradeId, user, vaultBalance, cu
                             <div className='flex flex-col vtext-center '>
                                 <input type='number' placeholder="0"  className='text-center text-md lg:text-lg bg-sky-700 w-[8rem] rounded-3xl text-sky-200' ref={positionRef} onInput={handleValidation} />
                                 <p className='text-xs md:text-md lg:text:lg text-sky-100'>Position to Remove</p>
-                            </div>
-                           
+                            </div> 
                         </div>
                         <div className='flex flex-row justify-around'>
-
                             <div className='flex flex-col text-xs'>
                                 <p className='text-gray-800 text-sm lg:text-md'>Current Position Value</p>
                                 <p className=' md:text-md lg:text-xl text-sky-100'>${currentPositionSize ? ((currentPositionSize* (vammData.baseAsset/vammData.quoteAsset))/10**8).toFixed(2) : '0.00'}</p>
@@ -189,10 +179,8 @@ const RemoveLiquidityModal: React.FC<Props> = ({ tradeId, user, vaultBalance, cu
                                     <hr />
                                 </div>
                             </div>
-
                         </div>
                     </div>
-
                     <div className='flex flex-col  text-center justify-between gap-x-4 border-2 border-white bg-sky-500 px-4'>
                         <h3>New Balances</h3>
                         <div className='flex flex-row justify-around'>
@@ -225,8 +213,7 @@ const RemoveLiquidityModal: React.FC<Props> = ({ tradeId, user, vaultBalance, cu
                                 <input className='text-sm md:text-lg lg:text:xl text-sky-100 bg-transparent text-right disabled w-32'ref={usdcAmtRef} />
                                 <hr />
                             </div>
-                        </div>
-                     
+                        </div>                 
                     </div>
                     <div className='flex flex-row justify-evenly gap-x-8'>
                         <button className='px-2 py-1 text-white bg-sky-200 rounded-lg text-sm md:text-md lg:text-lg' onClick={closeModal}>Cancel</button>
