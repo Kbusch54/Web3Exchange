@@ -1,9 +1,8 @@
 'use client';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import Modal from 'react-modal';
 import { Address } from 'wagmi';
 import { ethers } from 'ethers';
-import RemoveLiquidityButton from '../../forms/buttons/RemoveLiquidityButton';
 import CloseOutPositionButton from '../../forms/buttons/CloseOutPosition';
 
 interface Props {
