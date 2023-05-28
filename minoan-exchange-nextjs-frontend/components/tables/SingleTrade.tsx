@@ -7,6 +7,7 @@ import RemoveCollateralButton from '../forms/buttons/RemoveCollateralButton';
 import RemoveCollateralModal from '../modals/trade/RemoveCollateralModal';
 import AddLiquidityModal from '../modals/trade/AddLiquidityModal';
 import RemoveLiquidityModal from '../modals/trade/RemoveLiquidityModal';
+import ClosePositionModal from '../modals/trade/ClosePositionModal';
 
 interface Props {
     user:Address;
@@ -115,7 +116,9 @@ const SingleTrade: React.FC<Props> = ({row,index,userAvailableBalance,user}) => 
                     <RemoveLiquidityModal user={user} tradeId={row.id} vaultBalance={userAvailableBalance} leverage={row.lev} 
                     currentPositionSize={row.size} vammData={{baseAsset:108000000000,quoteAsset:400000000}} minimummarginReq={mmr} 
                     currentCollateral={102020073} currrentLoanAmt={273214059} maxLoanAmt={5000000000} side={row.side}/>
-                    <button className='lg:px-2 py-1 bg-red-500 rounded-xl hover:scale-125'>Close Position</button>
+                    <ClosePositionModal user={user} tradeId={row.id} vaultBalance={userAvailableBalance} leverage={row.lev} 
+                    currentPositionSize={row.size} vammData={{baseAsset:108000000000,quoteAsset:400000000}} minimummarginReq={mmr} 
+                    currentCollateral={102020073} currrentLoanAmt={273214059} maxLoanAmt={5000000000} side={row.side}/>
                 </div>
             </div>
         </div>
