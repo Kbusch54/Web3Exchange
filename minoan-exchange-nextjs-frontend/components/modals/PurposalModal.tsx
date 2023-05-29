@@ -125,11 +125,10 @@ export default function PurposalModal() {
     setIsOpen(false);
   }
 
-  const hello = getAllFunctions();
-  console.log(hello.map((item) => item.inputs[0].name.slice(1)));
-  const keys = hello.map((item) => item.inputs[0].name.slice(1));
+  const ariadneFunctions = getAllFunctions();
+  const keys = ariadneFunctions.map((item) => item.inputs[0].name.slice(1));
 
-  const functionNames = hello.map((item) => item.name);
+  const functionNames = ariadneFunctions.map((item) => item.name);
 
   const calculateValue = (value: number) => {
     //@ts-ignore
@@ -149,9 +148,7 @@ export default function PurposalModal() {
   }
   const handleValidation = () => {
     if(inputRef.current) {
-      console.log('inputRef.current.value', inputRef.current.value);
       const value = Math.floor(inverseCalculateValue(parseFloat(inputRef.current.value)));
-      console.log('value', value);
       const min = findMinAndMax(keys[key])[0];
       const max = findMinAndMax(keys[key])[1];
       if(value > max) {
@@ -181,26 +178,14 @@ export default function PurposalModal() {
 
   }
 
-
-  console.log('calculationVariables', calculationVariables);
   //@ts-ignore
   const handleButton = (index) => {
-    const value = hello[index]
+    const value = ariadneFunctions[index]
     if (value.name) {
-      const callData = getFunctionCallData(value.name, [200, address])
-      console.log('callData', callData);
-      //@ts-ignore
-      console.log('calculationVariables', calculationVariables[keys[index]]);
-      //@ts-ignore
-      console.log('currentValues', currentValues[keys[index]]);
-      console.log('key', keys[index]);
-      console.log('min and max', findMinAndMax(keys[index]));
-      console.log('max', findMinAndMax(keys[index])[1]);
       calculateValue(2)
       setKey(index);
       setSelected(true);
     }
-    console.log('hello btton', value);
   }
   return (
     <div>
@@ -220,7 +205,7 @@ export default function PurposalModal() {
           <div className={`${selected ? 'hidden' : 'flex'}`}>
             <div className="flex flex-col \  gap-y-2 m-8 mt-12">
               <h1 className='text-teal-200'>Loan Pool updates</h1>
-              {hello.map((item, i) => {
+              {ariadneFunctions.map((item, i) => {
                 return (
                   <button key={item.name} onClick={() => handleButton(i)} className='px-2 py-1 text-white bg-amber-400 hover:scale-125 rounded-2xl'>{item.name?.slice(3)}</button>
 
