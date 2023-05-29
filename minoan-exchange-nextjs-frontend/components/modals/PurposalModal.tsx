@@ -47,7 +47,7 @@ export default function PurposalModal() {
   const [key, setKey] = React.useState(0);
   const [check, setCheck] = React.useState(false);
   const [rawValue, setRawValue] = React.useState<number>(0); //decimals to send to contract
-  const [isError, setIsError] = useState(false);
+  const [isError, setIsError] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
   const [callData, setCallData] = useState<string| null>(null);
@@ -296,7 +296,7 @@ export default function PurposalModal() {
               </div>
             <div className='flex flex-row justify-between'>
               <button className='px-2 py-1 bg-red-500 rounded-2xl text-white text-lg hover:scale-125' onClick={closeModal}>Cancel</button>
-              {callData ?(
+              {callData && !isError ?(
 
                 <AriadnePurposeButton user={user} ammId='tesla' disabled={false} callData={callData}/>
               ):(
