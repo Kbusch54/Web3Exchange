@@ -85,7 +85,7 @@ const AddCollateralModal: React.FC<Props> = ({tradeId,user,vaultBalance,currentC
     console.log('THIS IS CHECK',check);
     }, [check,rawValue]);
     return (
-        <div>
+         <div>
             <button className='lg:px-2 py-1 bg-green-500 rounded-xl hover:scale-125' onClick={openModal}>Add Collateral</button>
             <Modal
                 isOpen={modalIsOpen}
@@ -111,7 +111,7 @@ const AddCollateralModal: React.FC<Props> = ({tradeId,user,vaultBalance,currentC
                             <p className='text-md lg:text-xl'>Current Collateral</p>
                             <div className='flex-col'>
                                 <p className='text-sm  md:text-md lg:text-lg text-sky-100 '>${currentCollateral}</p>
-                                <hr />
+                               <hr />
                             </div>
                         </div>
                     </div>
