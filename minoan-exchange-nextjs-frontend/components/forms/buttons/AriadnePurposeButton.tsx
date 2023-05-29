@@ -1,4 +1,5 @@
 'use client'
+import { supabase } from '../../../supabase';
 import React, { useEffect,useState } from 'react'
 import {useContractWrite , Address } from 'wagmi';
 import { useNewProposal } from '../../../utils/contractWrites/daos/ariadne/purpose';
@@ -7,10 +8,11 @@ interface Props {
     callData:string,
     user:Address,
     disabled:boolean
-    ammId:string
+    ammId:string,
+    description:string
 }
 
-export default  function  AridnePurposeButton({user,disabled,callData,ammId}:Props)  {
+export default  function  AridnePurposeButton({user,disabled,callData,ammId,description}:Props)  {
     const [approved, setApproved] = React.useState<boolean>(false);
     const [errorWithContractLoad, setErrorWithContractLoad] = React.useState<boolean>(false);   
     const [loadingStage, setLoadingStage] = useState(false); 
@@ -37,6 +39,14 @@ export default  function  AridnePurposeButton({user,disabled,callData,ammId}:Pro
             con.wait(1).then((res) => {
               if (contractWrite.isSuccess || res.status == 1) {
                 console.log(res.transactionHash);
+                 console.log('res',res);
+                //update db 
+                // setApproved(true);
+                //custom message
+                //notification
+                //ask for signature
+                //wait for signature
+                //refresh page?? 
               } else if (
                 contractWrite.status == "idle" ||
                 contractWrite.status == "error" ||

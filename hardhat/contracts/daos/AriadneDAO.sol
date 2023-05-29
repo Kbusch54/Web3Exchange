@@ -109,7 +109,7 @@ contract AriadneDAO {
     function newProposal(
         address payable to,
         bytes calldata data
-    ) public onlyOwner {
+    ) public onlyOwner returns(bytes32 transactionHash, uint nonce,uint timeStamp){
         //emit event
         if (nonceUsed[currentId]) {
             currentId++;
@@ -135,6 +135,7 @@ contract AriadneDAO {
             _transactionHash,
             block.timestamp
         );
+        return (_transactionHash, _id, block.timestamp);
     }
 
     function isTokenHolder(address _signer) public view returns (bool) {

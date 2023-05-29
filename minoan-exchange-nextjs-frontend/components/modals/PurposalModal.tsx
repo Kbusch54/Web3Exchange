@@ -42,17 +42,17 @@ interface Props {
 }
 
 export default function PurposalModal() {
-  const [modalIsOpen, setIsOpen] = React.useState(false);
-  const [selected, setSelected] = React.useState(false);
-  const [key, setKey] = React.useState(0);
-  const [check, setCheck] = React.useState(false);
-  const [rawValue, setRawValue] = React.useState<number>(0); //decimals to send to contract
+  const [modalIsOpen, setIsOpen] = useState(false);
+  const [selected, setSelected] = useState(false);
+  const [key, setKey] = useState(0);
+  const [check, setCheck] = useState(false);
+  const [description, setDescription] = useState<string|null>(null);
   const [isError, setIsError] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
-  const [callData, setCallData] = useState<string| null>(null);
+  const [callData, setCallData] = useState<string | null>(null);
 
-  const user:Address ='0x87ad83DC2F12A14C85D20f178A918a65Edfe1B42';
+  const user: Address = '0x87ad83DC2F12A14C85D20f178A918a65Edfe1B42';
   const currentValues = {
     interestPeriods: 3600,
     loanInterestRate: 10000,
@@ -63,7 +63,7 @@ export default function PurposalModal() {
     tradingFee: 100000,
   };
   const address = '0xd4e3f66e134558df57cd7ce2e17758bf9e041851';
-  const convertCamelCaseToTitle = (camelCaseString:string) => {
+  const convertCamelCaseToTitle = (camelCaseString: string) => {
     // Replace uppercase letters with a space followed by the uppercase letter
     const spacedString = camelCaseString.replace(/([A-Z])/g, ' $1');
     // Convert the string to uppercase
@@ -122,6 +122,10 @@ export default function PurposalModal() {
   function closeModal() {
     setSelected(false);
     setKey(0);
+    setIsError(true);
+    setErrorMessage('');
+    setCallData(null);
+    setDescription(null);
     setIsOpen(false);
   }
 
@@ -147,11 +151,11 @@ export default function PurposalModal() {
     return value * muliti;
   }
   const handleValidation = () => {
-    if(inputRef.current) {
+    if (inputRef.current) {
       const value = Math.floor(inverseCalculateValue(parseFloat(inputRef.current.value)));
       const min = findMinAndMax(keys[key])[0];
       const max = findMinAndMax(keys[key])[1];
-      if(value > max) {
+      if (value > max) {
         setCheck(false);
         setErrorMessage('Value is too high');
         setIsError(true);
@@ -161,13 +165,13 @@ export default function PurposalModal() {
         setIsError(true);
         setErrorMessage('Value is too low');
         setCallData(null);
-      }else if (value >= min && value <= max) {
+      } else if (value >= min && value <= max) {
         setCheck(true);
         setErrorMessage('');
         setIsError(false);
         //@ts-ignore
-          const _callData = getFunctionCallData(functionNames[key], [value, address]);
-          setCallData(_callData);
+        const _callData = getFunctionCallData(functionNames[key], [value, address]);
+        setCallData(_callData);
       } else {
         setCheck(false);
         setErrorMessage('Error');
@@ -187,6 +191,12 @@ export default function PurposalModal() {
       setSelected(true);
     }
   }
+  function handleDescription(e: React.ChangeEvent<HTMLTextAreaElement>): void {
+    e.preventDefault();
+    const descriptionValue = e.target.value;
+    setDescription(descriptionValue);
+  }
+
   return (
     <div>
       <button className='py-4 my-6 text-xl px-8 md:px-32 md:py-12 rounded-full md:my-12  bg-amber-400 hover:shadow-2xl hover:shadow-amber-200 text-white md:text-5xl text-center hover:scale-125' onClick={openModal}>Purpose</button>
@@ -259,6 +269,18 @@ export default function PurposalModal() {
                   {/* @ts-ignore */}
                   <p className='text-xs lg:text-md '>Proposed Value {calculationVariables[key][keys[key]][1]}</p>
                 </div>
+                <div className='flex flex-col justify-between m-2'>
+                  <label>
+                    Description:
+                    <textarea className='text-gray-800 text-sm lg:text-md text-center p-2 rounded-xl'
+                      name="postContent"
+                      onChange={(e) => handleDescription(e)}
+                      defaultValue={keys[key] + ' is being updated to....... ' }
+                      rows={4}
+                      cols={30}
+                    />
+                  </label>
+                </div>
               </div>
               <div className='flex flex-col  text-center justify-between gap-x-4 border-2 border-white bg-sky-500 px-4 my-6 py-4'>
                 <div className='flex flex-row justify-evenly text-white mb-2'>
@@ -279,15 +301,15 @@ export default function PurposalModal() {
                   </div>
                 </div>
               </div>
-            <div className='flex flex-row justify-between'>
-              <button className='px-2 py-1 bg-red-500 rounded-2xl text-white text-lg hover:scale-125' onClick={closeModal}>Cancel</button>
-              {callData && !isError ?(
+              <div className='flex flex-row justify-between'>
+                <button className='px-2 py-1 bg-red-500 rounded-2xl text-white text-lg hover:scale-125' onClick={closeModal}>Cancel</button>
+                {callData !=null && description !=null && isError == false ? (
 
-                <AriadnePurposeButton user={user} ammId='tesla' disabled={false} callData={callData}/>
-              ):(
-                <button disabled className='px-2 py-1 bg-teal-500 rounded-2xl text-white text-lg hover:scale-125'>Loading...</button>
-              )}
-            </div>
+                  <AriadnePurposeButton user={user} ammId='tesla' disabled={false} callData={callData} description={description}/>
+                ) : (
+                  <button disabled className='px-2 py-1 bg-teal-500 rounded-2xl text-white text-lg hover:scale-125'>Loading...</button>
+                )}
+              </div>
             </div>
           </div>
         </div>
