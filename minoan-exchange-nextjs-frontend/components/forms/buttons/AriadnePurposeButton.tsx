@@ -23,6 +23,7 @@ export default function AriadnePurposeButton  ({ user, disabled, callData, ammId
   const [errorWithContractLoad, setErrorWithContractLoad] = React.useState<boolean>(false);
   const [loadingStage, setLoadingStage] = useState(false);
   const [usedNonce, setUsedNonce] = useState<number|null>(null);
+  const [etherscanTransactionHash, setEtherscanTransactionHash] = useState<string|null>(null);
   
   
   
@@ -63,7 +64,7 @@ const updateDataBase = async (signature:string,transacitonHash:string) => {
   try {
     const { data, error } = await supabase
       .from('Proposals')
-      .insert([ {proposer:user,nonce:Number(usedNonce), to:loanpool, transactionHash:transacitonHash, executor:null, signatures:[signature], timeStamp:Date.now(), isProposalPassed:false, description:description, result:null, signers:[user]} ]);
+      .insert([ {contractAddress:ammAdd,contractNonce:ammAdd+'_'+Number(usedNonce),etherscanTransactionHash:etherscanTransactionHash,proposer:user,nonce:Number(usedNonce), to:loanpool, transactionHashToSign:transacitonHash, executor:null, signatures:[signature], timeStamp:Date.now(), isProposalPassed:false, description:description, result:null, signers:[user]} ]);
 
     if (error) {
       console.error('Error adding proposal:', error);
@@ -102,6 +103,7 @@ const handleWrite = async (e) => {
       con.wait(1).then((res) => {
         if (contractWrite.isSuccess || res.status == 1) {
           console.log(res.transactionHash);
+          setEtherscanTransactionHash((prev)=>res.transactionHash);
           console.log('res', res);
           //update db 
           setLoadingStage((prev) => false);
