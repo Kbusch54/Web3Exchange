@@ -82,6 +82,8 @@ useEffect(() => {
     setErrorWithContractLoad(true);
   }
 }, [error]);
+useEffect(() => {
+}, [approved]);
 //@ts-ignore
 const handleWrite = async (e) => {
   e.preventDefault();
@@ -96,6 +98,7 @@ const handleWrite = async (e) => {
           console.log(res.transactionHash);
           console.log('res', res);
           //update db 
+          setLoadingStage((prev) => false);
           setApproved(true);
           //custom message
           //notification
@@ -135,7 +138,7 @@ const handleWrite = async (e) => {
         </p>
       </div>
     );
-  if (contractWrite.isSuccess)
+  if (approved)
     return (
       <button onClick={hanldeSign} className=" px-2 py-1 rounded-lg bg-green-600 text-white animate-pulse text-xs md:text-md lg:text-lg">
         Sign Transaction
@@ -143,7 +146,7 @@ const handleWrite = async (e) => {
     );
 
   return (
-    <div>
+    <div className={`${approved?'hidden':'block'}`}>
       <button disabled={disabled} onClick={handleWrite} className='px-2 py-1 bg-amber-500 rounded-2xl text-white text-lg hover:scale-125'>Purpose</button>
     </div>
   )
