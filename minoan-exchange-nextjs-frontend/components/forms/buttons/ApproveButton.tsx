@@ -14,7 +14,6 @@ export default  function  ApproveButton({value,user,disabled}:Props)  {
     const [errorWithContractLoad, setErrorWithContractLoad] = React.useState<boolean>(false);   
     const [loadingStage, setLoadingStage] = useState(false); 
     const {config,error} = useApproveUsdc(value, user);
-    console.log('config',config);
     const contractWrite = useContractWrite(config);
     useEffect(() => {
         if (error == null) {

@@ -15,7 +15,6 @@ export default  function  RemoveCollateralButton({value,user,disabled,tradeId}:P
     const [errorWithContractLoad, setErrorWithContractLoad] = React.useState<boolean>(false);   
     const [loadingStage, setLoadingStage] = useState(false); 
     const {config,error} = useRemoveCollateral( user,tradeId,value);
-    console.log('config',config);
     const contractWrite = useContractWrite(config);
     useEffect(() => {
         if (error == null) {

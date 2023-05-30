@@ -17,7 +17,6 @@ export default  function  StakingButton({value,ammId,user,disabled}:Props)  {
     // const amount = parseFloat(value);
     const {config,error} = useUnStake(value,ammId, user);
     const contractWrite = useContractWrite(config);
-    console.log('config',config);
     useEffect(() => {
         if (error == null) {
           setErrorWithContractLoad(false);

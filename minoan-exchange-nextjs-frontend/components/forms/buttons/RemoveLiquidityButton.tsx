@@ -15,7 +15,6 @@ export default  function  RemoveLiquidityButton({value,user,disabled,tradeId}:Pr
     const [errorWithContractLoad, setErrorWithContractLoad] = React.useState<boolean>(false);   
     const [loadingStage, setLoadingStage] = useState(false); 
     const {config,error} = useRemoveLiquidity( user,tradeId,value);
-    console.log('config',config);
     const contractWrite = useContractWrite(config);
     useEffect(() => {
         if (error == null) {
