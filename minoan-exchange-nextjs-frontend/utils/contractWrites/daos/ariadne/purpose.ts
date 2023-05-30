@@ -2,6 +2,7 @@ import { AriadneDAO } from "../../../abis";
 import { usePrepareContractWrite, Address } from "wagmi";
 import { ariadneGoogle,ariadneMeta,ariadneTesla,loanpool} from "../../../address";
 import { parseUnits } from "ethers/lib/utils.js";
+import { getAriadnePool } from "../../../helpers/doas";
 
 export const useNewProposal = (
     callData:string,
@@ -26,16 +27,4 @@ export const useNewProposal = (
     return { config, error };
   };
 
-  function getAriadnePool(ammId: string) {
-    const amm =ammId.toLowerCase();
-    if(amm === "tesla"){
-        return ariadneTesla;
-    }else if(amm === "google"){
-        return ariadneGoogle;
-    }else if(amm === "meta"){
-        return ariadneMeta;
-    }
-    else{
-        return ariadneTesla;
-    }
-}
+

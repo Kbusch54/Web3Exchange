@@ -1,11 +1,14 @@
 "use client";
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import ReactDOM from 'react-dom';
 import Modal from 'react-modal';
 import { getAllFunctions, getFunctionCallData } from '../../utils/contractReads/loanpool/functionReading';
 import { getAllUpdateFunctions } from '../../utils/contractReads/ariadneDao/internalFunctions';
 import { Address } from 'wagmi';
 import AriadnePurposeButton from '../forms/buttons/AriadnePurposeButton';
+import { ethers } from 'ethers';
+import { useGetCurrentId } from '../../utils/contractReads/ariadneDao/currentId';
+import { ariadneTesla, loanpool } from '../../utils/address';
 
 
 const customStyles = {
@@ -46,11 +49,14 @@ export default function PurposalModal() {
   const [selected, setSelected] = useState(false);
   const [key, setKey] = useState(0);
   const [check, setCheck] = useState(false);
-  const [description, setDescription] = useState<string|null>(null);
+  const [description, setDescription] = useState<string | null>(null);
   const [isError, setIsError] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
   const [callData, setCallData] = useState<string | null>(null);
+
+
+  const {currentId} =useGetCurrentId('tesla');
 
   const user: Address = '0x87ad83DC2F12A14C85D20f178A918a65Edfe1B42';
   const currentValues = {
@@ -129,6 +135,7 @@ export default function PurposalModal() {
     setIsOpen(false);
   }
 
+  
   const ariadneFunctions = getAllFunctions();
   const keys = ariadneFunctions.map((item) => item.inputs[0].name.slice(1));
 
@@ -181,6 +188,7 @@ export default function PurposalModal() {
     }
 
   }
+
 
   //@ts-ignore
   const handleButton = (index) => {
@@ -269,17 +277,18 @@ export default function PurposalModal() {
                   {/* @ts-ignore */}
                   <p className='text-xs lg:text-md '>Proposed Value {calculationVariables[key][keys[key]][1]}</p>
                 </div>
-                <div className='flex flex-col justify-between m-2'>
-                  <label>
+                <div className='flex flex-row justify-between m-2'>
+                  <label className='mt-4 text-sm md:text-lg'>
                     Description:
-                    <textarea className='text-gray-800 text-sm lg:text-md text-center p-2 rounded-xl'
-                      name="postContent"
-                      onChange={(e) => handleDescription(e)}
-                      defaultValue={keys[key] + ' is being updated to....... ' }
-                      rows={4}
-                      cols={30}
-                    />
                   </label>
+                  <textarea className='text-gray-800 text-sm lg:text-md text-center p-2 rounded-xl'
+                    name="postContent"
+                    onChange={(e) => handleDescription(e)}
+                    defaultValue={keys[key] + ' is being updated to....... '}
+                    rows={2}
+                    cols={25}
+                  />
+
                 </div>
               </div>
               <div className='flex flex-col  text-center justify-between gap-x-4 border-2 border-white bg-sky-500 px-4 my-6 py-4'>
@@ -303,9 +312,11 @@ export default function PurposalModal() {
               </div>
               <div className='flex flex-row justify-between'>
                 <button className='px-2 py-1 bg-red-500 rounded-2xl text-white text-lg hover:scale-125' onClick={closeModal}>Cancel</button>
-                {callData !=null && description !=null && isError == false ? (
-
-                  <AriadnePurposeButton user={user} ammId='tesla' disabled={false} callData={callData} description={description}/>
+                {callData && description && !isError &&currentId!=null ? (
+                  //@ts-ignore
+                  <Suspense fallback={<div>Loading...</div>}>
+                    <AriadnePurposeButton user={user} ammId='tesla' disabled={false} callData={callData} description={description} nonce={currentId}/>
+                  </Suspense>
                 ) : (
                   <button disabled className='px-2 py-1 bg-teal-500 rounded-2xl text-white text-lg hover:scale-125'>Loading...</button>
                 )}
