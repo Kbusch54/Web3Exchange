@@ -3,7 +3,6 @@ import Image from "next/image";
 import { Stock } from "../../../types/custom";
 import DaoTransaction from "../../../components/tables/DaoTransactions";
 import PurposalModal from "../../../components/modals/PurposalModal";
-import StakingForm from "../../../components/forms/StakingForm";
 import Balances from "../../../components/balances/Balances";
 import InvestorStats from "../../../components/stockData/InvestorStats";
 import StakingStats from "../../../components/stockData/StakingStats";
@@ -12,9 +11,9 @@ import { redirect } from "next/navigation";
 import { request, gql } from 'graphql-request';
 import VaultUSDCForm from "../../../components/forms/VaultUSDCForm";
 import ReachartsEx from "../../../components/charts/poolCharts/ReachartsEx";
-import { use } from "react";
-import { useBalance } from "wagmi";
+import { Suspense } from "react";
 import StakingSection from "../../../components/forms/StakingSection";
+import DAOPurposals from "../../../components/tables/DAOPurposals";
 
 interface Props {
   params: {
@@ -43,6 +42,7 @@ interface GraphData {
         totalStaked: string;
       };
       poolToken: {
+        
         tokenId: string;
         totalSupply: string;
         tokenBalance: {
@@ -91,6 +91,11 @@ async function fetchLoanPoolData(symbol: string, user: string) {
             totalStaked
             }
           poolToken{
+            ammPool{
+              ariadneDAO{
+                id
+              }
+            }
             tokenId
             totalSupply
             tokenBalance(where:{user:$user}){
@@ -111,7 +116,7 @@ async function fetchLoanPoolData(symbol: string, user: string) {
           availableUsdc
         }
       }
-    }
+      }
   `;
 
   
@@ -192,6 +197,10 @@ export default async function PoolPage({ params }: Props) {
             <StakingSection availableUsdc={userData} poolToken={graphData.loanPool.poolToken} user={session.user.name} name={stock.name} poolBalance={graphData.loanPool.poolBalance}  />
           </div>
           <div id={"dao"} className="m-2 md:m-12">
+          <Suspense fallback={<div>Loading...</div>}>
+            
+             <DAOPurposals user={session.user.name} daoAddress={graphData.loanPool.poolToken.ammPool.ariadneDAO.id} />
+          </Suspense>
             <DaoTransaction />
             <PurposalModal />
           </div>
