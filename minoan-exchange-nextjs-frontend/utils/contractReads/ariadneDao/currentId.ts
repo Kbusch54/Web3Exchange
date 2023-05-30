@@ -14,6 +14,7 @@ export const useGetCurrentId= (ammId:string) => {
     address: ariadneAddress,
     abi: AriadneDAO,
     functionName: 'currentId',
+    watch:   true ,
   });
 
   useEffect(() => {

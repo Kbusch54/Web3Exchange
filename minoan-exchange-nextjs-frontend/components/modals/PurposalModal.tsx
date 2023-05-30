@@ -60,6 +60,9 @@ export default function PurposalModal() {
 
   const { currentId } = useGetCurrentId('tesla');
 
+  useEffect(() => {
+    console.log('currentId', currentId);
+  }, [currentId]);
   const user: Address = '0x87ad83DC2F12A14C85D20f178A918a65Edfe1B42';
   const currentValues = {
     interestPeriods: 3600,

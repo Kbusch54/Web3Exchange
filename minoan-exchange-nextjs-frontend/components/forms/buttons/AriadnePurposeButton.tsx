@@ -22,12 +22,13 @@ export default function AriadnePurposeButton  ({ user, disabled, callData, ammId
   const [approved, setApproved] = React.useState<boolean>(false);
   const [errorWithContractLoad, setErrorWithContractLoad] = React.useState<boolean>(false);
   const [loadingStage, setLoadingStage] = useState(false);
-  const { config, error } = useNewProposal(callData, ammId, user);
-
+  const [usedNonce, setUsedNonce] = useState<number|null>(null);
   
-
+  
+  
   const ammAdd = getAriadnePool(ammId);
   const addressTo = internal?ammAdd:loanpool;
+  const { config, error } = useNewProposal(addressTo,callData, ammId, user);
     const transacitonHash = getTransactionHash(nonce,addressTo,0,callData,ammAdd);
   const { data: signer, isError, isLoading } = useSigner();
   //@ts-ignore
@@ -55,14 +56,14 @@ export default function AriadnePurposeButton  ({ user, disabled, callData, ammId
   }
 };
 const updateDataBase = async (signature:string,transacitonHash:string) => {
-  if(!nonce) return console.log('no nonce');
+  if(!usedNonce) return console.log('no nonce');
   else{
 
   
   try {
     const { data, error } = await supabase
       .from('Proposals')
-      .insert([ {proposer:user,nonce:Number(nonce), to:loanpool, transactionHash:transacitonHash, executor:null, signatures:[signature], timeStamp:Date.now(), isProposalPassed:false, description:description, result:null, signers:[user]} ]);
+      .insert([ {proposer:user,nonce:Number(usedNonce), to:loanpool, transactionHash:transacitonHash, executor:null, signatures:[signature], timeStamp:Date.now(), isProposalPassed:false, description:description, result:null, signers:[user]} ]);
 
     if (error) {
       console.error('Error adding proposal:', error);
@@ -85,12 +86,15 @@ useEffect(() => {
   }
 }, [error]);
 useEffect(() => {
-}, [approved]);
+  console.log('NONCE', nonce);
+}, [approved,nonce]);
+
+
 //@ts-ignore
 const handleWrite = async (e) => {
   e.preventDefault();
   setLoadingStage((prev) => true);
-  
+  setUsedNonce((prev)=>nonce);
   console.log('contractWrite ddd',contractWrite);
   //@ts-ignore
   await contractWrite.writeAsync()
