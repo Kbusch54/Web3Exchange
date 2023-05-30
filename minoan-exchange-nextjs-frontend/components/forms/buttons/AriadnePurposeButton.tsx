@@ -13,11 +13,12 @@ interface Props {
   disabled: boolean
   ammId: string,
   description: string,
-  nonce: number
+  nonce: number,
+  internal: boolean
 
 }
 
-export default function AriadnePurposeButton  ({ user, disabled, callData, ammId, description,nonce }: Props) {
+export default function AriadnePurposeButton  ({ user, disabled, callData, ammId, description,nonce,internal }: Props) {
   const [approved, setApproved] = React.useState<boolean>(false);
   const [errorWithContractLoad, setErrorWithContractLoad] = React.useState<boolean>(false);
   const [loadingStage, setLoadingStage] = useState(false);
@@ -26,7 +27,8 @@ export default function AriadnePurposeButton  ({ user, disabled, callData, ammId
   
 
   const ammAdd = getAriadnePool(ammId);
-    const transacitonHash = getTransactionHash(nonce,loanpool,0,callData,ammAdd);
+  const addressTo = internal?ammAdd:loanpool;
+    const transacitonHash = getTransactionHash(nonce,addressTo,0,callData,ammAdd);
   const { data: signer, isError, isLoading } = useSigner();
   //@ts-ignore
   const hanldeSign = async (e) => {

@@ -7,7 +7,7 @@ export const getAllUpdateFunctions =()=>{
     })
     return functions
 }
-export const getFunctionCallData = (
+export const getFunctionCallDataAriadne = (
     methodName:string,
     input:any[]
     ) => {
