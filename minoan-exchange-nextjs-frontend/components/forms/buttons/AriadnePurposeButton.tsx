@@ -23,7 +23,6 @@ export default function AriadnePurposeButton  ({ user, disabled, callData, ammId
   const [loadingStage, setLoadingStage] = useState(false);
   const { config, error } = useNewProposal(callData, ammId, user);
 
-console.log('nonce THIS IS NONCE BBBBB',nonce);
   
 
   const ammAdd = getAriadnePool(ammId);
@@ -74,7 +73,7 @@ const updateDataBase = async (signature:string,transacitonHash:string) => {
 }
 }
 
-// console.log('config', config);
+console.log('config for ariadne', config);
 const contractWrite = useContractWrite(config);
 useEffect(() => {
   if (error == null) {
@@ -87,10 +86,9 @@ useEffect(() => {
 const handleWrite = async (e) => {
   e.preventDefault();
   setLoadingStage((prev) => true);
+  
+  console.log('contractWrite ddd',contractWrite);
   //@ts-ignore
-  // await contractWrite.writeAsync()
-
-  // console.log('contractWrite',contractWrite);
   await contractWrite.writeAsync()
     .then((con: { wait: (arg0: number) => Promise<any>; hash: any; }) => {
       con.wait(1).then((res) => {
@@ -98,7 +96,7 @@ const handleWrite = async (e) => {
           console.log(res.transactionHash);
           console.log('res', res);
           //update db 
-          // setApproved(true);
+          setApproved(true);
           //custom message
           //notification
           //ask for signature
@@ -146,7 +144,7 @@ const handleWrite = async (e) => {
 
   return (
     <div>
-      <button disabled={disabled} onClick={hanldeSign} className='px-2 py-1 bg-amber-500 rounded-2xl text-white text-lg hover:scale-125'>Purpose</button>
+      <button disabled={disabled} onClick={handleWrite} className='px-2 py-1 bg-amber-500 rounded-2xl text-white text-lg hover:scale-125'>Purpose</button>
     </div>
   )
   
