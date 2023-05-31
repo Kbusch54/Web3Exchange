@@ -64,7 +64,7 @@ const updateDataBase = async (signature:string,transacitonHash:string) => {
   try {
     const { data, error } = await supabase
       .from('Proposals')
-      .insert([ {contractAddress:ammAdd,contractNonce:ammAdd+'_'+Number(usedNonce),etherscanTransactionHash:etherscanTransactionHash,proposer:user,nonce:Number(usedNonce), to:loanpool, transactionHashToSign:transacitonHash, executor:null, signatures:[signature], timeStamp:Date.now(), isProposalPassed:false, description:description, result:null, signers:[user]} ]);
+      .insert([ {contractAddress:ammAdd,contractNonce:ammAdd+'_'+Number(usedNonce),etherscanTransactionHash:etherscanTransactionHash,proposer:user,nonce:Number(usedNonce), to:addressTo, transactionHashToSign:transacitonHash, executor:null, signatures:[signature], timeStamp:Date.now(), isProposalPassed:false, description:description, result:null, signers:[user]} ]);
 
     if (error) {
       console.error('Error adding proposal:', error);

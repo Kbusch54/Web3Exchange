@@ -20,6 +20,7 @@ const fetchPurposals = async (daoId: string) => {
         isPassed
         to
         proposer
+        data
         transactionHash
         dAO {
           id

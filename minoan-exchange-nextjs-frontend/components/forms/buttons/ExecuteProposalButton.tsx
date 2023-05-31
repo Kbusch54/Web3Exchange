@@ -20,7 +20,7 @@ export default function ExecuteProposalButton  ({ user, disabled, callData,nonce
   const [errorWithContractLoad, setErrorWithContractLoad] = React.useState<boolean>(false);
   const [loadingStage, setLoadingStage] = useState(false);
   
-  const { config, error } = useExecuteProposal(nonce,addressTo,callData,signatures, ariadneAdd, user);
+  const { config, error } = useExecuteProposal(Number(nonce),addressTo,callData,signatures, ariadneAdd, user);
 
 const updateDataBase = async (transacitonHash:string) => {
   try {
@@ -49,7 +49,7 @@ useEffect(() => {
   }
 }, [error]);
 useEffect(() => {
-  console.log('NONCE', nonce);
+//   console.log('NONCE', nonce);
 }, [approved,nonce]);
 
 
@@ -78,8 +78,10 @@ const handleWrite = async (e) => {
           contractWrite.status == "error" ||
           contractWrite.isIdle == true ||
           res.status == 0
-        ) {
+          ) {
+            console.log('error se', res);
           console.log("error see traNSACITON HASH", con.hash);
+          console.log(contractWrite?.error);
           console.log(contractWrite?.error?.message);
         } else {
           console.log("error see traNSACITON HASH", con.hash);
@@ -91,6 +93,7 @@ const handleWrite = async (e) => {
       console.log("didnt event fire", err);
     });
 };
+
 
   if (contractWrite.isLoading || loadingStage)
     return (
@@ -115,7 +118,7 @@ const handleWrite = async (e) => {
 
   return (
     <div className={`${approved?'hidden':'block'}`}>
-      <button disabled={disabled} onClick={handleWrite} className='px-2 py-1 bg-amber-500 rounded-2xl text-white text-lg hover:scale-125'>Execute</button>
+      <button disabled={disabled} onClick={handleWrite} className='bg-amber-500 px-2 py-1  rounded-2xl text-white text-lg hover:scale-125'>Execute</button>
     </div>
   )
   

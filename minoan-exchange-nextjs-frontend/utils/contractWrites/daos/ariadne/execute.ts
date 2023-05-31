@@ -6,7 +6,7 @@ import { getAriadnePool } from "../../../helpers/doas";
 export const useExecuteProposal = (
     nonce:number,
     addressTo:Address,
-    callData:string,
+    transactionHash:string,
     signatures:string[],
     contractAdd:Address,
     signer: Address,
@@ -17,7 +17,7 @@ export const useExecuteProposal = (
        abi:AriadneDAO,
        chainId:5,
       functionName: "executeTransaction",
-      args: [nonce,addressTo,0,callData,signatures],
+      args: [nonce,addressTo,0,transactionHash,signatures],
       overrides: {
         from: signer,
         gasLimit: parseUnits("200000", "wei"),
