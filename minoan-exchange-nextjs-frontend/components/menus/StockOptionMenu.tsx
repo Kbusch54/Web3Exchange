@@ -17,9 +17,9 @@ const StockOptionMenu: React.FC<Props> = ({stockData}) => {
         <PopupState variant="popover" popupId="demo-popup-menu">
             {(popupState) => (
                 <React.Fragment>
-                    <Button variant="contained" {...bindTrigger(popupState)} className="text-3xl">
+                    <button {...bindTrigger(popupState)} className="text-3xl bg-slate-800/80 border border-slate-800/30 text-white  rounded-xl hover:bg-blue-700 ">
                         Assets
-                    </Button>
+                    </button>
                     <Menu {...bindMenu(popupState)}>
                         {stockData.map((stock: Stock) => (
                             <MenuItem key={String(stock.slug)} className=' hover:bg-slate-900 hover:text-white' >

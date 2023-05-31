@@ -14,6 +14,7 @@ const poolTokens =  "0x3b2A0BdB07eA5210074Cf2aDf71B621EBfD2B72c"
 const payload =  "0x842B2B8ECAF0194364E493693f43Ef8fFBdFa761"
 const exchangeViewer =  "0x04e9f83966711A9341d4A81327613872e10B444d"
 const usdc =  "0xAADbde5D0ED979b0a88770be054017fC40Bc43d1"
+const stakingHelper= "0xdbAF34580A7Bba55F7BA172339EA3703C677A3dD"
 
-export {usdc,exchange,exchangeViewer,payload,poolTokens,theseus,staking,loanpool,ammViewer,MetaAmm,GoogleAmm,TeslaAmm,createAriadnes,ariadneMeta,ariadneGoogle,ariadneTesla
+export {usdc,exchange,exchangeViewer,payload,poolTokens,theseus,staking,loanpool,ammViewer,MetaAmm,GoogleAmm,TeslaAmm,createAriadnes,ariadneMeta,stakingHelper,ariadneGoogle,ariadneTesla
 }

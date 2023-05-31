@@ -42,7 +42,7 @@ interface GraphData {
         totalStaked: string;
       };
       poolToken: {
-        
+
         tokenId: string;
         totalSupply: string;
         tokenBalance: {
@@ -119,9 +119,9 @@ async function fetchLoanPoolData(symbol: string, user: string) {
       }
   `;
 
-  
 
-  const endpoint = process.env.NEXT_PUBLIC_API_URL ||"https://api.studio.thegraph.com/query/46803/subgraph-minoan/v0.1.3";
+
+  const endpoint = process.env.NEXT_PUBLIC_API_URL || "https://api.studio.thegraph.com/query/46803/subgraph-minoan/v0.1.3";
   const variables = { id: symbol, user: user };
   const data = await request(endpoint, query, variables);
 
@@ -141,20 +141,23 @@ const getStocks = async (slug: string) => {
 export default async function PoolPage({ params }: Props) {
   const stock = await getStocks(params.slug);
   const session = await getServerSession();
-  if(!session) {
+  if (!session) {
     redirect(`/auth/signin?callbackUrl=/pools/${params.slug}`);
   }
 
 
-  const allData = await fetchLoanPoolData(params.slug.toLowerCase(),session.user.name);
+
+  const allData = await fetchLoanPoolData(params.slug.toLowerCase(), session.user.name);
   //@ts-ignore
   const graphData = allData.vamms[0];
+    //@ts-ignore
+    const poolToken=graphData.loanPool.poolToken;
   //@ts-ignore
   const userData = allData.users[0].balances.availableUsdc;
-  console.log('user data',userData)
+  console.log('user data', userData)
   return (
     <div>
-      {stock && graphData? (
+      {stock && graphData ? (
         <div className="text-center">
           <div className="grid m-12 text-white text-5xl grid-cols-3 lg:grid-cols-9 gap-y-12 ">
             <div className="col-span-3 md:col-span-2">
@@ -169,13 +172,13 @@ export default async function PoolPage({ params }: Props) {
               <h1>{graphData.name.toUpperCase()}</h1>
               <h3 className="text-xl">{stock.symbol}</h3>
             </div>
-    
-              <Balances poolBalances={graphData.loanPool.poolBalance} poolToken={graphData.loanPool.poolToken}  /> 
+
+            <Balances poolBalances={graphData.loanPool.poolBalance} poolToken={graphData.loanPool.poolToken} />
             <div
               id={"charts"}
               className="hidden md:block col-span-9  shadow-xl shadow-slate-500"
             >
-                <ReachartsEx />
+              <ReachartsEx />
             </div>
             <div
               id={"stats"}
@@ -189,23 +192,20 @@ export default async function PoolPage({ params }: Props) {
             >
               <h1 className="my-4">Deposit and Withdraw</h1>
 
-             <div className="">
-                <VaultUSDCForm availableUsdc={userData} user={session.user.name} />
-             </div>
-           
+              <div className="">
+                  <VaultUSDCForm availableUsdc={userData} user={session.user.name} />
+              </div>
+
             </div>
-            <StakingSection availableUsdc={userData} poolToken={graphData.loanPool.poolToken} user={session.user.name} name={stock.name} poolBalance={graphData.loanPool.poolBalance}  />
+            <StakingSection availableUsdc={userData} poolToken={graphData.loanPool.poolToken} user={session.user.name} name={stock.name} poolBalance={graphData.loanPool.poolBalance} />
           </div>
           <div id={"dao"} className="m-2 md:m-12">
-          <Suspense fallback={<div>Loading...</div>}>
-            
-             <DAOPurposals user={session.user.name} daoAddress={graphData.loanPool.poolToken.ammPool.ariadneDAO.id} />
-          </Suspense>
-            <DaoTransaction />
+              <DAOPurposals user={session.user.name} daoAddress={poolToken.ammPool.ariadneDAO.id} tokenId={poolToken.tokenId} />
+            {/* <DaoTransaction /> */}
             <PurposalModal />
           </div>
         </div>
-      ):(
+      ) : (
         <div>Loading</div>
       )}
     </div>

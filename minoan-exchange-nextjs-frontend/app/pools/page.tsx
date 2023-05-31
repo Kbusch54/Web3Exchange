@@ -22,7 +22,7 @@ export default async function page(){
                     <a href={`/pools/${stock.symbol}`}>
 
                         <div className='flex flex-row justify-between relative'>
-                            <Image src={helmet} alt={'helmet'} width={120}/>
+                            <Image src={helmet} alt={'helmet'} width={120} height={400}/>
                             <div className='mr-2 relative'>
                                 <p className="absolute -top-[4.45rem] right-12 text-green-500 text-8xl animate-pulse">.</p>
                                 Active

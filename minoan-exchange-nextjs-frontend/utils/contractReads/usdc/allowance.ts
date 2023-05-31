@@ -14,6 +14,7 @@ export const useGetAllowance = (address: string) => {
     abi: UsdcAbi,
     functionName: 'allowance',
     args: [address, exchange],
+    watch:   true ,
   });
 
   useEffect(() => {

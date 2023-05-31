@@ -1,10 +1,7 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import { Address, useBalance } from "wagmi";
-import { useSession } from "next-auth/react";
-import Swiper from 'swiper';
 import { useGetAllowance } from "../../utils/contractReads/usdc/allowance";
-import { set } from "date-fns";
 import WithdrawButton from "./buttons/WithdrawButton";
 import ApproveButton from "./buttons/ApproveButton";
 import DepositButton from "./buttons/DepositButton";
@@ -27,14 +24,8 @@ const VaultUSDCForm: React.FC<Props> = ({ availableUsdc, user }) => {
   const [depositDisplayValue, setDepositDisplayValue] = useState<string | undefined>("");
   const [buttonValue, setButtonValue] = useState<string | undefined>("Deposit");
   const [isError, setIsError] = useState(true);
-  const [domLoaded, setDomLoaded] = useState(false);
 
-  useEffect(() => {
-    setDomLoaded(true);
-    return () => {
-      setDomLoaded(false);
-    };
-  }, []);
+
 
 
   function rawToDisplay(value: number | null) {
@@ -48,19 +39,19 @@ const VaultUSDCForm: React.FC<Props> = ({ availableUsdc, user }) => {
   const { data, isLoading, error } = useBalance({
     address: user,
     token: '0xAADbde5D0ED979b0a88770be054017fC40Bc43d1',
+    watch: true,
   });
   const { allowance, isPending } = useGetAllowance(user);
 
   useEffect(() => {
     if (data?.value) setWalletBalance((prevState) => prevState = data.value.toNumber());
     if (allowance) setAllowanceAmt((prevState) => prevState = Number(allowance));
-    console.log('allowance', allowance, allowanceAmt);
   }, [data, allowance]);
 
-
+useEffect(() => {
+},[isPending,isLoading])
   if (isLoading || isPending) return <div>loading</div>
   if (error || !allowance) return <div>Something went wrong</div>
-  if (allowance) console.log('allowance', Number(allowance));
 
   const handleDepositFocus = (e: React.ChangeEvent<HTMLInputElement>): void => {
     /* @ts-ignore */
@@ -183,8 +174,6 @@ const VaultUSDCForm: React.FC<Props> = ({ availableUsdc, user }) => {
 
 
   return (
-    <>
-      {domLoaded && (
         <div className="outside-box mt-8 ">
           <div className="flex flex-col text-center inside-box text-white ">
             <h3>USDC</h3>
@@ -264,8 +253,6 @@ const VaultUSDCForm: React.FC<Props> = ({ availableUsdc, user }) => {
                )}
           </div>
         </div>
-      )}
-    </>
   );
 };
 
