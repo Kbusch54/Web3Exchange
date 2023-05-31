@@ -3,10 +3,11 @@ import React, { use } from 'react';
 import request, { gql } from 'graphql-request';
 import { supabase } from '../../supabase';
 import SingleProposal from './SingleProposal';
+import { Address } from 'wagmi';
 
 interface Props {
     daoAddress: string;
-    user: string;
+    user: Address;
     tokenId: number;
 }
 

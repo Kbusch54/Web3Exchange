@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react'
 import { Address } from 'wagmi';
 import VotingProportion from './utils/VotingProportion';
+import ExecuteProposalButton from '../forms/buttons/ExecuteProposalButton';
 
 interface Props {
     index: number;
@@ -46,7 +47,7 @@ interface Props {
         signers: Address[] | null;
 
     }
-    user:string;
+    user:Address;
 }
 
 const SingleProposal: React.FC<Props> = ({ proposal, dbData,index,user,isHolder }) => {
@@ -84,12 +85,18 @@ const SingleProposal: React.FC<Props> = ({ proposal, dbData,index,user,isHolder 
                         ):(<p>0%</p>)}</div>
                 <div className='text-white text-md  lg:text-xl m-2'>{proposal.dAO.votesNeededPercentage/10**2}%</div>
                 <div className='flex flex-row justify-center'>
-                    <button className='text-white text-md  lg:text-xl m-2 bg-amber-400 rounded-3xl px-2 py-1'>
-                        {isHolder?
-                        // @ts-ignore
-                            votesReceived >=(proposal.dAO.votesNeededPercentage)/10**2 ? 'Execute':dbData?.signers?.includes(user)?'Check':'Vote':'Stake'
-                        }
-                    </button>
+                    {votesReceived >=(proposal.dAO.votesNeededPercentage)/10**2 && dbData.signers && (
+                        <ExecuteProposalButton user={user} addressTo={proposal.to} nonce={proposal.nonce}ariadneAdd={proposal.dAO.id}callData={proposal.transactionHash} signatures={dbData.signers} disabled={false} />
+                    )}
+                    {dbData?.signers?.includes(user) && votesReceived <(proposal.dAO.votesNeededPercentage)/10**2 && (
+                        <button className='text-white text-md  lg:text-xl m-2 bg-amber-400 rounded-3xl px-2 py-1'>Check</button>
+                    )}
+                     {!dbData?.signers?.includes(user) && isHolder && votesReceived <(proposal.dAO.votesNeededPercentage)/10**2 && (
+                        <button className='text-white text-md  lg:text-xl m-2 bg-amber-400 rounded-3xl px-2 py-1'>Vote</button>
+                    )}
+                    {!isHolder && votesReceived <(proposal.dAO.votesNeededPercentage)/10**2 &&(
+                        <button className='text-white text-md  lg:text-xl m-2 bg-amber-400 rounded-3xl px-2 py-1'>Stake</button>
+                    )}
                     <p className='text-xs'>dot</p>
                 </div>
             </div>
