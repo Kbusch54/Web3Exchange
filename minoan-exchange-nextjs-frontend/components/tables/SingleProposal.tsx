@@ -5,6 +5,7 @@ import VotingProportion from './utils/VotingProportion';
 import ExecuteProposalButton from '../forms/buttons/ExecuteProposalButton';
 import SignProposalButton from '../forms/buttons/SignProposalButton';
 import CountDownProposal from './utils/CountDownProposal';
+import DAOButtonSelection from './utils/DAOButtonSelection';
 
 interface Props {
     index: number;
@@ -52,9 +53,10 @@ interface Props {
 
     }
     user: Address;
+    type: string
 }
 
-const SingleProposal: React.FC<Props> = ({ proposal, dbData, index, user, isHolder }) => {
+const SingleProposal: React.FC<Props> = ({ proposal, dbData, index, user, isHolder, type }) => {
     const [toggle, setToggle] = useState<boolean>(true)
     const [votesReceived, setVotesReceived] = useState<number>(0)
     const currentTime = new Date().getTime();
@@ -83,11 +85,15 @@ const SingleProposal: React.FC<Props> = ({ proposal, dbData, index, user, isHold
         console.log('votes received', votesReceived);
     }, [votesReceived])
 
-    if (timeLeft > 0) {
+    if (type === 'current' && (proposal.isPassed || timeLeft <= 0)) {
         return null
-    }else{
+    } else if (type === 'passed' && !proposal.isPassed) {
+        return null
+    } else if (type === 'failed' && proposal.isPassed) {
+        return null
+    } else {
 
- 
+
         return (
             <div>
                 <div className='grid grid-cols-6 justify-evenly text-center border border-amber-400/40 rounded-lg' key={proposal.nonce}>
@@ -99,27 +105,26 @@ const SingleProposal: React.FC<Props> = ({ proposal, dbData, index, user, isHold
                         <p>{dbData.etherscanTransactionHash.slice(0, 10)}</p>) : (<p>no etheerscan</p>)}
                     </div>
                     <div className='text-white text-md  lg:text-xl m-2'>
-                        <CountDownProposal initialTimestamp={proposal.proposedAt * 1000} window={proposal.dAO.votingTime * 1000} />
+                        {type != 'passed' ? (
+
+                            <CountDownProposal initialTimestamp={proposal.proposedAt * 1000} window={proposal.dAO.votingTime * 1000} />
+                        ) : (
+                            <p className='text-green-500'>Passsed</p>
+                        )}
                     </div>
                     <div className='text-white text-md  lg:text-xl m-2'> {dbData?.signers ? (
                         <VotingProportion signers={dbData.signers} maxVotingPower={proposal.dAO.maxVotingPower} minVotingPower={proposal.dAO.minVotingPower} tokenId={proposal.dAO.tokenId} func={setVotesReceived} />
                     ) : (<p>0%</p>)}</div>
                     <div className='text-white text-md  lg:text-xl m-2'>{proposal.dAO.votesNeededPercentage / 10 ** 2}%</div>
-                    <div className='flex flex-row justify-center'>
-                        {votesReceived >= (proposal.dAO.votesNeededPercentage) / 10 ** 2 && dbData.signatures && dbData.transactionHashToSign && (
-                            <ExecuteProposalButton user={user} addressTo={proposal.to} nonce={proposal.nonce} ariadneAdd={proposal.dAO.id} callData={proposal.data} signatures={dbData.signatures} disabled={false} />
-                        )}
-                        {dbData?.signers?.includes(user) && votesReceived < (proposal.dAO.votesNeededPercentage) / 10 ** 2 && (
-                            <button className='text-white text-md  lg:text-xl m-2 bg-amber-400 rounded-3xl px-2 py-1'>Check</button>
-                        )}
-                        {!dbData?.signers?.includes(user) && isHolder && votesReceived < (proposal.dAO.votesNeededPercentage) / 10 ** 2 && (
-                            <SignProposalButton addressTo={proposal.to} contractAdd={proposal.dAO.id} nonce={proposal.nonce} signatures={dbData ? dbData.signatures : null} signers={dbData ? dbData.signers : null} transactionHash={proposal.transactionHash} user={user} timeStamp={proposal.proposedAt} />
-                        )}
-                        {!isHolder && votesReceived < (proposal.dAO.votesNeededPercentage) / 10 ** 2 && (
-                            <button className='text-white text-md  lg:text-xl m-2 bg-amber-400 rounded-3xl px-2 py-1'>Stake</button>
-                        )}
-                        <p className='text-xs'>dot</p>
-                    </div>
+                    {type === 'current' && (
+                        <DAOButtonSelection dbData={dbData} isHolder={isHolder} proposal={proposal} user={user} votesReceived={votesReceived} />
+                    )}
+                    {type === 'passed' && (
+                        <button className='text-white text-md  lg:text-xl m-2 bg-green-500 rounded-3xl px-2 py-1'>Success</button>
+                    )}
+                    {type === 'failed' && (
+                        <button className='text-white text-md  lg:text-xl m-2 bg-red-500 rounded-3xl px-2 py-1'>Failed</button>
+                    )}
                 </div>
                 <div className={`bg-slate-800 ${toggle ? 'hidden' : 'block'}`}>
                     <div className='text-white text-xl m-2 text-left'>Information</div>
@@ -149,6 +154,18 @@ const SingleProposal: React.FC<Props> = ({ proposal, dbData, index, user, isHold
                                 <p className='ml-6'>Description:</p>
                                 <p className='overflow-auto'>{dbData.description}</p>
                             </div>)}
+                            {type === 'passed'&&(
+                                <>
+                                <div className='text-white text-lg flex flex-row border justify-evenly text-center border-white/10'>
+                                <p>Executor:</p>
+                                <p>{dbData? dbData?.executor?  dbData.executor?.slice(0,10):'0x0':'0x0'}</p>
+                            </div>
+                            <div className='text-white text-lg flex flex-row border justify-evenly text-center border-white/10'>
+                                <p>Result:</p>
+                                <p>{dbData? dbData?.result?  dbData.result?.slice(0,10):'0x0':'0x0'}</p>
+                            </div>
+                                </>
+                            )}
 
                     </div>
                 </div>

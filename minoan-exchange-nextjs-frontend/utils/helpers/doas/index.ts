@@ -34,6 +34,7 @@ export const getTransactionHash = (_nonce:number, to:Address, value:number, data
       [address, _nonce, to, value, data]
     );
   };
+//   address(this), _nonce, to, value, data
 
   export const  getAriadnePool = (ammId: string) =>{
     const amm =ammId.toLowerCase();

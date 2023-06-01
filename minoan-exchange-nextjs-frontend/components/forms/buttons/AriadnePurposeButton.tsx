@@ -24,34 +24,36 @@ export default function AriadnePurposeButton  ({ user, disabled, callData, ammId
   const [loadingStage, setLoadingStage] = useState(false);
   const [usedNonce, setUsedNonce] = useState<number|null>(null);
   const [etherscanTransactionHash, setEtherscanTransactionHash] = useState<string|null>(null);
+  const [transactionHash, setTransactionHash] = useState<string|null>(null);
   
   
   
   const ammAdd = getAriadnePool(ammId);
   const addressTo = internal?ammAdd:loanpool;
   const { config, error } = useNewProposal(addressTo,callData, ammId, user);
-    const transacitonHash = getTransactionHash(nonce,addressTo,0,callData,ammAdd);
   const { data: signer, isError, isLoading } = useSigner();
+  console.log('config for proposal', config);
   //@ts-ignore
   const hanldeSign = async (e) => {
     e.preventDefault();
-    if (!transacitonHash) {
+    //@ts-ignore
+    if (!transactionHash) {
       alert('no transaction hash')
     } else { 
     const signature = await signer
-      ?.signMessage(ethers.utils.arrayify(transacitonHash))
+      ?.signMessage(ethers.utils.arrayify(transactionHash))
       .catch((err: Error) => {
         alert(err);
       });
 
     if (signature) {
       const verified = ethers.utils.verifyMessage(
-        ethers.utils.arrayify(transacitonHash),
+        ethers.utils.arrayify(transactionHash),
         signature
       );
       console.log('is verified', verified);
       if (verified == user) {
-        await updateDataBase(signature,transacitonHash);
+        await updateDataBase(signature,transactionHash);
       }
     }
   }
@@ -89,6 +91,12 @@ useEffect(() => {
 useEffect(() => {
   console.log('NONCE', nonce);
 }, [approved,nonce]);
+useEffect(() => {
+  if(!transactionHash && usedNonce){
+    const txHash = getTransactionHash(usedNonce,addressTo,0,callData,ammAdd);
+    setTransactionHash(txHash);
+  }
+}, [usedNonce]);
 
 
 //@ts-ignore

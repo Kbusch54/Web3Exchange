@@ -117,7 +117,7 @@ const DAOPurposals = ({ daoAddress, user,tokenId }: Props) => {
                     let nonceMapData = nonceMap.get(Number(proposal.nonce));
 
                     return (
-                        <SingleProposal user={user} key={proposal.nonce} proposal={proposal} dbData={nonceMapData} index={index} isHolder={hasStakes}/>
+                        <SingleProposal type={'passed'} user={user} key={proposal.nonce} proposal={proposal} dbData={nonceMapData} index={index} isHolder={hasStakes}/>
                     )
                 })}
             </div>
