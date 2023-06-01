@@ -1,7 +1,7 @@
 import { AriadneDAO } from "../../abis"
 import { useEffect, useState } from "react";
 import { useContractRead } from 'wagmi';
-import { ariadneGoogle,ariadneMeta,ariadneTesla} from "../../address";
+import { ariadneGoogle,ariadneMeta,ariadneTesla, theseus} from "../../address";
 
 export const useGetCurrentId= (ammId:string) => {
     //@ts-ignore
@@ -39,6 +39,8 @@ function getAriadnePool(ammId: string) {
         return ariadneGoogle;
     }else if(amm === "meta"){
         return ariadneMeta;
+    }else if(amm === "theseus"){
+        return theseus;
     }
     else{
         return ariadneTesla;

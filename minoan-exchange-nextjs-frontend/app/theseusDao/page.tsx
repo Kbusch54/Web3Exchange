@@ -10,6 +10,7 @@ import { request, gql } from 'graphql-request';
 import StakingSection from "../../components/forms/StakingSection";
 import { theseus as theseusAdd } from "../../utils/address";
 import DAOPurposals from "../../components/tables/daos/DAOPurposals";
+import TheseusProposalModal from "../../components/modals/TheseusProposalModal";
 async function fetchData(user: string, theseusAdd: string) {
   const query = gql` 
     query getvamm($user: String!, $theseusAdd: String!) {
@@ -247,7 +248,7 @@ async function page(props: Props) {
       </div>
 
       <div className="flex justify-center">
-        {/* <PurposalModal /> */}
+        <TheseusProposalModal />
       </div>
     </div>
   );
