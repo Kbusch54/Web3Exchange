@@ -74,7 +74,6 @@ const SingleProposal: React.FC<Props> = ({ proposal, dbData, index, user, isHold
     }, [])
     useEffect(() => {
     }, [votesReceived])
-    if(proposal.nonce == 14 || proposal.nonce==13) console.log('proposal',proposal);
 
     if (type === 0 && (proposal.isPassed || timeLeft <= 0)) {
         return null

@@ -1,7 +1,4 @@
-'use client'
-import request, { gql } from 'graphql-request';
-import React, { use } from 'react'
-import { Address } from 'wagmi'
+import React from 'react'
 
 interface Props {
     ariadneData: {
@@ -17,8 +14,6 @@ interface Props {
         };
     };
 }
-
-
 const DAODetails: React.FC<Props> = ({ ariadneData }) => {
     function toHoursAndMinutes(totalMinutes:number) {
         const totalTimne = totalMinutes/ 360000*6;
@@ -26,7 +21,6 @@ const DAODetails: React.FC<Props> = ({ ariadneData }) => {
         const hours = Math.floor(totalTimne / 60);
         return `${hours}h${minutes > 0 ? ` ${Math.floor(minutes)}m ` : ''}`;
     }
-    console.log('data from dao detials',ariadneData)
     //@ts-ignore
     const userHoldings = ariadneData.poolToken.tokenBalance[0].tokensOwnedbByUser
      //@ts-ignore
@@ -43,7 +37,7 @@ const DAODetails: React.FC<Props> = ({ ariadneData }) => {
             <div className='flex flex-row justify-evenly text-white mb-2'>
                 <p className='text-xs md:text-lg lg:text:2xl mr-7'>% of Votes Needed </p>
                 <div className='flex-col'>
-                    <p className='text-sm md:text-md lg:text-lg  text-sky-100'>{votesNeededPercentage}%</p>
+                    <p className='text-sm md:text-md lg:text-lg  text-sky-100'>{votesNeededPercentage.toFixed(2)}%</p>
                     <hr />
                 </div>
             </div>

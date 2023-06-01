@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react'
+import React, {  useState } from 'react'
 import StakingForm from './StakingForm'
 import UnStakingForm from './UnStakingForm';
 import { Address } from 'wagmi';
@@ -25,9 +25,6 @@ const StakingSection: React.FC<Props> = ({ availableUsdc, poolToken, user, name,
             setMode("staking");
         }
     }
-    console.log('POOL BALANCE',poolBalance);
-    console.log('POOL balance avai',poolBalance.availableUsdc);
-    console.log('POOL balance total',poolBalance.totalUsdcSupply);
     return (
         <div
             id={"staking"}
@@ -39,7 +36,6 @@ const StakingSection: React.FC<Props> = ({ availableUsdc, poolToken, user, name,
                     <Switch color="warning" aria-controls='blue' disabled={false} onChange={handleSwitch} />
                     </div>
             </div>
-            {/* onChange={()=>setMode((prev)=>!prev)} */}
             {mode === "staking" ? (
                 <>
                     <StakingForm availableUsdc={availableUsdc} poolToken={poolToken} user={user} name={name} totalUSDCSupply={poolBalance.totalUsdcSupply} />
