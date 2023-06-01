@@ -52,6 +52,7 @@ const ProposalType: React.FC<Props> = ({ user, tokenId, daoAddress,proposals,has
     });
     return (
         <div>
+            <h1 className='text-white text-center mb-4'>Proposals</h1>
 
             <div className='flex flex-row justify-evenly text-white text-xl bg-slate-900 border border-amber-400 rounded-t-full rounded-b-xl'>
                 <button onClick={(e) => handleSelected(e)} className={`border border-gray-800 ${selected == 0 ? 'bg-slate-500 scale-125' : ' bg-slate-700'}`}>Current</button>

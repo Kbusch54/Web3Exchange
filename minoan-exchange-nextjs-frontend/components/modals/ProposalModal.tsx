@@ -1,16 +1,12 @@
 "use client";
-import React, { useState, useEffect, useRef, Suspense,use } from 'react';
-import ReactDOM from 'react-dom';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import Modal from 'react-modal';
 import { getAllFunctions, getFunctionCallDataLoanPool } from '../../utils/contractReads/loanpool/functionReading';
 import { getAllUpdateFunctions, getFunctionCallDataAriadne } from '../../utils/contractReads/ariadneDao/internalFunctions';
 import { Address } from 'wagmi';
 import AriadnePurposeButton from '../forms/buttons/AriadnePurposeButton';
-import { ethers } from 'ethers';
 import { useGetCurrentId } from '../../utils/contractReads/ariadneDao/currentId';
-import { ariadneTesla, loanpool } from '../../utils/address';
 import DAODetails from './interior/DAODetails';
-import request, { gql } from 'graphql-request';
 
 
 
@@ -76,7 +72,7 @@ interface Props {
   user:Address
 }
 
-export default function PurposalModal({currentValue,ammAddress,user,symbol,loanPoolTheseus,ariadneData}: Props) {
+export default function ProposalModal({currentValue,ammAddress,user,symbol,loanPoolTheseus,ariadneData}: Props) {
   const [modalIsOpen, setIsOpen] = useState(false);
   const [selected, setSelected] = useState(false);
   const [key, setKey] = useState(0);
@@ -310,7 +306,7 @@ export default function PurposalModal({currentValue,ammAddress,user,symbol,loanP
 
   return (
     <div>
-      <button className='py-4 my-6 text-xl px-8 md:px-32 md:py-12 rounded-full md:my-12  bg-amber-400 hover:shadow-2xl hover:shadow-amber-200 text-white md:text-5xl text-center hover:scale-125' onClick={openModal}>Purpose</button>
+      <button className='py-4 my-6 text-xl px-8 md:px-32 md:py-12 rounded-full md:my-12  bg-amber-400 hover:shadow-2xl hover:shadow-amber-200 text-white md:text-5xl text-center hover:scale-125' onClick={openModal}>Propose</button>
       <Modal
         isOpen={modalIsOpen}
         onAfterOpen={afterOpenModal}

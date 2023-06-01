@@ -1,6 +1,6 @@
 import Image from "next/image";
 import React from "react";
-import PurposalModal from "../../components/modals/PurposalModal";
+import PurposalModal from "../../components/modals/ProposalModal";
 import DaoTransaction from "../../components/tables/daos/DaoTransactions";
 import TheseusTab from "../../components/tabs/TheseusTab";
 import theseus from "../../public/assets/theseus-removed.png";
