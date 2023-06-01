@@ -1,7 +1,7 @@
 import { stocks } from "../../utils/stockData";
 import Image from "next/image";
 import { Stock } from "../../../types/custom";
-import DaoTransaction from "../../../components/tables/DaoTransactions";
+import DaoTransaction from "../../../components/tables/daos/DaoTransactions";
 import PurposalModal from "../../../components/modals/PurposalModal";
 import Balances from "../../../components/balances/Balances";
 import InvestorStats from "../../../components/stockData/InvestorStats";
@@ -13,7 +13,8 @@ import VaultUSDCForm from "../../../components/forms/VaultUSDCForm";
 import ReachartsEx from "../../../components/charts/poolCharts/ReachartsEx";
 import { Suspense } from "react";
 import StakingSection from "../../../components/forms/StakingSection";
-import DAOPurposals from "../../../components/tables/DAOPurposals";
+import DAOPurposals from "../../../components/tables/daos/DAOPurposals";
+import ProposalType from "../../../components/tables/daos/ProposalType";
 
 interface Props {
   params: {
@@ -225,7 +226,7 @@ export default async function PoolPage({ params }: Props) {
             <StakingSection availableUsdc={userData} poolToken={graphData.loanPool.poolToken} user={session.user.name} name={stock.name} poolBalance={graphData.loanPool.poolBalance} />
           </div>
           <div id={"dao"} className="m-2 md:m-12">
-              <DAOPurposals user={session.user.name} daoAddress={poolToken.ammPool.ariadneDAO.id} tokenId={poolToken.tokenId} />
+            <DAOPurposals user={session.user.name} daoAddress={poolToken.ammPool.ariadneDAO.id} tokenId={poolToken.tokenId} />
             {/* <DaoTransaction /> */}
             <PurposalModal ariadneData={ariadneData} loanPoolTheseus={graphData.loanPool.loanPoolTheseus} symbol={stock.symbol} ammAddress={graphData.loanPool.id} currentValue={graphData.loanPool} user={session.user.name} />
           </div>

@@ -1,9 +1,9 @@
 'use client';
 import React, { useState, useEffect } from 'react'
 import { Address } from 'wagmi';
-import VotingProportion from './utils/VotingProportion';
-import CountDownProposal from './utils/CountDownProposal';
-import DAOButtonSelection from './utils/DAOButtonSelection';
+import VotingProportion from '../utils/VotingProportion';
+import CountDownProposal from '../utils/CountDownProposal';
+import DAOButtonSelection from '../utils/DAOButtonSelection';
 
 interface Props {
     index: number;
@@ -51,7 +51,7 @@ interface Props {
 
     }
     user: Address;
-    type: string
+    type: number;
 }
 
 const SingleProposal: React.FC<Props> = ({ proposal, dbData, index, user, isHolder, type }) => {
@@ -74,12 +74,13 @@ const SingleProposal: React.FC<Props> = ({ proposal, dbData, index, user, isHold
     }, [])
     useEffect(() => {
     }, [votesReceived])
+    if(proposal.nonce == 14 || proposal.nonce==13) console.log('proposal',proposal);
 
-    if (type === 'current' && (proposal.isPassed || timeLeft <= 0)) {
+    if (type === 0 && (proposal.isPassed || timeLeft <= 0)) {
         return null
-    } else if (type === 'passed' && !proposal.isPassed) {
+    } else if (type === 1 && !proposal.isPassed) {
         return null
-    } else if (type === 'failed' && proposal.isPassed) {
+    } else if (type === 2 && (proposal.isPassed ||dbData?.isProposalPassed || timeLeft > 0)) {
         return null
     } else {
 
@@ -95,7 +96,7 @@ const SingleProposal: React.FC<Props> = ({ proposal, dbData, index, user, isHold
                         <p>{dbData.etherscanTransactionHash.slice(0, 10)}</p>) : (<p>no etheerscan</p>)}
                     </div>
                     <div className='text-white text-md  lg:text-xl m-2'>
-                        {type != 'passed' ? (
+                        {type != 1 ? (
 
                             <CountDownProposal initialTimestamp={proposal.proposedAt * 1000} window={proposal.dAO.votingTime * 1000} />
                         ) : (
@@ -106,13 +107,13 @@ const SingleProposal: React.FC<Props> = ({ proposal, dbData, index, user, isHold
                         <VotingProportion signers={dbData.signers} maxVotingPower={proposal.dAO.maxVotingPower} minVotingPower={proposal.dAO.minVotingPower} tokenId={proposal.dAO.tokenId} func={setVotesReceived} />
                     ) : (<p>0%</p>)}</div>
                     <div className='text-white text-md  lg:text-xl m-2'>{proposal.dAO.votesNeededPercentage / 10 ** 2}%</div>
-                    {type === 'current' && (
+                    {type === 0 && (
                         <DAOButtonSelection dbData={dbData} isHolder={isHolder} proposal={proposal} user={user} votesReceived={votesReceived} />
                     )}
-                    {type === 'passed' && (
+                    {type === 1 && (
                         <button className='text-white text-md  lg:text-xl m-2 bg-green-500 rounded-3xl px-2 py-1'>Success</button>
                     )}
-                    {type === 'failed' && (
+                    {type === 2 && (
                         <button className='text-white text-md  lg:text-xl m-2 bg-red-500 rounded-3xl px-2 py-1'>Failed</button>
                     )}
                 </div>
@@ -144,7 +145,7 @@ const SingleProposal: React.FC<Props> = ({ proposal, dbData, index, user, isHold
                                 <p className='ml-6'>Description:</p>
                                 <p className='overflow-auto'>{dbData.description}</p>
                             </div>)}
-                            {type === 'passed'&&(
+                            {type === 0&&(
                                 <>
                                 <div className='text-white text-lg flex flex-row border justify-evenly text-center border-white/10'>
                                 <p>Executor:</p>

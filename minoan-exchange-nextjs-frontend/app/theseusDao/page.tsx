@@ -1,7 +1,7 @@
 import Image from "next/image";
 import React from "react";
 import PurposalModal from "../../components/modals/PurposalModal";
-import DaoTransaction from "../../components/tables/DaoTransactions";
+import DaoTransaction from "../../components/tables/daos/DaoTransactions";
 import TheseusTab from "../../components/tabs/TheseusTab";
 import theseus from "../../public/assets/theseus-removed.png";
 import { getServerSession } from "../api/auth/[...nextauth]/route";

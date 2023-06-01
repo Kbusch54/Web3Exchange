@@ -40,7 +40,6 @@ const DAOButtonSelection: React.FC<Props> = ({proposal,user,dbData,votesReceived
         {!isHolder && votesReceived < (proposal.dAO.votesNeededPercentage) / 10 ** 2 && (
             <button className='text-white text-md  lg:text-xl m-2 bg-amber-400 rounded-3xl px-2 py-1'>Stake</button>
         )}
-        <p className='text-xs'>dot</p>
     </div>
     )
 }
