@@ -70,7 +70,7 @@ async function fetchLoanPoolData(symbol: string, user: string) {
 
 
 
-  const endpoint = process.env.NEXT_PUBLIC_API_URL || "https://api.studio.thegraph.com/query/46803/subgraph-minoan/v0.1.3";
+  const endpoint = process.env.NEXT_PUBLIC_API_URL || "https://api.studio.thegraph.com/query/46803/subgraph-minoan/version/latest";
   const variables = { id: symbol, user: user };
   const data = await request(endpoint, query, variables);
 

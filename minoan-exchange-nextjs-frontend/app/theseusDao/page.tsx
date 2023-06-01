@@ -6,14 +6,103 @@ import TheseusTab from "../../components/tabs/TheseusTab";
 import theseus from "../../public/assets/theseus-removed.png";
 import { getServerSession } from "../api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
+import { request, gql } from 'graphql-request';
+import StakingSection from "../../components/forms/StakingSection";
+import { theseus as theseusAdd } from "../../utils/address";
+import DAOPurposals from "../../components/tables/daos/DAOPurposals";
+async function fetchData(user: string, theseusAdd: string) {
+  const query = gql` 
+    query getvamm($user: String!, $theseusAdd: String!) {
+     
+      theseusDAOs{
+        id
+        currentId
+        votingTime
+        maxVotingPower
+        minVotingPower
+        tokenId
+        votesNeededPercentage
+        insuranceFundMin
+        poolToken{
+          tokenId
+          totalSupply
+          tokenBalance(where:{user:$user}){
+              tokensOwnedbByUser
+              totalStaked
+            }
 
+        }
+      }
+      stakes(where:{theseusDAO:$theseusAdd}){
+        totalStaked
+      }
+      vamms {
+        name
+        loanPool {
+          id
+          poolBalance {
+            totalUsdcSupply
+            availableUsdc
+            outstandingLoanUsdc
+          }
+          stakes{
+            totalStaked
+            }
+          poolToken{
+            tokenId
+            totalSupply
+            tokenBalance(where:{user:$user}){
+              tokensOwnedbByUser
+              totalStaked
+            }
+          }
+          loanPoolTheseus{
+            minMMR
+            maxMMR
+            minInterestRate
+            maxInterestRate
+            minTradingFee
+            maxInterestPeriod
+            minInterestPeriod
+            minHoldingsReqPercentage
+            maxHoldingsReqPercentage
+            maxTradingFee
+            minLoan
+            maxLoan
+          }
+        }
+      }
+      users(where:{id:$user}){
+        id
+        balances{
+          availableUsdc
+        }
+      }
+      }
+  `;
+
+
+
+  const endpoint = "https://api.studio.thegraph.com/query/46803/subgraph-minoan/v0.1.9";
+  const variables = { user: user, theseusAdd: theseusAdd };
+  const data = await request(endpoint, query, variables);
+
+  return data;
+}
 type Props = {};
 
-async function page(props: Props)  {
-      const session = await getServerSession();
-      if(!session) {
-          redirect(`/auth/signin?callbackUrl=/theseusdao`);
-      }
+async function page(props: Props) {
+  const session = await getServerSession();
+  if (!session) {
+    redirect(`/auth/signin?callbackUrl=/theseusdao`);
+  }
+  const data = await fetchData(session.user.name, theseusAdd);
+  //@ts-ignore
+  const poolAvailableUsdc = data.users[0].balances.availableUsdc;
+  console.log('poolAvaib', poolAvailableUsdc);
+  console.log('data', data);
+  //@ts-ignore
+  const poolBalance = { availableUsdc: data.stakes[0].totalStaked - data.theseusDAOs[0].insuranceFundMin, totalUsdcSupply: data.stakes[0].totalStaked };
   return (
     <div className="m-6">
       <div className="flex flex-row justify-between">
@@ -38,11 +127,15 @@ async function page(props: Props)  {
             </div>
             <div className="">
               <h1 className="">$6983.39</h1>
-              <h3> Loaned Out</h3>
+              <h3>Total Loaned Out</h3>
             </div>
             <div className="">
               <h1 className="">$2398.63</h1>
-              <h3> In Vault</h3>
+              <h3>Total In Vault</h3>
+            </div>
+            <div className="">
+              <h1 className="">$2398.63</h1>
+              <h3>Insurance Fund</h3>
             </div>
           </div>
         </div>
@@ -142,14 +235,19 @@ async function page(props: Props)  {
         </div>
       </div>
       <div className="mt-12 flex flex-col ">
-        <h1 className="text-3xl text-white justify-center text-center mb-2">
-          DAO Purposals
-        </h1>
-        <DaoTransaction />
+        <div>
+
+          {/* @ts-ignore */}
+          <StakingSection availableUsdc={poolAvailableUsdc} poolToken={data.theseusDAOs[0].poolToken} user={session.user.name} name={'Theseus'} poolBalance={poolBalance} />
+        </div>
+        <div className="mb-12">
+          {/* @ts-ignore */}
+          <DAOPurposals daoAddress={data.theseusDAOs[0].id} user={session.user.name} tokenId={data.theseusDAOs[0].tokenId} isTheseus={true}/>
+        </div>
       </div>
 
       <div className="flex justify-center">
-        <PurposalModal />
+        {/* <PurposalModal /> */}
       </div>
     </div>
   );

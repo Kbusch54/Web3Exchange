@@ -8,12 +8,44 @@ interface Props {
     daoAddress: Address;
     user: Address;
     tokenId: number;
+    
+    isTheseus: boolean;
 }
+
+const fetchTheseusPurposals = async (daoId: string) => {
+  const query = gql`
+  query ($daoId: String!) {
+      proposals(where:{theseusDAO:$daoId}) {
+      proposedAt
+      nonce
+      isPassed
+      to
+      proposer
+      data
+      transactionHash
+      theseusDAO{
+  id
+  votingTime
+  votesNeededPercentage
+  tokenId
+  maxVotingPower
+  minVotingPower
+}
+  }
+  }
+`;
+  const endpoint =
+      'https://api.studio.thegraph.com/query/46803/subgraph-minoan/version/latest';
+  const variables = { daoId: daoId };
+  const data = await request(endpoint, query, variables);
+
+  return data;
+};
 
 const fetchPurposals = async (daoId: string) => {
     const query = gql`
     query ($daoId: String!) {
-        proposals {
+        proposals(where:{dAO:$daoId}) {
         proposedAt
         nonce
         isPassed
@@ -21,6 +53,7 @@ const fetchPurposals = async (daoId: string) => {
         proposer
         data
         transactionHash
+       
         dAO {
           id
           votesNeededPercentage
@@ -31,7 +64,7 @@ const fetchPurposals = async (daoId: string) => {
           poolToken{
             tokenBalance{
               user{
-				id						
+				        id						
               }
             }
           }
@@ -40,7 +73,7 @@ const fetchPurposals = async (daoId: string) => {
     }
   `;
     const endpoint =
-        'https://api.studio.thegraph.com/query/46803/subgraph-minoan/v0.1.3';
+        'https://api.studio.thegraph.com/query/46803/subgraph-minoan/version/latest';
     const variables = { daoId: daoId };
     const data = await request(endpoint, query, variables);
 
@@ -62,7 +95,7 @@ const checkUserStakes = async (userId: string, inputTokenId: number) => {
       }
     `;
     const endpoint =
-      'https://api.studio.thegraph.com/query/46803/subgraph-minoan/v0.1.3';
+      'https://api.studio.thegraph.com/query/46803/subgraph-minoan/version/latest';
     const variables = { userId: userId };
     const data = await request(endpoint, query, variables);
   
@@ -82,13 +115,14 @@ const checkUserStakes = async (userId: string, inputTokenId: number) => {
   
   
 
-const DAOPurposals = ({ daoAddress, user,tokenId }: Props) => {
-    //@ts-ignore
-    const { proposals } = use(fetchPurposals(daoAddress));
+const DAOPurposals = ({ daoAddress, user,tokenId ,isTheseus}: Props) => {
+  //@ts-ignore
+  const {proposals}=isTheseus?use(fetchTheseusPurposals(daoAddress)):use(fetchPurposals(daoAddress));
+   
     const hasStakes = use(checkUserStakes(user,tokenId));
     //@ts-ignore
-    const { data, error } = use(supabase.from('Proposals').select());
-   
+    const { data, error } = use(supabase.from('Proposals').select().eq('contractAddress', daoAddress));
+   console.log(proposals)
     if (proposals) {
         return (
             <ProposalType daoAddress={daoAddress} hasStakes={hasStakes}  proposals={proposals} tokenId={tokenId} user={user} />

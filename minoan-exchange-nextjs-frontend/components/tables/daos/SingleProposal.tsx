@@ -8,6 +8,7 @@ import DAOButtonSelection from '../utils/DAOButtonSelection';
 interface Props {
     index: number;
     isHolder: boolean;
+    tokenId: number;
     proposal: {
         nonce: number;
         isPassed: boolean;
@@ -16,6 +17,15 @@ interface Props {
         transactionHash: string;
         proposedAt: number;
         data: string;
+        theseusDAO:{
+            id:Address,
+            votingTime:number,
+            votesNeededPercentage:number,
+            tokenId:number,
+            maxVotingPower:number,
+            minVotingPower:number,
+                    
+          }
         dAO: {
             id: Address,
             votesNeededPercentage: number,
@@ -54,14 +64,19 @@ interface Props {
     type: number;
 }
 
-const SingleProposal: React.FC<Props> = ({ proposal, dbData, index, user, isHolder, type }) => {
+const SingleProposal: React.FC<Props> = ({ proposal, dbData, index, user, isHolder, type,tokenId }) => {
     const [toggle, setToggle] = useState<boolean>(true)
     const [votesReceived, setVotesReceived] = useState<number>(0)
     const currentTime = new Date().getTime();
     const initialTimestamp = proposal.proposedAt * 1000;
-    const window = proposal.dAO.votingTime * 1000;
+    const window = proposal.dAO? proposal.dAO.votingTime * 1000 : proposal.theseusDAO.votingTime * 1000;
     const targetTime = initialTimestamp + window;
-    const timeLeft = targetTime - currentTime
+    const timeLeft = targetTime - currentTime;
+    const votesNeededPercentage = proposal.dAO?proposal.dAO.votesNeededPercentage: proposal.theseusDAO.votesNeededPercentage;
+    const maxVotingPower = proposal.dAO? proposal.dAO.maxVotingPower:proposal.theseusDAO.maxVotingPower;
+    const minVotingPower = proposal.dAO? proposal.dAO.minVotingPower:proposal.theseusDAO.minVotingPower;
+    const id = proposal.dAO? proposal.dAO.id:proposal.theseusDAO.id;
+
 
 
 
@@ -97,17 +112,17 @@ const SingleProposal: React.FC<Props> = ({ proposal, dbData, index, user, isHold
                     <div className='text-white text-md  lg:text-xl m-2'>
                         {type != 1 ? (
 
-                            <CountDownProposal initialTimestamp={proposal.proposedAt * 1000} window={proposal.dAO.votingTime * 1000} />
+                            <CountDownProposal initialTimestamp={proposal.proposedAt * 1000} window={window} />
                         ) : (
                             <p className='text-green-500'>Passsed</p>
                         )}
                     </div>
                     <div className='text-white text-md  lg:text-xl m-2'> {dbData?.signers ? (
-                        <VotingProportion signers={dbData.signers} maxVotingPower={proposal.dAO.maxVotingPower} minVotingPower={proposal.dAO.minVotingPower} tokenId={proposal.dAO.tokenId} func={setVotesReceived} />
+                        <VotingProportion signers={dbData.signers} maxVotingPower={maxVotingPower} minVotingPower={minVotingPower} tokenId={tokenId} func={setVotesReceived} />
                     ) : (<p>0%</p>)}</div>
-                    <div className='text-white text-md  lg:text-xl m-2'>{proposal.dAO.votesNeededPercentage / 10 ** 2}%</div>
+                    <div className='text-white text-md  lg:text-xl m-2'>{votesNeededPercentage / 10 ** 2}%</div>
                     {type === 0 && (
-                        <DAOButtonSelection dbData={dbData} isHolder={isHolder} proposal={proposal} user={user} votesReceived={votesReceived} />
+                        <DAOButtonSelection id={id} votesNeededPercentage={votesNeededPercentage} dbData={dbData} isHolder={isHolder} proposal={proposal} user={user} votesReceived={votesReceived} />
                     )}
                     {type === 1 && (
                         <button className='text-white text-md  lg:text-xl m-2 bg-green-500 rounded-3xl px-2 py-1'>Success</button>

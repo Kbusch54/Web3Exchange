@@ -23,21 +23,23 @@ interface Props {
     }
     user:Address;
     isHolder:boolean;
+    id:Address;
+    votesNeededPercentage:number;
 }
 
-const DAOButtonSelection: React.FC<Props> = ({proposal,user,dbData,votesReceived,isHolder}) => {
+const DAOButtonSelection: React.FC<Props> = ({proposal,user,dbData,votesReceived,isHolder,id,votesNeededPercentage}) => {
     return (
         <div className='flex flex-row justify-center'>
-        {votesReceived >= (proposal.dAO.votesNeededPercentage) / 10 ** 2 && dbData.signatures && dbData.transactionHashToSign  && (
-            <ExecuteProposalButton user={user} addressTo={proposal.to} nonce={proposal.nonce} ariadneAdd={proposal.dAO.id} callData={proposal.data} signatures={dbData.signatures} disabled={false} />
+        {votesReceived >= (votesNeededPercentage) / 10 ** 2 && dbData.signatures && dbData.transactionHashToSign  && (
+            <ExecuteProposalButton user={user} addressTo={proposal.to} nonce={proposal.nonce} ariadneAdd={id} callData={proposal.data} signatures={dbData.signatures} disabled={false} />
         )}
-        {dbData?.signers?.includes(user) && votesReceived < (proposal.dAO.votesNeededPercentage) / 10 ** 2 && (
+        {dbData?.signers?.includes(user) && votesReceived < (votesNeededPercentage) / 10 ** 2 && (
             <button className='text-white text-md  lg:text-xl m-2 bg-amber-400 rounded-3xl px-2 py-1'>Check</button>
         )}
-        {!dbData?.signers?.includes(user) && isHolder && votesReceived < (proposal.dAO.votesNeededPercentage) / 10 ** 2 && (
-            <SignProposalButton addressTo={proposal.to} contractAdd={proposal.dAO.id} nonce={proposal.nonce} signatures={dbData ? dbData.signatures : null} signers={dbData ? dbData.signers : null} transactionHash={proposal.transactionHash} user={user} timeStamp={proposal.proposedAt} />
+        {!dbData?.signers?.includes(user) && isHolder && votesReceived < (votesNeededPercentage) / 10 ** 2 && (
+            <SignProposalButton addressTo={proposal.to} contractAdd={id} nonce={proposal.nonce} signatures={dbData ? dbData.signatures : null} signers={dbData ? dbData.signers : null} transactionHash={proposal.transactionHash} user={user} timeStamp={proposal.proposedAt} />
         )}
-        {!isHolder && votesReceived < (proposal.dAO.votesNeededPercentage) / 10 ** 2 && (
+        {!isHolder && votesReceived < (votesNeededPercentage) / 10 ** 2 && (
             <button className='text-white text-md  lg:text-xl m-2 bg-amber-400 rounded-3xl px-2 py-1'>Stake</button>
         )}
     </div>

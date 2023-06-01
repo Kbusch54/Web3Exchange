@@ -1,7 +1,6 @@
 import { stocks } from "../../utils/stockData";
 import Image from "next/image";
 import { Stock } from "../../../types/custom";
-import DaoTransaction from "../../../components/tables/daos/DaoTransactions";
 import PurposalModal from "../../../components/modals/ProposalModal";
 import Balances from "../../../components/balances/Balances";
 import InvestorStats from "../../../components/stockData/InvestorStats";
@@ -11,10 +10,8 @@ import { redirect } from "next/navigation";
 import { request, gql } from 'graphql-request';
 import VaultUSDCForm from "../../../components/forms/VaultUSDCForm";
 import ReachartsEx from "../../../components/charts/poolCharts/ReachartsEx";
-import { Suspense } from "react";
 import StakingSection from "../../../components/forms/StakingSection";
 import DAOPurposals from "../../../components/tables/daos/DAOPurposals";
-import ProposalType from "../../../components/tables/daos/ProposalType";
 
 interface Props {
   params: {
@@ -144,7 +141,7 @@ async function fetchLoanPoolData(symbol: string, user: string) {
 
 
 
-  const endpoint = process.env.NEXT_PUBLIC_API_URL || "https://api.studio.thegraph.com/query/46803/subgraph-minoan/v0.1.3";
+  const endpoint = process.env.NEXT_PUBLIC_API_URL || "https://api.studio.thegraph.com/query/46803/subgraph-minoan/version/latest";
   const variables = { id: symbol, user: user };
   const data = await request(endpoint, query, variables);
 
@@ -179,8 +176,6 @@ export default async function PoolPage({ params }: Props) {
   const userData = allData.users[0].balances.availableUsdc;
   //@ts-ignore
   const ariadneData = allData.vamms[0].loanPool.poolToken.ammPool.ariadneDAO;
-  console.log('ariadne data', ariadneData)
-  console.log('user data', userData)
   return (
     <div>
       {stock && graphData ? (
@@ -226,7 +221,7 @@ export default async function PoolPage({ params }: Props) {
             <StakingSection availableUsdc={userData} poolToken={graphData.loanPool.poolToken} user={session.user.name} name={stock.name} poolBalance={graphData.loanPool.poolBalance} />
           </div>
           <div id={"dao"} className="m-2 md:m-12">
-            <DAOPurposals user={session.user.name} daoAddress={poolToken.ammPool.ariadneDAO.id} tokenId={poolToken.tokenId} />
+            <DAOPurposals isTheseus={false} user={session.user.name} daoAddress={poolToken.ammPool.ariadneDAO.id} tokenId={poolToken.tokenId} />
             {/* <DaoTransaction /> */}
             <PurposalModal ariadneData={ariadneData} loanPoolTheseus={graphData.loanPool.loanPoolTheseus} symbol={stock.symbol} ammAddress={graphData.loanPool.id} currentValue={graphData.loanPool} user={session.user.name} />
           </div>

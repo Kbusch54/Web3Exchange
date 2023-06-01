@@ -20,6 +20,15 @@ interface Proposal {
         transactionHash: string;
         proposedAt: number;
         data: string;
+        theseusDAO:{
+            id:Address,
+            votingTime:number,
+            votesNeededPercentage:number,
+            tokenId:number,
+            maxVotingPower:number,
+            minVotingPower:number,
+                    
+          }
         dAO: {
             id: Address,
             votesNeededPercentage: number,
@@ -76,7 +85,7 @@ const ProposalType: React.FC<Props> = ({ user, tokenId, daoAddress,proposals,has
                     let nonceMapData = nonceMap.get(Number(proposal.nonce));
 
                     return (
-                        <SingleProposal type={selected} user={user} key={proposal.nonce} proposal={proposal} dbData={nonceMapData} index={index} isHolder={hasStakes}/>
+                        <SingleProposal type={selected} tokenId={tokenId} user={user} key={proposal.nonce} proposal={proposal} dbData={nonceMapData} index={index} isHolder={hasStakes}/>
                     )
                 })}
         </div>
