@@ -94,6 +94,14 @@ async function fetchLoanPoolData(symbol: string, user: string) {
             ammPool{
               ariadneDAO{
                 id
+                votesNeededPercentage
+                votingTime
+                poolToken{
+                totalSupply
+                tokenBalance(where:{user:$user}) {
+                    tokensOwnedbByUser
+                    }
+                }
               }
             }
             tokenId
@@ -107,6 +115,20 @@ async function fetchLoanPoolData(symbol: string, user: string) {
                 }
               }
             }
+          }
+          loanPoolTheseus{
+            minMMR
+            maxMMR
+            minInterestRate
+            maxInterestRate
+            minTradingFee
+            maxInterestPeriod
+            minInterestPeriod
+            minHoldingsReqPercentage
+            maxHoldingsReqPercentage
+            maxTradingFee
+            minLoan
+            maxLoan
           }
         }
       }
@@ -154,6 +176,9 @@ export default async function PoolPage({ params }: Props) {
     const poolToken=graphData.loanPool.poolToken;
   //@ts-ignore
   const userData = allData.users[0].balances.availableUsdc;
+  //@ts-ignore
+  const ariadneData = allData.vamms[0].loanPool.poolToken.ammPool.ariadneDAO;
+  console.log('ariadne data', ariadneData)
   console.log('user data', userData)
   return (
     <div>
@@ -202,7 +227,7 @@ export default async function PoolPage({ params }: Props) {
           <div id={"dao"} className="m-2 md:m-12">
               <DAOPurposals user={session.user.name} daoAddress={poolToken.ammPool.ariadneDAO.id} tokenId={poolToken.tokenId} />
             {/* <DaoTransaction /> */}
-            <PurposalModal />
+            <PurposalModal ariadneData={ariadneData} loanPoolTheseus={graphData.loanPool.loanPoolTheseus} symbol={stock.symbol} ammAddress={graphData.loanPool.id} currentValue={graphData.loanPool} user={session.user.name} />
           </div>
         </div>
       ) : (

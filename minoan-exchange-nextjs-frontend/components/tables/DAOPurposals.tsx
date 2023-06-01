@@ -69,9 +69,6 @@ const checkUserStakes = async (userId: string, inputTokenId: number) => {
   
     //@ts-ignore
     const user = data.users[0];
-    console.log('STAKE CJECH',user.stakes)
-    console.log('STAKE tokenId: ',user.stakes[1].token.tokenId)
-    console.log('STAKE totalStaked: ',user.stakes[1].totalStaked)
     let hasStakes = false;
     for (let i = 0; i < user.stakes.length; i++) {
       if (user.stakes[i].token.tokenId === inputTokenId && user.stakes[i].totalStaked > 0) {
@@ -110,9 +107,7 @@ const DAOPurposals = ({ daoAddress, user,tokenId }: Props) => {
                 </div>
                 <hr className='border-white' />
                 {proposals.map((proposal: any,index: number) => {
-                    console.log('proposal NONCE', proposal.nonce);
                     if (nonceMap.get(Number(proposal.nonce))) {
-                        console.log('HAS NONCE')
                     }
                     let nonceMapData = nonceMap.get(Number(proposal.nonce));
 

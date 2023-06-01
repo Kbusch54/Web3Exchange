@@ -2,8 +2,6 @@
 import React, { useState, useEffect } from 'react'
 import { Address } from 'wagmi';
 import VotingProportion from './utils/VotingProportion';
-import ExecuteProposalButton from '../forms/buttons/ExecuteProposalButton';
-import SignProposalButton from '../forms/buttons/SignProposalButton';
 import CountDownProposal from './utils/CountDownProposal';
 import DAOButtonSelection from './utils/DAOButtonSelection';
 
@@ -66,23 +64,15 @@ const SingleProposal: React.FC<Props> = ({ proposal, dbData, index, user, isHold
     const timeLeft = targetTime - currentTime
 
 
-    if (dbData) {
-
-        console.log('th from db', dbData?.transactionHashToSign)
-        console.log('th from proposal', proposal.transactionHash)
-        console.log('calData from proposal', proposal.data)
-    }
 
 
     const handleToggle = () => {
-        console.log('toggle');
         setToggle(!toggle)
     }
     useEffect(() => {
         index == 0 && handleToggle()
     }, [])
     useEffect(() => {
-        console.log('votes received', votesReceived);
     }, [votesReceived])
 
     if (type === 'current' && (proposal.isPassed || timeLeft <= 0)) {

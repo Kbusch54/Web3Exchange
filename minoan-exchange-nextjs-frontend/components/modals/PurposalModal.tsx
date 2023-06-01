@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef, Suspense } from 'react';
+import React, { useState, useEffect, useRef, Suspense,use } from 'react';
 import ReactDOM from 'react-dom';
 import Modal from 'react-modal';
 import { getAllFunctions, getFunctionCallDataLoanPool } from '../../utils/contractReads/loanpool/functionReading';
@@ -9,6 +9,10 @@ import AriadnePurposeButton from '../forms/buttons/AriadnePurposeButton';
 import { ethers } from 'ethers';
 import { useGetCurrentId } from '../../utils/contractReads/ariadneDao/currentId';
 import { ariadneTesla, loanpool } from '../../utils/address';
+import DAODetails from './interior/DAODetails';
+import request, { gql } from 'graphql-request';
+
+
 
 
 const customStyles = {
@@ -33,18 +37,46 @@ const customStyles = {
 };
 interface Props {
   ammAddress: Address;
-  currentValues: {
-    interestPeriods: number,
-    loanInterestRate: number,
+  symbol:string
+  currentValue: {
+    interestPeriod: number,
+    interestRate: number,
     mmr: number,
     minHoldingsReqPercentage: number,
     tradingFee: number,
     minLoan: number,
     maxLoan: number,
   }
+  loanPoolTheseus: {
+    minMMR:number,
+    maxMMR:number,
+    minInterestRate:number,
+    maxInterestRate:number,
+    minTradingFee:number,
+    maxInterestPeriod:number,
+    minInterestPeriod:number,
+    minHoldingsReqPercentage:number,
+    maxHoldingsReqPercentage:number,
+    maxTradingFee:number,
+    minLoan:number,
+    maxLoan:number,
+  }
+  ariadneData: {
+    id: Address,
+    votesNeededPercentage: number,
+    votingTime: number,
+    poolToken: { 
+      totalSupply: '1009900000000000000',
+       tokenBalance:[ {
+        tokensOwnedbByUser:number;
+      }
+      ]
+      }
+  }
+  user:Address
 }
 
-export default function PurposalModal() {
+export default function PurposalModal({currentValue,ammAddress,user,symbol,loanPoolTheseus,ariadneData}: Props) {
   const [modalIsOpen, setIsOpen] = useState(false);
   const [selected, setSelected] = useState(false);
   const [key, setKey] = useState(0);
@@ -56,22 +88,22 @@ export default function PurposalModal() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [callData, setCallData] = useState<string | null>(null);
   const [interior, setInterior] = useState<string>('updateMaxVotingPower');
+  
 
 
-  const { currentId } = useGetCurrentId('tesla');
+  const { currentId } = useGetCurrentId(symbol);
 
   useEffect(() => {
-    console.log('currentId', currentId);
+ 
   }, [currentId]);
-  const user: Address = '0x87ad83DC2F12A14C85D20f178A918a65Edfe1B42';
   const currentValues = {
-    interestPeriods: 3600,
-    loanInterestRate: 10000,
-    mmr: 100000,
-    maxLoan: 5000000000,
-    minHoldingsReqPercentage: 20,
-    minLoan: 100000000,
-    tradingFee: 100000,
+    interestPeriods: currentValue.interestPeriod,
+    loanInterestRate: currentValue.interestRate,
+    mmr: currentValue.mmr,
+    maxLoan: currentValue.maxLoan,
+    minHoldingsReqPercentage: currentValue.minHoldingsReqPercentage,
+    minLoan: currentValue.minLoan,
+    tradingFee: currentValue.tradingFee,
   };
   const internalValue = {
     updateMaxVotingPower: 10 ** 256,
@@ -79,7 +111,7 @@ export default function PurposalModal() {
     updateSignaturesRequired: 7400,
     updateVotingTime: 7233
   }
-  const address = '0xd4e3f66e134558df57cd7ce2e17758bf9e041851';
+
   const convertCamelCaseToTitle = (camelCaseString: string) => {
     // Replace uppercase letters with a space followed by the uppercase letter
     const spacedString = camelCaseString.replace(/([A-Z])/g, ' $1');
@@ -112,18 +144,18 @@ export default function PurposalModal() {
     { updateVotingTime: [3600, 'hrs'] },
   ]
   const theseusMinMax = {
-    minmmr: 10000,
-    maxmmr: 2000000,
-    minloanInterestRate: 5000,
-    maxloanInterestRate: 90000,
-    mintradingFee: 30000,
-    maxtradingFee: 900000,
-    minLoan: 20000000,
-    maxLoan: 10000000000,
-    minHoldingsReqPercentage: 10,
-    maxHoldingsReqPercentage: 40,
-    mininterestPeriods: 1800,
-    maxinterestPeriods: 7200
+    minmmr: loanPoolTheseus.minMMR,
+    maxmmr: loanPoolTheseus.maxMMR,
+    minloanInterestRate: loanPoolTheseus.minInterestRate,
+    maxloanInterestRate: loanPoolTheseus.maxInterestRate,
+    mintradingFee: loanPoolTheseus.minTradingFee,
+    maxtradingFee: loanPoolTheseus.maxTradingFee,
+    minLoan: loanPoolTheseus.minLoan,  
+    maxLoan: loanPoolTheseus.maxLoan,
+    minHoldingsReqPercentage: loanPoolTheseus.minHoldingsReqPercentage,
+    maxHoldingsReqPercentage: loanPoolTheseus.maxHoldingsReqPercentage,
+    mininterestPeriods: loanPoolTheseus.minInterestPeriod,
+    maxinterestPeriods: loanPoolTheseus.maxInterestPeriod
   }
 
   const findMinAndMax = (key: string) => {
@@ -226,7 +258,7 @@ export default function PurposalModal() {
           setErrorMessage('');
           setIsError(false);
           //@ts-ignore
-          const _callData = getFunctionCallDataLoanPool(functionNames[key], [value, address]);
+          const _callData = getFunctionCallDataLoanPool(functionNames[key], [value, ammAddress]);
           setCallData(_callData);
         } else {
           setCheck(false);
@@ -362,25 +394,8 @@ export default function PurposalModal() {
                   />
                 </div>
               </div>
-              <div className='flex flex-col  text-center justify-between gap-x-4 border-2 border-white bg-sky-500 px-4 my-6 py-4'>
-                <div className='flex flex-row justify-evenly text-white mb-2'>
-                  <p className='text-xs md:text-lg lg:text:2xl mr-7'>% of Votes Needed </p>
-                  <div className='flex-col'>
-                    <p className='text-sm md:text-md lg:text-lg  text-sky-100'>74%</p>
-                    <hr />
-                  </div>
-                </div>
-                <div className='flex flex-row justify-around '>
-                  <div className='flex flex-col text-xs'>
-                    <p className='text-gray-800 text-sm lg:text-md'>Your Holdings %</p>
-                    <p className=' md:text-md lg:text-xl text-sky-100'>12%</p>
-                  </div>
-                  <div className='flex flex-col text-xs'>
-                    <p className='text-gray-800 text-sm lg:text-md'>Expiration Time</p>
-                    <p className=' md:text-md lg:text-xl text-sky-100'>4hrs 20min</p>
-                  </div>
-                </div>
-              </div>
+              {/* @ts-ignore */}
+             <DAODetails ariadneData={ariadneData}/>
               <div className='flex flex-row justify-between'>
                 <button className='px-2 py-1 bg-red-500 rounded-2xl text-white text-lg hover:scale-125' onClick={closeModal}>Cancel</button>
                 {callData && description && !isError && currentId != null ? (
@@ -441,25 +456,8 @@ export default function PurposalModal() {
                   />
                 </div>
               </div>
-              <div className='flex flex-col  text-center justify-between gap-x-4 border-2 border-white bg-sky-500 px-4 my-6 py-4'>
-                <div className='flex flex-row justify-evenly text-white mb-2'>
-                  <p className='text-xs md:text-lg lg:text:2xl mr-7'>% of Votes Needed </p>
-                  <div className='flex-col'>
-                    <p className='text-sm md:text-md lg:text-lg  text-sky-100'>74%</p>
-                    <hr />
-                  </div>
-                </div>
-                <div className='flex flex-row justify-around '>
-                  <div className='flex flex-col text-xs'>
-                    <p className='text-gray-800 text-sm lg:text-md'>Your Holdings %</p>
-                    <p className=' md:text-md lg:text-xl text-sky-100'>12%</p>
-                  </div>
-                  <div className='flex flex-col text-xs'>
-                    <p className='text-gray-800 text-sm lg:text-md'>Expiration Time</p>
-                    <p className=' md:text-md lg:text-xl text-sky-100'>4hrs 20min</p>
-                  </div>
-                </div>
-              </div>
+              {/* @ts-ignore */}
+             <DAODetails ariadneData={ariadneData}/>
               <div className='flex flex-row justify-between'>
                 <button className='px-2 py-1 bg-red-500 rounded-2xl text-white text-lg hover:scale-125' onClick={closeModal}>Cancel</button>
                 {callData && description && !isError && currentId != null ? (
