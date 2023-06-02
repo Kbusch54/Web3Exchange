@@ -3,25 +3,29 @@ import { Address } from 'wagmi';
 interface Props {
     name: string,
     label: string,
+    handleInputChange: ( value:number|null) => void;
 }
-export const NumberInput = ({ name, label }:Props) => {
+export const NumberInput = ({ name, label,handleInputChange }:Props) => {
     const [className,setClassName] = useState<string>('rounded-3xl text-sky-200 text-md lg:text-lg bg-sky-700 text-center' )
     const [error,setError] = useState<string|null>(null)
     const number =  useRef<HTMLInputElement>(null);
     const validateRequired = () => {
       if(number.current){
       const value = Number(number.current.value)
-            if(value > 0 ){
+            if(value >= 0 ){
             setClassName('rounded-3xl text-sky-200 text-md lg:text-lg border-2 bg-sky-700 border-green-500 text-center' )
             setError(null)
+            handleInputChange(value)
             }
             if (!value) {
                 setClassName('rounded-3xl text-sky-200 text-md lg:text-lg bg-sky-700 text-center' )
                 setError('Field is required')
+                handleInputChange(null)
             }
         }else{
             setClassName('rounded-3xl text-sky-200 text-md lg:text-lg bg-sky-700 text-center' )
             setError('Field is required')
+            handleInputChange(null)
         }
     };
   
