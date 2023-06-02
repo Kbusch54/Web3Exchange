@@ -248,7 +248,7 @@ async function page(props: Props) {
       </div>
 
       <div className="flex justify-center">
-        <TheseusProposalModal />
+        <TheseusProposalModal user={session.user.name}/>
       </div>
     </div>
   );
