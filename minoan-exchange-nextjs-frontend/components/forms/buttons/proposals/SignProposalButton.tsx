@@ -46,7 +46,6 @@ export default function SignProposalButton({ user, transactionHash, nonce, contr
           ethers.utils.arrayify(transactionHash),
           signature
         );
-        console.log('is verified', verified);
         if (verified == user) {
           setSigned(true);
           await updateDataBase(signature, transactionHash);
@@ -71,7 +70,6 @@ export default function SignProposalButton({ user, transactionHash, nonce, contr
     }
     else {
       //create
-
       try {
         const { error } = await supabase
           .from('Proposals')

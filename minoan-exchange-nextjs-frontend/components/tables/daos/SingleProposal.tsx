@@ -80,7 +80,6 @@ const SingleProposal: React.FC<Props> = ({ proposal, dbData, index, user, isHold
 
 
 
-
     const handleToggle = () => {
         setToggle(!toggle)
     }
@@ -159,7 +158,7 @@ const SingleProposal: React.FC<Props> = ({ proposal, dbData, index, user, isHold
                                 <p className='ml-6'>Description:</p>
                                 <p className='overflow-auto'>{dbData.description}</p>
                             </div>)}
-                            {type === 0&&(
+                            {type === 1&&(
                                 <>
                                 <div className='text-white text-lg flex flex-row border justify-evenly text-center border-white/10'>
                                 <p>Executor:</p>
