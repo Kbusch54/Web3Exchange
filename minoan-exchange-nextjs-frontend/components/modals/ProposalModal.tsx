@@ -4,10 +4,11 @@ import Modal from 'react-modal';
 import { getAllFunctions, getFunctionCallDataLoanPool } from '../../utils/contractReads/loanpool/functionReading';
 import { getAllUpdateFunctions, getFunctionCallDataAriadne } from '../../utils/contractReads/ariadneDao/internalFunctions';
 import { Address } from 'wagmi';
-import AriadnePurposeButton from '../forms/buttons/proposals/AriadnePurposeButton';
 import { useGetCurrentId } from '../../utils/contractReads/ariadneDao/currentId';
 import DAODetails from './interior/DAODetails';
 import { convertCamelCaseToTitle } from '../../utils/helpers/functions';
+import { loanpool } from '../../utils/address';
+import ProposeButton from '../forms/buttons/proposals/ProposeButton';
 
 
 
@@ -85,6 +86,7 @@ export default function ProposalModal({currentValue,ammAddress,user,symbol,loanP
   const inputRef = useRef<HTMLInputElement>(null);
   const [callData, setCallData] = useState<string | null>(null);
   const [interior, setInterior] = useState<string>('updateMaxVotingPower');
+  const [addressTo, setAddressTo] = useState<Address|null>(null);
   
 
 
@@ -173,6 +175,7 @@ export default function ProposalModal({currentValue,ammAddress,user,symbol,loanP
     setInterior('updateMaxVotingPower');
     setInteriorSelect(false);
     setCallData(null);
+    setAddressTo(null);
     setDescription('');
     setIsOpen(false);
   }
@@ -226,6 +229,7 @@ export default function ProposalModal({currentValue,ammAddress,user,symbol,loanP
         //@ts-ignore
         const _callData = getFunctionCallDataAriadne(updateFunctionNames[key], [value]);
         setCallData(_callData);
+        setAddressTo(ariadneData.id);
       } else {
         const value = Math.floor(inverseCalculateValue(parseFloat(inputRef.current.value)));
         const min = findMinAndMax(keys[key])[0];
@@ -236,10 +240,12 @@ export default function ProposalModal({currentValue,ammAddress,user,symbol,loanP
           setErrorMessage('Value is too high');
           setIsError(true);
           setCallData(null);
+          setAddressTo(null);
         } else if (value < min) {
           setCheck(false);
           setIsError(true);
           setErrorMessage('Value is too low');
+          setAddressTo(null);
           setCallData(null);
         } else if (value >= min && value <= max) {
           setCheck(true);
@@ -247,6 +253,7 @@ export default function ProposalModal({currentValue,ammAddress,user,symbol,loanP
           setIsError(false);
           //@ts-ignore
           const _callData = getFunctionCallDataLoanPool(functionNames[key], [value, ammAddress]);
+          setAddressTo(loanpool);
           setCallData(_callData);
         } else {
           setCheck(false);
@@ -386,10 +393,10 @@ export default function ProposalModal({currentValue,ammAddress,user,symbol,loanP
              <DAODetails ariadneData={ariadneData}/>
               <div className='flex flex-row justify-between'>
                 <button className='px-2 py-1 bg-red-500 rounded-2xl text-white text-lg hover:scale-125' onClick={closeModal}>Cancel</button>
-                {callData && description && !isError && currentId != null ? (
+                {callData && description && !isError && currentId != null && addressTo ? (
                   //@ts-ignore
                   <Suspense fallback={<div>Loading...</div>}>
-                    <AriadnePurposeButton user={user} ammId='tesla' disabled={false} callData={callData} description={description} nonce={currentId} internal={false}/>
+                    <ProposeButton user={user} addressTo={addressTo} contractAddress={ariadneData.id} disabled={false} callData={callData} description={description} nonce={currentId} />
                   </Suspense>
                 ) : (
                   <button disabled className='px-2 py-1 bg-teal-500 rounded-2xl text-white text-lg hover:scale-125'>Loading...</button>
@@ -448,10 +455,10 @@ export default function ProposalModal({currentValue,ammAddress,user,symbol,loanP
              <DAODetails ariadneData={ariadneData}/>
               <div className='flex flex-row justify-between'>
                 <button className='px-2 py-1 bg-red-500 rounded-2xl text-white text-lg hover:scale-125' onClick={closeModal}>Cancel</button>
-                {callData && description && !isError && currentId != null ? (
+                {callData && description && !isError && currentId != null && addressTo ? (
                   //@ts-ignore
                   <Suspense fallback={<div>Loading...</div>}>
-                    <AriadnePurposeButton user={user} ammId={'tesla'} internal={true} disabled={false} callData={callData} description={description} nonce={currentId} />
+                    <ProposeButton user={user} addressTo={addressTo} contractAddress={ariadneData.id} disabled={false} callData={callData} description={description} nonce={currentId} />
                   </Suspense>
                 ) : (
                   <button disabled className='px-2 py-1 bg-teal-500 rounded-2xl text-white text-lg hover:scale-125'>Loading...</button>
