@@ -16,11 +16,6 @@ export const getFunctionCallDataLoanPool = (
       return iface.encodeFunctionData(methodName,input);
     };
 
-    export const getallTheseusFunctions =()=>{
-        const functions = LoanPoolAbi.filter((x)=>{
-            return x.type === "function" && x.name?.startsWith('setMinAndMax') && x.name?.startsWith('setTheseus') && x.name?.startsWith('init')
-        })
-        return functions
-    }
+   
  
     
