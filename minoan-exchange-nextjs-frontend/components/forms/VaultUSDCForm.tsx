@@ -2,9 +2,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Address, useBalance } from "wagmi";
 import { useGetAllowance } from "../../utils/contractReads/usdc/allowance";
-import WithdrawButton from "./buttons/exhcnageBalance/WithdrawButton";
-import ApproveButton from "./buttons/exhcnageBalance/ApproveButton";
-import DepositButton from "./buttons/exhcnageBalance/DepositButton";
+import WithdrawButton from "./buttons/exchangeBalance/WithdrawButton";
+import ApproveButton from "./buttons/exchangeBalance/ApproveButton";
+import DepositButton from "./buttons/exchangeBalance/DepositButton";
 interface Props {
   availableUsdc: number;
   user: Address;

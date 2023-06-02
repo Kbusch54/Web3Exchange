@@ -32,7 +32,8 @@ export default function TheseusTab() {
           </TabList>
         </Box>
         <TabPanel value="1">
-          <AreaChartPoolsApex />
+          {/* <AreaChartPoolsApex /> */}
+          hello
         </TabPanel>
         <TabPanel value="2">Graph no</TabPanel>
         <TabPanel value="3">Item Three</TabPanel>
