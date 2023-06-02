@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Modal from 'react-modal';
 import { Address } from 'wagmi';
 import { ethers } from 'ethers';
-import AddLiquidityButton from '../../forms/buttons/AddLiquidityButton';
+import AddLiquidityButton from '../../forms/buttons/trade/AddLiquidityButton';
 
 interface Props {
     tradeId: string;

@@ -1,6 +1,6 @@
 'use client';
 import React,{useEffect, useState} from 'react'
-import { useOpenPosition } from '../../../utils/contractWrites/exchange/openPosition';
+import { useOpenPosition } from '../../../../utils/contractWrites/exchange/openPosition';
 import { Address, useContractWrite } from 'wagmi';
 
 interface Props {

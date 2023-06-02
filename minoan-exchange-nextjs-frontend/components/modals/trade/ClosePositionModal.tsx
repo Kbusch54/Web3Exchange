@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import Modal from 'react-modal';
 import { Address } from 'wagmi';
 import { ethers } from 'ethers';
-import CloseOutPositionButton from '../../forms/buttons/CloseOutPosition';
+import CloseOutPositionButton from '../../forms/buttons/trade/CloseOutPosition';
 
 interface Props {
     tradeId: string;

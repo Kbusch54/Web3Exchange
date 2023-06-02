@@ -1,11 +1,11 @@
 'use client'
-import { supabase } from '../../../supabase';
+import { supabase } from '../../../../supabase';
 import React, { useEffect, useState } from 'react'
 import { useContractWrite, Address, useSigner } from 'wagmi';
-import { useNewProposal } from '../../../utils/contractWrites/daos/ariadne/purpose';
+import { useNewProposal } from '../../../../utils/contractWrites/daos/ariadne/purpose';
 import { ethers } from 'ethers';
-import { getAriadnePool, getTransactionHash } from '../../../utils/helpers/doas';
-import { loanpool } from '../../../utils/address';
+import { getAriadnePool, getTransactionHash } from '../../../../utils/helpers/doas';
+import { loanpool } from '../../../../utils/address';
 
 interface Props {
   callData: string,

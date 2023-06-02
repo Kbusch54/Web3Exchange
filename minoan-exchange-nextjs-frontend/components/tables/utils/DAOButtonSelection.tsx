@@ -1,6 +1,6 @@
 import React from 'react'
-import ExecuteProposalButton from '../../forms/buttons/ExecuteProposalButton'
-import SignProposalButton from '../../forms/buttons/SignProposalButton'
+import ExecuteProposalButton from '../../forms/buttons/proposals/ExecuteProposalButton'
+import SignProposalButton from '../../forms/buttons/proposals/SignProposalButton'
 import { Address } from 'wagmi';
 
 interface Props {

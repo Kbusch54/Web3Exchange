@@ -1,8 +1,8 @@
 'use client'
-import { supabase } from '../../../supabase';
+import { supabase } from '../../../../supabase';
 import React, { useEffect, useState } from 'react'
 import { useContractWrite, Address, useSigner } from 'wagmi';
-import { useExecuteProposal } from '../../../utils/contractWrites/daos/ariadne/execute';
+import { useExecuteProposal } from '../../../../utils/contractWrites/daos/ariadne/execute';
 
 interface Props {
   callData: string,

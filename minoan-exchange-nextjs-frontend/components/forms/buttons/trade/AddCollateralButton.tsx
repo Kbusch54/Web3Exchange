@@ -1,7 +1,7 @@
 'use client'
 import React, { useEffect,useState } from 'react'
 import {useContractWrite , Address } from 'wagmi';
-import { useRemoveCollateral } from '../../../utils/contractWrites/exchange/removeCollateral';
+import { useAddCollateral } from '../../../../utils/contractWrites/exchange/addCollateral';
 
 interface Props {
     value:number,
@@ -10,11 +10,11 @@ interface Props {
     disabled:boolean
 }
 
-export default  function  RemoveCollateralButton({value,user,disabled,tradeId}:Props)  {
+export default  function  AddCollateralButton({value,user,disabled,tradeId}:Props)  {
     const [approved, setApproved] = React.useState<boolean>(false);
     const [errorWithContractLoad, setErrorWithContractLoad] = React.useState<boolean>(false);   
     const [loadingStage, setLoadingStage] = useState(false); 
-    const {config,error} = useRemoveCollateral( user,tradeId,value);
+    const {config,error} = useAddCollateral( user,tradeId,value);
     const contractWrite = useContractWrite(config);
     useEffect(() => {
         if (error == null) {
@@ -71,7 +71,7 @@ export default  function  RemoveCollateralButton({value,user,disabled,tradeId}:P
     
     return (
         <div>
-            <button disabled={disabled} onClick={handleWrite} className='px-2 py-1 text-white bg-sky-800 rounded-lg'>Remove Collateral</button>
+            <button disabled={disabled} onClick={handleWrite} className='px-2 py-1 text-white bg-sky-800 rounded-lg'>Add Collateral</button>
         </div>
     )
 }

@@ -1,7 +1,7 @@
 'use client'
 import React, { useEffect,useState } from 'react'
 import {useContractWrite , Address } from 'wagmi';
-import { useRemoveLiquidity } from '../../../utils/contractWrites/exchange/removeLiquidity';
+import { useRemoveLiquidity } from '../../../../utils/contractWrites/exchange/removeLiquidity';
 
 interface Props {
     value:number,

@@ -3,7 +3,7 @@ import React, { use, useEffect, useRef } from 'react'
 import { LoanPool, Stock } from '../../types/custom';
 import AssetOptions from '../menus/AssetOptions';
 import SideSelection from './SideSelection';
-import TradeButton from './buttons/TradeButton';
+import TradeButton from './buttons/trade/TradeButton';
 import { Address } from 'wagmi';
 
 

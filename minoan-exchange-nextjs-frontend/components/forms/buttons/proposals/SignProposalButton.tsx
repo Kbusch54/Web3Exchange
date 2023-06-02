@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import React, { use, useEffect, useState } from 'react'
 import { useContractWrite, Address, useSigner } from 'wagmi';
-import { supabase } from '../../../supabase';
+import { supabase } from '../../../../supabase';
 
 interface Props {
   user: Address,

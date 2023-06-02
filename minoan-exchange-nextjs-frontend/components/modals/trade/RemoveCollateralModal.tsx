@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom';
 import Modal from 'react-modal';
 import { Address } from 'wagmi';
 import { ethers } from 'ethers';
-import RemoveCollateralButton from '../../forms/buttons/RemoveCollateralButton';
+import RemoveCollateralButton from '../../forms/buttons/trade/RemoveCollateralButton';
 
 interface Props {
     tradeId: string;

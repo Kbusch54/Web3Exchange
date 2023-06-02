@@ -4,7 +4,7 @@ import Modal from 'react-modal';
 import { getAllFunctions, getFunctionCallDataLoanPool } from '../../utils/contractReads/loanpool/functionReading';
 import { getAllUpdateFunctions, getFunctionCallDataAriadne } from '../../utils/contractReads/ariadneDao/internalFunctions';
 import { Address } from 'wagmi';
-import AriadnePurposeButton from '../forms/buttons/AriadnePurposeButton';
+import AriadnePurposeButton from '../forms/buttons/proposals/AriadnePurposeButton';
 import { useGetCurrentId } from '../../utils/contractReads/ariadneDao/currentId';
 import DAODetails from './interior/DAODetails';
 import { convertCamelCaseToTitle } from '../../utils/helpers/functions';

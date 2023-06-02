@@ -3,7 +3,7 @@ import React,{useEffect, useState} from 'react'
 import SideSelection from './utils/SideSelection';
 import AddCollateralModal from '../modals/trade/AddCollateralModal';
 import { Address } from 'wagmi';
-import RemoveCollateralButton from '../forms/buttons/RemoveCollateralButton';
+import RemoveCollateralButton from '../forms/buttons/trade/RemoveCollateralButton';
 import RemoveCollateralModal from '../modals/trade/RemoveCollateralModal';
 import AddLiquidityModal from '../modals/trade/AddLiquidityModal';
 import RemoveLiquidityModal from '../modals/trade/RemoveLiquidityModal';

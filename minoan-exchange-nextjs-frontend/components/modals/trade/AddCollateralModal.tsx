@@ -2,7 +2,7 @@
 import React,{useState,useEffect,useRef} from 'react';
 import ReactDOM from 'react-dom';
 import Modal from 'react-modal';
-import AddCollateralButton from '../../forms/buttons/AddCollateralButton';
+import AddCollateralButton from '../../forms/buttons/trade/AddCollateralButton';
 import { Address } from 'wagmi';
 import { ethers } from 'ethers';
 

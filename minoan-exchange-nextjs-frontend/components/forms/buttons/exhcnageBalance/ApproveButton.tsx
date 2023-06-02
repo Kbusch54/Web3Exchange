@@ -1,20 +1,19 @@
 'use client'
 import React, { useEffect,useState } from 'react'
 import {useContractWrite , Address } from 'wagmi';
-import { useAddCollateral } from '../../../utils/contractWrites/exchange/addCollateral';
+import { useApproveUsdc } from '../../../../utils/contractWrites/approve';
 
 interface Props {
     value:number,
-    tradeId:string,
-    user:Address,
+    user:Address
     disabled:boolean
 }
 
-export default  function  AddCollateralButton({value,user,disabled,tradeId}:Props)  {
+export default  function  ApproveButton({value,user,disabled}:Props)  {
     const [approved, setApproved] = React.useState<boolean>(false);
     const [errorWithContractLoad, setErrorWithContractLoad] = React.useState<boolean>(false);   
     const [loadingStage, setLoadingStage] = useState(false); 
-    const {config,error} = useAddCollateral( user,tradeId,value);
+    const {config,error} = useApproveUsdc(value, user);
     const contractWrite = useContractWrite(config);
     useEffect(() => {
         if (error == null) {
@@ -28,9 +27,6 @@ export default  function  AddCollateralButton({value,user,disabled,tradeId}:Prop
         e.preventDefault();
         setLoadingStage((prev) => true);
         //@ts-ignore
-        // await contractWrite.writeAsync()
-        
-        // console.log('contractWrite',contractWrite);
          await contractWrite.writeAsync()
           .then((con: { wait: (arg0: number) => Promise<any>; hash: any; }) => {
             con.wait(1).then((res) => {
@@ -56,24 +52,24 @@ export default  function  AddCollateralButton({value,user,disabled,tradeId}:Prop
       };
       if (contractWrite.isLoading || loadingStage)
         return (
-          <div className="px-2 py-1 rounded-lg bg-teal-400 text-white">
+          <div className="absolute bottom-8 right-8 px-8 py-2  rounded-3xl bg-teal-400 text-white">
             Processing…
           </div>
         );
       if (errorWithContractLoad)
         return (
-          <div className=" px-2 py-1 rounded-lg bg-red-600 text-white animate-pulse">
-            <p className='text-xs md:text-md lg:text-lg'>
-              Error With current transaciton…
-              </p> 
+          <div className="absolute bottom-8 right-8 px-8 py-2  rounded-3xl bg-red-600 text-white animate-pulse">
+            Error WIth current transaciton…
           </div>
         );
     
     return (
         <div>
-            <button disabled={disabled} onClick={handleWrite} className='px-2 py-1 text-white bg-sky-800 rounded-lg'>Add Collateral</button>
+            <button disabled={disabled} onClick={handleWrite} className='px-2 py-1 rounded-2xl text-white mt-4 font-extrabold bg-amber-400 hover:scale-125'>Approve</button>
         </div>
     )
 }
+
+// export default ApproveButton
 
 

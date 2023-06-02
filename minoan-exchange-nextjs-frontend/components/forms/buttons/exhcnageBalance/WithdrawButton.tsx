@@ -1,21 +1,19 @@
 'use client'
 import React, { useEffect,useState } from 'react'
 import {useContractWrite , Address } from 'wagmi';
-import { useAddLiquidity } from '../../../utils/contractWrites/exchange/addLiquidity';
+import { useWithdrawUsdc } from '../../../../utils/contractWrites/exchange/withdraw';
 
 interface Props {
     value:number,
-    tradeId:string,
-    user:Address,
-    leverage:number,
+    user:Address
     disabled:boolean
 }
 
-export default  function  AddLiquidityButton({value,user,disabled,tradeId,leverage}:Props)  {
+export default  function  WithdrawButton({value,user,disabled}:Props)  {
     const [approved, setApproved] = React.useState<boolean>(false);
     const [errorWithContractLoad, setErrorWithContractLoad] = React.useState<boolean>(false);   
     const [loadingStage, setLoadingStage] = useState(false); 
-    const {config,error} = useAddLiquidity( user,tradeId,leverage,value);
+    const {config,error} = useWithdrawUsdc(value, user);
     const contractWrite = useContractWrite(config);
     useEffect(() => {
         if (error == null) {
@@ -57,22 +55,20 @@ export default  function  AddLiquidityButton({value,user,disabled,tradeId,levera
       };
       if (contractWrite.isLoading || loadingStage)
         return (
-          <div className="px-2 py-1 rounded-lg bg-teal-400 text-white">
+          <div className="px-2 py-1 rounded-2xl mt-4 font-extrabold bg-teal-400 text-white">
             Processing…
           </div>
         );
       if (errorWithContractLoad)
         return (
-          <div className=" px-2 py-1 rounded-lg bg-red-600 text-white animate-pulse">
-            <p className='text-xs md:text-md lg:text-lg'>
-              Error With current transaciton…
-              </p> 
+          <div className="px-2 py-1 rounded-2xl  mt-4 font-extrabold bg-red-600 text-white animate-pulse">
+            Error WIth current transaciton…
           </div>
         );
     
     return (
         <div>
-            <button disabled={disabled} onClick={handleWrite} className='px-2 py-1 text-white bg-sky-800 rounded-lg'>Add Liquidity</button>
+            <button disabled={disabled} onClick={handleWrite} className='px-2 py-1 rounded-2xl text-white mt-4 font-extrabold bg-amber-400 hover:scale-125'>Withdraw</button>
         </div>
     )
 }

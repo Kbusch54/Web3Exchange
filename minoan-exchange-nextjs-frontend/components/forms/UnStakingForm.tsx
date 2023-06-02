@@ -4,7 +4,7 @@ import { ethers } from "ethers";
 import React, { useState,useEffect, useRef } from "react";
 import { PoolToken } from "../../types/custom";
 import { Address } from "wagmi";
-import UnStakingButton from "./buttons/UnStakingButton";
+import UnStakingButton from "./buttons/staking/UnStakingButton";
 
 
 
