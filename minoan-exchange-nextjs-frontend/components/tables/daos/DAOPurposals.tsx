@@ -121,11 +121,10 @@ const DAOPurposals = ({ daoAddress, user,tokenId ,isTheseus}: Props) => {
    
     const hasStakes = use(checkUserStakes(user,tokenId));
     //@ts-ignore
-    const { data, error } = use(supabase.from('Proposals').select().eq('contractAddress', daoAddress));
-   console.log(proposals)
+    const { data, error } = use(supabase.from('Proposals').select().ilike('contractAddress', `%${daoAddress}%`));
     if (proposals) {
         return (
-            <ProposalType daoAddress={daoAddress} hasStakes={hasStakes}  proposals={proposals} tokenId={tokenId} user={user} />
+            <ProposalType daoAddress={daoAddress} dbData={data} hasStakes={hasStakes}  proposals={proposals} tokenId={tokenId} user={user} />
         );
     } else {
         return <div className='text-white'>no data</div>;
