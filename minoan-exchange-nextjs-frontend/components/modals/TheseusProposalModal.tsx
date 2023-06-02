@@ -7,8 +7,10 @@ import { Address } from 'wagmi';
 import AriadnePurposeButton from '../forms/buttons/AriadnePurposeButton';
 import { useGetCurrentId } from '../../utils/contractReads/ariadneDao/currentId';
 import DAODetails from './interior/DAODetails';
-import { getFunctionsOf, getAllExchangeFunctions } from '../../utils/contractReads/theseus/internalFunctions';
+import { getFunctionsOf, getAllExchangeFunctions, getFunctionCallDataThesesusAll } from '../../utils/contractReads/theseus/internalFunctions';
 import InputMaster from '../forms/inputs/InputMaster';
+import TheseusButtonSelection from './interior/TheseusButtonSelection';
+import { convertCamelCaseToTitle } from '../../utils/helpers/functions';
 
 
 const customStyles = {
@@ -34,27 +36,21 @@ const customStyles = {
 export default function TheseusProposalModal() {
     const [modalIsOpen, setIsOpen] = useState(false);
     const [selected, setSelected] = useState(false);
-    const [description, setDescription] = useState<string>('');
-    const [isError, setIsError] = useState(true);
-    const [errorMessage, setErrorMessage] = useState('');
-    const inputRef = useRef<HTMLInputElement>(null);
+    const [description, setDescription] = useState<string | null>(null);
     const [selectedFunction, setSelectedFunction] = useState<string | null>(null);
     const [contractFuncs, setContractFuncs] = useState<any>(null);
-    const [contractName,setContractName] = useState<string | null>(null);
+    const [contractName, setContractName] = useState<string | null>(null);
     const [callData, setCallData] = useState<string | null>(null);
+    const [inputData, setInputData] = useState<any[] | null>(null);
+    const [contract, setContract] = useState<string>('theseus');
+    const [check, setCheck] = useState<boolean>(false);
+    const [addressTo, setAddressTo] = useState<string | null>(null);
 
-    const convertCamelCaseToTitle = (camelCaseString: string) => {
-        // Replace uppercase letters with a space followed by the uppercase letter
-        const spacedString = camelCaseString.replace(/([A-Z])/g, ' $1');
-        // Convert the string to uppercase
-        const allCapsString = spacedString.toUpperCase();
-        // Remove leading space if present
-        const trimmedString = allCapsString.trim();
-        // Return the final converted string
-        return trimmedString;
-    };
+
+
     const handleSelection = (e: any) => {
         funcs = getFunctionsOf(e.target.id)
+        setContract(e.target.id);
         setContractFuncs(funcs);
         setSelected(true);
         setContractName(e.target.innerText);
@@ -66,8 +62,44 @@ export default function TheseusProposalModal() {
         // console.log('call data', callData);
         // setCallData(callData);
     };
+
+    const handleInputChange = (index: number, value: any) => {
+        if (selectedFunction) {
+            const checkLength = contractFuncs[selectedFunction].inputs.length;
+            const updatedInputData = inputData ? [...inputData] : [];
+            updatedInputData[index] = value;
+            console.log('updated input data', updatedInputData);
+            setInputData(prevState => updatedInputData);
+            if (updatedInputData.length == checkLength && checkIfEmpty(updatedInputData)) {
+                const [callDATA, addressTo] = getFunctionCallDataThesesusAll(contractFuncs[selectedFunction].name, updatedInputData, contract);
+                const des = contractFuncs[selectedFunction].name + '(' + updatedInputData.map((item: any) => item.toString()).join(', ') + ')';
+                setDescription("Proposing " + contractFuncs[selectedFunction].name + " to " + contractName + ' ' + des);
+                setCallData(prevState => callDATA);
+                setAddressTo(prevState => addressTo);
+                setCheck(true);
+            } else {
+                setCallData(null);
+                setCheck(false);
+            }
+        }
+
+    };
+    const checkIfEmpty = (data: any[]) => {
+        let empty = true;
+        data.forEach((item: any) => {
+            if (item == null || item == undefined || item == '' || item == 'empty' || item < 0) {
+                empty = false;
+            }
+        })
+        return empty;
+    }
+    function handleDescription(e: React.ChangeEvent<HTMLTextAreaElement>): void {
+        e.preventDefault();
+        const descriptionValue = e.target.value;
+        setDescription(descriptionValue);
+    }
     let funcs: any[] = [];
-  
+
 
     function openModal() {
         setIsOpen(true);
@@ -82,15 +114,20 @@ export default function TheseusProposalModal() {
     function closeModal() {
         setSelected(false);
         setSelectedFunction(null);
+        setDescription(null);
         setContractFuncs(null);
         setContractName(null);
+        setAddressTo(null);
+        setInputData(null);
+        setCallData(null);
+        setCheck(false);
         setIsOpen(false);
     }
     const { currentId } = useGetCurrentId('theseus');
 
     useEffect(() => {
 
-    }, [currentId]);
+    }, [currentId, inputData]);
     return (
         <div className=''>
             <button className='py-4 my-6 text-xl px-8 md:px-32 md:py-12 rounded-full md:my-12  bg-amber-400 hover:shadow-2xl hover:shadow-amber-200 text-white md:text-5xl text-center hover:scale-125' onClick={openModal}>Propose</button>
@@ -105,24 +142,14 @@ export default function TheseusProposalModal() {
                 <div className=' flex flex-col justify-center modal-background opacity-90' >
                     {!selected && !contractFuncs && (
                         <div className='m-12'>
-
                             <h1 className='text-white text-center m-12 '>Smart Contracts</h1>
-                            <div className='flex  flex-wrap justify-center gap-5 text-md xl:text-lg text-center text-white pb-12 px-4 '>
-                                <button id='internal' onClick={handleSelection} className='px-5 py-1 hover:scale-125 rounded-2xl bg-blue-500 inline-block'>Theseus Functions</button>
-                                <button id='exchange' onClick={handleSelection} className='px-5 py-1 hover:scale-125 rounded-2xl bg-blue-500 inline-block'>Exchange</button>
-                                <button id='loanPool' onClick={handleSelection} className='px-5 py-1 hover:scale-125 rounded-2xl bg-blue-500 inline-block'>Loan Pool</button>
-                                <button id='ammViewer' onClick={handleSelection} className='px-5 py-1 hover:scale-125 rounded-2xl bg-blue-500 inline-block'>Amm Viewer</button>
-                                <button id='ariadne' onClick={handleSelection} className='px-5 py-1 hover:scale-125 rounded-2xl bg-blue-500 inline-block'>Create Ariadne</button>
-                                <button id='staking' onClick={handleSelection} className='px-5 py-1 hover:scale-125 rounded-2xl bg-blue-500 inline-block'>Staking</button>
-                                <button id='usdc' onClick={handleSelection} className='px-5 py-1 hover:scale-125 rounded-2xl bg-blue-500 inline-block'>USDC</button>
-                                <button id='custom' onClick={handleSelection} className='px-5 py-1 hover:scale-125 rounded-2xl bg-blue-500 inline-block'>Custom</button>
-                            </div>
+                            <TheseusButtonSelection handleSelection={handleSelection} />
                         </div>
                     )}
                     {selected && contractFuncs && (
                         <div>
 
-                            <h1 className='text-white text-center m-2 mx-44'>{contractName} Functions to Propose</h1>
+                            <h1 className='text-white text-center m-2 mx-32'>{contractName} Functions to Propose</h1>
                             <div className='flex  flex-wrap justify-center gap-5 text-md 2xl:text-lg text-center text-white pb-12 px-4 m-12'>
                                 {contractFuncs.map((func: any, index: number) => {
                                     return (
@@ -136,20 +163,47 @@ export default function TheseusProposalModal() {
 
                         <div className='flex justify-center items-center'>
                             {selectedFunction && contractFuncs && (
-                                <div>
-                                    <h1 className='text-white text-center m-12 px-32'>{convertCamelCaseToTitle(contractFuncs[selectedFunction].name)}</h1>
+                                <div className='flex flex-col justify-center items-center' >
+                                    <h1 className='text-white text-center m-12 '>{convertCamelCaseToTitle(contractFuncs[selectedFunction].name)}</h1>
                                     <div className='flex  flex-wrap justify-center  gap-5  text-md xl:text-lg text-center text-white pb-12 px-4 '>
                                         {contractFuncs[selectedFunction].inputs.map((input: any, index: number) => {
                                             return (
                                                 <div key={input.name} className='flex flex-col'>
-                                                    <InputMaster index={index} input={input}/>
+                                                    <InputMaster index={index} input={input} handleInputChange={handleInputChange} />
                                                 </div>
                                             )
                                         })}
                                     </div>
+                                    <div className='flex flex-row justify-center gap-x-2 m-2'>
+                                        <label className='mt-4 text-sm md:text-lg text-sky-900'>
+                                            Description:
+                                        </label>
+
+                                        <textarea className='text-gray-800 text-sm lg:text-md text-left p-2 rounded-xl'
+                                            name="postContent"
+                                            onChange={(e) => handleDescription(e)}
+                                            placeholder={description ? description : 'Enter a description for your proposal'}
+                                            rows={2}
+                                            cols={25}
+                                        />
+                                    </div>
+                                    <div className='flex flex-row gap-x-28 justify-between my-4'>
+                                        <button disabled className='px-2 py-1 bg-red-500 rounded-2xl text-white text-lg hover:scale-125'>Cancel</button>
+                                        {(check && callData && addressTo) ? (
+                                            <div >
+                                                <p>check: {check ? 'true' : 'false'}</p>
+                                                <p>callData {callData.slice(0, 10)}</p>
+                                                <p>address To : {addressTo.slice(0, 10)}</p>
+                                            </div>
+                                        ) : (
+                                            <button disabled className='px-2 py-1 bg-teal-500 rounded-2xl text-white text-lg hover:scale-125'>Loading...</button>
+                                        )}
+                                    </div>
                                 </div>
+
                             )}
                         </div>
+
                     </div>
                 </div>
 

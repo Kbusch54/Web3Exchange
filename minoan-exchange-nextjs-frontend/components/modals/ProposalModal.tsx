@@ -7,6 +7,7 @@ import { Address } from 'wagmi';
 import AriadnePurposeButton from '../forms/buttons/AriadnePurposeButton';
 import { useGetCurrentId } from '../../utils/contractReads/ariadneDao/currentId';
 import DAODetails from './interior/DAODetails';
+import { convertCamelCaseToTitle } from '../../utils/helpers/functions';
 
 
 
@@ -108,16 +109,7 @@ export default function ProposalModal({currentValue,ammAddress,user,symbol,loanP
     updateVotingTime: 7233
   }
 
-  const convertCamelCaseToTitle = (camelCaseString: string) => {
-    // Replace uppercase letters with a space followed by the uppercase letter
-    const spacedString = camelCaseString.replace(/([A-Z])/g, ' $1');
-    // Convert the string to uppercase
-    const allCapsString = spacedString.toUpperCase();
-    // Remove leading space if present
-    const trimmedString = allCapsString.trim();
-    // Return the final converted string
-    return trimmedString;
-  };
+ 
   const updateFunciton = getAllUpdateFunctions();
   const updateFunctionNames = updateFunciton.map((item) => item.name);
 
@@ -459,7 +451,7 @@ export default function ProposalModal({currentValue,ammAddress,user,symbol,loanP
                 {callData && description && !isError && currentId != null ? (
                   //@ts-ignore
                   <Suspense fallback={<div>Loading...</div>}>
-                    <AriadnePurposeButton user={user} ammId='tesla' internal={true} disabled={false} callData={callData} description={description} nonce={currentId} />
+                    <AriadnePurposeButton user={user} ammId={'tesla'} internal={true} disabled={false} callData={callData} description={description} nonce={currentId} />
                   </Suspense>
                 ) : (
                   <button disabled className='px-2 py-1 bg-teal-500 rounded-2xl text-white text-lg hover:scale-125'>Loading...</button>

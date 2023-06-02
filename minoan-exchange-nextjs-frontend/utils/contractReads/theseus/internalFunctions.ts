@@ -1,5 +1,6 @@
 import { ethers } from "ethers";
 import { TheseusDAOAbi,CreateAriadneAbi,LoanPoolAbi,AriadneDAO,ExchangeAbi,StakingAbi,UsdcAbi,AmmViewerAbi } from "../../abis";
+import { ammViewer, ariadneTesla, createAriadnes, exchange, loanpool, staking, theseus, usdc } from "../../address";
 
  const getAllUpdateFunctions =()=>{
     const functions = TheseusDAOAbi.filter((x)=>{
@@ -51,8 +52,9 @@ export const getFunctionCallDataThesesusAll= (
     input:any[],
     abi:string) => {
     const ABI = getAbi(abi);
+    const addressTo = getAddress(abi);
         let iface = new ethers.utils.Interface(ABI);
-        return iface.encodeFunctionData(methodName,input);
+        return [iface.encodeFunctionData(methodName,input),addressTo];
     };
      const getAllTheseusFunctions =()=>{
         const functions = LoanPoolAbi.filter((x)=>{
@@ -83,6 +85,30 @@ export const getFunctionCallDataThesesusAll= (
             return TheseusDAOAbi;
         }
     }
+    const getAddress = (abi:string)=>{
+        if(abi === "internal"){
+            return theseus;
+        }else if(abi === "ariadne"){
+            return createAriadnes;
+        }else if(abi === "loanPool"){
+            return loanpool;
+        }else if(abi === "ariadneDao"){
+            return ariadneTesla;
+        }else if(abi === "exchange"){
+            return exchange;
+        }else if(abi === "staking"){
+            return staking;
+        }else if(abi === "usdc"){
+            return usdc;
+        }else if(abi === "ammViewer"){
+            return ammViewer;
+        }else{
+            return theseus;
+        }
+    }
+
+
+
     export const getFunctionsOf = (contract:string)=>{
         if(contract === "internal"){
              const hello =getAllUpdateFunctions();
