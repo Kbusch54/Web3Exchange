@@ -10,6 +10,22 @@ interface Props {
     tokenId: number
     proposals: Proposal[]
     hasStakes: boolean
+    dbData: {
+        nonce: number | null;
+        signatures: string[] | null;
+        description: string | null;
+        etherscanTransactionHash: string | null;
+        timeStamp: number | null;
+        proposer: Address | null;
+        contractAddress: Address | null;
+        contractNonce: string | null;
+        transactionHashToSign: string | null;
+        executor: Address | null;
+        isProposalPassed: boolean | null;
+        result: string | null;
+        signers: Address[] | null;
+    }[]
+
 
 }
 interface Proposal {
@@ -47,7 +63,7 @@ interface Proposal {
     }
 }
 
-const ProposalType: React.FC<Props> = ({ user, tokenId, daoAddress,proposals,hasStakes }) => {
+const ProposalType: React.FC<Props> = ({ user, tokenId, daoAddress,proposals,hasStakes,dbData }) => {
     const [selected, setSelected] = useState(0);
     //@ts-ignore
     const handleSelected = (e) => {
@@ -56,7 +72,8 @@ const ProposalType: React.FC<Props> = ({ user, tokenId, daoAddress,proposals,has
     }
     const nonceMap = new Map();
     //@ts-ignore
-    proposals.forEach((prop) => {
+    dbData.forEach((prop) => {
+        console.log('prop', prop)
         nonceMap.set(prop.nonce, prop);
     });
     return (
