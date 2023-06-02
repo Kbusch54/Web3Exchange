@@ -105,7 +105,7 @@ async function page(props: Props) {
   //@ts-ignore
   const poolBalance = { availableUsdc: data.stakes[0].totalStaked - data.theseusDAOs[0].insuranceFundMin, totalUsdcSupply: data.stakes[0].totalStaked };
   return (
-    <div className="m-6">
+    <div className="m-6 ">
       <div className="flex flex-row justify-between">
         <div className="mt-12 ml-24 text-white  ">
           <h1 className="text-5xl ">Theseus DAO</h1>
