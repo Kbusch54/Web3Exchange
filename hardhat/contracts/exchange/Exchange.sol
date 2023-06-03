@@ -64,7 +64,7 @@ contract Exchange is VaultMain {
     * @param _side The side of the trade (1 for long, -1 for short)
     @return A boolean value indicating whether the operation succeeded
     */
-    function openPosition(address _amm, uint _collateral,uint _leverage,int _side) public returns (bool) {
+    function openPosition(address _amm, uint _collateral,uint _leverage,int _side,bytes calldata _payload) public returns (bool) {
         require(_side == 1 || _side == -1);
         require(_collateral > 0);
         require(_leverage > 0);
@@ -102,7 +102,7 @@ contract Exchange is VaultMain {
         _position.amm = _amm;
         _position.trader = msg.sender;
         (_position.positionSize, _position.entryPrice, ,_position.lastFundingRate) = VAmm(_amm)
-            .openPosition(_loanAmt, _side);
+            .openPosition(_loanAmt, _side,_payload);
         isActive[_tradeId] = true;
         tradeIds[msg.sender].push(_tradeId);
         emit OpenPosition(
@@ -120,10 +120,10 @@ contract Exchange is VaultMain {
      * @dev Function to close a position
      * @param _tradeId The tradeId of the position to close
      */
-    function closeOutPosition(bytes memory _tradeId) public {
+    function closeOutPosition(bytes memory _tradeId,bytes calldata _payload) public {
         Position memory _position = positions[_tradeId];
         _checkIfAuthorized(_tradeId, _position.trader);
-        closePosition(_tradeId);
+        closePosition(_tradeId,_payload);
         tradeCollateral[_tradeId] =0;
         isActive[_tradeId] = false;
     }
@@ -135,7 +135,7 @@ contract Exchange is VaultMain {
      * @param _addedCollateral The amount of collateral to add
      * @return A boolean value indicating whether the operation succeeded
      **/
-    function addLiquidityToPosition(bytes memory _tradeId,uint _leverage,uint _addedCollateral) public returns (bool) {
+    function addLiquidityToPosition(bytes memory _tradeId,uint _leverage,uint _addedCollateral,bytes calldata _payload) public returns (bool) {
         Position storage _position = positions[_tradeId];
         _checkIfAuthorized(_tradeId, _position.trader);
         require(_addedCollateral > 0);
@@ -154,7 +154,8 @@ contract Exchange is VaultMain {
         VAmm _amm = VAmm(_position.amm);
         (int additionalPositionSize, uint avgEntryPrice, ,) = _amm.openPosition(
             _newLoan,
-            _position.side
+            _position.side,
+            _payload
         );
         _position.entryPrice = uint(
             (int(_position.entryPrice) *
@@ -174,7 +175,7 @@ contract Exchange is VaultMain {
      * @param _positionSize The positionSize to remove
      * @return A boolean value indicating whether the operation succeeded
      **/
-    function removeLiquidityFromPosition( bytes memory _tradeId,int _positionSize) public returns (bool) {
+    function removeLiquidityFromPosition( bytes memory _tradeId,int _positionSize,bytes calldata _payload) public returns (bool) {
         Position storage _position = positions[_tradeId];
         _checkIfAuthorized(_tradeId, _position.trader);
         require(
@@ -184,7 +185,7 @@ contract Exchange is VaultMain {
         _payments(_tradeId, _position.amm);
         uint _loanAmount = _position.loanedAmount;
         VAmm _amm = VAmm(_position.amm);
-        (, int _usdcAmt) = _amm.closePosition(_positionSize, _position.side);
+        (, int _usdcAmt) = _amm.closePosition(_positionSize, _position.side,_payload);
         int _amountOwed = (((10 ** 8 * _positionSize) /
             _position.positionSize) * int(_loanAmount)) / (10 ** 8);
         int pnl = _usdcAmt - _amountOwed;
@@ -205,12 +206,12 @@ contract Exchange is VaultMain {
         emit RemoveLiquidity(_tradeId, _positionSize, _amountOwed, _usdcAmt);
         return true;
     }
-    function closePosition(bytes memory _tradeId)internal{
+    function closePosition(bytes memory _tradeId,bytes calldata _payload)internal{
          Position memory _position = positions[_tradeId];
         (, uint _interest, int _ffr,,uint _loanAmount) = ExchangeViewer(exchangeViewer).getAllValues(_tradeId);
                int _usdcAmt;
                uint _closePrice;
-          ( _closePrice, _usdcAmt) = VAmm(_position.amm).closePosition(_position.positionSize, _position.side);
+          ( _closePrice, _usdcAmt) = VAmm(_position.amm).closePosition(_position.positionSize, _position.side,_payload);
         int _payment = _ffr + int(_interest);
         // poolOutstandingLoans[_position.amm] -= _loanAmount;
         tradeCollateral[_tradeId] += uint(_usdcAmt);
@@ -278,9 +279,9 @@ contract Exchange is VaultMain {
         availableBalance[theseusDao]-=_remaining;
     }
 
-     function liquidate(bytes memory _tradeId) public {
+     function liquidate(bytes memory _tradeId,bytes calldata _payload) public {
         require(ExchangeViewer(exchangeViewer).checkLiquidiation(_tradeId));
-        closePosition(_tradeId);
+        closePosition(_tradeId,_payload);
         emit Liquidated(_tradeId);
     } 
 

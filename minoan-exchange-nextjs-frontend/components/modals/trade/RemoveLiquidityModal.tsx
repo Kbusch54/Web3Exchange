@@ -75,7 +75,6 @@ const RemoveLiquidityModal: React.FC<Props> = ({ tradeId, user, vaultBalance, cu
         if (positionRef.current ) {
             const value = parseFloat(positionRef.current.value) * 10 ** 8 ;
             const rawValue = parseFloat(positionRef.current.value) * 10 ** 8;
-            console.log('mmr', minimummarginReq);
             if (value > maxAllowed) {
                 setIsError(true);
                 setErrorMessage('Amount exceeds current position size');
@@ -111,7 +110,6 @@ const RemoveLiquidityModal: React.FC<Props> = ({ tradeId, user, vaultBalance, cu
         return [pnl,amountOwed];
     };
     useEffect(() => {
-        console.log('THIS IS CHECK', check);
     }, [check, rawValue]);
     return (
         <div>

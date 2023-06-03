@@ -133,7 +133,6 @@ const AddLiquidityModal: React.FC<Props> = ({ tradeId, user, vaultBalance, curre
         return newMmr;
     };
     useEffect(() => {
-        console.log('THIS IS CHECK', check);
     }, [check, rawValue, leverageValue]);
     return (
         <div>

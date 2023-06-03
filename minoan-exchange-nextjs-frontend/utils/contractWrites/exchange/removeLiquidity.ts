@@ -7,13 +7,14 @@ export const useRemoveLiquidity = (
     signer: Address,
     tradeId:string,
     positionSize: number,
+    payyload:string
   ) => {
     const { config, error } = usePrepareContractWrite({
         address:exchange,
        abi:ExchangeAbi,
        chainId:5,
       functionName: "removeLiquidityFromPosition",
-      args: [tradeId,positionSize],
+      args: [tradeId,positionSize,payyload],
       overrides: {
         from: signer,
         gasLimit: parseUnits("200000", "wei"),

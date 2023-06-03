@@ -141,7 +141,7 @@ async function fetchLoanPoolData(symbol: string, user: string) {
 
 
 
-  const endpoint = process.env.NEXT_PUBLIC_API_URL || "https://api.studio.thegraph.com/query/46803/subgraph-minoan/version/latest";
+  const endpoint = "https://api.studio.thegraph.com/query/46803/subgraph-minoan/version/latest";
   const variables = { id: symbol, user: user };
   const data = await request(endpoint, query, variables);
 
@@ -176,6 +176,7 @@ export default async function PoolPage({ params }: Props) {
   const userData = allData.users[0].balances.availableUsdc;
   //@ts-ignore
   const ariadneData = allData.vamms[0].loanPool.poolToken.ammPool.ariadneDAO;
+
   return (
     <div>
       {stock && graphData ? (

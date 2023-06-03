@@ -1,11 +1,17 @@
 require("@nomicfoundation/hardhat-toolbox");
 require('hardhat-contract-sizer');
 require('dotenv').config({path:__dirname+'/.env'})
+require("hardhat-gas-reporter");
 // require("@nomicfoundation/hardhat-verify");
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
   solidity: "0.8.17",
+  gasReporter: {
+    enabled: true,
+    currency: 'USD',
+    gasPrice: 100,
+  },
   networks: {
     goerli: {
       url: `https://goerli.infura.io/v3/${process.env.INFURA_API_KEY}`,

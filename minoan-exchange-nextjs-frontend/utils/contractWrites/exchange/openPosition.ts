@@ -3,12 +3,15 @@ import { usePrepareContractWrite, Address } from "wagmi";
 import { usdc,exchange,TeslaAmm as teslaAmm,GoogleAmm as googleAmm, MetaAmm as metaAmm} from "../../address";
 import { parseUnits } from "ethers/lib/utils.js";
 
+
+
 export const useOpenPosition = (
     side:number,
     collateral:number,
     leverage:number,
     ammId:string,
     signer: Address,
+    payload:string
   ) => {
     // (address _amm, uint _collateral,uint _leverage,int _side
     const amm = getAmmAddress(ammId);
@@ -17,10 +20,10 @@ export const useOpenPosition = (
        abi:ExchangeAbi,
        chainId:5,
       functionName: "openPosition",
-      args: [amm,collateral,leverage,side],
+      args: [amm,collateral,leverage,side,payload],
       overrides: {
         from: signer,
-        gasLimit: parseUnits("200000", "wei"),
+        gasLimit: parseUnits("5000", "wei"),
       },
       
     });

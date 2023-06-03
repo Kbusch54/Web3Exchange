@@ -395,9 +395,9 @@ export default function ProposalModal({currentValue,ammAddress,user,symbol,loanP
                 <button className='px-2 py-1 bg-red-500 rounded-2xl text-white text-lg hover:scale-125' onClick={closeModal}>Cancel</button>
                 {callData && description && !isError && currentId != null && addressTo ? (
                   //@ts-ignore
-                  <Suspense fallback={<div>Loading...</div>}>
+                  // <Suspense fallback={<div>Loading...</div>}>
                     <ProposeButton user={user} addressTo={addressTo} contractAddress={ariadneData.id} disabled={false} callData={callData} description={description} nonce={currentId} />
-                  </Suspense>
+                  // </Suspense>
                 ) : (
                   <button disabled className='px-2 py-1 bg-teal-500 rounded-2xl text-white text-lg hover:scale-125'>Loading...</button>
                 )}
@@ -457,9 +457,9 @@ export default function ProposalModal({currentValue,ammAddress,user,symbol,loanP
                 <button className='px-2 py-1 bg-red-500 rounded-2xl text-white text-lg hover:scale-125' onClick={closeModal}>Cancel</button>
                 {callData && description && !isError && currentId != null && addressTo ? (
                   //@ts-ignore
-                  <Suspense fallback={<div>Loading...</div>}>
+                  // <Suspense fallback={<div>Loading...</div>}>
                     <ProposeButton user={user} addressTo={addressTo} contractAddress={ariadneData.id} disabled={false} callData={callData} description={description} nonce={currentId} />
-                  </Suspense>
+                  // </Suspense>
                 ) : (
                   <button disabled className='px-2 py-1 bg-teal-500 rounded-2xl text-white text-lg hover:scale-125'>Loading...</button>
                 )}

@@ -82,7 +82,6 @@ const RemoveCollateralModal: React.FC<Props> = ({tradeId,user,minimummarginReq,c
        }
     };
     useEffect(() => {
-    console.log('THIS IS CHECK',check);
     }, [check,rawValue]);
     return (
         <div>

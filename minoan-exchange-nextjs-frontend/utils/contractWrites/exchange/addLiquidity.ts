@@ -8,13 +8,14 @@ export const useAddLiquidity = (
     tradeId:string,
     leverage: number,
     collateral:number,
+    payload:string
   ) => {
     const { config, error } = usePrepareContractWrite({
         address:exchange,
        abi:ExchangeAbi,
        chainId:5,
       functionName: "addLiquidityToPosition",
-      args: [tradeId,leverage,collateral],
+      args: [tradeId,leverage,collateral,payload],
       overrides: {
         from: signer,
         gasLimit: parseUnits("200000", "wei"),

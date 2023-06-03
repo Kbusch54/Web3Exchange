@@ -82,7 +82,6 @@ const AddCollateralModal: React.FC<Props> = ({tradeId,user,vaultBalance,currentC
        }
     };
     useEffect(() => {
-    console.log('THIS IS CHECK',check);
     }, [check,rawValue]);
     return (
          <div>

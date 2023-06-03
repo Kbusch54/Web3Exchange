@@ -70,8 +70,8 @@ contract AmmViewer{
     function emitNewSnappshot( uint newIndex) external onlyAmmContract{
         emit NewSnappshot(msg.sender,newIndex);
     }
-     function getPriceValue(bytes32 _stock) public view returns (uint256) {
-        return Payload(priceFeed).getLatestPrice(payload,_stock);
+     function getPriceValue(bytes calldata _payload,bytes32 _stock) public view returns (uint256) {
+        return Payload(priceFeed).getLatestPrice(_payload,_stock);
     }
     function updatePriceFeed(address _priceFeed) external onlyTheseusDao{
         priceFeed = _priceFeed;

@@ -44,8 +44,13 @@ const VaultUSDCForm: React.FC<Props> = ({ availableUsdc, user }) => {
   const { allowance, isPending } = useGetAllowance(user);
 
   useEffect(() => {
-    if (data?.value) setWalletBalance((prevState) => prevState = data.value.toNumber());
-    if (allowance) setAllowanceAmt((prevState) => prevState = Number(allowance));
+    if (data?.value) setWalletBalance((prevState) =>  data.value.toNumber());
+    if (allowance) setAllowanceAmt((prevState) =>  Number(allowance));
+    return () => {
+      setWalletBalance(null);
+      setAllowanceAmt(0);
+    }
+
   }, [data, allowance]);
 
 useEffect(() => {
@@ -196,7 +201,7 @@ useEffect(() => {
             </div>
             <div className="flex flex-col md:flex-row lg:flex-col xl:flex-row justify-between m-2">
               <div className="flex flex-col">
-                <div className={`flex flex-row justify-between bg-white rounded-full text-slate-600 text-center  tracking-wide md:w-[18rem] lg:w-[11rem] xl:w-[8rem] 2xl:w-[12.5rem] md:h-[2rem] ${!isError && buttonValue === "Withdraw" ? 'border-2 border-green-500' : className}`}>
+                <div className={`flex flex-row justify-between bg-white rounded-full text-slate-600 text-center  tracking-wide md:w-[18rem] lg:w-[11rem] xl:w-[8rem] 2xl:w-[12.5rem]  md:h-[2rem] ${!isError && buttonValue === "Withdraw" ? 'border-2 border-green-500' : className}`}>
                   <input
                     type="number"
                     ref={withdrawRef}

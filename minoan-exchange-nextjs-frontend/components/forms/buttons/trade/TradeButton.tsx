@@ -1,7 +1,8 @@
 'use client';
-import React,{useEffect, useState} from 'react'
+import React,{use, useEffect, useState} from 'react'
 import { useOpenPosition } from '../../../../utils/contractWrites/exchange/openPosition';
 import { Address, useContractWrite } from 'wagmi';
+import { getPayload } from '../../../../utils/contractWrites/exchange';
 
 interface Props {
     leverage: number,
@@ -10,15 +11,18 @@ interface Props {
     ammId:string,
     user: Address
     disabled:boolean
+    payload:string
 }
 
-const TradeButton: React.FC<Props> = ({leverage,collateral,side,user,ammId,disabled}) => {
+const TradeButton: React.FC<Props> = ({leverage,collateral,side,user,ammId,disabled,payload}) => {
     const [approved, setApproved] = React.useState<boolean>(false);
     const [errorWithContractLoad, setErrorWithContractLoad] = React.useState<boolean>(false);   
     const [loadingStage, setLoadingStage] = useState(false); 
     const [customMessage, setCustomMessage] = useState<string|null>(null);
     const collateralAmount = collateral * 10 ** 6;
-    const {config,error} = useOpenPosition(side,collateralAmount,leverage,ammId, user);
+    // const payload = use(getPayload());
+    console.log('payload',payload);
+    const {config,error} = useOpenPosition(side,collateralAmount,leverage,ammId, user,payload);
     console.log('config',config);
     const contractWrite = useContractWrite(config);
     useEffect(() => {

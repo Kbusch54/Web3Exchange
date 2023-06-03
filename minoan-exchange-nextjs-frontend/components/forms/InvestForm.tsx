@@ -1,5 +1,5 @@
 'use client'
-import React, { use, useEffect, useRef } from 'react'
+import React, { Suspense, use, useEffect, useRef } from 'react'
 import { LoanPool, Stock } from '../../types/custom';
 import AssetOptions from '../menus/AssetOptions';
 import SideSelection from './SideSelection';
@@ -9,6 +9,7 @@ import { Address } from 'wagmi';
 
 interface Props {
   stockData: Stock[]
+  payload: string
   currentData: {
     name: string,
     loanPool: LoanPool
@@ -20,7 +21,7 @@ interface Props {
 
 
 
-const InvestForm: React.FC<Props> = ({ stockData, currentData, user, availableUsdc }) => {
+const InvestForm: React.FC<Props> = ({ stockData, currentData, user, availableUsdc,payload }) => {
   const [side, setSide] = React.useState<number>(-1);
   const [check, setCheck] = React.useState<boolean>(false);
   const [collateral, setCollateral] = React.useState<number>(0);
@@ -124,11 +125,15 @@ const InvestForm: React.FC<Props> = ({ stockData, currentData, user, availableUs
           <h3>Fee Amount</h3>
           <input type="text" id="totalCost" ref={totalCostRef} name="totalCost" className='rounded-xl w-32 ml-2 text-slate-200 text-center' disabled />
         </div>
-        {collateral >0 && leverage>0 && side && check ? (
-
-          <TradeButton leverage={leverage} side={side} collateral={collateral} disabled={!check} ammId={currentData.name} user={user} />
+        {collateral > 0 && leverage > 0 && side && check ? (
+          <Suspense fallback={<div className='bg-slate-700 px-2 py-1 rounded-2xl text-white mt-4 hover:scale-125'> <button disabled >Trade</button></div>}>
+            <TradeButton leverage={leverage} side={side} collateral={collateral} disabled={!check} ammId={currentData.name} user={user} payload={payload} />
+          </Suspense>
         ) : (
-          <button disabled className='bg-slate-700 px-2 py-1 rounded-2xl text-white mt-4'>Trade</button>
+          <div className='bg-slate-700 px-2 py-1 rounded-2xl text-white mt-4 hover:scale-125'>
+
+            <button disabled >Trade</button>
+          </div>
         )}
 
       </div>

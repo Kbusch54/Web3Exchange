@@ -13,15 +13,15 @@
     "chai": "^4.3.7",
     "ethers": "^5.7.2",
     "hardhat": "^2.12.4",
-    "hardhat-gas-reporter": "^1.0.2",
+    "hardhat-contract-sizer": "^2.8.0",
+    "hardhat-gas-reporter": "^1.0.9",
     "solidity-coverage": "^0.7.22",
-    "typechain": "^8.1.1",
-    "hardhat-contract-sizer": "^2.8.0"
+    "typechain": "^8.1.1"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.8.3",
     "@redstone-finance/evm-connector": "^0.0.18",
-    "graphviz": "^0.0.9",
-    "dotenv": "^16.0.3"
+    "dotenv": "^16.0.3",
+    "graphviz": "^0.0.9"
   }
 }

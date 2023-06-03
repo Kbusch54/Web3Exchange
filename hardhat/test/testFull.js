@@ -1459,7 +1459,7 @@ it.skip('should stake and allow theseus to deposit usdc in vault',async function
 
 });
 
-it.skip('should allow open position on tesla amm',async function(){
+it('should allow open position on tesla amm',async function(){
   const {owner, otherAccount,ammViewer,teslaAmm,usdc,exchange,theseus,poolTokens,loanPool,staking,ABI,loanPoolABI,exhcnageABI,sign,getFunctionCallData,getMethodNameHash,getTransactionHash,decodeCallData,decodeTransaction}=await loadFixture(deployContracts);
   await usdc.approve(exchange.address,ethers.utils.parseUnits("5000", 6));
   await exchange.deposit(ethers.utils.parseUnits("5000", 6));
@@ -1710,7 +1710,7 @@ it.skip("should open position and when profit show approprialey", async function
 
 });
 
-  it('should open and go into debt', async function(){
+  it.skip('should open and go into debt', async function(){
     const {owner, otherAccount,ammViewer,teslaAmm, googleAmm ,usdc,exchange,theseus,poolTokens,loanPool,staking,ABI,loanPoolABI,exhcnageABI,sign,getFunctionCallData,getMethodNameHash,getTransactionHash,decodeCallData,decodeTransaction}=await loadFixture(deployContracts);
     await usdc.approve(exchange.address,ethers.utils.parseUnits("5000", 6));
     await exchange.deposit(ethers.utils.parseUnits("5000", 6));

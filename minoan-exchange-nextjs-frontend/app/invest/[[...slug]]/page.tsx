@@ -18,6 +18,7 @@ import { redirect } from "next/navigation";
 import { request, gql } from "graphql-request";
 import GlobalTradesBox from "../../../components/tables/GlobalTradesBox";
 import UserTrades from "../../../components/tables/UserTrades";
+import { getPayload } from "../../../utils/contractWrites/exchange";
 type Props = {};
 
 async function fetchLoanPoolData(symbol: string, user: string) {
@@ -70,7 +71,7 @@ async function fetchLoanPoolData(symbol: string, user: string) {
 
 
 
-  const endpoint = process.env.NEXT_PUBLIC_API_URL || "https://api.studio.thegraph.com/query/46803/subgraph-minoan/version/latest";
+  const endpoint = "https://api.studio.thegraph.com/query/46803/subgraph-minoan/version/latest";
   const variables = { id: symbol, user: user };
   const data = await request(endpoint, query, variables);
 
@@ -95,6 +96,8 @@ export default async function page(context: { params: { slug: string; }; }) {
   //@ts-ignore
   const userData = allData.users[0].balances.availableUsdc;
   const stock = await getStocks(slug);
+  const payLoad = await getPayload();
+  console.log('payLoad from main page', payLoad)
   return (
     <>
 
@@ -131,7 +134,7 @@ export default async function page(context: { params: { slug: string; }; }) {
             </div>
 
             <div className="col-span-3">
-              <InvestForm stockData={stocks} currentData={graphData} user={session.user.name} availableUsdc={userData} />
+              <InvestForm stockData={stocks} currentData={graphData} user={session.user.name} availableUsdc={userData} payload={payLoad} />
               <VaultUSDCForm availableUsdc={graphData.loanPool.poolToken.tokenBalance[0]?.user ? graphData.loanPool.poolToken.tokenBalance[0].user.balances.availableUsdc : 0} user={session.user.name} />
             </div>
             <div className="col-span-12 grid grid-cols-2 xl:grid-cols-4 gap-x-6 items-center justify-evenly gap-y-8  mt-8">
