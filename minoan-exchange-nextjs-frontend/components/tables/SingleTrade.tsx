@@ -8,12 +8,13 @@ import RemoveCollateralModal from '../modals/trade/RemoveCollateralModal';
 import AddLiquidityModal from '../modals/trade/AddLiquidityModal';
 import RemoveLiquidityModal from '../modals/trade/RemoveLiquidityModal';
 import ClosePositionModal from '../modals/trade/ClosePositionModal';
+import { formatEther, formatUnits } from 'ethers/lib/utils.js';
 
 interface Props {
     user:Address;
     userAvailableBalance:number
     index:number;
-    row:{
+    row: {
         id: string;
         side: number;
         asset: string;
@@ -21,19 +22,25 @@ interface Props {
         lev: number;
         pnl: string;
         created: number;
-        // information: {
-        //     mmr: number;
-        //     ffr: number;
-        //     ffrReturn:string;
-        //     liquidationPrice: number;
-        //     interestRate: number;
-        //     interestPeriod: number;
-        //     interestAccrued: number;
-        //     startCollateral: number;
-        //     currentCollateral: number;
-        //     openValue: number;
-        //     currentValue: number;
-        // }      
+        information: {
+            mmr: number;
+            ffr: number;
+            ffrReturn: string;
+            liquidationPrice: number;
+            interestRate: number;
+            interestPeriod: number;
+            interestAccrued: number;
+            startCollateral: number;
+            currentCollateral: number;
+            openValue: number;
+            currentValue: number;
+        }
+        other:{
+            baseAssetReserve:number,
+            quoteAssetReserve:number,
+            loanAmt:number,
+            maxLoanAmt:number,
+        }
     }
 }
 
@@ -47,32 +54,38 @@ const SingleTrade: React.FC<Props> = ({row,index,userAvailableBalance,user}) => 
     useEffect(() => {
         index==0&&handleToggle()
     }, [])
+
+    const margin = row.information.currentCollateral/(row.lev * row.information.startCollateral) *100
     return (
         <div key={row.id} className=' '>
         <div className='grid grid-cols-7 justify-evenly text-center border border-amber-400/40 rounded-lg '>
             <div className='text-white text-md  lg:text-xl m-2 gap-x-3 flex flex-row'>
                 <button onClick={handleToggle}>{'->'}</button>
-                <div>{row.id}</div>
+                <div>{row.id.slice(0,10)}</div>
             </div>
             <div className='text-white text-md  lg:text-xl m-2'>{row.asset}</div>
             <div className='text-white text-md  lg:text-xl m-2'><SideSelection side={row.side} /></div>
             <div className='text-white text-md  lg:text-xl m-2'>{(row.size/10**8).toFixed(4)}</div>
             <div className='text-white text-md  lg:text-xl m-2'>{row.lev}</div>
-            <div className='text-white text-md  lg:text-xl m-2'>{row.pnl}</div>
+            <div className='text-white text-md  lg:text-xl m-2'>{Number(row.pnl) > 0 ? `$${(Number(formatUnits(String(Number(row.pnl)),6))).toFixed(2)}`:` - $${(Number(formatUnits(String(Number(row.pnl) *-1),6))).toFixed(2)}`}</div>
             <div className='text-white text-md  lg:text-xl m-2'>{row.created}</div>
         </div>
         <div >
             <div className={`bg-slate-800 ${toggle?'hidden':'block'}`}>
 
                 <div className='text-white text-xl m-2'>Information</div>
-                <div className='grid grid-cols-3 md:grid-cols-4 lg:grid-cols-8  xl:grid-cols-10 justify-evenly text-center border border-amber-400/40 rounded-lg '>
+                <div className='grid grid-cols-3 md:grid-cols-4 lg:grid-cols-11  xl:grid-cols-11 justify-evenly text-center border border-amber-400/40 rounded-lg '>
                     <div className='text-white text-lg flex flex-col border border-white/10'>
                         <p>MMR</p>
-                        <p>22</p>
+                        <p>{row.information.mmr/10**4}%</p>
+                    </div>
+                    <div className='text-white text-lg flex flex-col border border-white/10'>
+                        <p>Current Margin</p>
+                        <p>{margin.toFixed(2)}%</p>
                     </div>
                     <div className='text-white text-lg flex flex-col border border-white/10'>
                         <p>FFR</p>
-                        <p>12.3</p>
+                        <p>{Number(row.information.ffr)/10**4}</p>
                     </div>
                     <div className='text-white text-lg flex flex-col border border-white/10'>
                         <p>Liquidation Price</p>
@@ -80,45 +93,45 @@ const SingleTrade: React.FC<Props> = ({row,index,userAvailableBalance,user}) => 
                     </div>
                     <div className='text-white text-lg flex flex-col border border-white/10'>
                         <p>Start Collateral</p>
-                        <p>22.22</p>
+                        <p>${formatUnits(row.information.startCollateral,6)}</p>
                     </div>
                     <div className='text-white text-lg flex flex-col border border-white/10'>
                         <p>Current Collateral</p>
-                        <p>10.22</p>
+                        <p>${formatUnits(row.information.currentCollateral,6)}</p>
                     </div>
                     <div className='text-white text-lg flex flex-col border border-white/10'>
                         <p>Interest Rate</p>
-                        <p>2%</p>
+                        <p>{Number(row.information.interestRate)/10**4}%</p>
                     </div>
                     <div className='text-white text-lg flex flex-col border border-white/10'>
-                        <p>Interest Period</p>
+                        <p>Interest Periods</p>
                         <p>2hrs</p>
                     </div>
                     <div className='text-white text-lg flex flex-col border border-white/10'>
                         <p>Interest Accurred</p>
-                        <p>$3.99</p>
+                        <p>${formatUnits(row.information.interestAccrued,6)}</p>
                     </div>
                     <div className='text-white text-lg flex flex-col border border-white/10'>
                         <p>Open Value</p>
-                        <p>$278.33</p>
+                        <p>${row.information.openValue}</p>
                     </div>
                     <div className='text-white text-lg flex flex-col border border-white/10'>
                         <p>Current Value</p>
-                        <p>$391.82</p>
+                        <p>${row.information.currentValue}</p>
                     </div>
                 </div>
                 <div className='flex flex-row justify-evenly text-center text-white mt-4 pb-4 text-sm md:text-md lg:text-xl'>
-                    <AddCollateralModal user={user} tradeId={row.id} vaultBalance={userAvailableBalance} currentCollateral={10.22}/>
-                    <RemoveCollateralModal user={user} tradeId={row.id} minimummarginReq={Math.floor(mmr*loanAmt/10**6)} currentCollateral={49330000}/>
+                    <AddCollateralModal user={user} tradeId={row.id} vaultBalance={userAvailableBalance} currentCollateral={row.information.currentCollateral}/>
+                    <RemoveCollateralModal user={user} tradeId={row.id} minimummarginReq={Math.floor(row.information.mmr*row.other.loanAmt/10**6)} currentCollateral={row.information.currentCollateral}/>
                     <AddLiquidityModal user={user} tradeId={row.id} vaultBalance={userAvailableBalance} leverage={row.lev} 
-                    positionSize={row.size} vammData={{baseAsset:108000000000,quoteAsset:400000000}} minimummarginReq={mmr} 
-                    currentCollateral={102020073} currrentLoanAmt={273214059} maxLoanAmt={5000000000} side={row.side}/>
+                    positionSize={row.size} vammData={{baseAsset:row.other.baseAssetReserve,quoteAsset:row.other.quoteAssetReserve}} minimummarginReq={row.information.mmr} 
+                    currentCollateral={row.information.currentCollateral} currrentLoanAmt={row.other.loanAmt} maxLoanAmt={row.other.maxLoanAmt} side={row.side}/>
                     <RemoveLiquidityModal user={user} tradeId={row.id} vaultBalance={userAvailableBalance} leverage={row.lev} 
-                    currentPositionSize={row.size} vammData={{baseAsset:108000000000,quoteAsset:400000000}} minimummarginReq={mmr} 
-                    currentCollateral={102020073} currrentLoanAmt={273214059} maxLoanAmt={5000000000} side={row.side}/>
+                    currentPositionSize={row.size} vammData={{baseAsset:row.other.baseAssetReserve,quoteAsset:row.other.quoteAssetReserve}} minimummarginReq={row.information.mmr} 
+                    currentCollateral={row.information.currentCollateral} currrentLoanAmt={row.other.loanAmt} maxLoanAmt={row.other.maxLoanAmt} side={row.side}/>
                     <ClosePositionModal user={user} tradeId={row.id} vaultBalance={userAvailableBalance} leverage={row.lev} 
-                    currentPositionSize={row.size} vammData={{baseAsset:108000000000,quoteAsset:400000000}} minimummarginReq={mmr} 
-                    currentCollateral={102020073} currrentLoanAmt={273214059} maxLoanAmt={5000000000} side={row.side}/>
+                    currentPositionSize={row.size} vammData={{baseAsset:row.other.baseAssetReserve,quoteAsset:row.other.quoteAssetReserve}} minimummarginReq={row.information.mmr} 
+                    currentCollateral={row.information.currentCollateral} currrentLoanAmt={row.other.loanAmt} maxLoanAmt={row.other.maxLoanAmt} side={row.side}/>
                 </div>
             </div>
         </div>
