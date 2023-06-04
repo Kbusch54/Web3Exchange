@@ -8,6 +8,7 @@ export const useAddCollateral = (
     tradeId:string,
     collateral:number,
   ) => {
+
     const { config, error } = usePrepareContractWrite({
         address:exchange,
        abi:ExchangeAbi,
@@ -16,7 +17,7 @@ export const useAddCollateral = (
       args: [tradeId,collateral],
       overrides: {
         from: signer,
-        gasLimit: parseUnits("200000", "wei"),
+        gasLimit: parseUnits("1000000", "wei"),
       },
       
     });

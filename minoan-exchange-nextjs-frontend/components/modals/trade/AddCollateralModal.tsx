@@ -5,6 +5,7 @@ import Modal from 'react-modal';
 import AddCollateralButton from '../../forms/buttons/trade/AddCollateralButton';
 import { Address } from 'wagmi';
 import { ethers } from 'ethers';
+import { formatUnits } from 'ethers/lib/utils.js';
 
 interface Props {
     tradeId: string;
@@ -102,14 +103,14 @@ const AddCollateralModal: React.FC<Props> = ({tradeId,user,vaultBalance,currentC
                         <div className='flex flex-row justify-around m-2 '>
                             <p className='text-md lg:text-xl'>Trade ID</p>
                             <div className='flex-col'>
-                                <p className='text-sm md:text-md lg:text:lg text-sky-100'>{tradeId}</p>
+                                <p className='text-sm md:text-md lg:text:lg text-sky-100'>{tradeId.slice(30,45)}</p>
                                 <hr />
                             </div>
                         </div>
                         <div className='flex flex-row justify-around m-2'>
                             <p className='text-md lg:text-xl'>Current Collateral</p>
                             <div className='flex-col'>
-                                <p className='text-sm  md:text-md lg:text-lg text-sky-100 '>${currentCollateral}</p>
+                                <p className='text-sm  md:text-md lg:text-lg text-sky-100 '>${formatUnits(currentCollateral,6)}</p>
                                <hr />
                             </div>
                         </div>

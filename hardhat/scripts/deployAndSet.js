@@ -214,11 +214,8 @@ console.log('all ready here are the addresses');
     console.log("const exchangeViewer = ",exchangeViewer.address);
     console.log("const usdc = ",usdc.address);
 
+    
 
-    await usdc.approve(exchange.address,ethers.utils.parseUnits("10000", 6));
-await exchange.deposit(ethers.utils.parseUnits("10000", 6));
-await staking.stake(ethers.utils.parseUnits("10000", 6),teslaAmm.address);
-console.log('staked 5000 usdc in tesla amm');
 
 }
 

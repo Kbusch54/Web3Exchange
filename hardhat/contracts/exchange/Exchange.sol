@@ -72,7 +72,7 @@ contract Exchange is VaultMain {
 
         require(
             availableBalance[msg.sender] >= _collateral);
-        bytes memory _tradeId = abi.encodePacked(
+        bytes memory _tradeId = abi.encode(
             msg.sender,
             _amm,
             block.timestamp,

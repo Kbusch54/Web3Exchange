@@ -102,6 +102,9 @@ const checkUserStakes = async (userId: string, inputTokenId: number) => {
     //@ts-ignore
     const user = data.users[0];
     let hasStakes = false;
+    if(!user){
+      return false;
+    }
     for (let i = 0; i < user.stakes.length; i++) {
       if (user.stakes[i].token.tokenId === inputTokenId && user.stakes[i].totalStaked > 0) {
         hasStakes = true;

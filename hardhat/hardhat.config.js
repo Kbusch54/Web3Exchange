@@ -8,7 +8,7 @@ require("hardhat-gas-reporter");
 module.exports = {
   solidity: "0.8.17",
   gasReporter: {
-    enabled: true,
+    enabled: false,
     currency: 'USD',
     gasPrice: 100,
   },
@@ -29,11 +29,11 @@ module.exports = {
         runs: 200,
     },
   },
-  // contractSizer: {
-  //   alphaSort: true,
-  //   disambiguatePaths: false,
-  //   runOnCompile: true,
-  //   strict: true,
-  //   only: ['Exchange','Staking','LoanPool','VAmm',"Balances","AriadneDAO","CreateAriadnes"],
-  // }
+  contractSizer: {
+    alphaSort: true,
+    disambiguatePaths: false,
+    runOnCompile: true,
+    strict: true,
+    only: ['Exchange','Staking','LoanPool','VAmm',"Balances","AriadneDAO","CreateAriadnes"],
+  }
 }

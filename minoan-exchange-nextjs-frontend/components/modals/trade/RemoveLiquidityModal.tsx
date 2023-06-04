@@ -113,7 +113,7 @@ const RemoveLiquidityModal: React.FC<Props> = ({ tradeId, user, vaultBalance, cu
         return [pnl,amountOwed];
     };
     useEffect(() => {
-    }, [check, rawValue]);
+    }, [check, rawValue,payload]);
     return (
         <div>
             <button className='lg:px-2 py-1 bg-yellow-400 rounded-xl hover:scale-125' onClick={openModal}>Remove Liquidity</button>
@@ -218,7 +218,12 @@ const RemoveLiquidityModal: React.FC<Props> = ({ tradeId, user, vaultBalance, cu
                     </div>
                     <div className='flex flex-row justify-evenly gap-x-8'>
                         <button className='px-2 py-1 text-white bg-sky-200 rounded-lg text-sm md:text-md lg:text-lg' onClick={closeModal}>Cancel</button>
-                        <RemoveLiquidityButton value={rawValue} tradeId={tradeId} disabled={check && rawValue > 0} user={user} payload={payload}  />
+                        {rawValue && check && payload?(
+
+                            <RemoveLiquidityButton value={rawValue} tradeId={tradeId} disabled={!check && rawValue < 0} user={user} payload={payload}  />
+                            ):(
+                            <button className='px-2 py-1 text-white bg-sky-900 rounded-lg text-sm md:text-md lg:text-lg'>Loading ...</button>
+                            )}
                     </div>
                 </div>
             </Modal>

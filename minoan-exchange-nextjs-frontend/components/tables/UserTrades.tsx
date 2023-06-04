@@ -3,6 +3,7 @@ import SideSelection from './utils/SideSelection';
 import SingleTrade from './SingleTrade';
 import { Address } from 'wagmi';
 import request, { gql } from 'graphql-request';
+import { ethers } from 'ethers';
 
 interface Props {
     user: Address;
@@ -34,6 +35,8 @@ interface rows {
             baseAssetReserve:number,
             quoteAssetReserve:number,
             loanAmt:number,
+            maxLoanAmt:number,
+            interestPeriodsPassed:number
         }
     }
 }
@@ -66,6 +69,7 @@ async function fetchTradeData(user: string) {
                 isActive
                 liquidated
                 vamm{
+                    id
                 symbol
                 loanPool{
                     maxLoan
@@ -116,6 +120,8 @@ const UserTrades: React.FC<Props> = ({ user, userAvailableBalance }) => {
         return Math.floor(Math.abs(Number(baseAsset) - Number(newBaseAsset)) - Math.abs(Number(cost) + Number(loanAmt)) );
     }
     const tradeData  = use(fetchTradeData(user));
+    const encodedData =(addr1:Address, addr2:Address, num:Number, intNum:Number)=> ethers.utils.defaultAbiCoder.encode(['address', 'address', 'uint256', 'int256'], [addr1, addr2, num, intNum]);
+
 
     // console.log(tradeData);
 
@@ -130,8 +136,10 @@ const UserTrades: React.FC<Props> = ({ user, userAvailableBalance }) => {
             const now = Math.floor(Date.now()/1000);
             const interestPayment = getInterestPayment(loanAmt, interestRate, now, LastInterestPayed, interestPeriod);
             const pnlCalc = getPnl(baseAssetReserve, quoteAssetReserve, positionSize, startingCost, loanAmt, collateral);
+            const vammAdd = vamm.id;
+            const tradeID = encodedData(user,vammAdd,trade.created,side);
             return {
-                id: tradeId.tradeId,
+                id: tradeID,
                 side: side,
                 asset: vamm.symbol,
                 size: positionSize,
@@ -156,6 +164,7 @@ const UserTrades: React.FC<Props> = ({ user, userAvailableBalance }) => {
                     quoteAssetReserve:quoteAssetReserve,
                     loanAmt:loanAmt,
                     maxLoanAmt:maxLoan,
+                    interestPeriodsPassed:Math.floor((now - LastInterestPayed) / interestPeriod)
                 }
             }
         })

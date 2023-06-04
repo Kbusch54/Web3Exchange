@@ -40,28 +40,31 @@ interface Props {
             quoteAssetReserve:number,
             loanAmt:number,
             maxLoanAmt:number,
+            interestPeriodsPassed:number
         }
     }
 }
 
 const SingleTrade: React.FC<Props> = ({row,index,userAvailableBalance,user}) => {
-    const [toggle, setToggle] = useState(true)
+    const [toggle, setToggle] = useState<boolean>(true)
     const loanAmt = 222898822;
     const mmr= 100000;
     const handleToggle = () => {
         setToggle(!toggle)
     }
     useEffect(() => {
-        index==0&&handleToggle()
+        index == 0 && handleToggle()
     }, [])
+   
 
     const margin = row.information.currentCollateral/(row.lev * row.information.startCollateral) *100
     return (
         <div key={row.id} className=' '>
         <div className='grid grid-cols-7 justify-evenly text-center border border-amber-400/40 rounded-lg '>
             <div className='text-white text-md  lg:text-xl m-2 gap-x-3 flex flex-row'>
-                <button onClick={handleToggle}>{'->'}</button>
-                <div>{row.id.slice(0,10)}</div>
+                {/* @ts-ignore */}
+                <button onClick={(e)=>handleToggle(e)}>{'->'}</button>
+                <div>{row.id.slice(32,42)}</div>
             </div>
             <div className='text-white text-md  lg:text-xl m-2'>{row.asset}</div>
             <div className='text-white text-md  lg:text-xl m-2'><SideSelection side={row.side} /></div>
@@ -105,7 +108,7 @@ const SingleTrade: React.FC<Props> = ({row,index,userAvailableBalance,user}) => 
                     </div>
                     <div className='text-white text-lg flex flex-col border border-white/10'>
                         <p>Interest Periods</p>
-                        <p>2hrs</p>
+                        <p>{row.other.interestPeriodsPassed}</p>
                     </div>
                     <div className='text-white text-lg flex flex-col border border-white/10'>
                         <p>Interest Accurred</p>

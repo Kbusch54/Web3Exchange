@@ -31,8 +31,8 @@ async function main() {
     // // console.log(transactionHash);
     // const tx = await ariadne.newProposal( ariadne.address,data);
 
-    const exchange = await hre.ethers.getContractAt("Exchange","0x55f80bf5a9966f7726c14083E2b372ccFc676c47",signer);
-    const loanPool = await hre.ethers.getContractAt("LoanPool","0xb15e3D68b9E826C6ce24BAF9f971F53454714021",signer);
+    const exchange = await hre.ethers.getContractAt("Exchange","0x1d67E35482a74661d287686F034dafd39352ccC3",signer);
+    const loanPool = await hre.ethers.getContractAt("LoanPool","0xdbAf4a1447A5D76c8255C6F0c098467fDa1C3Da1",signer);
 
     // const teslaAmm ='0xd4e3F66E134558Df57cD7Ce2e17758Bf9e041851'
 
@@ -42,38 +42,38 @@ async function main() {
     // console.log('maxLoan $',ethers.utils.formatUnits(maxLoan, 6));
     // const mmr = await loanPool.mmr(teslaAmm);
     // console.log('mmr $',ethers.utils.formatUnits(mmr, 6));
-    const tradeCollateral = ethers.utils.parseUnits("75", 6);
-    const leverage = 3;
-    const side =1;
+    // const tradeCollateral = ethers.utils.parseUnits("75", 6);
+    // const leverage = 3;
+    // const side =1;
    
-    // const gasLimit = ethers.utils.parseUnits("500", wei);
+    // // const gasLimit = ethers.utils.parseUnits("500", wei);
 
-    const loanAmt = tradeCollateral*leverage;
+    // const loanAmt = tradeCollateral*leverage;
 
-    // const Vamm = await hre.ethers.getContractAt("VAmm",teslaAmm,signer);
-    const ammViewer = "0xa17C2eF962C1270950E07A15bf7C3E48aB4B6D72"
+    // // const Vamm = await hre.ethers.getContractAt("VAmm",teslaAmm,signer);
+    // const ammViewer = "0xa17C2eF962C1270950E07A15bf7C3E48aB4B6D72"
 
-    const viewer = await hre.ethers.getContractAt("AmmViewer",ammViewer,signer);
+    // const viewer = await hre.ethers.getContractAt("AmmViewer",ammViewer,signer);
 
     // const isFrozen = await Vamm.isFrozen();
     // console.log('isFrozen: ', isFrozen);
 
-    const inputTSLA = formatBytes32String("TSLA");
-    console.log('inputTSLA: ', inputTSLA);
-    // const teslaPrice = await viewer.getPriceValue(inputTSLA);
-    // console.log('teslaPrice: ', teslaPrice.toString());
+//     const inputTSLA = formatBytes32String("TSLA");
+//     console.log('inputTSLA: ', inputTSLA);
+//     // const teslaPrice = await viewer.getPriceValue(inputTSLA);
+//     // console.log('teslaPrice: ', teslaPrice.toString());
 
-    // //amm viewer
-const unsignedMetadata = "manual-payload";
-const redstonePayload = await sdk.requestRedstonePayload(
-    {
-      dataServiceId: "redstone-main-demo",
-      uniqueSignersCount: 1,
-      dataFeeds: ["TSLA","META","GOOG"],
-    },
-    ["https://d33trozg86ya9x.cloudfront.net"],
-    unsignedMetadata
-  );
+//     // //amm viewer
+// const unsignedMetadata = "manual-payload";
+// const redstonePayload = await sdk.requestRedstonePayload(
+//     {
+//       dataServiceId: "redstone-main-demo",
+//       uniqueSignersCount: 1,
+//       dataFeeds: ["TSLA","META","GOOG"],
+//     },
+//     ["https://d33trozg86ya9x.cloudfront.net"],
+//     unsignedMetadata
+//   );
   
 
   // console.log('redstonePayload: ', redstonePayload);
@@ -100,20 +100,55 @@ const redstonePayload = await sdk.requestRedstonePayload(
 // const uniQuoteAsset = ethers.utils.parseUnits("400", 6);
 // const indexPricePeriod = time.duration.hours(4);
 // const thisIsInit = await teslaAmm.init(teslaBytes,322000000,uniQuoteAsset,indexPricePeriod,signer.address);
-const teslaAmm = await hre.ethers.getContractAt("VAmm","0xBD9652a899E149D5Ed584D42b79F2730b878c68d",signer);
-console.log('teslaAmm: ', teslaAmm.address);
+// const teslaAmm = await hre.ethers.getContractAt("VAmm","0xBD9652a899E149D5Ed584D42b79F2730b878c68d",signer);
+// console.log('teslaAmm: ', teslaAmm.address);
 // console.log('thisIsInit: ', thisIsInit);
-const oldpRICE = await teslaAmm.getLastAssetSpotPrice();
+// const oldpRICE = await teslaAmm.getLastAssetSpotPrice();
 
 
+const outstandingLoan = await exchange.poolOutstandingLoans("0x74f769Cc664F8290DcfE69D15dFb0C4827Ea406e")
+
+console.log('outstandingLoan: ', outstandingLoan.toString());
+const tradIds = await exchange.getTradeIdList();
+console.log('tradIds: ', tradIds.toString());
+
+const exView =  await hre.ethers.getContractAt("ExchangeViewer","0x87c83f4f7182FC1eaaE792BbbF6300215c09F49A",signer);
+// console.log('exView: ', exView);
+const teslaAMM ='0x01b44a72e6a4935A997c6495B9Ac414852d0fa91'
+// const tradeCollFor1 = await exchange.tradeCollateral(tradIds[0]);
+// console.log('tradeCollFor1: ', tradeCollFor1.toString());
+// const tradeCollFor2 = await exchange.tradeCollateral(tradIds[1]);
+// console.log('tradeCollFor2: ', tradeCollFor2.toString());
+// //pay interest payments for both trades
+// const interestOwed = await loanPool.interestOwed(tradIds[0], teslaAMM);
+// console.log('interestOwed: ', interestOwed.toString());
+console.log('tradIds[0]: ', tradIds[0]);
+// const availableBalance = await exchange.availableBalance(signer.address);
+// console.log('availableBalance: ', availableBalance.toString());
+
+
+// const collToAdd = ethers.utils.parseUnits("100", 6);
+// const addColl = await exchange.addCollateral(tradIds[0],collToAdd);
+// console.log('addColl: ', addColl);
+
+// const availableBalance2 = await exchange.availableBalance(signer.address);
+// console.log('availableBalance after : ', availableBalance2.toString());
+
+const amm = await exchange.decodeTradeId(tradIds[0]);
+// console.log('amm: ', amm);
+// const payInterest = await exchange.payInterestPayments(tradIds[0],teslaAMM);
+
+// const payInterest2 = await exchange.payInterestPayments(tradIds[1],teslaAMM);
+// const position = await exView.calcFFRFull(tradIds[1],teslaAMM,50000000);
+// console.log('position: ', position.toString());
 // const openPosition = await teslaAmm.openPosition(loanAmt, side,`0x${redstonePayload}`,{gasLimit:400000});
 // console.log('openPosition: ', openPosition);
-const newpRICE = await teslaAmm.getLastAssetSpotPrice();
-console.log('oldpRICE: ', oldpRICE);
-console.log('newpRICE: ', newpRICE);
-const liqsnap = await teslaAmm.getLiquidityChangedSnapshots();
+// const newpRICE = await teslaAmm.getLastAssetSpotPrice();
+// console.log('oldpRICE: ', oldpRICE);
+// console.log('newpRICE: ', newpRICE);
+// const liqsnap = await teslaAmm.getLiquidityChangedSnapshots();
 
-console.log('liqsnap: ', liqsnap);
+// console.log('liqsnap: ', liqsnap);
 
 //   const viewerPrice = await viewer.getPriceValue(`0x${redstonePayload}`,inputTSLA);
 //   console.log('viewerPrice: $', ethers.utils.formatUnits(viewerPrice, 8));

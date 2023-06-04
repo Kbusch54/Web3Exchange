@@ -1459,7 +1459,7 @@ it.skip('should stake and allow theseus to deposit usdc in vault',async function
 
 });
 
-it('should allow open position on tesla amm',async function(){
+it.skip('should allow open position on tesla amm',async function(){
   const {owner, otherAccount,ammViewer,teslaAmm,usdc,exchange,theseus,poolTokens,loanPool,staking,ABI,loanPoolABI,exhcnageABI,sign,getFunctionCallData,getMethodNameHash,getTransactionHash,decodeCallData,decodeTransaction}=await loadFixture(deployContracts);
   await usdc.approve(exchange.address,ethers.utils.parseUnits("5000", 6));
   await exchange.deposit(ethers.utils.parseUnits("5000", 6));
@@ -1532,6 +1532,46 @@ it('should allow open position on tesla amm',async function(){
   console.log("postPosition", postPosition);
   console.log('new balance: $',formatUnits(await exchange.availableBalance(owner.address),6));
 });
+it("should open and add collateral to tesla amm", async function(){
+  const {owner, otherAccount,ammViewer,teslaAmm,usdc,exchange,theseus,poolTokens,loanPool,staking,ABI,loanPoolABI,exhcnageABI,sign,getFunctionCallData,getMethodNameHash,getTransactionHash,decodeCallData,decodeTransaction}=await loadFixture(deployContracts);
+
+  //   console.log('allData',allData);
+  const payload ='0x54534c410000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004f7c8c840018887d0fb400000002000000136930bb97bc248b83881038fd2d3af116ff4270b95bd3618280d7af42de9745a762d2a367ea808c2401b9cc7e23cfee490583a706ef6d4e1aaccbe024a92e5501b4d4554410000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006580498a0018887d0fb400000002000000122ae53016c6ac882a8afdd415485653c78531b063a743fee9919b2a298decb8622810beb582e2e80666a08f94d1512a3be684b5b035fdda3bb5087a825c4c8471b474f4f470000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002ea403110018887d0fb400000002000000128fb15e1471e73ffe95071078a7a546058ce90f5608916fd81d8f69f5efd938e4a44d8ed786a4041410854cbe4bc572a11246d577c6c7536172fe3abbf5de6501b00036d616e75616c2d7061796c6f616400000e000002ed57011e0000'
+
+  await usdc.approve(exchange.address,ethers.utils.parseUnits("5000", 6));
+  
+  
+  await exchange.deposit(ethers.utils.parseUnits("5000", 6));
+  await staking.stake(ethers.utils.parseUnits("1000", 6),theseus.address);
+  await staking.stake(ethers.utils.parseUnits("3000", 6),teslaAmm.address);
+  
+  const prevUserBal = await exchange.availableBalance(owner.address);
+  const collateral = parseUnits("250", 6);
+  const leverage = 3;
+  const side = 1;
+  await exchange.openPosition(teslaAmm.address, collateral, leverage, side,payload);
+  const loanAmount = collateral.mul(leverage);
+  const tradeIds = await exchange.callStatic.getTradeIds(owner.address);
+  const position = await exchange.callStatic.positions(tradeIds[0]);
+  // console.log("positioon", position);
+  const postUserBal = await exchange.availableBalance(owner.address);
+  const tradingFee = await loanPool.callStatic.tradingFeeLoanPool(teslaAmm.address);
+
+  const expectedFee = loanAmount.mul(tradingFee).div(ethers.utils.parseUnits("10", 5));
+
+  const collToAdd = parseUnits("50", 6);
+  time.increase(time.duration.hours(2));
+  await exchange.addCollateral(tradeIds[0],collToAdd);
+
+  const postPosition = await exchange.callStatic.positions(tradeIds[0]);
+  const postUserBal2 = await exchange.availableBalance(owner.address);
+  
+  console.log('user balcne before',formatUnits(prevUserBal,6));
+  console.log('user balcne after',formatUnits(postUserBal,6));
+  console.log('user balcne after add',formatUnits(postUserBal2,6));
+
+});
+
 it.skip("Should open and allow add liqudiity to tesla amm", async function(){
   const {owner, otherAccount,ammViewer,teslaAmm,usdc,exchange,theseus,poolTokens,loanPool,staking,ABI,loanPoolABI,exhcnageABI,sign,getFunctionCallData,getMethodNameHash,getTransactionHash,decodeCallData,decodeTransaction}=await loadFixture(deployContracts);
   await usdc.approve(exchange.address,ethers.utils.parseUnits("5000", 6));

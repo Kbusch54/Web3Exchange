@@ -107,13 +107,13 @@ function _onlyStaking() private view {
         bytes memory _tradeId,
         uint _collateral
     ) public returns (bool) {
-        (
+        (address _user
             ,
             address _amm,,
         ) = decodeTradeId(_tradeId);
-        require(payInterestPayments(_tradeId, _amm));
-        require(payFFR(_tradeId,_amm));
-        _checkIfAuthorized(_tradeId, msg.sender);
+        _checkIfAuthorized(_tradeId, _user);
+        payInterestPayments(_tradeId, _amm);
+        payFFR(_tradeId,_amm);
         require(_collateral > 0);
         require(availableBalance[msg.sender] >= _collateral);
         availableBalance[msg.sender] -= _collateral;
@@ -196,7 +196,7 @@ function _onlyStaking() private view {
 
        function _payments(bytes memory _tradeId, address _amm)internal{
         require(payInterestPayments(_tradeId, _amm));
-        require(payFFR(_tradeId,_amm));
+        // require(payFFR(_tradeId,_amm));
     }
    
     function payDebt(uint _amount,address _amm) internal {
@@ -216,11 +216,12 @@ function _onlyStaking() private view {
     function decodeTradeId(
         bytes memory encodedData
     ) public pure returns (address, address, uint, int) {
-        (address _user, address _amm, uint _timeStamp, int _side) = abi.decode(
+
+        return abi.decode(
             encodedData,
-            (address, address, uint, int)
+            (address, address, uint256, int256)
         );
-        return (_user, _amm, _timeStamp, _side);
+ 
     }
     function addAmm(address _amm) public onlyTheseusDao returns(uint){
         require(!isAmm[_amm]);

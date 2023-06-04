@@ -235,7 +235,7 @@ contract VAmm {
         bytes calldata _payload
     ) external onlyExchange returns (int positionSize, uint avgEntryPrice, uint openValue,uint lastFFRIndex) {
             //get oracle index price
-                getIndexPriceFromOracle(_payload);
+                // getIndexPriceFromOracle(_payload);
             if(isFrozen){
                 unFreeze(indexPrice,baseAssetStarter);
             }

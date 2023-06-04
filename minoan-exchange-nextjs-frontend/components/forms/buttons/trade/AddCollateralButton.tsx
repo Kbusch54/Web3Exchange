@@ -16,6 +16,9 @@ export default  function  AddCollateralButton({value,user,disabled,tradeId}:Prop
     const [loadingStage, setLoadingStage] = useState(false); 
     const {config,error} = useAddCollateral( user,tradeId,value);
     const contractWrite = useContractWrite(config);
+    console.log('contractWrite',config);
+    console.log('valeu',value); 
+    console.log('tradeId',tradeId);
     useEffect(() => {
         if (error == null) {
           setErrorWithContractLoad(false);

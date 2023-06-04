@@ -173,7 +173,7 @@ export default async function PoolPage({ params }: Props) {
     //@ts-ignore
     const poolToken=graphData.loanPool.poolToken;
   //@ts-ignore
-  const userData = allData.users[0].balances.availableUsdc;
+  const userData = allData.users[0]? allData.users[0].balances.availableUsdc:0;
   //@ts-ignore
   const ariadneData = allData.vamms[0].loanPool.poolToken.ammPool.ariadneDAO;
 
