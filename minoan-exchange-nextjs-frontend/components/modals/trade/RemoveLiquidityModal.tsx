@@ -1,9 +1,10 @@
 'use client';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef,use } from 'react';
 import Modal from 'react-modal';
 import { Address } from 'wagmi';
 import { ethers } from 'ethers';
 import RemoveLiquidityButton from '../../forms/buttons/trade/RemoveLiquidityButton';
+import { getPayload } from '../../../utils/contractWrites/exchange';
 
 interface Props {
     tradeId: string;
@@ -47,6 +48,8 @@ const customStyles = {
 const RemoveLiquidityModal: React.FC<Props> = ({ tradeId, user, vaultBalance, currentCollateral, leverage, currrentLoanAmt, maxLoanAmt, minimummarginReq,vammData,side,currentPositionSize }) => {
     const maxAllowed = currentPositionSize; //would be current positon size
     const k = vammData.baseAsset * vammData.quoteAsset;
+
+    const payload = use(getPayload());
 
     let subtitle;
     const [modalIsOpen, setIsOpen] = useState(false);
@@ -215,7 +218,7 @@ const RemoveLiquidityModal: React.FC<Props> = ({ tradeId, user, vaultBalance, cu
                     </div>
                     <div className='flex flex-row justify-evenly gap-x-8'>
                         <button className='px-2 py-1 text-white bg-sky-200 rounded-lg text-sm md:text-md lg:text-lg' onClick={closeModal}>Cancel</button>
-                        <RemoveLiquidityButton value={rawValue} tradeId={tradeId} disabled={check && rawValue > 0} user={user}  />
+                        <RemoveLiquidityButton value={rawValue} tradeId={tradeId} disabled={check && rawValue > 0} user={user} payload={payload}  />
                     </div>
                 </div>
             </Modal>
