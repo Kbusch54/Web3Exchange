@@ -41,7 +41,7 @@ useEffect(() => {
     } 
     async function handleSignMessage() {
         const messageToSign = Date.now();
-        console.log(messageToSign);
+        // console.log(messageToSign);
       const message = ethers.utils.arrayify(messageToSign);
           const signature =  await signer?.signMessage(message);
           console.log('signature',signature);
@@ -66,8 +66,8 @@ useEffect(() => {
             }
     }
 }
-console.log(status)
-console.log(session)
+// console.log(status)
+// console.log(session)
 if(!session){
   return (
     <div className="sign-in-form text-white ml-24 mt-24">

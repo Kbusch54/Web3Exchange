@@ -13,7 +13,7 @@ export const authOptions: NextAuthOptions = {
             //@ts-ignore
 			async authorize(credentials: any,req :any) {
 				const { address, signature,messageToSign } = credentials as any;
-                console.log("credentials", credentials);
+                // console.log("credentials", credentials);
 
                 const messageHash = ethers.utils.arrayify(Number(messageToSign));
                 console.log("messageHash", messageHash);
@@ -48,7 +48,7 @@ export const authOptions: NextAuthOptions = {
 			return { ...token, ...user };
 		},
 		async session({ session, token }: { session: Session; token: any }) {
-      console.log("session", session);
+      // console.log("session", session);
 			return { ...session, user: token };
 		},
 	},
