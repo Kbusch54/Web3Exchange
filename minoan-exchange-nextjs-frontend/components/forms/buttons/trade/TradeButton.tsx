@@ -1,7 +1,8 @@
 'use client';
-import React,{use, useEffect, useState} from 'react'
+import React,{useEffect, useState} from 'react'
 import { useOpenPosition } from '../../../../utils/contractWrites/exchange/openPosition';
-import { Address, useContractWrite } from 'wagmi';
+// import { Address, useContractWrite } from 'wagmi';
+import { useContractWrite,Address } from 'wagmi'
 import { getPayload } from '../../../../utils/contractWrites/exchange';
 
 interface Props {
@@ -38,6 +39,7 @@ const TradeButton: React.FC<Props> = ({leverage,collateral,side,user,ammId,disab
         setLoadingStage((prev) => true);
         //@ts-ignore
          await contractWrite.writeAsync()
+         //@ts-ignore
          .then((con: { wait: (arg0: number) => Promise<any>; hash: any; }) => {
             con.wait(1).then((res) => {
               if (contractWrite.isSuccess || res.status == 1) {

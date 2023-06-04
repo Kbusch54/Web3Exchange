@@ -40,6 +40,10 @@ const USDC = await hre.ethers.getContractFactory("FakeUsdc");
   const poolTokens = await PoolTokens.deploy(staking.address);
   await poolTokens.deployed();
   console.log('poolTokens deployed  ',poolTokens.address);
+  const StakerHelper = await hre.ethers.getContractFactory('StakingHelper');
+  const stakerHelper = await StakerHelper.deploy(poolTokens.address);
+  await stakerHelper.deployed();
+  console.log('stakerHelper deployed  ',stakerHelper.address);
   const CreateAriadnes = await hre.ethers.getContractFactory('CreateAriadnes');
   const createAriadnes = await CreateAriadnes.deploy(votingTime,maxVotingPower,minVotingPower,votesNeededePercentage,staking.address,poolTokens.address);
   await createAriadnes.deployed();
@@ -187,6 +191,8 @@ await usdc.transfer(theseus.address,ethers.utils.parseUnits("250000", 6));
 
 console.log('all ready here are the addresses');
 
+
+
 // 
 
 //logging outy the addresses
@@ -203,9 +209,16 @@ console.log('all ready here are the addresses');
     console.log("const exchange = ",exchange.address);
     console.log("const theseus = ",theseus.address);
     console.log("const poolTokens = ",poolTokens.address);
+    console.log("const stakingHelper = ",stakerHelper.address);
     console.log("const payload = ",payload.address);
     console.log("const exchangeViewer = ",exchangeViewer.address);
     console.log("const usdc = ",usdc.address);
+
+
+    await usdc.approve(exchange.address,ethers.utils.parseUnits("10000", 6));
+await exchange.deposit(ethers.utils.parseUnits("10000", 6));
+await staking.stake(ethers.utils.parseUnits("10000", 6),teslaAmm.address);
+console.log('staked 5000 usdc in tesla amm');
 
 }
 

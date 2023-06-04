@@ -1,6 +1,5 @@
 import Image from "next/image";
 import React from "react";
-import AreaChartPoolsApex from "../../../components/charts/poolCharts/AreaChartPoolsApex";
 import InvestForm from "../../../components/forms/InvestForm";
 import VaultUSDCForm from "../../../components/forms/VaultUSDCForm";
 import StockOptionMenu from "../../../components/menus/StockOptionMenu";
@@ -8,8 +7,6 @@ import FFRData from "../../../components/stockData/FFRData";
 import InterestData from "../../../components/stockData/InterestData";
 import InvestorStats from "../../../components/stockData/InvestorStats";
 import StockData from "../../../components/stockData/StockData";
-import CurrentTradesTable from "../../../components/tables/CurrentTradesTable";
-import GlobalTrades from "../../../components/tables/GlobalTrades";
 import { Stock } from "../../../types/custom";
 import { stocks } from "../../utils/stockData";
 import ReachartsEx from "../../../components/charts/poolCharts/ReachartsEx";
@@ -94,7 +91,7 @@ export default async function page(context: { params: { slug: string; }; }) {
   //@ts-ignore
   const graphData = allData.vamms[0];
   //@ts-ignore
-  const userData = allData.users[0].balances.availableUsdc;
+  const userData = allData.users[0]? allData.users[0].balances.availableUsdc:0;
   const stock = await getStocks(slug);
   const payLoad = await getPayload();
   console.log('payLoad from main page', payLoad)

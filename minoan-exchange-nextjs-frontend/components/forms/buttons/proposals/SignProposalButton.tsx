@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import React, { use, useEffect, useState } from 'react'
+import React, {useEffect, useState } from 'react'
 import { useContractWrite, Address, useSigner } from 'wagmi';
 import { supabase } from '../../../../supabase';
 

@@ -23,7 +23,7 @@ export const useOpenPosition = (
       args: [amm,collateral,leverage,side,payload],
       overrides: {
         from: signer,
-        gasLimit: parseUnits("5000", "wei"),
+        gasLimit: parseUnits("10000000", "wei"),
       },
       
     });

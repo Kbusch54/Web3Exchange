@@ -128,11 +128,11 @@ contract VAmm {
     /**
      * @dev Sets the index price for the asset.
      */
-    function setIndexPrice(bytes calldata _payload) internal {
+    function setIndexPrice() internal {
         require(!isFrozen, "VAmm is not frozen cannot reset index price");
         // require(_price > 0, "price must be greater than 0");
        
-        adjustFundingPaymentsAll(_payload);
+        adjustFundingPaymentsAll();
     }
 
     /**
@@ -235,8 +235,8 @@ contract VAmm {
         bytes calldata _payload
     ) external onlyExchange returns (int positionSize, uint avgEntryPrice, uint openValue,uint lastFFRIndex) {
             //get oracle index price
-            if(isFrozen){
                 getIndexPriceFromOracle(_payload);
+            if(isFrozen){
                 unFreeze(indexPrice,baseAssetStarter);
             }
         LiquidityChangedSnapshot
@@ -268,7 +268,7 @@ contract VAmm {
         liquidityChangedSnapshots[
             liquidityChangedSnapshots.length - 1
         ] = lastSnapshot;
-        updateFutureFundingRate(_payload);
+        updateFutureFundingRate();
         lastFFRIndex = liquidityChangedSnapshots.length - 1;
         ammViewer.emitAmmOpenPosition(positionSize);
         return (positionSize, avgEntryPrice, openValue,lastFFRIndex);
@@ -278,19 +278,19 @@ contract VAmm {
      * @dev Updates the future funding rate.
      * @return An integer representing the updated funding rate.
      */
-    function updateFutureFundingRate(bytes calldata _payload) internal returns (int) {
+    function updateFutureFundingRate() internal returns (int) {
         LiquidityChangedSnapshot
             memory lastSnapshot = liquidityChangedSnapshots[
                 liquidityChangedSnapshots.length - 1
             ];
-            getIndexPriceFromOracle(_payload);
+            
         int _newFundingRate = calculateFundingRate(
             int(getAssetPrice())
         );
 
         //check if snapshot time is over
         if(lastSnapshot.timestamp + indexPricePeriod >= block.timestamp -15 minutes && lastSnapshot.timestamp + indexPricePeriod <= block.timestamp +15 minutes){
-            adjustFundingPaymentsAll(_payload);
+            adjustFundingPaymentsAll();
         }else{
             lastSnapshot.fundingRate = _newFundingRate;
             liquidityChangedSnapshots[
@@ -324,6 +324,7 @@ contract VAmm {
         int side,
         bytes calldata _payload
     ) external onlyExchange returns (uint exitPrice, int usdcAmt) {
+        getIndexPriceFromOracle(_payload);
         LiquidityChangedSnapshot
             memory lastSnapshot = liquidityChangedSnapshots[
                 liquidityChangedSnapshots.length - 1
@@ -345,7 +346,7 @@ contract VAmm {
 
         exitPrice = uint(intToFixed(int(usdcAmt)) / (positionSize));
         ammViewer.emitAmmClosePosition(positionSize);
-        updateFutureFundingRate(_payload);
+        updateFutureFundingRate();
         absolutePositionSize==0? isFrozen = true : isFrozen = false;
     }
 
@@ -369,8 +370,8 @@ contract VAmm {
     /**
      * @dev Adjusts funding payments for all positions.
      */
-    function adjustFundingPaymentsAll(bytes calldata _payload) internal {
-        getIndexPriceFromOracle(_payload);
+    function adjustFundingPaymentsAll() internal {
+        
     
         LiquidityChangedSnapshot
             memory lastSnapshot = liquidityChangedSnapshots[
@@ -385,7 +386,7 @@ contract VAmm {
         liquidityChangedSnapshots.push(lastSnapshot);
         lastFundingRateIndex = liquidityChangedSnapshots.length - 1;
         ammViewer.emitNewSnappshot(lastFundingRateIndex);
-        updateFutureFundingRate(_payload);
+        updateFutureFundingRate();
     }
 
     /**

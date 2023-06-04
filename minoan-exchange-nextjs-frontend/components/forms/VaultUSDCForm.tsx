@@ -5,6 +5,7 @@ import { useGetAllowance } from "../../utils/contractReads/usdc/allowance";
 import WithdrawButton from "./buttons/exchangeBalance/WithdrawButton";
 import ApproveButton from "./buttons/exchangeBalance/ApproveButton";
 import DepositButton from "./buttons/exchangeBalance/DepositButton";
+import { usdc } from "../../utils/address";
 interface Props {
   availableUsdc: number;
   user: Address;
@@ -38,7 +39,7 @@ const VaultUSDCForm: React.FC<Props> = ({ availableUsdc, user }) => {
 
   const { data, isLoading, error } = useBalance({
     address: user,
-    token: '0xAADbde5D0ED979b0a88770be054017fC40Bc43d1',
+    token: usdc,
     watch: true,
   });
   const { allowance, isPending } = useGetAllowance(user);
@@ -46,6 +47,7 @@ const VaultUSDCForm: React.FC<Props> = ({ availableUsdc, user }) => {
   useEffect(() => {
     if (data?.value) setWalletBalance((prevState) =>  data.value.toNumber());
     if (allowance) setAllowanceAmt((prevState) =>  Number(allowance));
+    console.log('allowance',allowanceAmt);
     return () => {
       setWalletBalance(null);
       setAllowanceAmt(0);

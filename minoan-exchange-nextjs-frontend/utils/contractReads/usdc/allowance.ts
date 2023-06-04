@@ -1,7 +1,7 @@
 import { UsdcAbi } from "../../abis/UsdcAbi";
 import { useEffect, useState } from "react";
 import { useContractRead } from 'wagmi';
-const exchange = '0xbf68D4a14c353B9781e5c481413DaEa0d9bD5405';
+import { exchange, usdc } from "../../address";
 
 export const useGetAllowance = (address: string) => {
     //@ts-ignore
@@ -10,7 +10,7 @@ export const useGetAllowance = (address: string) => {
   const [isError, setIsError] = useState<string | null>(null);
 
   const { data, error, isLoading } = useContractRead({
-    address: '0xAADbde5D0ED979b0a88770be054017fC40Bc43d1',
+    address: usdc,
     abi: UsdcAbi,
     functionName: 'allowance',
     args: [address, exchange],
