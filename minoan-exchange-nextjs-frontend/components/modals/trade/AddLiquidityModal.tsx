@@ -1,9 +1,10 @@
 'use client';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Modal from 'react-modal';
 import { Address } from 'wagmi';
 import { ethers } from 'ethers';
 import AddLiquidityButton from '../../forms/buttons/trade/AddLiquidityButton';
+import { getPayload } from '../../../utils/contractWrites/exchange';
 
 interface Props {
     tradeId: string;
@@ -47,8 +48,9 @@ const customStyles = {
 const AddLiquidityModal: React.FC<Props> = ({ tradeId, user, vaultBalance, currentCollateral, leverage, currrentLoanAmt, maxLoanAmt, minimummarginReq,vammData,side,positionSize }) => {
     const maxAllowed = maxLoanAmt - currrentLoanAmt; //would be  maxLoanAmt - CurrentLoanAmt
     const k = vammData.baseAsset * vammData.quoteAsset;
-
-    let subtitle;
+    
+    // const payload = use(getPayload());
+    const payload = '0xz0s0ws9ds3hs';
     const [modalIsOpen, setIsOpen] = useState(false);
     const [isError, setIsError] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
@@ -89,8 +91,9 @@ const AddLiquidityModal: React.FC<Props> = ({ tradeId, user, vaultBalance, curre
             const value = parseFloat(usdcAmtRef.current.value.replace('$', "")) * 10 ** 6 * parseFloat(levRef.current.value);
             const leverageValue = parseFloat(levRef.current.value);
             const rawValue = parseFloat(usdcAmtRef.current.value.replace('$', "")) * 10 ** 6;
-            const totalCollateral = rawValue + currentCollateral;
-            const totalLoan = leverageValue * rawValue + currrentLoanAmt;
+            const totalCollateral = rawValue + Number(currentCollateral);
+            const totalLoan = Number(leverageValue * rawValue) + Number(currrentLoanAmt);
+            console.log('totalLoan', totalLoan/10**6);
             console.log('calculation', collateralToLoan(totalCollateral, totalLoan) * 10 ** 4);
             console.log('mmr', minimummarginReq);
             if (collateralToLoan(totalCollateral, totalLoan) * 10 ** 4 < minimummarginReq) {
@@ -128,12 +131,19 @@ const AddLiquidityModal: React.FC<Props> = ({ tradeId, user, vaultBalance, curre
         return [newEntryPrice,newPs]; 
     }
     const collateralToLoan = (collateral: number, loan: number) => {
-        const newMmr = 100 / (loan / collateral);
+        const newMmr = (collateral/loan ) *100;
         setNewMmr(newMmr);
         return newMmr;
     };
+
     useEffect(() => {
-    }, [check, rawValue, leverageValue]);
+        console.log('USE EFFECT')
+        return () => {
+            setRawValue(0);
+            setLeverageValue(0);
+        }
+    },[]);
+ 
     return (
         <div>
             <button className='lg:px-2 py-1 bg-blue-500 rounded-xl hover:scale-125' onClick={openModal}>Add Liquidity</button>
@@ -153,7 +163,7 @@ const AddLiquidityModal: React.FC<Props> = ({ tradeId, user, vaultBalance, curre
                         <div className='flex flex-row justify-around m-2 '>
                             <p className='text-sm lg:text-lg'>Trade ID</p>
                             <div className='flex-col'>
-                                <p className='text-sm md:text-md lg:text:lg text-sky-100'>{tradeId}</p>
+                                <p className='text-sm md:text-md lg:text:lg text-sky-100'>{tradeId.slice(30,45)}</p>
                                 <hr />
                             </div>
                         </div>
@@ -192,11 +202,11 @@ const AddLiquidityModal: React.FC<Props> = ({ tradeId, user, vaultBalance, curre
                         <div className='flex flex-row justify-evenly text-white  my-2'>
                             <p className='text-xs md:text-lg lg:text:2xl mr-7'>Added Liquidity </p>
                             <div className='flex flex-col vtext-center '>
-                                <input type='number' placeholder="$0.00" prefix={"$"} className='text-center text-md lg:text-lg bg-sky-700 w-[5rem] rounded-3xl text-sky-200' ref={usdcAmtRef} onInput={handleValidation} />
+                                <input type='number' placeholder="$0.00" prefix={"$"} className='text-center text-md lg:text-lg bg-sky-700 w-[5rem] rounded-3xl text-sky-200' ref={usdcAmtRef} onChange={handleValidation} />
                                 <p className='text-xs md:text-md lg:text:lg text-sky-100'>USDC Amt</p>
                             </div>
                             <div className='flex flex-col text-center'>
-                                <input type='number' placeholder="0" className='text-center  text-md lg:text-lg bg-sky-700 w-[5rem] rounded-3xl text-sky-200' ref={levRef} onInput={handleValidation} />
+                                <input type='number' placeholder="0" className='text-center  text-md lg:text-lg bg-sky-700 w-[5rem] rounded-3xl text-sky-200' ref={levRef} onChange={handleValidation} />
                                 <p className='text-xs md:text-sm lg:text:md text-sky-100'>Leverage</p>
                             </div>
                         </div>
@@ -222,11 +232,11 @@ const AddLiquidityModal: React.FC<Props> = ({ tradeId, user, vaultBalance, curre
                         <div className='flex flex-row justify-around'>
                             <div className='flex flex-col text-xs'>
                                 <p className='text-gray-800 text-sm lg:text-md'>Total Loan</p>
-                                <p className=' md:text-md lg:text-xl text-sky-100'>${leverageValue && rawValue ? parseFloat(ethers.utils.formatUnits(leverageValue * rawValue + currrentLoanAmt, 6)).toFixed(2) : '0.00'}</p>
+                                <p className=' md:text-md lg:text-xl text-sky-100'>${leverageValue && rawValue ? parseFloat(ethers.utils.formatUnits(leverageValue * rawValue + Number(currrentLoanAmt), 6)).toFixed(2) : '0.00'}</p>
                             </div>
                             <div className='flex flex-col text-xs'>
                                 <p className='text-gray-800 text-sm lg:text-md'>Total Collateral</p>
-                                <p className=' md:text-md lg:text-xl text-sky-100'>${currentCollateral && rawValue ? parseFloat(ethers.utils.formatUnits(rawValue + currentCollateral, 6)).toFixed(2) : '0.00'}</p>
+                                <p className=' md:text-md lg:text-xl text-sky-100'>${currentCollateral && rawValue ? parseFloat(ethers.utils.formatUnits(rawValue + Number(currentCollateral), 6)).toFixed(2) : '0.00'}</p>
                             </div>
                             <div className='flex flex-col text-xs'>
                                 <p className='text-gray-800 text-sm lg:text-md'>Collateral:Loan</p>
@@ -259,7 +269,7 @@ const AddLiquidityModal: React.FC<Props> = ({ tradeId, user, vaultBalance, curre
                     </div>
                     <div className='flex flex-row justify-evenly gap-x-8'>
                         <button className='px-2 py-1 text-white bg-sky-200 rounded-lg text-sm md:text-md lg:text-lg' onClick={closeModal}>Cancel</button>
-                        <AddLiquidityButton value={rawValue} tradeId={tradeId} disabled={check && rawValue > 0 && leverageValue > 0} user={user} leverage={leverageValue} />
+                        <AddLiquidityButton payload={payload} value={rawValue} tradeId={tradeId} disabled={check && rawValue > 0 && leverageValue > 0} user={user} leverage={leverageValue} />
                     </div>
                 </div>
             </Modal>

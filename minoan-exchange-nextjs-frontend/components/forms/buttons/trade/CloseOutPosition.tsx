@@ -1,5 +1,5 @@
 'use client'
-import React, { use, useEffect,useState } from 'react'
+import React, { useEffect,useState } from 'react'
 import {useContractWrite , Address } from 'wagmi';
 import { useClosePosition } from '../../../../utils/contractWrites/exchange/closePosition';
 import { getPayload } from '../../../../utils/contractWrites/exchange';
@@ -8,14 +8,15 @@ interface Props {
     tradeId:string,
     user:Address,
     disabled:boolean
+    payload:string
 }
 
-export default  function  CloseOutPositionButton({user,disabled,tradeId}:Props)  {
+export default  function  CloseOutPositionButton({user,disabled,tradeId,payload}:Props)  {
     const [approved, setApproved] = React.useState<boolean>(false);
     const [errorWithContractLoad, setErrorWithContractLoad] = React.useState<boolean>(false);   
     const [loadingStage, setLoadingStage] = useState(false); 
-    const payload = use(getPayload());
     const {config,error} = useClosePosition( user,tradeId,payload);
+    console.log('configuration',config)
     const contractWrite = useContractWrite(config);
     useEffect(() => {
         if (error == null) {

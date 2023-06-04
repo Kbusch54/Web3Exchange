@@ -112,12 +112,12 @@ const UserTrades: React.FC<Props> = ({ user, userAvailableBalance }) => {
     const getInterestPayment = (loanAmt: number, interestRate: number, now: number, lastInterestPayed: number, interestPeriod: number) => {
         return Math.floor((now - lastInterestPayed) / interestPeriod) * (loanAmt * interestRate/10**6);
     }
-    const getPnl = (baseAsset: number, quoteAsset: number, psize: number, startingCost: number, loanAmt: number, collateral: number) => {
+    const getPnl = (baseAsset: number, quoteAsset: number, psize: number, startingCost: number, loanAmt: number, collateral: number,interestPayed:number) => {
         let quoteWPsz = Number(quoteAsset) + Number(psize);
         let k = Number(baseAsset) * Number(quoteAsset);
         let newBaseAsset = (Number(k) ) / Number(quoteWPsz);
         let cost  = startingCost - collateral;
-        return Math.floor(Math.abs(Number(baseAsset) - Number(newBaseAsset)) - Math.abs(Number(cost) + Number(loanAmt)) );
+        return Math.floor(Math.abs(Number(baseAsset) - Number(newBaseAsset)) - Math.abs(Number(cost) + Number(loanAmt) + Number(interestPayed)) );
     }
     const tradeData  = use(fetchTradeData(user));
     const encodedData =(addr1:Address, addr2:Address, num:Number, intNum:Number)=> ethers.utils.defaultAbiCoder.encode(['address', 'address', 'uint256', 'int256'], [addr1, addr2, num, intNum]);
@@ -135,7 +135,7 @@ const UserTrades: React.FC<Props> = ({ user, userAvailableBalance }) => {
             const { ffr,baseAssetReserve,quoteAssetReserve } = vamm.snapshots[0];
             const now = Math.floor(Date.now()/1000);
             const interestPayment = getInterestPayment(loanAmt, interestRate, now, LastInterestPayed, interestPeriod);
-            const pnlCalc = getPnl(baseAssetReserve, quoteAssetReserve, positionSize, startingCost, loanAmt, collateral);
+            const pnlCalc = getPnl(baseAssetReserve, quoteAssetReserve, positionSize, startingCost, loanAmt, collateral,interestPayment);
             const vammAdd = vamm.id;
             const tradeID = encodedData(user,vammAdd,trade.created,side);
             return {
@@ -155,7 +155,7 @@ const UserTrades: React.FC<Props> = ({ user, userAvailableBalance }) => {
                     interestPeriod: interestPeriod,
                     interestAccrued: interestPayment,
                     startCollateral: collateral,
-                    currentCollateral: collateral - (startingCost-collateral),
+                    currentCollateral: collateral - (startingCost-collateral) - interestPayment,
                     openValue: 'openValue',
                     currentValue: 'currentValue',
                 },

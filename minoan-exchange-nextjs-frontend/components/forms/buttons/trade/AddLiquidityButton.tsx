@@ -1,5 +1,5 @@
 'use client'
-import React, { use, useEffect,useState } from 'react'
+import React, { useEffect,useState } from 'react'
 import {useContractWrite , Address } from 'wagmi';
 import { useAddLiquidity } from '../../../../utils/contractWrites/exchange/addLiquidity';
 import { getPayload } from '../../../../utils/contractWrites/exchange';
@@ -10,13 +10,13 @@ interface Props {
     user:Address,
     leverage:number,
     disabled:boolean
+    payload:string
 }
 
-export default  function  AddLiquidityButton({value,user,disabled,tradeId,leverage}:Props)  {
+export default  function  AddLiquidityButton({value,user,disabled,tradeId,leverage,payload}:Props)  {
     const [approved, setApproved] = React.useState<boolean>(false);
     const [errorWithContractLoad, setErrorWithContractLoad] = React.useState<boolean>(false);   
     const [loadingStage, setLoadingStage] = useState(false); 
-    const payload = use(getPayload());
     const {config,error} = useAddLiquidity( user,tradeId,leverage,value,payload);
     const contractWrite = useContractWrite(config);
     useEffect(() => {

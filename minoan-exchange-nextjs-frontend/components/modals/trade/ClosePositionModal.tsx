@@ -4,6 +4,7 @@ import Modal from 'react-modal';
 import { Address } from 'wagmi';
 import { ethers } from 'ethers';
 import CloseOutPositionButton from '../../forms/buttons/trade/CloseOutPosition';
+import useRedstonePayload from '../../../utils/contractWrites/exchange';
 
 interface Props {
     tradeId: string;
@@ -76,6 +77,7 @@ const ClosePositionModal: React.FC<Props> = ({ tradeId, user, currentCollateral,
     }
 
   
+    const payload = useRedstonePayload();
   
     return (
         <div>
@@ -140,7 +142,14 @@ const ClosePositionModal: React.FC<Props> = ({ tradeId, user, currentCollateral,
                     </div>
                     <div className='flex flex-row justify-evenly gap-x-8'>
                         <button className='px-2 py-1 text-white bg-sky-200 rounded-lg text-sm md:text-md lg:text-lg' onClick={closeModal}>Cancel</button>
-                        <CloseOutPositionButton  tradeId={tradeId} disabled={true} user={user}  />
+                        {payload?(
+
+                            <CloseOutPositionButton  tradeId={tradeId} disabled={false} user={user} payload={payload} />
+                            ):(
+                                <div className='px-2 py-1 rounded-lg bg-teal-400 text-white'>
+                                    Processing…
+                                </div>
+                            )}
                     </div>
                 </div>
             </Modal>

@@ -1,10 +1,10 @@
 'use client';
-import React, { useState, useEffect, useRef,use } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Modal from 'react-modal';
 import { Address } from 'wagmi';
 import { ethers } from 'ethers';
 import RemoveLiquidityButton from '../../forms/buttons/trade/RemoveLiquidityButton';
-import { getPayload } from '../../../utils/contractWrites/exchange';
+import useRedstonePayload, { getPayload } from '../../../utils/contractWrites/exchange';
 
 interface Props {
     tradeId: string;
@@ -49,7 +49,7 @@ const RemoveLiquidityModal: React.FC<Props> = ({ tradeId, user, vaultBalance, cu
     const maxAllowed = currentPositionSize; //would be current positon size
     const k = vammData.baseAsset * vammData.quoteAsset;
 
-    const payload = use(getPayload());
+    const payload = useRedstonePayload();
 
     let subtitle;
     const [modalIsOpen, setIsOpen] = useState(false);
