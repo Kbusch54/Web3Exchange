@@ -69,7 +69,6 @@ contract Exchange is VaultMain {
         require(_collateral > 0);
         require(_leverage > 0);
         require(isAmm[_amm]);
-
         require(
             availableBalance[msg.sender] >= _collateral);
         bytes memory _tradeId = abi.encode(

@@ -68,7 +68,7 @@ contract ExchangeViewer{
     function getValues(
         bytes memory _tradeId
     ) public view returns (int _collateralAfter, int _usdcAmt) {
-        require(exchange.isActive(_tradeId), "");
+        // require(exchange.isActive(_tradeId), "");
         LoanPool _pool = LoanPool(loanPool);
         Position memory _position = getPosition(_tradeId);
         address _ammPool = _position.amm;

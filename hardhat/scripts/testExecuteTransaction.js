@@ -58,22 +58,22 @@ async function main() {
     // const isFrozen = await Vamm.isFrozen();
     // console.log('isFrozen: ', isFrozen);
 
-//     const inputTSLA = formatBytes32String("TSLA");
-//     console.log('inputTSLA: ', inputTSLA);
-//     // const teslaPrice = await viewer.getPriceValue(inputTSLA);
-//     // console.log('teslaPrice: ', teslaPrice.toString());
+    const inputTSLA = formatBytes32String("TSLA");
+    console.log('inputTSLA: ', inputTSLA);
+    // const teslaPrice = await viewer.getPriceValue(inputTSLA);
+    // console.log('teslaPrice: ', teslaPrice.toString());
 
-//     // //amm viewer
-// const unsignedMetadata = "manual-payload";
-// const redstonePayload = await sdk.requestRedstonePayload(
-//     {
-//       dataServiceId: "redstone-main-demo",
-//       uniqueSignersCount: 1,
-//       dataFeeds: ["TSLA","META","GOOG"],
-//     },
-//     ["https://d33trozg86ya9x.cloudfront.net"],
-//     unsignedMetadata
-//   );
+    // //amm viewer
+const unsignedMetadata = "manual-payload";
+const redstonePayload = await sdk.requestRedstonePayload(
+    {
+      dataServiceId: "redstone-main-demo",
+      uniqueSignersCount: 1,
+      dataFeeds: ["TSLA","META","GOOG"],
+    },
+    ["https://d33trozg86ya9x.cloudfront.net"],
+    unsignedMetadata
+  );
   
 
   // console.log('redstonePayload: ', redstonePayload);
@@ -109,12 +109,21 @@ async function main() {
 const outstandingLoan = await exchange.poolOutstandingLoans("0x74f769Cc664F8290DcfE69D15dFb0C4827Ea406e")
 
 console.log('outstandingLoan: ', outstandingLoan.toString());
-const tradIds = await exchange.getTradeIdList();
-console.log('tradIds: ', tradIds.toString());
+const tradIds = await exchange.getTradeIds(signer.address);
+console.log('tradIds: ', tradIds[1]);
 
-const exView =  await hre.ethers.getContractAt("ExchangeViewer","0x87c83f4f7182FC1eaaE792BbbF6300215c09F49A",signer);
-// console.log('exView: ', exView);
-const teslaAMM ='0x01b44a72e6a4935A997c6495B9Ac414852d0fa91'
+const exView =  await hre.ethers.getContractAt("ExchangeViewer","0xa8C0f9C021ee0ec7Bf6F2782B575fc0aF416324C",signer);
+// const ExchangeViewer = await hre.ethers.getContractFactory('ExchangeViewer');
+// const exView = await ExchangeViewer.deploy(loanPool.address, "0x48EBEBD2A4264274D303e5EB1581Ab31989F1653", "0x8EdC8f028eaE0ACb8276d517D54e2680d57EA697",exchange.address,"0x8FdB0BacA21b8b1617B6A5b720517E0701c338a1");
+// await exView.deployed();
+console.log('exView: ', exView.address);
+const position = await exchange.positions(tradIds[1]);
+console.log('position: timestamp', position[5],'trader',position[8]);
+const trader = await position[8];
+const timestamp = await  position[5];
+const newID = trader.toString().concat('_').concat(timestamp.toString());
+console.log('newID: ', newID);
+// const teslaAMM ='0x74f769Cc664F8290DcfE69D15dFb0C4827Ea406e'
 // const tradeCollFor1 = await exchange.tradeCollateral(tradIds[0]);
 // console.log('tradeCollFor1: ', tradeCollFor1.toString());
 // const tradeCollFor2 = await exchange.tradeCollateral(tradIds[1]);
@@ -122,11 +131,36 @@ const teslaAMM ='0x01b44a72e6a4935A997c6495B9Ac414852d0fa91'
 // //pay interest payments for both trades
 // const interestOwed = await loanPool.interestOwed(tradIds[0], teslaAMM);
 // console.log('interestOwed: ', interestOwed.toString());
-console.log('tradIds[0]: ', tradIds[0]);
-// const availableBalance = await exchange.availableBalance(signer.address);
-// console.log('availableBalance: ', availableBalance.toString());
+// console.log('tradIds[0]: ', tradIds[0]);
+const availableBalance = await exchange.availableBalance(signer.address);
+console.log('availableBalance: ', availableBalance.toString());
+// const tradeCollateral = await exchange.tradeCollateral(signer.address);
 
+const liquidationList = await exView.checkLiquidiationList();
+console.log('liquidationList: ', liquidationList.map((x)=>x.toString()));
+const isTardeActive = await exchange.isActive(tradIds[1]);
+console.log('isTardeActive: ', isTardeActive);
+const checkLiquidtonm =await  exView.checkLiquidiation(tradIds[1]);
+console.log('checkLiquidtonm: ', checkLiquidtonm);
+const liq = await exchange.liquidate(tradIds[1],`0x${redstonePayload}`,{gasLimit:400000});
+console.log('liq: ', liq);
+const checkLiquidtonm2 =await  exView.checkLiquidiation(tradIds[1]);
+console.log('checkLiquidtonm after : ', checkLiquidtonm2);
+// const startBlock = 9122465
+// let eventFilters = exchange.filters.AddCollateral();
+// // await exchange.on('AddCollateral', (tradeId, amount) => {
+// //   console.log('AddCollateral', tradeId, amount);
+// // })
+// let events = await exchange.queryFilter(eventFilters, startBlock);
 
+// console.log('tradId all set',events);
+// const isTradeActive = await exchange.isActive(tradIds[0]);
+// console.log('isTradeActive: ', isTradeActive);
+
+// // console.log('closeTrade: ', await exchange.closeOutPosition(tradIds[0],`0x${redstonePayload}`));
+
+// const isTradeActiveAfter = await exchange.isActive(tradIds[0]);
+// console.log('isTradeActiveAfter: ', isTradeActiveAfter);
 // const collToAdd = ethers.utils.parseUnits("100", 6);
 // const addColl = await exchange.addCollateral(tradIds[0],collToAdd);
 // console.log('addColl: ', addColl);
@@ -134,7 +168,7 @@ console.log('tradIds[0]: ', tradIds[0]);
 // const availableBalance2 = await exchange.availableBalance(signer.address);
 // console.log('availableBalance after : ', availableBalance2.toString());
 
-const amm = await exchange.decodeTradeId(tradIds[0]);
+// const amm = await exchange.decodeTradeId(tradIds[0]);
 // console.log('amm: ', amm);
 // const payInterest = await exchange.payInterestPayments(tradIds[0],teslaAMM);
 

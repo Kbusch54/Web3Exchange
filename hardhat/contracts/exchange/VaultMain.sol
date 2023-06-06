@@ -122,7 +122,6 @@ function _onlyStaking() private view {
         return true;
     }
 
-
         /**
      * @dev Function to remove collateral from a position
      * @param _tradeId tradeId of the position
