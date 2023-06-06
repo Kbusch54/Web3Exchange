@@ -37,7 +37,7 @@ const Balances: React.FC<Props> = ({poolBalances,poolToken}) => {
         className="balance-container"
       >
         <div>
-          <h1>{poolToken.tokenBalance[0] !=null?ethers.utils.formatUnits(poolToken.tokenBalance[0].tokensOwnedbByUser,18):0}</h1>
+          <h1>{poolToken.tokenBalance[0] !=null?ethers.utils.formatUnits(poolToken.tokenBalance[0].tokensOwnedbByUser,8):0}</h1>
           <h3> Your Token Balance</h3>
         </div>
         <div>
@@ -45,7 +45,7 @@ const Balances: React.FC<Props> = ({poolBalances,poolToken}) => {
           <h3> Current Token Value</h3>
         </div>
         <div>
-          <h1>{Number(ethers.utils.formatUnits(poolToken.totalSupply,18)).toFixed(5)}</h1>
+          <h1>{Number(ethers.utils.formatUnits(poolToken.totalSupply,8)).toFixed(5)}</h1>
           <h3> Total Supply</h3>
         </div>
         <div>

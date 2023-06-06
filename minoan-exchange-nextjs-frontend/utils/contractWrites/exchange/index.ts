@@ -42,8 +42,8 @@ const useRedstonePayload = () => {
         // Call getPayload immediately on component mount
         getPayload();
         
-        // Then set an interval to call getPayload every 30 seconds
-        const intervalId = setInterval(getPayload, 30000); // 30000 ms = 30 s
+        // Then set an interval to call getPayload every 5 seconds
+        const intervalId = setInterval(getPayload, 5000); // 5000ms = 5 s
 
         // Clear the interval when the component unmounts
         return () => clearInterval(intervalId);
