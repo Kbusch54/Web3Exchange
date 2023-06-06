@@ -84,7 +84,7 @@ async function fetchData(user: string, theseusAdd: string) {
 
 
 
-  const endpoint = "https://api.studio.thegraph.com/query/46803/subgraph-minoan/v0.1.9";
+  const endpoint = "https://api.studio.thegraph.com/query/46803/subgraph-minoan/version/latest";
   const variables = { user: user, theseusAdd: theseusAdd };
   const data = await request(endpoint, query, variables);
 
@@ -103,7 +103,7 @@ async function page(props: Props) {
   console.log('poolAvaib', poolAvailableUsdc);
   console.log('data', data);
   //@ts-ignore
-  const poolBalance = { availableUsdc: data.stakes[0].totalStaked - data.theseusDAOs[0].insuranceFundMin, totalUsdcSupply: data.stakes[0].totalStaked };
+  const poolBalance = { availableUsdc: data.stakes[0] ? data.stakes[0].totalStaked - data.theseusDAOs[0]?data.theseusDAOs[0].insuranceFundMin:0 : 0, totalUsdcSupply: data.stakes[0] ? data.stakes[0].totalStaked : 0 };
   return (
     <div className="m-6 ">
       <div className="flex flex-row justify-between">
@@ -239,16 +239,23 @@ async function page(props: Props) {
         <div>
 
           {/* @ts-ignore */}
-          <StakingSection availableUsdc={poolAvailableUsdc} poolToken={data.theseusDAOs[0].poolToken} user={session.user.name} name={'Theseus'} poolBalance={poolBalance} />
+          <StakingSection availableUsdc={poolAvailableUsdc} poolToken={data.theseusDAOs[0] ? data.theseusDAOs[0].poolToken : {
+            id: '0',
+            tokenId: 0,
+            totalSupply: 0,
+            tokenBalance: 0,
+            ammPool: 0,
+            isFrozen: true
+          }} user={session.user.name} name={'Theseus'} poolBalance={poolBalance} />
         </div>
         <div className="mb-12">
           {/* @ts-ignore */}
-          <DAOPurposals daoAddress={data.theseusDAOs[0].id} user={session.user.name} tokenId={data.theseusDAOs[0].tokenId} isTheseus={true}/>
+          <DAOPurposals daoAddress={data.theseusDAOs[0]?data.theseusDAOs[0].id:'0x87ad83DC2F12A14C85D20f178A918a65Edfe1B42'} user={session.user.name} tokenId={data.theseusDAOs[0]?data.theseusDAOs[0].tokenId:0} isTheseus={true} />
         </div>
       </div>
 
       <div className="flex justify-center">
-        <TheseusProposalModal user={session.user.name}/>
+        <TheseusProposalModal user={session.user.name} />
       </div>
     </div>
   );
