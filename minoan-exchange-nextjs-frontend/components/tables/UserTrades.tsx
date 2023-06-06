@@ -1,3 +1,4 @@
+//@ts-ignore
 import React,{use} from 'react'
 import SideSelection from './utils/SideSelection';
 import SingleTrade from './SingleTrade';
@@ -37,13 +38,15 @@ interface rows {
             loanAmt:number,
             maxLoanAmt:number,
             interestPeriodsPassed:number
+            minLoanAmt:number,
         }
     }
 }
 async function fetchTradeData(user: string) {
     const query = gql` 
       query getTrades($user: String!) {
-            trades(where:{user:$user}){
+            trades(where:{user:$user}, orderBy: created
+    orderDirection: desc){
                 id
                 created
                 tradeBalance{
@@ -73,6 +76,7 @@ async function fetchTradeData(user: string) {
                 symbol
                 loanPool{
                     maxLoan
+                    minLoan
                     mmr
                     interestPeriod
                 }
@@ -100,13 +104,7 @@ async function fetchTradeData(user: string) {
 
     return data;
 }
-// const rows = [
-//     { id: '0x783gbd874', side: 1, asset: 'TSLA', size: 353849506, lev: 10, pnl: '200.47', created: 29304 },
-//     { id: '0x783gbd874', side: -1, asset: 'TSLA', size: 3385712905, lev: 7, pnl: '20.47', created: 29304 },
-//     { id: '0x783gbd874', side: 1, asset: 'TSLA', size: 1223958693, lev: 14, pnl: '30.47', created: 29304 },
-//     { id: '0x783gbd874', side: -1, asset: 'TSLA', size: 253748591, lev: 2, pnl: '5.29', created: 29304 },
-//     { id: '0x783gbd874', side: -1, asset: 'TSLA', size: 59383811, lev: 19, pnl: '-50.99', created: 29304 },
-// ];
+
 
 const UserTrades: React.FC<Props> = ({ user, userAvailableBalance }) => {
     const getInterestPayment = (loanAmt: number, interestRate: number, now: number, lastInterestPayed: number, interestPeriod: number) => {
@@ -130,7 +128,7 @@ const UserTrades: React.FC<Props> = ({ user, userAvailableBalance }) => {
         return trades.map((trade: any) => {
             const { tradeBalance, startingCost, isActive, liquidated, vamm } = trade;
             const { side, positionSize, leverage, pnl, interestRate, LastFFRPayed, collateral, LastInterestPayed, tradeId, loanAmt, entryPrice } = tradeBalance;
-            const { mmr, interestPeriod,maxLoan } = vamm.loanPool;
+            const { mmr, interestPeriod,maxLoan,minLoan } = vamm.loanPool;
             const { marketPrice, indexPrice } = vamm.priceData;
             const { ffr,baseAssetReserve,quoteAssetReserve } = vamm.snapshots[0];
             const now = Math.floor(Date.now()/1000);
@@ -138,6 +136,16 @@ const UserTrades: React.FC<Props> = ({ user, userAvailableBalance }) => {
             const pnlCalc = getPnl(baseAssetReserve, quoteAssetReserve, positionSize, startingCost, loanAmt, collateral,interestPayment);
             const vammAdd = vamm.id;
             const tradeID = encodedData(user,vammAdd,trade.created,side);
+            const getDateTime = (timestamp:number) => {
+                const date = new Date(timestamp * 1000);
+                const year = date.getFullYear();
+                const month = date.getMonth()+1;
+                const day = date.getDay()+4;
+                const hour = date.getHours();
+                const min = date.getMinutes();
+                const sec = date.getSeconds();
+                return `${month}/${day} ${hour>12?hour-12:hour}:${min} ${hour>12?'PM':'AM'}`;
+            }
             return {
                 id: tradeID,
                 side: side,
@@ -145,7 +153,7 @@ const UserTrades: React.FC<Props> = ({ user, userAvailableBalance }) => {
                 size: positionSize,
                 lev: leverage,
                 pnl: pnlCalc,
-                created: trade.created,
+                created: getDateTime(trade.created),
                 information: {
                     mmr: mmr,
                     ffr: ffr,
@@ -164,14 +172,16 @@ const UserTrades: React.FC<Props> = ({ user, userAvailableBalance }) => {
                     quoteAssetReserve:quoteAssetReserve,
                     loanAmt:loanAmt,
                     maxLoanAmt:maxLoan,
-                    interestPeriodsPassed:Math.floor((now - LastInterestPayed) / interestPeriod)
+                    interestPeriodsPassed:Math.floor((now - LastInterestPayed) / interestPeriod),
+                    minLoanAmt:minLoan,
+
                 }
             }
         })
 
     }
     const rows = tradesToRows(tradeData.trades);
-    // console.log('rows',rowsa);
+    // console.log('ROWS',rows);
     //startingCost
     return (
         <div className='border-2 border-amber-400/20 flex flex-col bg-slate-900 shadow-lg shadow-amber-400 rounded-2xl'>
