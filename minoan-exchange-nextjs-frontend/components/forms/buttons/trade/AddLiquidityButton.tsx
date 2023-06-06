@@ -16,8 +16,10 @@ interface Props {
 export default  function  AddLiquidityButton({value,user,disabled,tradeId,leverage,payload}:Props)  {
     const [approved, setApproved] = React.useState<boolean>(false);
     const [errorWithContractLoad, setErrorWithContractLoad] = React.useState<boolean>(false);   
-    const [loadingStage, setLoadingStage] = useState(false); 
+    const [loadingStage, setLoadingStage] = useState(false);
     const {config,error} = useAddLiquidity( user,tradeId,leverage,value,payload);
+    console.log('payload',payload)
+    console.log('config',config); 
     const contractWrite = useContractWrite(config);
     useEffect(() => {
         if (error == null) {

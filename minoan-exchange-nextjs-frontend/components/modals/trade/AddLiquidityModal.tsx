@@ -4,7 +4,7 @@ import Modal from 'react-modal';
 import { Address } from 'wagmi';
 import { ethers } from 'ethers';
 import AddLiquidityButton from '../../forms/buttons/trade/AddLiquidityButton';
-import { getPayload } from '../../../utils/contractWrites/exchange';
+import useRedstonePayload, { getPayload } from '../../../utils/contractWrites/exchange';
 
 interface Props {
     tradeId: string;
@@ -21,6 +21,7 @@ interface Props {
         quoteAsset:number,
     }
     positionSize:number
+    minLoanAmt:number
 
 
 }
@@ -45,12 +46,11 @@ const customStyles = {
 
 };
 // Modal.setAppElement('#yourAppElement');
-const AddLiquidityModal: React.FC<Props> = ({ tradeId, user, vaultBalance, currentCollateral, leverage, currrentLoanAmt, maxLoanAmt, minimummarginReq,vammData,side,positionSize }) => {
+const AddLiquidityModal: React.FC<Props> = ({ tradeId, user, vaultBalance, currentCollateral, leverage, currrentLoanAmt, maxLoanAmt, minimummarginReq,vammData,side,positionSize,minLoanAmt }) => {
     const maxAllowed = maxLoanAmt - currrentLoanAmt; //would be  maxLoanAmt - CurrentLoanAmt
     const k = vammData.baseAsset * vammData.quoteAsset;
     
-    // const payload = use(getPayload());
-    const payload = '0xz0s0ws9ds3hs';
+    const payload = useRedstonePayload()
     const [modalIsOpen, setIsOpen] = useState(false);
     const [isError, setIsError] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
@@ -91,12 +91,14 @@ const AddLiquidityModal: React.FC<Props> = ({ tradeId, user, vaultBalance, curre
             const value = parseFloat(usdcAmtRef.current.value.replace('$', "")) * 10 ** 6 * parseFloat(levRef.current.value);
             const leverageValue = parseFloat(levRef.current.value);
             const rawValue = parseFloat(usdcAmtRef.current.value.replace('$', "")) * 10 ** 6;
+            console.log('value', value);
+            console.log('raw', rawValue);
             const totalCollateral = rawValue + Number(currentCollateral);
             const totalLoan = Number(leverageValue * rawValue) + Number(currrentLoanAmt);
             console.log('totalLoan', totalLoan/10**6);
             console.log('calculation', collateralToLoan(totalCollateral, totalLoan) * 10 ** 4);
             console.log('mmr', minimummarginReq);
-            if (collateralToLoan(totalCollateral, totalLoan) * 10 ** 4 < minimummarginReq) {
+            if (collateralToLoan(totalCollateral, totalLoan) * 10 ** 4 < Number(minimummarginReq)) {
                 setIsError(true);
                 setErrorMessage(`Minimum Margin Requirements Not Met`);
                 setCheck(false);
@@ -106,7 +108,7 @@ const AddLiquidityModal: React.FC<Props> = ({ tradeId, user, vaultBalance, curre
                 setErrorMessage('Amount exceeds max allowed');
                 setCheck(false);
                 setRawValue(0);
-            } else if (value <= 0 || rawValue <= 0 || leverageValue <= 0) {
+            } else if (value <= 0 || rawValue <= 0 || leverageValue <= 0 || totalCollateral <= Number(minLoanAmt)) {
                 setIsError(true);
                 setErrorMessage('Amount is less than min allowed');
                 setCheck(false);
@@ -120,13 +122,13 @@ const AddLiquidityModal: React.FC<Props> = ({ tradeId, user, vaultBalance, curre
                 const [newEntryPrice,newPs] = getEntryPriceAndPsize(rawValue * leverageValue);
                 entryPriceRef.current ? entryPriceRef.current.value = '$'.concat(String((newEntryPrice/10**6).toFixed(2))) : null;
                 newPSizeRef.current ? newPSizeRef.current.value = ethers.utils.formatUnits(Math.floor(newPs),6) : null;
-                newTotalPSizeRef.current ? newTotalPSizeRef.current.value = ethers.utils.formatUnits(Math.floor(newPs + positionSize),8) : null;
+                newTotalPSizeRef.current ? newTotalPSizeRef.current.value = ethers.utils.formatUnits(Math.floor(newPs + Number(positionSize)),8) : null;
             }
         }
     };
     const getEntryPriceAndPsize = (newAmt:number) => {
-        const newQ = k/(vammData.baseAsset + newAmt *side);
-        const newPs = vammData.quoteAsset - newQ;
+        const newQ = k/(Number(vammData.baseAsset) + Number(newAmt) *Number(side));
+        const newPs = Number(vammData.quoteAsset) - newQ;
         const newEntryPrice = newAmt*10**6/newPs;
         return [newEntryPrice,newPs]; 
     }
@@ -269,7 +271,13 @@ const AddLiquidityModal: React.FC<Props> = ({ tradeId, user, vaultBalance, curre
                     </div>
                     <div className='flex flex-row justify-evenly gap-x-8'>
                         <button className='px-2 py-1 text-white bg-sky-200 rounded-lg text-sm md:text-md lg:text-lg' onClick={closeModal}>Cancel</button>
-                        <AddLiquidityButton payload={payload} value={rawValue} tradeId={tradeId} disabled={check && rawValue > 0 && leverageValue > 0} user={user} leverage={leverageValue} />
+                        {payload && rawValue && check && user && leverageValue?(
+
+                            <AddLiquidityButton payload={payload} value={Number(rawValue)} tradeId={tradeId} disabled={!check && rawValue < 0 && leverageValue < 0} user={user} leverage={leverageValue} />
+                        ):
+                        (
+                            <button className='px-2 py-1 text-white bg-sky-300 rounded-lg'>Loading...</button>
+                        )}
                     </div>
                 </div>
             </Modal>
