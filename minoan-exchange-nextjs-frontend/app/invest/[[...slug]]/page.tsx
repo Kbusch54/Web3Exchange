@@ -140,7 +140,7 @@ export default async function page(context: { params: { slug: string; }; }) {
                 <StockData stockSymbol={stock?.symbol} />
               )}
 
-              <InterestData />
+              <InterestData user={session.user.name} amm={graphData.loanPool.id}/>
               <FFRData />
               <InvestorStats loanPool={graphData.loanPool} />
             </div>
