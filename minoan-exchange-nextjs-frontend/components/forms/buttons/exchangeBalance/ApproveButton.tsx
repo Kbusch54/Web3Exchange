@@ -52,13 +52,13 @@ export default  function  ApproveButton({value,user,disabled}:Props)  {
       };
       if (contractWrite.isLoading || loadingStage)
         return (
-          <div className="absolute bottom-8 right-8 px-8 py-2  rounded-3xl bg-teal-400 text-white">
+          <div className=" bottom-8 right-8 px-8 py-2  rounded-3xl bg-teal-400 text-white">
             Processing…
           </div>
         );
       if (errorWithContractLoad)
         return (
-          <div className="absolute bottom-8 right-8 px-8 py-2  rounded-3xl bg-red-600 text-white animate-pulse">
+          <div className=" bottom-8 right-8 px-8 py-2  rounded-3xl bg-red-600 text-white animate-pulse">
             Error WIth current transaciton…
           </div>
         );
