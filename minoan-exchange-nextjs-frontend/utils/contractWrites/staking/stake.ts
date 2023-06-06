@@ -1,6 +1,6 @@
 import { StakingAbi } from "../../abis";
 import { usePrepareContractWrite, Address } from "wagmi";
-import { staking,TeslaAmm as teslaAmm,GoogleAmm as googleAmm, MetaAmm as metaAmm} from "../../address";
+import { staking,TeslaAmm as teslaAmm,GoogleAmm as googleAmm, MetaAmm as metaAmm, theseus} from "../../address";
 
 export const useStake = (
     amount:number,
@@ -33,6 +33,6 @@ function getAmmAddress(ammId: string) {
         return metaAmm;
     }
     else{
-        return teslaAmm;
+        return theseus;
     }
 }

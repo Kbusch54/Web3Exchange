@@ -200,7 +200,7 @@ export default function TheseusProposalModal({user}:Props) {
                                     <div className='flex flex-row gap-x-28 justify-between my-4'>
                                         <button disabled className='px-2 py-1 bg-red-500 rounded-2xl text-white text-lg hover:scale-125'>Cancel</button>
                                         {(check && callData && addressTo && description && currentId && user) ? (
-                                            <ProposeButton addressTo={addressTo} callData={callData} contractAddress={theseus} description={description} nonce={currentId} user={user} disabled={!check} />
+                                            <ProposeButton addressTo={addressTo} callData={callData} contractAddress={theseus} description={description} nonce={currentId} user={user} disabled={!check} option='thesesu' />
                                         ) : (
                                             <button disabled className='px-2 py-1 bg-teal-500 rounded-2xl text-white text-lg hover:scale-125'>Loading...</button>
                                         )}
