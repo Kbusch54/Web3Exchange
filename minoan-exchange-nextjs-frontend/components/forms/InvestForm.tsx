@@ -128,7 +128,7 @@ const InvestForm: React.FC<Props> = ({ stockData, currentData, user, availableUs
           <input type="text" id="totalCost" ref={totalCostRef} name="totalCost" className='rounded-xl w-32 ml-2 text-slate-200 text-center' disabled />
         </div>
         {collateral > 0 && leverage > 0 && side && check && payload ? (
-          <Suspense fallback={<div className='bg-slate-700 px-2 py-1 rounded-2xl text-white mt-4 hover:scale-125'> <button disabled >Trade</button></div>}>
+          <Suspense fallback={<div className='bg-slate-700 px-2 py-1 rounded-2xl text-white mt-4 hover:scale-125'> <button disabled >Loading...</button></div>}>
             <TradeButton leverage={leverage} side={side} collateral={collateral} disabled={!check} ammId={currentData.name} user={user} payload={payload} />
           </Suspense>
         ) : (

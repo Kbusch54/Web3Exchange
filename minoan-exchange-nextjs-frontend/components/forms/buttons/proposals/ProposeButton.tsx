@@ -5,6 +5,7 @@ import { useContractWrite, Address, useSigner } from 'wagmi';
 import { useNewProposal } from '../../../../utils/contractWrites/daos/ariadne/purpose';
 import { ethers } from 'ethers';
 import { getTransactionHash } from '../../../../utils/helpers/doas';
+import { theseus } from '../../../../utils/address';
 
 interface Props {
   callData: string,
@@ -13,23 +14,26 @@ interface Props {
   description: string,
   nonce: number,
   contractAddress: Address,
-  addressTo: Address
+  addressTo: Address,
+  option?: string
 
 }
 
-export default function ProposeButton  ({ user, disabled, callData, addressTo, description,nonce,contractAddress }: Props) {
+export default function ProposeButton  ({ user, disabled, callData, addressTo, description,nonce,contractAddress,option }: Props) {
   const [approved, setApproved] = React.useState<boolean>(false);
   const [errorWithContractLoad, setErrorWithContractLoad] = React.useState<boolean>(false);
   const [loadingStage, setLoadingStage] = useState(false);
   const [usedNonce, setUsedNonce] = useState<number|null>(null);
   const [etherscanTransactionHash, setEtherscanTransactionHash] = useState<string|null>(null);
   const [transactionHash, setTransactionHash] = useState<string|null>(null);
+
   
-  
-  
-  const { config, error } = useNewProposal(addressTo,callData, contractAddress, user);
+  const { config, error } = useNewProposal(addressTo,callData, contractAddress, user,option);
   const { data: signer, isError, isLoading } = useSigner();
   console.log('config for proposal', config);
+  console.log('addressTo:', addressTo);
+  console.log('callData:', callData);
+  console.log('contractAddress:', contractAddress);
   console.log('description in propose button', description);
   //@ts-ignore
   const hanldeSign = async (e) => {
