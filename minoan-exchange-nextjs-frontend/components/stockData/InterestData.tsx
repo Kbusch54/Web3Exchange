@@ -74,18 +74,7 @@ const getNextInterestPaymentMinutes = (trades: any, now: number) => {
   });
   return [minTillPayment,index];
 }
-// const least = getNextInterestPaymentMinutes(interestData.trades,Math.floor(Date.now()/1000));
-// console.log('least',least);
-// console.log('date now',Date.now());
-// // const targetDate = new Date(Date.now()+least*1000);
-// console.log('date after',Date.now()+least*1000);
-// const dateNow = new Date(Date.now());
-// const dateAfter = new Date(Date.now()+least*1000);
-// const dateDiff = dateAfter.getTime() - dateNow.getTime();
-// console.log('dateDiff',dateDiff);
-// 1686086088681-1686086004681=82000
 useEffect(() => {
- 
     const dateNow = new Date(Date.now());
     const [least,index] = getNextInterestPaymentMinutes(interestData.trades,Math.floor(Number(dateNow)/1000));
     setTimeTillNextInterestPayment(Number(dateNow)+least*1000);
