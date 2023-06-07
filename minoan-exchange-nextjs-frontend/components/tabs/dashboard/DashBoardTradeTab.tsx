@@ -7,7 +7,7 @@ import TabList from "@mui/lab/TabList";
 import TabPanel from "@mui/lab/TabPanel";
 import { Suspense } from "react";
 import ExSkeleton from "../../skeletons/ExSkeleton";
-import AllTrades from "../../tables/AllTrades";
+import AllTrades from "../../tables/trades/AllTrades";
 import { Address } from "wagmi";
 
 interface Props {

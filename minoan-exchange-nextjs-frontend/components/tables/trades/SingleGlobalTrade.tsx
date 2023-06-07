@@ -1,6 +1,6 @@
 import React from 'react'
 import { formatUnits } from 'ethers/lib/utils.js';
-import SideSelection from './utils/SideSelection';
+import SideSelection from '../utils/SideSelection';
 
 interface Props {
     index:number;

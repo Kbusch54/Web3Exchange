@@ -13,7 +13,7 @@ import ReachartsEx from "../../../components/charts/poolCharts/ReachartsEx";
 import { getServerSession } from "../../api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
 import { request, gql } from "graphql-request";
-import AllTrades from "../../../components/tables/AllTrades";
+import AllTrades from "../../../components/tables/trades/AllTrades";
 type Props = {};
 
 async function fetchLoanPoolData(symbol: string, user: string) {
@@ -94,7 +94,7 @@ export default async function page(context: { params: { slug: string; }; }) {
   return (
     <>
 
-      <div className="m-2">
+      <div className="my-2 mx-6">
         {stocks && (
           <div className="lg:grid lg:grid-cols-12">
             <div className="lg:col-span-2 ">

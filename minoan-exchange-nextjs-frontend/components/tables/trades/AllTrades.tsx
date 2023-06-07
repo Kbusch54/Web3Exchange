@@ -6,7 +6,7 @@ import { Address } from 'wagmi';
 import request, { gql } from 'graphql-request';
 import { ethers } from 'ethers';
 import SingleGlobalTrade from './SingleGlobalTrade';
-import { getAmmId } from '../../utils/helpers/doas';
+import { getAmmId } from '../../../utils/helpers/doas';
 
 interface Props {
     user: Address;
