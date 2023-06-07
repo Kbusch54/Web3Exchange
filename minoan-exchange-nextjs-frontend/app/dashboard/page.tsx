@@ -1,4 +1,5 @@
-import React, { Suspense } from 'react'
+// @ts-ignore
+import React,{use,Suspense} from 'react'
 import DashBoardBalances from '../../components/balances/dashboard/DashBoardBalances'
 import ReachartsEx from '../../components/charts/poolCharts/ReachartsEx'
 import DashBoardTradeTab from '../../components/tabs/dashboard/DashBoardTradeTab'
@@ -7,9 +8,62 @@ import { Stock } from "../../types/custom";
 import { stocks } from "../utils/stockData";
 import { getServerSession } from "../api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
+import request, { gql } from 'graphql-request';
 
 interface Props {
 
+}
+async function fetchUserData(user: string) {
+    const query = gql` 
+      query getAllData($user: String!) {
+
+    trades(where:{user: $user}){
+      isActive
+      ammPool{
+        id
+        }
+      startingCost
+      tradeBalance{
+        collateral
+        pnl
+      }
+  }
+    users(where:{id:$user}){
+      balances{
+        availableUsdc
+        totalCollateralUsdc
+      }
+      stakes(where:{user:$user}){
+        theseusDAO{
+          tokenId
+          poolToken{
+                totalSupply
+            tokenBalance{
+              tokensOwnedbByUser
+              totalStaked
+            }
+          }
+        }
+        ammPool{
+          poolToken{
+            tokenId
+            totalSupply
+          }
+          poolBalance{
+            totalUsdcSupply
+          }
+        }
+        totalStaked
+        tokensOwnedbByUser
+      }
+    }
+  }
+`;
+    const endpoint = "https://api.studio.thegraph.com/query/46803/subgraph-minoan/version/latest";
+    const variables = { user: user };
+    const data = await request(endpoint, query, variables);
+
+    return data;
 }
 
 export default async function page  () {
@@ -19,10 +73,12 @@ export default async function page  () {
         redirect(`/auth/signin?callbackUrl=/dashboard`);
     }
     console.log('session from dashboard',session);
+    const userData = await fetchUserData(session.user.name);
+    console.log('userData from dashboard',userData);
     return (
         <div className='mx-4 flex flex-col gap-y-4'>
             <h1 className='text-white'>Dashboard</h1>
-            <DashBoardBalances user={session.user.name} />
+            <DashBoardBalances userData={userData}/>
             <div className='mx-4 md:mx-8 lg:mx-24 xl:mx-40 border-2 border-slate-700 mt-12'>
                 <Suspense fallback={<div>Loading...</div>}>
                     <ReachartsEx />
@@ -33,7 +89,7 @@ export default async function page  () {
             </Suspense>
             {stocks && (
                 <Suspense fallback={<div>Loading...</div>}>
-                    <DashboardAssets stockData={stocks} />
+                    <DashboardAssets userData={userData} stockData={stocks} user={session.user.name} />
                 </Suspense>
             )}
         </div>

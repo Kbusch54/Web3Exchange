@@ -2,12 +2,15 @@ import React, { Suspense } from 'react'
 import AssetStatsTab from './tabs/dashboard/AssetStatsTab'
 import { Stock } from '../types/custom'
 import Image from 'next/image'
+import { Address } from 'wagmi'
 
 interface Props {
-    stockData: Stock
+    stockData: Stock,
+    user:Address,
+    userData:any
 }
 
-const AssetStatsPersonal: React.FC<Props> = ({ stockData }) => {
+const AssetStatsPersonal: React.FC<Props> = ({ stockData,user,userData }) => {
     return (
         <div>
             <div className='flex flex-row justify-between mx-24 mt-8'>
@@ -30,7 +33,7 @@ const AssetStatsPersonal: React.FC<Props> = ({ stockData }) => {
             <div className='text-center'>
                 <Suspense fallback={<table>Loading...</table>}>
 
-                    <AssetStatsTab stockData={stockData} />
+                    <AssetStatsTab stockData={stockData} user={user} userData={userData} />
                 </Suspense>
             </div>
         </div>

@@ -3,12 +3,15 @@ import React, { useEffect, useState } from 'react'
 import { Stock } from '../../../types/custom';
 
 import AsstsStatsPersonal from '../../AssetStatsPersonal';
+import { Address } from 'wagmi';
 
 interface Props {
-    stockData: Stock[]
+    stockData: Stock[],
+    user: Address
+    userData: any
 }
 
-const DashboardAssets: React.FC<Props> = ({ stockData }) => {
+const DashboardAssets: React.FC<Props> = ({ stockData,user,userData }) => {
     const [activeAsset, setActiveAsset] = useState(1);
     //change every 5 seconds
     // useEffect(() => {
@@ -46,7 +49,7 @@ const DashboardAssets: React.FC<Props> = ({ stockData }) => {
                 <button className='left-2 top-20 absolute' onClick={handlePrevious}>Prev</button>
                 <button className='right-2 top-20 absolute' onClick={handleNext}>Next</button>
             </div>
-            <AsstsStatsPersonal stockData={stockData[activeAsset]} />
+            <AsstsStatsPersonal stockData={stockData[activeAsset]} user={user} userData={userData} />
         </div>
     )
 }

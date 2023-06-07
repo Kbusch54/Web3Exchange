@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import { Address } from "wagmi";
-import { ariadneTesla, ariadneGoogle, ariadneMeta } from "../../address";
+import { ariadneTesla, ariadneGoogle, ariadneMeta,GoogleAmm,TeslaAmm,MetaAmm } from "../../address";
 import { useGetCurrentId } from "../../contractReads/ariadneDao/currentId";
 
 export const getTransactionHashFull = async (
@@ -48,4 +48,18 @@ export const getTransactionHash = (_nonce:number, to:Address, value:number, data
     else{
         return ariadneTesla;
     }
-}
+  }
+
+    export const getAmmId = (ammId: string) =>{
+        const amm =String(ammId).toLowerCase();
+        if(amm === "tesla"){
+            return TeslaAmm;
+        }else if(amm === "google"){
+            return GoogleAmm;
+        }else if(amm === "meta"){
+            return MetaAmm;
+        }
+        else{
+            return TeslaAmm;
+        }
+    }

@@ -1,63 +1,12 @@
-import request, { gql } from 'graphql-request';
-// @ts-ignore
-import React,{use} from 'react'
-import { Address } from 'wagmi';
+import React from 'react'
 import { moneyFormatter } from '../../../utils/helpers/functions';
 
 interface Props {
-    user: Address;
+    userData:any
 }
-async function fetchUserData(user: string) {
-    const query = gql` 
-      query getAllData($user: String!) {
 
-    trades(where:{user: $user}){
-      isActive
-      startingCost
-      tradeBalance{
-        collateral
-        pnl
-      }
-  }
-    users(where:{id:$user}){
-      balances{
-        availableUsdc
-        totalCollateralUsdc
-      }
-      stakes(where:{user:$user}){
-        theseusDAO{
-          tokenId
-          poolToken{
-                totalSupply
-            tokenBalance{
-              tokensOwnedbByUser
-              totalStaked
-            }
-          }
-        }
-        ammPool{
-          poolToken{
-            tokenId
-            totalSupply
-          }
-          poolBalance{
-            totalUsdcSupply
-          }
-        }
-        totalStaked
-        tokensOwnedbByUser
-      }
-    }
-  }
-`;
-    const endpoint = "https://api.studio.thegraph.com/query/46803/subgraph-minoan/version/latest";
-    const variables = { user: user };
-    const data = await request(endpoint, query, variables);
-
-    return data;
-}
-const DashBoardBalances: React.FC<Props> = ({user}) => {
-    const userData = use(fetchUserData(user));
+const DashBoardBalances: React.FC<Props> = ({userData}) => {
+    
     const cummulativeStartingCost = userData.trades?userData.trades.reduce((a: any, b: any) => Number(a) + Number(b.startingCost), 0):0;
     const cummulativeStartingCostActive = userData.trades?userData.trades.filter((trade: { isActive: any; }) => trade.isActive).reduce((a: any, b: any) => Number(a) + Number(b.startingCost), 0):0;
     const activeTrades = userData.trades?userData.trades.filter((trade: { isActive: any; }) => trade.isActive):0;

@@ -8,12 +8,15 @@ import TabPanel from "@mui/lab/TabPanel";
 import { Stock } from "../../../types/custom";
 import InvestmentStats from "../../balances/dashboard/InvestmentStats";
 import StakingStatsPersonal from "../../balances/dashboard/StakingStatsPersonal";
+import { Address } from "wagmi";
 
 
 interface Props {
-    stockData: Stock
+    stockData: Stock,
+    user:Address,
+    userData:any
 }
-const AssetStatsTab: React.FC<Props> = ({stockData}) => {
+const AssetStatsTab: React.FC<Props> = ({stockData,user,userData}) => {
     const [value, setValue] = React.useState("1");
 
     const handleChange = (event: React.SyntheticEvent, newValue: string) => {
@@ -37,7 +40,7 @@ const AssetStatsTab: React.FC<Props> = ({stockData}) => {
         </Box>
         <TabPanel value="1">
             Invest{stockData.name}
-        <InvestmentStats/>
+        <InvestmentStats symbol={stockData.name} userTrades={userData.trades}/>
             </TabPanel>
         <TabPanel value="2">Staking{stockData.name}
         <StakingStatsPersonal/>
