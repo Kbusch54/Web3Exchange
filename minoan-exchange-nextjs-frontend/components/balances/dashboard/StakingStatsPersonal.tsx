@@ -1,6 +1,5 @@
 import React from 'react'
 import { getAmmId } from '../../../utils/helpers/doas'
-import { formatUnits } from 'ethers/lib/utils.js'
 import { moneyFormatter } from '../../../utils/helpers/functions'
 
 interface Props {
