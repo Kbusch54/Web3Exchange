@@ -81,9 +81,9 @@ export default async function page  () {
             {/* <DashBoardBalances userData={userData}/> */}
             <div className='mx-4 md:mx-8 lg:mx-24 xl:mx-40 border-2 border-slate-700 mt-12'>
                 {/* <Suspense fallback={<div>Loading...</div>}>
-                    <ReachartsEx />
                 </Suspense> */}
                 <RechartPie />
+                <ReachartsEx />
             </div>
             
                 {/* <DashBoardTradeTab user={session.user.name}  />

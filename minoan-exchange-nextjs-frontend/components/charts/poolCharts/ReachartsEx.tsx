@@ -14,7 +14,8 @@ import {
   for (let num = 30; num >= 0; num--) {
     data.push({
       date: subDays(new Date(), num).toISOString().substring(0, 10),
-      value: 1 + Math.random(),
+      value: 10 * Math.random(),
+      other: 18 * Math.random() + Math.random(),
     });
   }
   
@@ -28,7 +29,8 @@ function CustomTooltip({ active, payload, label }) {
       return (
         <div className="tooltip ">
           <h4>{format(parseISO(label), "eeee, d MMM, yyyy")}</h4>
-          <p>${payload[0].value.toFixed(2)} CAD</p>
+          <p>${payload[0].value.toFixed(2)} Index</p>
+          <p>${payload[1].value.toFixed(2)} Market</p>
         </div>
       );
     }
@@ -47,9 +49,11 @@ const ReachartsEx: React.FC<Props> = () => {
           </defs>
   
           <Area dataKey="value" stroke="#2451B7" fill="url(#color)" />
+          <Area dataKey="other" stroke="#9251B7" fill="url(#color)" />
   
           <XAxis
             dataKey="date"
+            accumulate="sum"
             axisLine={false}
             tickLine={false}
             tickFormatter={(str) => {
@@ -62,10 +66,10 @@ const ReachartsEx: React.FC<Props> = () => {
           />
   
           <YAxis
-            dataKey="value"
+            dataKey="other"
             axisLine={false}
             tickLine={false}
-            tickCount={8}
+            tickCount={12}
             tickFormatter={(number) => `$${number.toFixed(2)}`}
           />
           {/* @ts-ignore */}

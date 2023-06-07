@@ -10,7 +10,7 @@ const data = [
   { name: 'Meta', value: 300 },
   { name: 'Theseus', value: 3000 },
 ];
-const COLORS = ["#8884d8", "#82ca9d", "#FFBB28", "#FF8042", "#AF19FF"];
+const COLORS = ["#8184d8", "#9251B7", "#FFBB28", "#7151B7", "#9252D7"];
 const renderActiveShape = (props: { cx: any; cy: any; midAngle: any; innerRadius: any; outerRadius: any; startAngle: any; endAngle: any; fill: any; payload: any; percent: any; value: any; }) => {
   const RADIAN = Math.PI / 180;
   const { cx, cy, midAngle, innerRadius, outerRadius, startAngle, endAngle, fill, payload, percent, value } = props;
