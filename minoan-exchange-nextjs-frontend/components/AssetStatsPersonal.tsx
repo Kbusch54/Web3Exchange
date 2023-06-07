@@ -3,6 +3,7 @@ import AssetStatsTab from './tabs/dashboard/AssetStatsTab'
 import { Stock } from '../types/custom'
 import Image from 'next/image'
 import { Address } from 'wagmi'
+import LoadingState from './balances/dashboard/LoadingState'
 
 interface Props {
     stockData: Stock,
@@ -31,7 +32,9 @@ const AssetStatsPersonal: React.FC<Props> = ({ stockData,user,userData }) => {
                 </div>
             </div>
             <div className='text-center'>
-                <Suspense fallback={<table>Loading...</table>}>
+                <Suspense fallback={
+                        <LoadingState />
+                    }>
 
                     <AssetStatsTab stockData={stockData} user={user} userData={userData} />
                 </Suspense>
