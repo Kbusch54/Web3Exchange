@@ -8,6 +8,7 @@ import { Address } from 'wagmi';
 interface Props {
   user: Address;
   amm:Address;
+  symbol:string;
     
 }
 async function fetchInterestData(ammPoolId: string, user: string) {
@@ -39,7 +40,7 @@ async function fetchInterestData(ammPoolId: string, user: string) {
 
 const MyLazyComponent = lazy(async () => await import('../countdowns/Countdown'));
 
-const InterestData: React.FC<Props> = ({user,amm}) => {
+const InterestData: React.FC<Props> = ({user,amm,symbol}) => {
   const interestData = use(fetchInterestData(amm,user));
   const[timeTillNextInterestPayment,setTimeTillNextInterestPayment] = useState<number>(0);
   const[totalAmountOwed,setTotalAmountOwed] = useState<number>(0);
@@ -77,13 +78,13 @@ const getNextInterestPaymentMinutes = (trades: any, now: number) => {
 useEffect(() => {
     const dateNow = new Date(Date.now());
     const [least,index] = getNextInterestPaymentMinutes(interestData.trades,Math.floor(Number(dateNow)/1000));
-    setTimeTillNextInterestPayment(Number(dateNow)+least*1000);
+    setTimeTillNextInterestPayment(interestData.trades.length>0?Number(dateNow)+least*1000:Number(dateNow));
     const totalAmountOwed = getAllTradeInterestPayments(interestData.trades,Math.floor(Number(dateNow)/1000));
     setTotalAmountOwed(totalAmountOwed);
-    const nextTrade = getInterestPayment(interestData.trades[index].tradeBalance.loanAmt,interestData.trades[index].tradeBalance.interestRate,Math.floor(Number(dateNow)/1000),interestData.trades[index].tradeBalance.LastInterestPayed,interestData.trades[index].ammPool.interestPeriod);
+    const nextTrade =interestData.trades[index]? getInterestPayment(interestData.trades[index].tradeBalance.loanAmt,interestData.trades[index].tradeBalance.interestRate,Math.floor(Number(dateNow)/1000),interestData.trades[index].tradeBalance.LastInterestPayed,interestData.trades[index].ammPool.interestPeriod):0;
     setCollateralForNextTrade(nextTrade)
 
-  return () => {
+  return () => { 
       setTimeTillNextInterestPayment(0);
       setTotalAmountOwed(0);
     }
@@ -108,14 +109,14 @@ console.log('totalAmountOwed: $',ethers.utils.formatUnits(totalAmountOwed,6));
             <p>Collateral Change</p>
             <div className="flex-col">
               <p>-${ethers.utils.formatUnits(collateralForNextTrade,6)}</p>
-              <p className="text-xs text-amber-500 ml-6">TSLA</p>
+              <p className="text-xs text-amber-500 ml-6">{symbol[0].toUpperCase()}</p>
             </div>
           </div>
           <div className="flex flex-row justify-between m-4 gap-x-12 text-xl">
             <p>Total Collateral Change Each Period</p>
             <div className="flex-col">
               <p>-${ethers.utils.formatUnits(totalAmountOwed,6)}</p>
-              <p className="text-xs text-amber-500 ml-6">TSLA</p>
+              <p className="text-xs text-amber-500 ml-6">{symbol[0].toUpperCase()}</p>
             </div>
           </div>
         </div>

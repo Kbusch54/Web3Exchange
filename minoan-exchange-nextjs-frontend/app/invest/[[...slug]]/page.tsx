@@ -130,7 +130,7 @@ export default async function page(context: { params: { slug: string; }; }) {
             <div className="col-span-3">
         
 
-                <InvestForm stockData={stocks} currentData={graphData} user={session.user.name} availableUsdc={userData}  />
+                <InvestForm stockData={stocks} currentData={graphData} user={session.user.name} availableUsdc={userData}   />
      
               <VaultUSDCForm availableUsdc={graphData.loanPool.poolToken.tokenBalance[0]?.user ? graphData.loanPool.poolToken.tokenBalance[0].user.balances.availableUsdc : 0} user={session.user.name} />
             </div>
@@ -140,7 +140,7 @@ export default async function page(context: { params: { slug: string; }; }) {
                 <StockData stockSymbol={stock?.symbol} />
               )}
 
-              <InterestData user={session.user.name} amm={graphData.loanPool.id}/>
+              <InterestData user={session.user.name} amm={graphData.loanPool.id} symbol={slug}/>
               <FFRData />
               <InvestorStats loanPool={graphData.loanPool} />
             </div>
