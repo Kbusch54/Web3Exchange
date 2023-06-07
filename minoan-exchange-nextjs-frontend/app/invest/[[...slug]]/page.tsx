@@ -13,8 +13,7 @@ import ReachartsEx from "../../../components/charts/poolCharts/ReachartsEx";
 import { getServerSession } from "../../api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
 import { request, gql } from "graphql-request";
-import GlobalTradesBox from "../../../components/tables/GlobalTradesBox";
-import UserTrades from "../../../components/tables/UserTrades";
+import AllTrades from "../../../components/tables/AllTrades";
 type Props = {};
 
 async function fetchLoanPoolData(symbol: string, user: string) {
@@ -149,7 +148,7 @@ export default async function page(context: { params: { slug: string; }; }) {
                */}
               <Suspense fallback={<div>Loading...</div>}>
 
-                <UserTrades user={session.user.name} userAvailableBalance={userData} active={true} global={false} amm={slug} />
+                <AllTrades user={session.user.name} userAvailableBalance={userData} active={true} global={false} amm={slug} />
               </Suspense>
             </div>
             <div className="my-4  lg:col-start-2 lg:col-span-9 w-full text-white ">
@@ -158,7 +157,7 @@ export default async function page(context: { params: { slug: string; }; }) {
               <h1 className="text-white text-3xl text-center my-4">Recent {stock?.name.toUpperCase()} Trades</h1>
               <Suspense fallback={<div>Loading...</div>}>
 
-                <UserTrades user={session.user.name} userAvailableBalance={userData} active={true} global={true} amm={slug} />
+                <AllTrades user={session.user.name} userAvailableBalance={userData} active={true} global={true} amm={slug} />
               </Suspense>
             </div>
           </div>

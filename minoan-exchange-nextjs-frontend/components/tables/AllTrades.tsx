@@ -1,5 +1,6 @@
+'use client'
 //@ts-ignore
-import React, { use } from 'react'
+import React, { use, useEffect } from 'react'
 import SingleTrade from './SingleTrade';
 import { Address } from 'wagmi';
 import request, { gql } from 'graphql-request';
@@ -115,7 +116,7 @@ async function fetchGlobalTradeData() {
 
 
 
-const UserTrades: React.FC<Props> = ({ user, userAvailableBalance, active = true, amm, global=false }) => {
+const AllTrades: React.FC<Props> = ({ user, userAvailableBalance, active = true, amm, global=false }) => {
     const getInterestPayment = (loanAmt: number, interestRate: number, now: number, lastInterestPayed: number, interestPeriod: number) => {
         return Math.floor((now - lastInterestPayed) / interestPeriod) * (loanAmt * interestRate / 10 ** 6);
     }
@@ -189,14 +190,11 @@ const UserTrades: React.FC<Props> = ({ user, userAvailableBalance, active = true
 
     }
     const tradeData = use(fetchGlobalTradeData());
-    if(tradeData.loading) return <div>Loading...</div>;
     if(tradeData.error) return <div>Error...</div>;
-    // if(!tradeData.data) return <div>No Data...</div>;
 
     const rows: rows = tradesToRows(tradeData.trades);
     let inD = 0;
     const ammId = amm?getAmmId(amm):null;
-    console.log('row', rows)
     if (!global) {
         return (
             <div className='border-2 border-amber-400/20 flex flex-col bg-slate-900 shadow-lg shadow-amber-400 rounded-2xl'>
@@ -269,4 +267,4 @@ const UserTrades: React.FC<Props> = ({ user, userAvailableBalance, active = true
 
 }
 
-export default UserTrades
+export default AllTrades
