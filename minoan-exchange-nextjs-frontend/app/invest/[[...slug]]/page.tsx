@@ -1,5 +1,5 @@
 import Image from "next/image";
-import React from "react";
+import React, { Suspense } from "react";
 import InvestForm from "../../../components/forms/InvestForm";
 import VaultUSDCForm from "../../../components/forms/VaultUSDCForm";
 import StockOptionMenu from "../../../components/menus/StockOptionMenu";
@@ -90,7 +90,7 @@ export default async function page(context: { params: { slug: string; }; }) {
   //@ts-ignore
   const graphData = allData.vamms[0];
   //@ts-ignore
-  const userData = allData.users[0]? allData.users[0].balances.availableUsdc:0;
+  const userData = allData.users[0] ? allData.users[0].balances.availableUsdc : 0;
   const stock = await getStocks(slug);
   return (
     <>
@@ -128,10 +128,10 @@ export default async function page(context: { params: { slug: string; }; }) {
             </div>
 
             <div className="col-span-3">
-        
 
-                <InvestForm stockData={stocks} currentData={graphData} user={session.user.name} availableUsdc={userData}   />
-     
+
+              <InvestForm stockData={stocks} currentData={graphData} user={session.user.name} availableUsdc={userData} />
+
               <VaultUSDCForm availableUsdc={graphData.loanPool.poolToken.tokenBalance[0]?.user ? graphData.loanPool.poolToken.tokenBalance[0].user.balances.availableUsdc : 0} user={session.user.name} />
             </div>
             <div className="col-span-12 grid grid-cols-2 xl:grid-cols-4 gap-x-6 items-center justify-evenly gap-y-8  mt-8">
@@ -140,20 +140,26 @@ export default async function page(context: { params: { slug: string; }; }) {
                 <StockData stockSymbol={stock?.symbol} />
               )}
 
-              <InterestData user={session.user.name} amm={graphData.loanPool.id} symbol={slug}/>
+              <InterestData user={session.user.name} amm={graphData.loanPool.id} symbol={slug} />
               <FFRData />
               <InvestorStats loanPool={graphData.loanPool} />
             </div>
             <div className="my-4 col-start-2 col-span-9  w-full">
               {/* <CurrentTradesTable />
                */}
-               <UserTrades user={session.user.name} userAvailableBalance={userData} />
+              <Suspense fallback={<div>Loading...</div>}>
+
+                <UserTrades user={session.user.name} userAvailableBalance={userData} active={true} global={false} amm={slug} />
+              </Suspense>
             </div>
             <div className="my-4  lg:col-start-2 lg:col-span-9 w-full text-white ">
               {/* <GlobalTrades />
              */}
               <h1 className="text-white text-3xl text-center my-4">Recent {stock?.name.toUpperCase()} Trades</h1>
-              <GlobalTradesBox />
+              <Suspense fallback={<div>Loading...</div>}>
+
+                <UserTrades user={session.user.name} userAvailableBalance={userData} active={true} global={true} amm={slug} />
+              </Suspense>
             </div>
           </div>
         )}

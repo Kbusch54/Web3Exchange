@@ -1,14 +1,18 @@
 //@ts-ignore
-import React,{use} from 'react'
-import SideSelection from './utils/SideSelection';
+import React, { use } from 'react'
 import SingleTrade from './SingleTrade';
 import { Address } from 'wagmi';
 import request, { gql } from 'graphql-request';
 import { ethers } from 'ethers';
+import SingleGlobalTrade from './SingleGlobalTrade';
+import { getAmmId } from '../../utils/helpers/doas';
 
 interface Props {
     user: Address;
     userAvailableBalance: number;
+    active?: boolean;
+    amm?: string;
+    global?: boolean;
 }
 interface rows {
     row: {
@@ -19,6 +23,8 @@ interface rows {
         lev: number;
         pnl: string;
         created: number;
+        isActive: boolean;
+        userAdd: Address;
         information: {
             mmr: number;
             ffr: number;
@@ -32,119 +38,117 @@ interface rows {
             openValue: number;
             currentValue: number;
         }
-        other:{
-            baseAssetReserve:number,
-            quoteAssetReserve:number,
-            loanAmt:number,
-            maxLoanAmt:number,
-            interestPeriodsPassed:number
-            minLoanAmt:number,
+        other: {
+            baseAssetReserve: number,
+            quoteAssetReserve: number,
+            loanAmt: number,
+            maxLoanAmt: number,
+            interestPeriodsPassed: number
+            minLoanAmt: number,
         }
     }
 }
-async function fetchTradeData(user: string) {
+async function fetchGlobalTradeData() {
     const query = gql` 
-      query getTrades($user: String!) {
-            trades(where:{user:$user}, orderBy: created
-    orderDirection: desc){
-                id
-                created
-                tradeBalance{
-                    side
-                    positionSize
-                    leverage
-                    pnl
-                    interestRate
-                    LastFFRPayed
-                    collateral
-                    LastInterestPayed
-                    LastFFRPayed
-                    LastInterestPayed
-                    tradeId{     
-                        tradeId
-                    }
-                    loanAmt
-                    positionSize
-                    leverage
-                    entryPrice
-                }
-                startingCost
-                isActive
-                liquidated
-                vamm{
-                    id
-                symbol
-                loanPool{
-                    maxLoan
-                    minLoan
-                    mmr
-                    interestPeriod
-                }
-                priceData{
-                    marketPrice
-                    indexPrice 
-                }
-                    snapshots{
-                        quoteAssetReserve
-                        baseAssetReserve
-                        marketPrice   
-                        ffr    
-                        indexPrice
-                }
-                }
-            }
+      query getTrades {
+    trades {
+      id
+      created
+      user{
+        id
       }
+      tradeBalance {
+        side
+        positionSize
+        leverage
+        pnl
+        interestRate
+        LastFFRPayed
+        collateral
+        LastInterestPayed
+        LastFFRPayed
+        LastInterestPayed
+        tradeId {
+          tradeId
+        }
+        loanAmt
+        positionSize
+        leverage
+        entryPrice
+      }
+      startingCost
+      isActive
+      liquidated
+      vamm {
+        id
+        symbol
+        loanPool {
+          maxLoan
+          minLoan
+          mmr
+          interestPeriod
+        }
+        priceData {
+          marketPrice
+          indexPrice
+        }
+        snapshots {
+          quoteAssetReserve
+          baseAssetReserve
+          marketPrice
+          ffr
+          indexPrice
+        }
+      }
+    }
+  }
 `;
 
-
+// (orderBy: created orderDirection: desc)
 
     const endpoint = "https://api.studio.thegraph.com/query/46803/subgraph-minoan/version/latest";
-    const variables = { user: user };
-    const data = await request(endpoint, query, variables);
+    // const variables = {};
+    const data = await request(endpoint, query);
 
     return data;
 }
 
 
-const UserTrades: React.FC<Props> = ({ user, userAvailableBalance }) => {
+
+const UserTrades: React.FC<Props> = ({ user, userAvailableBalance, active = true, amm, global=false }) => {
     const getInterestPayment = (loanAmt: number, interestRate: number, now: number, lastInterestPayed: number, interestPeriod: number) => {
-        return Math.floor((now - lastInterestPayed) / interestPeriod) * (loanAmt * interestRate/10**6);
+        return Math.floor((now - lastInterestPayed) / interestPeriod) * (loanAmt * interestRate / 10 ** 6);
     }
-    const getPnl = (baseAsset: number, quoteAsset: number, psize: number, startingCost: number, loanAmt: number, collateral: number,interestPayed:number) => {
+    const getPnl = (baseAsset: number, quoteAsset: number, psize: number, startingCost: number, loanAmt: number, collateral: number, interestPayed: number) => {
         let quoteWPsz = Number(quoteAsset) + Number(psize);
         let k = Number(baseAsset) * Number(quoteAsset);
-        let newBaseAsset = (Number(k) ) / Number(quoteWPsz);
-        let cost  = startingCost - collateral;
-        return Math.floor(Math.abs(Number(baseAsset) - Number(newBaseAsset)) - Math.abs(Number(cost) + Number(loanAmt) + Number(interestPayed)) );
+        let newBaseAsset = (Number(k)) / Number(quoteWPsz);
+        let cost = startingCost - collateral;
+        return Math.floor(Math.abs(Number(baseAsset) - Number(newBaseAsset)) - Math.abs(Number(cost) + Number(loanAmt) + Number(interestPayed)));
     }
-    const tradeData  = use(fetchTradeData(user));
-    const encodedData =(addr1:Address, addr2:Address, num:Number, intNum:Number)=> ethers.utils.defaultAbiCoder.encode(['address', 'address', 'uint256', 'int256'], [addr1, addr2, num, intNum]);
-
-
-    // console.log(tradeData);
-
-    // tradeData.trades.map((trade: any) => {console.log('this is trades',trade)});
+    const encodedData = (addr1: Address, addr2: Address, num: Number, intNum: Number) => ethers.utils.defaultAbiCoder.encode(['address', 'address', 'uint256', 'int256'], [addr1, addr2, num, intNum]);
+   
     const tradesToRows = (trades: any) => {
         return trades.map((trade: any) => {
-            const { tradeBalance, startingCost, isActive, liquidated, vamm } = trade;
+            const { tradeBalance, startingCost, isActive, liquidated, vamm,user } = trade;
             const { side, positionSize, leverage, pnl, interestRate, LastFFRPayed, collateral, LastInterestPayed, tradeId, loanAmt, entryPrice } = tradeBalance;
-            const { mmr, interestPeriod,maxLoan,minLoan } = vamm.loanPool;
+            const { mmr, interestPeriod, maxLoan, minLoan } = vamm.loanPool;
             const { marketPrice, indexPrice } = vamm.priceData;
-            const { ffr,baseAssetReserve,quoteAssetReserve } = vamm.snapshots[0];
-            const now = Math.floor(Date.now()/1000);
+            const { ffr, baseAssetReserve, quoteAssetReserve } = vamm.snapshots[0];
+            const now = Math.floor(Date.now() / 1000);
             const interestPayment = getInterestPayment(loanAmt, interestRate, now, LastInterestPayed, interestPeriod);
-            const pnlCalc = getPnl(baseAssetReserve, quoteAssetReserve, positionSize, startingCost, loanAmt, collateral,interestPayment);
+            const pnlCalc = getPnl(baseAssetReserve, quoteAssetReserve, positionSize, startingCost, loanAmt, collateral, interestPayment);
             const vammAdd = vamm.id;
-            const tradeID = encodedData(user,vammAdd,trade.created,side);
-            const getDateTime = (timestamp:number) => {
+            const tradeID = encodedData(user.id, vammAdd, trade.created, side);
+            const getDateTime = (timestamp: number) => {
                 const date = new Date(timestamp * 1000);
                 const year = date.getFullYear();
-                const month = date.getMonth()+1;
-                const day = date.getDay()+4;
+                const month = date.getMonth() + 1;
+                const day = date.getDay() + 4;
                 const hour = date.getHours();
                 const min = date.getMinutes();
                 const sec = date.getSeconds();
-                return `${month}/${day} ${hour>12?hour-12:hour}:${min} ${hour>12?'PM':'AM'}`;
+                return `${month}/${day} ${hour > 12 ? hour - 12 : hour}:${min} ${hour > 12 ? 'PM' : 'AM'}`;
             }
             return {
                 id: tradeID,
@@ -154,6 +158,10 @@ const UserTrades: React.FC<Props> = ({ user, userAvailableBalance }) => {
                 lev: leverage,
                 pnl: pnlCalc,
                 created: getDateTime(trade.created),
+                isActive: isActive,
+                liquidated: liquidated,
+                vamm: vamm.id,
+                userAdd: user.id,
                 information: {
                     mmr: mmr,
                     ffr: ffr,
@@ -163,44 +171,102 @@ const UserTrades: React.FC<Props> = ({ user, userAvailableBalance }) => {
                     interestPeriod: interestPeriod,
                     interestAccrued: interestPayment,
                     startCollateral: collateral,
-                    currentCollateral: collateral - (startingCost-collateral) - interestPayment,
+                    currentCollateral: collateral - (startingCost - collateral) - interestPayment,
                     openValue: 'openValue',
                     currentValue: 'currentValue',
                 },
-                other:{
-                    baseAssetReserve:baseAssetReserve,
-                    quoteAssetReserve:quoteAssetReserve,
-                    loanAmt:loanAmt,
-                    maxLoanAmt:maxLoan,
-                    interestPeriodsPassed:Math.floor((now - LastInterestPayed) / interestPeriod),
-                    minLoanAmt:minLoan,
+                other: {
+                    baseAssetReserve: baseAssetReserve,
+                    quoteAssetReserve: quoteAssetReserve,
+                    loanAmt: loanAmt,
+                    maxLoanAmt: maxLoan,
+                    interestPeriodsPassed: Math.floor((now - LastInterestPayed) / interestPeriod),
+                    minLoanAmt: minLoan,
 
                 }
             }
         })
 
     }
-    const rows = tradesToRows(tradeData.trades);
-    // console.log('ROWS',rows);
-    //startingCost
-    return (
-        <div className='border-2 border-amber-400/20 flex flex-col bg-slate-900 shadow-lg shadow-amber-400 rounded-2xl'>
-            <div className='grid grid-cols-7 justify-evenly text-center '>
-                <div className='text-white text-lg lg:text-2xl m-2'>TradeId</div>
-                <div className='text-white text-lg lg:text-2xl m-2'>Assets</div>
-                <div className='text-white text-lg lg:text-2xl m-2'>Side</div>
-                <div className='text-white text-lg lg:text-2xl m-2'>Position Size</div>
-                <div className='text-white text-lg lg:text-2xl m-2'>Leverage</div>
-                <div className='text-white text-lg lg:text-2xl m-2'>Pnl</div>
-                <div className='text-white text-lg lg:text-2xl m-2'>Active Since</div>
+    const tradeData = use(fetchGlobalTradeData());
+    if(tradeData.loading) return <div>Loading...</div>;
+    if(tradeData.error) return <div>Error...</div>;
+    // if(!tradeData.data) return <div>No Data...</div>;
+
+    const rows: rows = tradesToRows(tradeData.trades);
+    let inD = 0;
+    const ammId = amm?getAmmId(amm):null;
+    console.log('row', rows)
+    if (!global) {
+        return (
+            <div className='border-2 border-amber-400/20 flex flex-col bg-slate-900 shadow-lg shadow-amber-400 rounded-2xl'>
+                <div className='grid grid-cols-7 justify-evenly text-center '>
+                    <div className='text-white text-lg lg:text-2xl m-2'>TradeId</div>
+                    <div className='text-white text-lg lg:text-2xl m-2'>Assets</div>
+                    <div className='text-white text-lg lg:text-2xl m-2'>Side</div>
+                    <div className='text-white text-lg lg:text-2xl m-2'>Position Size</div>
+                    <div className='text-white text-lg lg:text-2xl m-2'>Leverage</div>
+                    <div className='text-white text-lg lg:text-2xl m-2'>Pnl</div>
+                    <div className='text-white text-lg lg:text-2xl m-2'>Active Since</div>
+                </div>
+                <hr className='border-white' />
+                {/* @ts-ignore */}
+                {rows.map((row, index) => {
+                    if (active && row.isActive && !row.liquidated && String(row.userAdd).toLowerCase() === String(user).toLowerCase()) {
+                        if(amm? (String(row.vamm).toLowerCase() === String(ammId).toLowerCase()):true){
+                            return <SingleTrade key={row.id} row={row} index={index} user={user} userAvailableBalance={userAvailableBalance} />;
+                        }else{
+                            return null;
+                        }
+                    } else if (!active && (!row.isActive || row.liquidated) &&String(row.userAdd).toLowerCase() === String(user).toLowerCase()) {
+                        if(amm? (String(row.vamm).toLowerCase() === String(ammId).toLowerCase()):true){
+                            return <SingleTrade key={row.id} row={row} index={index} user={user} userAvailableBalance={userAvailableBalance} />;
+                        }else{
+                            return null;
+                        }
+                    } else {
+                        return null;
+                    }
+                })}
+
             </div>
-            <hr className='border-white' />
-            {/* @ts-ignore */}
-            {rows.map((row, index) => (
-                <SingleTrade key={row.id} row={row} index={index} user={user} userAvailableBalance={userAvailableBalance} />
-            ))}
-        </div>
-    )
+        )
+    } else {
+        return (
+            <div className='border-2 border-amber-400/20 flex flex-col bg-slate-900 shadow-lg shadow-amber-400 rounded-2xl'>
+                <div className='grid grid-cols-7 justify-evenly text-center '>
+                    <div className='text-white text-lg lg:text-2xl m-2'>TradeId</div>
+                    <div className='text-white text-lg lg:text-2xl m-2'>Assets</div>
+                    <div className='text-white text-lg lg:text-2xl m-2'>Side</div>
+                    <div className='text-white text-lg lg:text-2xl m-2'>Position Size</div>
+                    <div className='text-white text-lg lg:text-2xl m-2'>Leverage</div>
+                    <div className='text-white text-lg lg:text-2xl m-2'>Pnl</div>
+                    <div className='text-white text-lg lg:text-2xl m-2'>Active Since</div>
+                </div>
+                <hr className='border-white' />
+                {/* @ts-ignore */}
+                {rows.map((row, index) => {
+                    if (active && row.isActive && !row.liquidated && String(row.userAdd).toLowerCase() != String(user).toLowerCase()) {
+                        if(amm? (String(row.vamm).toLowerCase() === String(ammId).toLowerCase()):true){
+                            return <SingleGlobalTrade key={row.id} row={row} index={index} />;
+                        }else{
+                            return null;
+                        }
+                    } else if (!active && (!row.isActive || row.liquidated) && String(row.userAdd).toLowerCase() != String(user).toLowerCase()) {
+                        if(amm? (String(row.vamm).toLowerCase() === String(ammId).toLowerCase()):true){
+                            return <SingleGlobalTrade key={row.id} row={row} index={index} />;
+                        }else{
+                            return null;
+                        }
+                    } else {
+                        return null;
+                    }
+                })}
+
+            </div>
+        )
+    }
+
 }
 
 export default UserTrades

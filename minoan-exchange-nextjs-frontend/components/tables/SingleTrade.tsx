@@ -3,12 +3,12 @@ import React,{useEffect, useState} from 'react'
 import SideSelection from './utils/SideSelection';
 import AddCollateralModal from '../modals/trade/AddCollateralModal';
 import { Address } from 'wagmi';
-import RemoveCollateralButton from '../forms/buttons/trade/RemoveCollateralButton';
 import RemoveCollateralModal from '../modals/trade/RemoveCollateralModal';
 import AddLiquidityModal from '../modals/trade/AddLiquidityModal';
 import RemoveLiquidityModal from '../modals/trade/RemoveLiquidityModal';
 import ClosePositionModal from '../modals/trade/ClosePositionModal';
 import { formatEther, formatUnits } from 'ethers/lib/utils.js';
+import { moneyFormatter } from '../../utils/helpers/functions';
 
 interface Props {
     user:Address;
@@ -48,8 +48,6 @@ interface Props {
 
 const SingleTrade: React.FC<Props> = ({row,index,userAvailableBalance,user}) => {
     const [toggle, setToggle] = useState<boolean>(true)
-    const loanAmt = 222898822;
-    const mmr= 100000;
     const handleToggle = () => {
         setToggle(!toggle)
     }
@@ -71,7 +69,7 @@ const SingleTrade: React.FC<Props> = ({row,index,userAvailableBalance,user}) => 
             <div className='text-white text-md  lg:text-xl m-2'><SideSelection side={row.side} /></div>
             <div className='text-white text-md  lg:text-xl m-2'>{(row.size/10**8).toFixed(4)}</div>
             <div className='text-white text-md  lg:text-xl m-2'>{row.lev}</div>
-            <div className='text-white text-md  lg:text-xl m-2'>{Number(row.pnl) > 0 ? `$${(Number(formatUnits(String(Number(row.pnl)),6))).toFixed(2)}`:` - $${(Number(formatUnits(String(Number(row.pnl) *-1),6))).toFixed(2)}`}</div>
+            <div className='text-white text-md  lg:text-xl m-2'>{Number(row.pnl) > 0 ? `$${moneyFormatter(Number(row.pnl))}`:` - $${Number(moneyFormatter(Number(row.pnl) *-1))}`}</div>
             <div className='text-white text-md  lg:text-xl m-2'>{row.created}</div>
         </div>
         <div >

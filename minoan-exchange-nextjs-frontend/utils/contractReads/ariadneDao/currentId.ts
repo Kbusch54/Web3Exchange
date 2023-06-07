@@ -1,3 +1,4 @@
+'use client'
 import { AriadneDAO } from "../../abis"
 import { useEffect, useState } from "react";
 import { useContractRead } from 'wagmi';

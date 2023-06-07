@@ -47,11 +47,11 @@ export const getTransactionHash = (_nonce:number, to:Address, value:number, data
 
     export const getAmmId = (ammId: string) =>{
         const amm =String(ammId).toLowerCase();
-        if(amm === "tesla"){
+        if(amm === "tesla" || amm === "tsla"){
             return TeslaAmm;
-        }else if(amm === "google"){
+        }else if(amm === "google"||amm === "goog"){
             return GoogleAmm;
-        }else if(amm === "meta"){
+        }else if(amm === "meta"||amm === "meta"){
             return MetaAmm;
         }
         else{
