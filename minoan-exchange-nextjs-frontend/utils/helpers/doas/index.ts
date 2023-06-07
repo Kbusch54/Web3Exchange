@@ -37,7 +37,7 @@ export const getTransactionHash = (_nonce:number, to:Address, value:number, data
 //   address(this), _nonce, to, value, data
 
   export const  getAriadnePool = (ammId: string) =>{
-    const amm =ammId.toLowerCase();
+    const amm =String(ammId).toLowerCase();
     if(amm === "tesla"){
         return ariadneTesla;
     }else if(amm === "google"){
