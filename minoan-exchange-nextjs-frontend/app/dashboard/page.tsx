@@ -22,7 +22,7 @@ export default async function page  () {
     return (
         <div className='mx-4 flex flex-col gap-y-4'>
             <h1 className='text-white'>Dashboard</h1>
-            <DashBoardBalances />
+            <DashBoardBalances user={session.user.name} />
             <div className='mx-4 md:mx-8 lg:mx-24 xl:mx-40 border-2 border-slate-700 mt-12'>
                 <Suspense fallback={<div>Loading...</div>}>
                     <ReachartsEx />
