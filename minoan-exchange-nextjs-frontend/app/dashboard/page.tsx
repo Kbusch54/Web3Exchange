@@ -83,13 +83,11 @@ export default async function page  () {
                     <ReachartsEx />
                 </Suspense>
             </div>
-            <Suspense fallback={<div>Loading...</div>}>
-                <DashBoardTradeTab />
-            </Suspense>
+            
+                <DashBoardTradeTab user={session.user.name}  />
+            
             {stocks && (
-                <Suspense fallback={<div>Loading...</div>}>
                     <DashboardAssets userData={userData} stockData={stocks} user={session.user.name} />
-                </Suspense>
             )}
         </div>
     )
