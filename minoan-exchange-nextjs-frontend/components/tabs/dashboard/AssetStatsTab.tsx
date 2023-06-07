@@ -1,5 +1,6 @@
 "use client";
-import * as React from "react";
+//@ts-ignore
+import React,{use} from "react";
 import Box from "@mui/material/Box";
 import Tab from "@mui/material/Tab";
 import TabContext from "@mui/lab/TabContext";
@@ -9,6 +10,8 @@ import { Stock } from "../../../types/custom";
 import InvestmentStats from "../../balances/dashboard/InvestmentStats";
 import StakingStatsPersonal from "../../balances/dashboard/StakingStatsPersonal";
 import { Address } from "wagmi";
+import { supabase } from "../../../supabase";
+import DAOStatsPersonal from "../../balances/dashboard/DAOStatsPersonal";
 
 
 interface Props {
@@ -22,6 +25,8 @@ const AssetStatsTab: React.FC<Props> = ({stockData,user,userData}) => {
     const handleChange = (event: React.SyntheticEvent, newValue: string) => {
       setValue(newValue);
     };
+    const dataBase = use(supabase.from('Proposals').select('*'))
+    console.log(dataBase)
   return (
     <Box sx={{ width: "100%", typography: "body1" }}>
       <TabContext value={value}>
@@ -39,13 +44,14 @@ const AssetStatsTab: React.FC<Props> = ({stockData,user,userData}) => {
           </TabList>
         </Box>
         <TabPanel value="1">
-            Invest{stockData.name}
         <InvestmentStats symbol={stockData.name} userTrades={userData.trades}/>
             </TabPanel>
-        <TabPanel value="2">Staking{stockData.name}
+        <TabPanel value="2">
         <StakingStatsPersonal symbol={stockData.name} userStakes={userData.users[0]}/>
         </TabPanel>
-        <TabPanel value="3">DAO{stockData.name}</TabPanel>
+        <TabPanel value="3">
+          <DAOStatsPersonal sybmol={stockData.name} userDAO={dataBase.data} user={user}/>
+        </TabPanel>
       </TabContext>
     </Box>
   );
