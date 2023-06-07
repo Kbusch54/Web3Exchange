@@ -8,3 +8,6 @@ export const convertCamelCaseToTitle = (camelCaseString: string) => {
     // Return the final converted string
     return trimmedString;
 };
+export const moneyFormatter = (num: number) => {
+    return (num/10**6).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
