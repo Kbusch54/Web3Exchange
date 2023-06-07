@@ -9,7 +9,6 @@ interface Props {
 }
 
 const StakingStatsPersonal: React.FC<Props> = ({symbol,userStakes}) => {
-    console.log('staked',userStakes)
     const ammID = getAmmId(symbol)
     //ammPool could be null
     const stakesWhereAmmPoolId = userStakes.stakes.filter((stake:any)=>stake.ammPool!=null&&stake.ammPool.id.toLowerCase() === ammID.toLowerCase())
@@ -40,4 +39,4 @@ const StakingStatsPersonal: React.FC<Props> = ({symbol,userStakes}) => {
     )
 }
 
-export default StakingStatsPersonal
+export default StakingStatsPersonal;

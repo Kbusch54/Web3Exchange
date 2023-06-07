@@ -26,7 +26,6 @@ const AssetStatsTab: React.FC<Props> = ({stockData,user,userData}) => {
       setValue(newValue);
     };
     const dataBase = use(supabase.from('Proposals').select('*'))
-    console.log(dataBase)
   return (
     <Box sx={{ width: "100%", typography: "body1" }}>
       <TabContext value={value}>

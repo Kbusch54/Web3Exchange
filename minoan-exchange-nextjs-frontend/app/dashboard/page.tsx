@@ -73,9 +73,7 @@ export default async function page  () {
     if(!session) {
         redirect(`/auth/signin?callbackUrl=/dashboard`);
     }
-    console.log('session from dashboard',session);
     const userData = await fetchUserData(session.user.name);
-    console.log('userData from dashboard',userData);
     return (
         <div className='mx-4 flex flex-col gap-y-4'>
             <h1 className='text-white'>Dashboard</h1>

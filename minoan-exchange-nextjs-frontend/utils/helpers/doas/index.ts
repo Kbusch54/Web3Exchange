@@ -14,11 +14,6 @@ export const getTransactionHashFull = async (
   
     return new Promise((resolve) => {
       if (nonce) {
-        console.log('The transaction hash');
-        console.log(nonce.currentId?.valueOf);
-        console.log(to);
-        console.log(data);
-        console.log(address);
         const transactionHash = nonce.currentId?.valueOf && getTransactionHash(nonce.currentId, to, 0, data, address);
         resolve([transactionHash, nonce.currentId]);
       } else {

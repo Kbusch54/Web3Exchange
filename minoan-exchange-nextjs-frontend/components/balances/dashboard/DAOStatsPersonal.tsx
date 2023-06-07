@@ -11,10 +11,7 @@ interface Props {
 
 const DAOStatsPersonal: React.FC<Props> = ({user,userDAO,sybmol}) => {
     const ammID = getAriadnePool(sybmol);
-    console.log(userDAO)
     const allData = userDAO?.filter((db:any)=>String(db.contractAddress).toLowerCase()=== String(ammID).toLowerCase());
-    console.log(allData)
-    //if database.proposer == user +1
     const totalProposed = allData?.filter((db:any)=>db.proposer.toLowerCase()===user.toLowerCase());
     const signaturesFound = allData?.filter((db:any)=>db.signers.find((sig:any)=>sig.toLowerCase()===user.toLowerCase())).length;
     const executedProposals = allData?.filter((db:any)=>db.executor!=null&&db.executor.toLowerCase()===user.toLowerCase()).length;
