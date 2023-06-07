@@ -43,7 +43,7 @@ const AssetStatsTab: React.FC<Props> = ({stockData,user,userData}) => {
         <InvestmentStats symbol={stockData.name} userTrades={userData.trades}/>
             </TabPanel>
         <TabPanel value="2">Staking{stockData.name}
-        <StakingStatsPersonal/>
+        <StakingStatsPersonal symbol={stockData.name} userStakes={userData.users[0]}/>
         </TabPanel>
         <TabPanel value="3">DAO{stockData.name}</TabPanel>
       </TabContext>

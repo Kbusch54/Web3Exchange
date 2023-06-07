@@ -45,6 +45,7 @@ async function fetchUserData(user: string) {
           }
         }
         ammPool{
+            id
           poolToken{
             tokenId
             totalSupply
