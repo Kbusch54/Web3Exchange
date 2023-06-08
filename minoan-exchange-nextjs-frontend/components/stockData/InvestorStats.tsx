@@ -17,7 +17,6 @@ interface loanPool {
 }
 
 const InvestorStats: React.FC<Props> = ({loanPool}) => {
-  console.log(loanPool)
     return (
         <div className="outside-box">
         <div className="inside-box">

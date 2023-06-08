@@ -14,14 +14,15 @@ import {
   import { format, parseISO, subDays } from "date-fns";
   
   const data: any[] | undefined = [];
-  for (let num = 30; num >= 0; num--) {
+  for (let num = 12; num >= 0; num--) {
     let rando = Math.random();
     let rando2 = Math.random();
     data.push({
       date: subDays(new Date(), num).toISOString().substring(0, 10),
-      index: 200 *(rando+rando2),
-      market: 222 *rando ,
-      delta: Math.abs(( 200 *(rando+rando2)) - (222 *rando )),
+      tesla: Math.floor(2 *(rando+rando2)),
+      google: Math.floor(2 *rando) ,
+      meta: Math.floor((Math.random() +Math.random() )*2) ,
+      All: Math.floor(( 2 *(rando+rando2)) + (2 *rando ) + 0),
     });
   }
   
@@ -30,23 +31,24 @@ interface Props {
     height: number
     
 }
-const COLORS = ["#2451B7","#9251B7", "rgb(30 58 138)", "rgb(88 28 135)",  "rgb(153 27 27)"];
+const COLORS = ["#2451B7","#9251B7", "rgb(30 58 138)", "rgb(2 132 199)",  "rgb(153 27 27)"];
 //@ts-ignore
 function CustomTooltip({ active, payload, label }) {
     if (active) {
       return (
-        <div className="tooltip ">
+        <div className="tooltip opacity-60">
           <h4>{format(parseISO(label), "eeee, d MMM, yyyy")}</h4>
-          <p>${payload[0].value.toFixed(2)} Index</p>
-          <p>${payload[1].value.toFixed(2)} Market</p>
-          <p>{payload[2].value.toFixed(2)} Delta</p>
+          <p>{payload[0].value} Tesla</p>
+          <p>{payload[1].value} Google</p>
+          <p>{payload[2].value} Meta</p>
+            <p>{payload[0].value+payload[1].value+payload[2].value} All</p>
         </div>
       );
     }
     return null;
   }
 
-const ReachartsEx: React.FC<Props> = ({height}) => {
+const ReachartLines: React.FC<Props> = ({height}) => {
     return (
       // <div className="h-max w-96">
         <ResponsiveContainer height={height} width={'100%'} >
@@ -58,9 +60,10 @@ const ReachartsEx: React.FC<Props> = ({height}) => {
             </linearGradient>
           </defs>
   
-          <Line dataKey="index" stroke="#2451B7" fill="url(#color)" activeDot={{ r: 8 }} />
-          <Line dataKey="market" stroke="#9251B7" fill="url(#color)" activeDot={{ r: 8 }}  />
-          <Area type="monotone" dataKey={'delta'} stroke="rgb(22 163 74)" fill="rgb(2 132 199)"/>
+          <Area dataKey="tesla" stroke="#2451B7" fill="url(#color)" activeDot={{ r: 8 }} />
+          <Area dataKey="google" stroke="#9251B7" fill="url(#color)" activeDot={{ r: 8 }}  />
+          <Area dataKey="meta" stroke="#9491D7" fill="url(#color)" activeDot={{ r: 8 }}  />
+          {/* <Line dataKey={'All'} stroke="rgb(22 163 74)" fill="rgb(2 132 199)" type="monotoneY"  /> */}
           
           
   
@@ -78,18 +81,17 @@ const ReachartsEx: React.FC<Props> = ({height}) => {
             }}
           />
   
-          <YAxis
-            dataKey="index"
-            accumulate="sum"
+          {/* <YAxis
+            dataKey="tesla"
             axisLine={false}
             tickLine={false}
             tickCount={12}
-            tickFormatter={(number) => `$${number.toFixed(2)}`}
-          />
+            tickFormatter={(number) => `${Math.floor(number)}`}
+          /> */}
           {/* @ts-ignore */}
           <Tooltip content={<CustomTooltip  />} />
   
-          <CartesianGrid opacity={0.1} vertical={false} />
+          {/* <CartesianGrid opacity={0.1} vertical={true} /> */}
           <Legend />
         </ComposedChart>
       </ResponsiveContainer>
@@ -97,4 +99,4 @@ const ReachartsEx: React.FC<Props> = ({height}) => {
     )
 }
 
-export default ReachartsEx
+export default ReachartLines

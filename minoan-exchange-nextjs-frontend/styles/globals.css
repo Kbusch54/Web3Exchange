@@ -137,6 +137,46 @@ h1{
     rgba(12, 2, 78, 1) 100%
   );
 }
+.Cell {
+  animation: pulse 1s infinite;
+}
+.glow-blue-100 {
+  /* For each color (blue-100 here), for the `default` style */
+  box-shadow: 0 1px 3px 0 rgba(235, 248, 255, 0.4), 0 1px 2px 0 rgba(235, 248, 255, 0.24);
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.dashboard{
+
+  /* ff 3.6+ */
+  background:-moz-linear-gradient(28deg, rgba(1, 6, 36, 1) 0%, rgba(1, 1, 13, 1) 32%, rgba(7, 16, 255, 1) 95%, rgba(1, 2, 96, 1) 100%); 
+
+  /* safari 5.1+,chrome 10+ */
+  background:-webkit-linear-gradient(28deg, rgba(1, 6, 36, 1) 0%, rgba(1, 1, 13, 1) 32%, rgba(7, 16, 255, 1) 95%, rgba(1, 2, 96, 1) 100%);
+
+  /* opera 11.10+ */
+  background:-o-linear-gradient(28deg, rgba(1, 6, 36, 1) 0%, rgba(1, 1, 13, 1) 32%, rgba(7, 16, 255, 1) 95%, rgba(1, 2, 96, 1) 100%);
+
+  /* ie 6-9 */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#010624', endColorstr='#010260', GradientType=1 );
+
+  /* ie 10+ */
+  background:-ms-linear-gradient(28deg, rgba(1, 6, 36, 1) 0%, rgba(1, 1, 13, 1) 32%, rgba(7, 16, 255, 1) 95%, rgba(1, 2, 96, 1) 100%);
+
+  /* global 94%+ browsers support */
+  background:linear-gradient(28deg, rgba(1, 6, 36, 1) 0%, rgba(1, 1, 13, 1) 32%, rgba(7, 16, 255, 1) 95%, rgba(1, 2, 96, 1) 100%);
+
+}
 @keyframes flashRed {
   0%,
   100% {
@@ -154,4 +194,26 @@ h1{
   padding: 1rem;
   box-shadow: 15px 30px 40px 5px rgba(0, 0, 0, 0.5);
   text-align: center;
+}
+.logo-1 {
+  color: blue;
+  animation: neon 3s infinite;
+}
+
+@keyframes neon {
+  0% {
+    text-shadow: -1px -1px 1px var(--shadow-color-light), -1px 1px 1px var(--shadow-color-light), 1px -1px 1px var(--shadow-color-light), 1px 1px 1px var(--shadow-color-light),
+    0 0 3px var(--shadow-color-light), 0 0 10px var(--shadow-color-light), 0 0 20px var(--shadow-color-light),
+    0 0 30px var(--shadow-color), 0 0 40px var(--shadow-color), 0 0 50px var(--shadow-color), 0 0 70px var(--shadow-color), 0 0 100px var(--shadow-color), 0 0 200px var(--shadow-color);
+  }
+  50% {
+    text-shadow: -1px -1px 1px var(--shadow-color-light), -1px 1px 1px var(--shadow-color-light), 1px -1px 1px var(--shadow-color-light), 1px 1px 1px var(--shadow-color-light),
+    0 0 5px var(--shadow-color-light), 0 0 15px var(--shadow-color-light), 0 0 25px var(--shadow-color-light),
+    0 0 40px var(--shadow-color), 0 0 50px var(--shadow-color), 0 0 60px var(--shadow-color), 0 0 80px var(--shadow-color), 0 0 110px var(--shadow-color), 0 0 210px var(--shadow-color);
+  }
+  100% {
+    text-shadow: -1px -1px 1px var(--shadow-color-light), -1px 1px 1px var(--shadow-color-light), 1px -1px 1px var(--shadow-color-light), 1px 1px 1px var(--shadow-color-light),
+    0 0 3px var(--shadow-color-light), 0 0 10px var(--shadow-color-light), 0 0 20px var(--shadow-color-light),
+    0 0 30px var(--shadow-color), 0 0 40px var(--shadow-color), 0 0 50px var(--shadow-color), 0 0 70px var(--shadow-color), 0 0 100px var(--shadow-color), 0 0 200px var(--shadow-color);
+  }
 }

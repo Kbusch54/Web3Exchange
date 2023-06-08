@@ -2,7 +2,7 @@
 'use client'
 import React, { useState } from 'react';
 
-import { PieChart, Pie, Sector, ResponsiveContainer, Cell, Tooltip } from 'recharts';
+import { PieChart, Pie, Sector, ResponsiveContainer, Cell, Tooltip, Legend, Label } from 'recharts';
 
 const data = [
   { name: 'Tesla', value: 800 },
@@ -10,7 +10,7 @@ const data = [
   { name: 'Meta', value: 300 },
   { name: 'Theseus', value: 3000 },
 ];
-const COLORS = ["#8184d8", "#9251B7", "#FFBB28", "#7151B7", "#9252D7"];
+const COLORS = ["rgb(101 163 13)  ","rgb(2 132 199)", "rgb(234 179 8)", "rgb(88 28 135)",  "rgb(153 27 27)"];
 const renderActiveShape = (props: { cx: any; cy: any; midAngle: any; innerRadius: any; outerRadius: any; startAngle: any; endAngle: any; fill: any; payload: any; percent: any; value: any; }) => {
   const RADIAN = Math.PI / 180;
   const { cx, cy, midAngle, innerRadius, outerRadius, startAngle, endAngle, fill, payload, percent, value } = props;
@@ -26,7 +26,7 @@ const renderActiveShape = (props: { cx: any; cy: any; midAngle: any; innerRadius
 
   return (
     <g>
-      <text x={cx} y={cy} dy={8} textAnchor="middle" fill={fill}>
+      <text x={cx} y={cy} dy={0} textAnchor="middle" fill={fill} >
         {payload.name}
       </text>
       <Sector
@@ -37,6 +37,7 @@ const renderActiveShape = (props: { cx: any; cy: any; midAngle: any; innerRadius
         startAngle={startAngle}
         endAngle={endAngle}
         fill={fill}
+        style={{ filter: `drop-shadow(0px 0px 10px rgb(217 119 6)) ` }}
       />
       <Sector
         cx={cx}
@@ -45,13 +46,15 @@ const renderActiveShape = (props: { cx: any; cy: any; midAngle: any; innerRadius
         endAngle={endAngle}
         innerRadius={outerRadius + 6}
         outerRadius={outerRadius + 10}
-        fill={fill}
+        fill={"rgb(255 255 235) "}
+        style={{ filter: `drop-shadow(0px 0px 50px rgb(217 119 6)) ` }}
+        className='opacity-40'
       />
       <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke={fill} fill="none" />
-      <circle cx={ex} cy={ey} r={2} fill={fill} stroke="none" />
-      <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} textAnchor={textAnchor} fill="#333">{`PV ${value}`}</text>
-      <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} dy={18} textAnchor={textAnchor} fill="#999">
-        {`(Rate ${(percent * 100).toFixed(2)}%)`}
+      <circle cx={ex} cy={ey} r={8} fill={fill} stroke="none" />
+      <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} textAnchor={textAnchor} fill="rgb(37 99 235)">{`AMT ${value}`}</text>
+      <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} dy={18} textAnchor={textAnchor} fill="rgb(217 119 6)">
+        {`${(percent * 100).toFixed(2)}%`}
       </text>
     </g>
   );
@@ -63,7 +66,7 @@ const CustomTooltip = ({ active, payload }) => {
   if (active) {
      return (
      <div
-        className="text-amber-400 bg-slate-900"
+        className="text-amber-400 bg-slate-900 border-2 border-gray-800 rounded-lg p-2"
        
       >
         <label>{`${payload[0].name} : ${payload[0].value}`}</label>
@@ -82,7 +85,7 @@ const RechartPie: React.FC<Props> = () => {
   };
   
     return (
-        <ResponsiveContainer width={'100%'} height={800}>
+        <ResponsiveContainer width={'99%'} height={700} >
         <PieChart  >
           <Pie
             activeIndex={activeIndex}
@@ -90,22 +93,32 @@ const RechartPie: React.FC<Props> = () => {
             data={data}
             cx="50%"
             cy="50%"
-            color='#8884d8'
-            innerRadius={'35%'}
-            outerRadius={'80%'}
-            fill="#2451C7"
+            innerRadius={'30%'}
+            outerRadius={'50%'}
+            fill="rgb(217 119 6)"
             dataKey="value"
             onMouseEnter={onPieEnter}
             >
                {data.map((entry, index) => (
-            <Cell
-               key={`cell-${index}`}
-               fill={COLORS[index % COLORS.length]}
+                <>
+           <Cell
+           key={`cell-${index}`}
+           fill={COLORS[index % COLORS.length]}
+           stroke='rgb(255 255 235)'
+           style={{
+             filter: `drop-shadow(0px 0px 10px rgb(217 119 6)) `,
+             strokeWidth: '1px',
+             stroke: COLORS[index % COLORS.length]
+            }}
             />
-         ))}
+            </>
+            
+            ))}
+            {/* <Label value={`${data[activeIndex].name}`}  className='text-white text-2xl absolute top-1/2 left-1/3'/> */}
             </Pie>
             {/* @ts-ignore */}
           <Tooltip content={<CustomTooltip active={activeIndex} payload={data}/>} />
+        <Legend  type='diamond'/>
         </PieChart>
       </ResponsiveContainer>
     )

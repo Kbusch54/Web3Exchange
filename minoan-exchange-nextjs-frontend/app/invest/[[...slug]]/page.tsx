@@ -117,11 +117,14 @@ export default async function page(context: { params: { slug: string; }; }) {
 
             <div className=" mr-8 lg:col-span-7  ">
               <div className="grid grid-rows-6 ">
-                <div className="row-span-4">
-                  {/* <AreaChartPoolsApex /> */}
+                <div className="row-span-4 hidden md:inline-block overflow-clip">
+                <ReachartsEx  height={600}/>
+                </div>
+                <div className="row-span-4 inline-flex md:hidden overflow-clip">
+                <ReachartsEx  height={300}/>
                 </div>
                 <div className="row-span-2">
-                  <ReachartsEx />
+                  <ReachartsEx height={200} />
                 </div>
               </div>
             </div>
@@ -139,7 +142,7 @@ export default async function page(context: { params: { slug: string; }; }) {
                 <StockData stockSymbol={stock?.symbol} />
               )}
 
-              <InterestData user={session.user.name} amm={graphData.loanPool.id} symbol={slug} />
+              {/* <InterestData user={session.user.name} amm={graphData.loanPool.id} symbol={slug} /> */}
               <FFRData />
               <InvestorStats loanPool={graphData.loanPool} />
             </div>
@@ -148,7 +151,7 @@ export default async function page(context: { params: { slug: string; }; }) {
                */}
               <Suspense fallback={<div>Loading...</div>}>
 
-                <AllTrades user={session.user.name} userAvailableBalance={userData} active={true} global={false} amm={slug} />
+                {/* <AllTrades user={session.user.name} userAvailableBalance={userData} active={true} global={false} amm={slug} /> */}
               </Suspense>
             </div>
             <div className="my-4  lg:col-start-2 lg:col-span-9 w-full text-white ">
@@ -157,7 +160,7 @@ export default async function page(context: { params: { slug: string; }; }) {
               <h1 className="text-white text-3xl text-center my-4">Recent {stock?.name.toUpperCase()} Trades</h1>
               <Suspense fallback={<div>Loading...</div>}>
 
-                <AllTrades user={session.user.name} userAvailableBalance={userData} active={true} global={true} amm={slug} />
+                {/* <AllTrades user={session.user.name} userAvailableBalance={userData} active={true} global={true} amm={slug} /> */}
               </Suspense>
             </div>
           </div>
