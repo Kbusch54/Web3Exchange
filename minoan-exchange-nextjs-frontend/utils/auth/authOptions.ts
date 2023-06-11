@@ -58,11 +58,12 @@ export const authOptions: NextAuthOptions = {
 
         async session({ session, token }: { session: Session; token: any }) {
             console.log("session", session);
-                  return { ...session, user: token };
+                  return { ...session, user: token,expires:session.expires };
               },
     },
       // https://next-auth.js.org/configuration/providers/oauth
       session: {
+        
         strategy: 'jwt',
         maxAge: 4 * 60 * 60, // 4 hours
       },

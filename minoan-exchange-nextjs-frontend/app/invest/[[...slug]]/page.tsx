@@ -13,7 +13,7 @@ import ReachartsEx from "../../../components/charts/poolCharts/ReachartsEx";
 import { redirect } from "next/navigation";
 import { request, gql } from "graphql-request";
 import AllTrades from "../../../components/tables/trades/AllTrades";
-import { authOptions } from '../../../utils/authOptions';
+import { authOptions } from '../../../utils/auth/authOptions';
 import { getServerSession } from 'next-auth/next';
 import { Address } from "viem";
 type Props = {};

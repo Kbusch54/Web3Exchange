@@ -11,7 +11,7 @@ import VaultUSDCForm from "../../../components/forms/VaultUSDCForm";
 import ReachartsEx from "../../../components/charts/poolCharts/ReachartsEx";
 import StakingSection from "../../../components/forms/StakingSection";
 import DAOPurposals from "../../../components/tables/daos/DAOPurposals";
-import { authOptions } from '../../../utils/authOptions';
+import { authOptions } from '../../../utils/auth/authOptions';
 import { getServerSession } from 'next-auth/next';
 import { Address } from "viem";
 

@@ -3,7 +3,7 @@ import helmet from "../../public/assets/silhoute-helmet.png"
 import { stocks } from '../utils/stockData';
 import Image from 'next/image';
 import { redirect } from "next/navigation";
-import { authOptions } from '../../utils/authOptions';
+import { authOptions } from '../../utils/auth/authOptions';
 import { getServerSession } from 'next-auth/next';
 interface Props {
   

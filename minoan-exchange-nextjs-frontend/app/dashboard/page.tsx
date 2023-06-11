@@ -13,7 +13,7 @@ import RechartTinyBar from '../../components/charts/poolCharts/recharts/RechartT
 import PastTransactions from '../../components/tables/transactions/PastTransactions'
 import Wallet from '../../components/dashboard/Wallet'
 import { getServerSession } from 'next-auth'
-import { authOptions } from '../../utils/authOptions'
+import { authOptions } from '../../utils/auth/authOptions'
 import { Address } from 'wagmi'
 import request, { gql } from 'graphql-request'
 
