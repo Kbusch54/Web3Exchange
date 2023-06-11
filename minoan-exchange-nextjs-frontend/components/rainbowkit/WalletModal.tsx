@@ -88,18 +88,18 @@ const WalletModal: React.FC<Props> = ({ account, signOutFunc }) => {
 
                     <div className='flex flex-row justify-between  text-amber-400 mx-12'>
                         {account.displayName && account.address && (
-                            <div className='flex flex-row bg-slate-700 rounded-xl py-4 gap-x-2'>
+                            <div className='flex flex-row bg-slate-700 rounded-xl py-4 px-3 gap-x-2'>
                                 <p>{account.displayName}</p>
                             <Copy toCopy={account.address.toString()} size={25}/>
                         </div>
                         )}
-                        <p className='bg-slate-700 rounded-xl py-4'>{account.displayBalance}</p>
+                        <p className='bg-slate-700 rounded-xl py-4 px-3'>{account.displayBalance}</p>
                     </div>
                     {session.data?.expires && (
                         <div>
                             <p className='text-white text-center'>Session Expires in:</p>
                             <div className='text-3xl text-center text-amber-400 '>
-                                <Countdown targetDate={new Date(session.data?.expires)} />
+                                <Countdown targetDate={new Date(session.data.expires)} />
                             </div>
                         </div>
                     )}
