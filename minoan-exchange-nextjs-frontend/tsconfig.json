@@ -30,7 +30,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts"
-, "app/chartWrapper.jsx", "components/charts/poolCharts/AreaChartsPools.jsx", "components/charts/poolCharts/ReachartsEx.jsx", "app/SessionProvider.tsx"  ],
+, "app/chartWrapper.jsx", "components/charts/poolCharts/AreaChartsPools.jsx", "components/charts/poolCharts/ReachartsEx.jsx", "app/providers/SessionProvider.tsx"  ],
   "exclude": [
     "node_modules"
   ]
