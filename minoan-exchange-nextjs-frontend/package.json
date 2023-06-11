@@ -9,11 +9,12 @@
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
     "@headlessui/react": "^1.7.15",
+    "@mui/base": "^5.0.0-beta.4",
     "@mui/icons-material": "^5.11.11",
     "@mui/lab": "^5.0.0-alpha.125",
     "@mui/material": "^5.11.14",
     "@mui/x-data-grid": "^6.2.0",
-    "@rainbow-me/rainbowkit": "0.12.9",
+    "@rainbow-me/rainbowkit": "^1.0.1",
     "@redstone-finance/evm-connector": "^0.0.18",
     "@supabase/supabase-js": "^2.23.0",
     "@types/recharts": "^1.8.24",
@@ -37,7 +38,8 @@
     "recharts": "^2.5.0",
     "siwe": "^2.1.4",
     "swiper": "^9.3.2",
-    "wagmi": "0.12.12"
+    "viem": "^1.0.2",
+    "wagmi": "^1.1.1"
   },
   "devDependencies": {
     "@types/node": "18.11.3",
