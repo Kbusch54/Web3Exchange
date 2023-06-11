@@ -1,7 +1,7 @@
 'use client'
 import { supabase } from '../../../../supabase';
 import React, { useEffect, useState } from 'react'
-import { useContractWrite, Address, useSigner } from 'wagmi';
+import { useContractWrite, Address, useSignMessage }  from 'wagmi';
 import { useNewProposal } from '../../../../utils/contractWrites/daos/ariadne/purpose';
 import { ethers } from 'ethers';
 import { getTransactionHash } from '../../../../utils/helpers/doas';
@@ -29,7 +29,7 @@ export default function ProposeButton  ({ user, disabled, callData, addressTo, d
 
   
   const { config, error } = useNewProposal(addressTo,callData, contractAddress, user,option);
-  const { data: signer, isError, isLoading } = useSigner();
+  const { signMessage,signMessageAsync } = useSignMessage();
   console.log('config for proposal', config);
   console.log('addressTo:', addressTo);
   console.log('callData:', callData);
@@ -42,8 +42,10 @@ export default function ProposeButton  ({ user, disabled, callData, addressTo, d
     if (!transactionHash) {
       alert('no transaction hash')
     } else { 
-    const signature = await signer
-      ?.signMessage(ethers.utils.arrayify(transactionHash))
+    const signature = await signMessageAsync({ message: transactionHash })
+      .then((data: string) => {
+        return data;
+      })
       .catch((err: Error) => {
         alert(err);
       });

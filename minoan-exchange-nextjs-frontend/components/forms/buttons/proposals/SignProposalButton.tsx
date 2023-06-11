@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import React, {useEffect, useState } from 'react'
-import { useContractWrite, Address, useSigner } from 'wagmi';
+import { useContractWrite, Address, useSignMessage } from 'wagmi';
 import { supabase } from '../../../../supabase';
 
 interface Props {
@@ -28,15 +28,16 @@ export default function SignProposalButton({ user, transactionHash, nonce, contr
     }
   }, [signed, addedToDB, error]);
 
-  const { data: signer, isError, isLoading } = useSigner();
+  const { signMessageAsync } = useSignMessage();
   //@ts-ignore
   const hanldeSign = async (e) => {
     e.preventDefault();
     if (!transactionHash) {
       alert('no transaction hash')
     } else {
-      const signature = await signer
-        ?.signMessage(ethers.utils.arrayify(transactionHash))
+      const signature = await signMessageAsync(ethers.utils.arrayify(transactionHash)).then((data: string) => {
+        return data;
+      })
         .catch((err: Error) => {
           alert(err);
         });
