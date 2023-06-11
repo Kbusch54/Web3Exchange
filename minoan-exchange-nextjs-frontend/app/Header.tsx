@@ -15,7 +15,7 @@ const Header: React.FC<Props> = () => {
           <Image src={logo} alt="logo" height={20} width={35} />
           <h1 className="inline md:hidden ml-14 text-2xl text-white align-middle text-left">HH</h1>
         </a>
-        <div className=" hidden md:flex gap-x-14 lg:gap-x-20 xl:gap-x-32 2xl:gap-x-64 mt-4 ">
+        <div className=" hidden md:flex gap-x-14 lg:gap-x-20 xl:gap-x-32 2xl:gap-x-64 mt-4 text-lg  ">
           <a href="/todos">
             Docs
           </a>
@@ -24,7 +24,7 @@ const Header: React.FC<Props> = () => {
           <a href="/invest">Invest</a>
           <a href="/dashboard">Dashboard</a>
         </div>
-        <div className="mt-3">
+        <div className="my-2 align-middle items-center">
           <ConnectingButton />
         </div>
       </div>

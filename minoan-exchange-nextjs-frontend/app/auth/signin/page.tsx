@@ -36,7 +36,7 @@ export default function SignIn() {
         await signOut()
     }
     return (
-            <div className='flex justify-center '>
+            <div className='grid h-screen place-items-center'>
                 <ConnectButton.Custom>
                     {({
                         //@ts-ignore

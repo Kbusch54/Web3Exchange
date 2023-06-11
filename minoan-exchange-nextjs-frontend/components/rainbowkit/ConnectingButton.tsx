@@ -87,7 +87,7 @@ const ConnectingButton: React.FC<Props> = () => {
 
 
                                         return (
-                                            <div style={{ display: 'flex', gap: 12 }}>
+                                            <div >
                                                 <WalletModal account={account} signOutFunc={signOutFull} />
                                             </div>
                                         );
