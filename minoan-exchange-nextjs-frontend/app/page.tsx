@@ -92,7 +92,7 @@ export default function page({}: Props): ReactElement {
           </div>
 
           <div className="border-4 border-slate-700 flex flex-col justify-center  text-center lg:mx-6 text-white m-2  backdrop-blur-[6px] p-2 shadow-2xl border-b-8 border-l-[6px] border-opacity-60 xl:ml-[40rem] lg:">
-            <LoanPoolTab />
+            {/* <LoanPoolTab /> */}
           </div>
         </div>
       </section>

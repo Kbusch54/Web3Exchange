@@ -10,10 +10,12 @@ import StockData from "../../../components/stockData/StockData";
 import { Stock } from "../../../types/custom";
 import { stocks } from "../../utils/stockData";
 import ReachartsEx from "../../../components/charts/poolCharts/ReachartsEx";
-import { getServerSession } from "../../api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
 import { request, gql } from "graphql-request";
 import AllTrades from "../../../components/tables/trades/AllTrades";
+import { authOptions } from '../../../utils/authOptions';
+import { getServerSession } from 'next-auth/next';
+import { Address } from "viem";
 type Props = {};
 
 async function fetchLoanPoolData(symbol: string, user: string) {
@@ -80,11 +82,14 @@ const getStocks = async (slug: string) => {
   return s;
 };
 export default async function page(context: { params: { slug: string; }; }) {
-  const session = await getServerSession();
+
   const slug = context.params.slug ?? 'tsla'; // Set the default slug value to 'tsla'
-  if (!session) {
-    redirect(`/auth/signin?callbackUrl=/invest/${slug}`);
+
+  const session = await getServerSession(authOptions)
+  if(!session || !session.user || !session.user.name){
+    return redirect(`/auth/signin?callbackUrl=/invest/${slug}`);
   }
+  const user = session.user.name as Address;
   const allData = await fetchLoanPoolData(slug.toString().toLowerCase(), session.user.name);
   //@ts-ignore
   const graphData = allData.vamms[0];
@@ -132,9 +137,9 @@ export default async function page(context: { params: { slug: string; }; }) {
             <div className="col-span-3">
 
 
-              <InvestForm stockData={stocks} currentData={graphData} user={session.user.name} availableUsdc={userData} />
+              <InvestForm stockData={stocks} currentData={graphData} user={user} availableUsdc={userData} />
 
-              <VaultUSDCForm availableUsdc={graphData.loanPool.poolToken.tokenBalance[0]?.user ? graphData.loanPool.poolToken.tokenBalance[0].user.balances.availableUsdc : 0} user={session.user.name} />
+              <VaultUSDCForm availableUsdc={graphData.loanPool.poolToken.tokenBalance[0]?.user ? graphData.loanPool.poolToken.tokenBalance[0].user.balances.availableUsdc : 0} user={user} />
             </div>
             <div className="col-span-12 grid grid-cols-2 xl:grid-cols-4 gap-x-6 items-center justify-evenly gap-y-8  mt-8">
 
@@ -142,7 +147,7 @@ export default async function page(context: { params: { slug: string; }; }) {
                 <StockData stockSymbol={stock?.symbol} />
               )}
 
-              {/* <InterestData user={session.user.name} amm={graphData.loanPool.id} symbol={slug} /> */}
+              {/* <InterestData user={user} amm={graphData.loanPool.id} symbol={slug} /> */}
               <FFRData />
               <InvestorStats loanPool={graphData.loanPool} />
             </div>
@@ -151,7 +156,7 @@ export default async function page(context: { params: { slug: string; }; }) {
                */}
               <Suspense fallback={<div>Loading...</div>}>
 
-                {/* <AllTrades user={session.user.name} userAvailableBalance={userData} active={true} global={false} amm={slug} /> */}
+                {/* <AllTrades user={user} userAvailableBalance={userData} active={true} global={false} amm={slug} /> */}
               </Suspense>
             </div>
             <div className="my-4  lg:col-start-2 lg:col-span-9 w-full text-white ">
@@ -160,7 +165,7 @@ export default async function page(context: { params: { slug: string; }; }) {
               <h1 className="text-white text-3xl text-center my-4">Recent {stock?.name.toUpperCase()} Trades</h1>
               <Suspense fallback={<div>Loading...</div>}>
 
-                {/* <AllTrades user={session.user.name} userAvailableBalance={userData} active={true} global={true} amm={slug} /> */}
+                {/* <AllTrades user={user} userAvailableBalance={userData} active={true} global={true} amm={slug} /> */}
               </Suspense>
             </div>
           </div>

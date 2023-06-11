@@ -2,15 +2,17 @@ import React from 'react'
 import helmet from "../../public/assets/silhoute-helmet.png"
 import { stocks } from '../utils/stockData';
 import Image from 'next/image';
-import { getServerSession } from "../api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
+import { authOptions } from '../../utils/authOptions';
+import { getServerSession } from 'next-auth/next';
 interface Props {
   
 }
 export default async function page(){
-        const session = await getServerSession();
-        if(!session) {
-            redirect(`/auth/signin?callbackUrl=/pools`);
+    
+        const session = await getServerSession(authOptions)
+        if(!session || !session.user){
+            return redirect(`/auth/signin?callbackUrl=/pools`);
         }
   
     return (

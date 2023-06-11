@@ -6,84 +6,140 @@ import DashBoardTradeTab from '../../components/tabs/dashboard/DashBoardTradeTab
 import DashboardAssets from '../../components/tabs/dashboard/DashboardAssets'
 import { Stock } from "../../types/custom";
 import { stocks } from "../utils/stockData";
-import { getServerSession } from "../api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
-import request, { gql } from 'graphql-request';
 import RechartPie from '../../components/charts/poolCharts/recharts/RechartPie'
 import RechartLines from '../../components/charts/poolCharts/recharts/RechartLines'
 import RechartTinyBar from '../../components/charts/poolCharts/recharts/RechartTinyBar'
 import PastTransactions from '../../components/tables/transactions/PastTransactions'
 import Wallet from '../../components/dashboard/Wallet'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '../../utils/authOptions'
+import { Address } from 'wagmi'
+import request, { gql } from 'graphql-request'
 
 
 interface Props {
 
 }
-async function fetchUserData(user: string) {
-    const query = gql` 
-      query getAllData($user: String!) {
+// async function fetchUserData(user: string) {
+//     const query = gql` 
+//       query getAllData($user: String!) {
 
-    trades(where:{user: $user}){
-      isActive
-      ammPool{
-        id
-        }
-      startingCost
-      tradeBalance{
-        collateral
-        pnl
-      }
-  }
-    users(where:{id:$user}){
-      balances{
-        availableUsdc
-        totalCollateralUsdc
-      }
-      stakes(where:{user:$user}){
-        theseusDAO{
-          tokenId
-          poolToken{
-                totalSupply
-            tokenBalance{
-              tokensOwnedbByUser
-              totalStaked
-            }
-          }
-        }
-        ammPool{
-            id
-          poolToken{
-            tokenId
-            totalSupply
-          }
-          poolBalance{
-            totalUsdcSupply
-          }
-        }
-        totalStaked
-        tokensOwnedbByUser
-      }
-    }
-  }
-`;
-    const endpoint = "https://api.studio.thegraph.com/query/46803/subgraph-minoan/version/latest";
-    const variables = { user: user };
-    const data = await request(endpoint, query, variables);
+//     trades(where:{user: $user}){
+//       isActive
+//       ammPool{
+//         id
+//         }
+//       startingCost
+//       tradeBalance{
+//         collateral
+//         pnl
+//       }
+//   }
+//     users(where:{id:$user}){
+//       balances{
+//         availableUsdc
+//         totalCollateralUsdc
+//       }
+//       stakes(where:{user:$user}){
+//         theseusDAO{
+//           tokenId
+//           poolToken{
+//                 totalSupply
+//             tokenBalance{
+//               tokensOwnedbByUser
+//               totalStaked
+//             }
+//           }
+//         }
+//         ammPool{
+//             id
+//           poolToken{
+//             tokenId
+//             totalSupply
+//           }
+//           poolBalance{
+//             totalUsdcSupply
+//           }
+//         }
+//         totalStaked
+//         tokensOwnedbByUser
+//       }
+//     }
+//     trades {
+//       id
+//       created
+//       user{
+//         id
+//       }
+//       tradeBalance {
+//         side
+//         positionSize
+//         leverage
+//         pnl
+//         interestRate
+//         LastFFRPayed
+//         collateral
+//         LastInterestPayed
+//         LastFFRPayed
+//         LastInterestPayed
+//         tradeId {
+//           tradeId
+//         }
+//         loanAmt
+//         positionSize
+//         leverage
+//         entryPrice
+//       }
+//       startingCost
+//       isActive
+//       liquidated
+//       vamm {
+//         id
+//         symbol
+//         loanPool {
+//           maxLoan
+//           minLoan
+//           mmr
+//           interestPeriod
+//         }
+//         priceData {
+//           marketPrice
+//           indexPrice
+//         }
+//         snapshots {
+//           quoteAssetReserve
+//           baseAssetReserve
+//           marketPrice
+//           ffr
+//           indexPrice
+//         }
+//       }
+//     }
+  
+//   }
+// `;
+//     const endpoint = "https://api.studio.thegraph.com/query/46803/subgraph-minoan/version/latest";
+//     const variables = { user: user };
+//     const data = await request(endpoint, query, variables);
 
-    return data;
-}
+//     return data;
+// }
 
 export default async function page() {
 
-    const session = await getServerSession();
-    if (!session) {
-        redirect(`/auth/signin?callbackUrl=/dashboard`);
-    }
-    const userData = await fetchUserData(session.user.name);
+    const session = await getServerSession(authOptions)
+  if(!session || !session.user){
+    return redirect("/auth/signin?callbackUrl=/dashboard")
+  }
+    const user:Address = session.user.name as Address;
+    console.log('this is user',session);
+    // const userData = await fetchUserData(user);
+    // console.log('this is userdtaa',userData);
     return (
         <div className='mx-4 flex flex-col gap-y-4 '>
             <h1 className='text-white'>Dashboard</h1>
-            <DashBoardBalances userData={userData} />
+            {/* <DashBoardBalances userData={userData} /> */}
             <div className='grid grid-cols-12'>
                 <div className='col-span-3 px-8'>
                     <div className='h-16 w-1/2 rounded-tr-2xl bg-slate-800  border-b border-blue-300'>
@@ -115,7 +171,7 @@ export default async function page() {
                     </div>
                 </div>
                 <div className='col-span-4 mx-12 flex flex-col  '>
-                    <Wallet user={session.user.name} />
+                    <Wallet user={user} />
                     <PastTransactions />
 
                 </div>
@@ -131,12 +187,12 @@ export default async function page() {
                 {/* <RechartLines height={800} />  */}
             </div>
 
-            <DashBoardTradeTab user={session.user.name}  />
+            {/* <DashBoardTradeTab user={user}  /> */}
 
-            {stocks && (
-                <DashboardAssets userData={userData} stockData={stocks} user={session.user.name} />
+            {/* {stocks && (
+                // <DashboardAssets userData={userData} stockData={stocks} user={user} />
                 
-            )}
+            )} */}
         </div>
     )
 }

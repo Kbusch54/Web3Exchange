@@ -5,13 +5,15 @@ import PurposalModal from "../../../components/modals/ProposalModal";
 import Balances from "../../../components/balances/Balances";
 import InvestorStats from "../../../components/stockData/InvestorStats";
 import StakingStats from "../../../components/stockData/StakingStats";
-import { getServerSession } from "../../api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
 import { request, gql } from 'graphql-request';
 import VaultUSDCForm from "../../../components/forms/VaultUSDCForm";
 import ReachartsEx from "../../../components/charts/poolCharts/ReachartsEx";
 import StakingSection from "../../../components/forms/StakingSection";
 import DAOPurposals from "../../../components/tables/daos/DAOPurposals";
+import { authOptions } from '../../../utils/authOptions';
+import { getServerSession } from 'next-auth/next';
+import { Address } from "viem";
 
 interface Props {
   params: {
@@ -160,12 +162,15 @@ const getStocks = async (slug: string) => {
 
 export default async function PoolPage({ params }: Props) {
   const stock = await getStocks(params.slug);
-  const session = await getServerSession();
-  if (!session) {
+
+  const session = await getServerSession(authOptions)
+
+  if (!session || !session.user || !session.user.name) {
     redirect(`/auth/signin?callbackUrl=/pools/${params.slug}`);
   }
 
 
+  const user = session.user.name as Address;
 
   const allData = await fetchLoanPoolData(params.slug.toLowerCase(), session.user.name);
   //@ts-ignore
@@ -200,7 +205,7 @@ export default async function PoolPage({ params }: Props) {
               id={"charts"}
               className="hidden md:block col-span-9  shadow-xl shadow-slate-500"
             >
-              <ReachartsEx />
+              <ReachartsEx height={500} />
             </div>
             <div
               id={"stats"}
@@ -215,16 +220,16 @@ export default async function PoolPage({ params }: Props) {
               <h1 className="my-4">Deposit and Withdraw</h1>
 
               <div className="">
-                  <VaultUSDCForm availableUsdc={userData} user={session.user.name} />
+                  <VaultUSDCForm availableUsdc={userData} user={user} />
               </div>
 
             </div>
-            <StakingSection availableUsdc={userData} poolToken={graphData.loanPool.poolToken} user={session.user.name} name={stock.name} poolBalance={graphData.loanPool.poolBalance} />
+            <StakingSection availableUsdc={userData} poolToken={graphData.loanPool.poolToken} user={user} name={stock.name} poolBalance={graphData.loanPool.poolBalance} />
           </div>
           <div id={"dao"} className="m-2 md:m-12">
-            <DAOPurposals isTheseus={false} user={session.user.name} daoAddress={poolToken.ammPool.ariadneDAO.id} tokenId={poolToken.tokenId} />
+            <DAOPurposals isTheseus={false} user={user} daoAddress={poolToken.ammPool.ariadneDAO.id} tokenId={poolToken.tokenId} />
             {/* <DaoTransaction /> */}
-            <PurposalModal ariadneData={ariadneData} loanPoolTheseus={graphData.loanPool.loanPoolTheseus} symbol={stock.symbol} ammAddress={graphData.loanPool.id} currentValue={graphData.loanPool} user={session.user.name} />
+            <PurposalModal ariadneData={ariadneData} loanPoolTheseus={graphData.loanPool.loanPoolTheseus} symbol={stock.symbol} ammAddress={graphData.loanPool.id} currentValue={graphData.loanPool} user={user} />
           </div>
         </div>
       ) : (
