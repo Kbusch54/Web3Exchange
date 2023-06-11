@@ -7,6 +7,7 @@ module.exports = {
   },
   env: {
     NEXT_PUBLIC_ALCHEMY_ID: process.env.NEXT_PUBLIC_ALCHEMY_ID,
-    NEXT_PUBLIC_SUPABASE: process.env.SUPABASE_KEY
+    NEXT_PUBLIC_SUPABASE: process.env.SUPABASE_KEY,
+    NEXT_PUBLIC_PROJECT_ID: process.env.NEXT_PUBLIC_PROJECT_ID,
   },
 }
