@@ -8,21 +8,26 @@ interface Props { }
 
 const Header: React.FC<Props> = () => {
   return (
-    <header className="h-[5vh] bg-slate-700 flex gap-x-4 text-white justify-between align-center">
-      <a href="/" className="p-2  flex flex-row ">
-        <Image src={logo} alt="logo" height={20} width={35} />
-        <h1 className="ml-2 mt- text-sm"></h1>
-      </a>
-      <div className="flex  gap-x-32 mt-4 ">
-        <a href="/todos">
-          Docs
+    <header className=" bg-slate-700 ">
+      <div className="flex gap-x-4 text-white justify-between align-center mx-6">
+
+        <a href="/" className="p-2  flex flex-row ">
+          <Image src={logo} alt="logo" height={20} width={35} />
+          <h1 className="inline md:hidden ml-14 text-2xl text-white align-middle text-left">HH</h1>
         </a>
-        <a href="/theseusDao">Theseus Dao</a>
-        <a href="/pools">Pools</a>
-        <a href="/invest">Invest</a>
-        <a href="/dashboard">Dashboard</a>
+        <div className=" hidden md:flex gap-x-14 lg:gap-x-20 xl:gap-x-32 2xl:gap-x-64 mt-4 ">
+          <a href="/todos">
+            Docs
+          </a>
+          <a href="/theseusDao">Theseus Dao</a>
+          <a href="/pools">Pools</a>
+          <a href="/invest">Invest</a>
+          <a href="/dashboard">Dashboard</a>
+        </div>
+        <div className="mt-3">
+          <ConnectingButton />
+        </div>
       </div>
-      <ConnectingButton />  
     </header>
   );
 };
