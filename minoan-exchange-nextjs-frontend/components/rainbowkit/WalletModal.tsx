@@ -90,8 +90,9 @@ const WalletModal: React.FC<Props> = ({ account, signOutFunc }) => {
                     <div className='flex flex-row justify-between  text-amber-400 mx-12'>
                         {account.displayName && account.address && (
                             <div className='flex flex-row bg-slate-700 rounded-xl p-4 gap-x-2'>
+                            <Copy toCopy={account.address.toString()} size={25}>
                                 <p>{account.displayName}</p>
-                            <Copy toCopy={account.address.toString()} size={25}/>
+                                </Copy>
                         </div>
                         )}
                         <p className='bg-slate-700 rounded-xl p-4'>{account.displayBalance}</p>
