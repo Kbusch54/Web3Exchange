@@ -45,7 +45,7 @@ const VaultUSDCForm: React.FC<Props> = ({ availableUsdc, user }) => {
   const { allowance, isPending } = useGetAllowance(user);
 
   useEffect(() => {
-    if (data?.value) setWalletBalance((prevState) =>  data.value.toNumber());
+    if (data?.value) setWalletBalance((prevState) =>  Number(data.value));
     if (allowance) setAllowanceAmt((prevState) =>  Number(allowance));
     console.log('allowance',allowanceAmt);
     return () => {

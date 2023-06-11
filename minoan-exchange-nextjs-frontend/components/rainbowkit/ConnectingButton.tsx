@@ -82,10 +82,7 @@ const ConnectingButton: React.FC<Props> = () => {
                                             </div>
                                         );
                                     }
-
                                     if (isConnected && account && account.address && session && session.status == 'authenticated') {
-
-
                                         return (
                                             <div >
                                                 <WalletModal account={account} signOutFunc={signOutFull} />

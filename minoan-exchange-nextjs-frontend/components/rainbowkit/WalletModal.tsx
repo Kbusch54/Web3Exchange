@@ -64,7 +64,7 @@ const WalletModal: React.FC<Props> = ({ account, signOutFunc }) => {
     return (
         <div className='flex flex-row gap-x-1 md:gap-x-4  '>
             <button className='px-2 py-1 md:px-3 md:py-2  text-white border rounded-xl hover:scale-125 bg-blue-600 text-sm md:text-md lg:text-lg 2xl:text-xs 3xl:text-xl' onClick={openModal}>
-                Open Modal
+                Wallet
             </button>
             <button className='px-2 py-1 md:px-3 md:py-2  bg-red-400 text-white border rounded-xl hover:scale-125 text-sm md:text-md lg:text-lg 2xl:text-xs 3xl:text-xl' onClick={signOutFunc}>Sign Out</button>
             <Modal
