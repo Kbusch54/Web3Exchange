@@ -1,165 +1,105 @@
-"use client";
-import React, { useState, useEffect } from "react";
+'use client'
+
+import React, { useState } from 'react'
+import { useAccount, useDisconnect, useSignMessage } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { useConnect, useBalance, useAccount, useNetwork, useSigner,useDisconnect } from "wagmi";
-import { ethers } from "ethers";
+import { useSession, signOut } from 'next-auth/react';
+import WalletModal from './WalletModal';
 
 interface Props {
 
 }
 
 const ConnectingButton: React.FC<Props> = () => {
-    const { address, isConnected,isDisconnected } = useAccount();
+    const session = useSession();
+    const { address } = useAccount();
+    const { disconnect } = useDisconnect();
+    const { isConnected, status } = useAccount();
+    const [modalState, setModalState] = useState(false)
 
-    const [hasMounted, setHasMounted] = useState(false);
-    const [signatureVerified, setSignatureVerified] = useState(false);
-    const { data: signer } = useSigner();
-    const { disconnect } = useDisconnect({
-        onSettled() {
-            setSignatureVerified(()=>false);
-          },
-    })
-  
-  
-    isDisconnected && console.log("Disconnected");
-    useEffect(() => {
-      setHasMounted(true);
-    }, []);
-  
-    if (!hasMounted) {
-      return null;
+    const signOutFull = async () => {
+        disconnect();
+        await signOut()
     }
-
-  
-    async function handleSignMessage() {
-        const hello = ethers.utils.arrayify(23232323+Date.now());
-        console.log(hello);
-      const message = ethers.utils.arrayify(23232323+Date.now());
-          const signature =  await signer?.signMessage(message);
-          if (signature) {
-            const verified = ethers.utils.verifyMessage(
-              message,
-              signature
-            );
-            if(address==verified){
-                setSignatureVerified(()=>true);
-            }
+    const openModal = () => {
+        setModalState((prev) => !prev)
     }
-}
-    return (
-        <div className="main  z-30">
-        {!isConnected&&(
+    if (status == 'connecting'|| session?.status == 'loading') {
+        return (
+            <div>
+                <button className='px-3 py-2 bg-teal-400 text-xl text-white border rounded-xl hover:scale-125 ' onClick={openModal} type="button">
+                    Connecting...
+                </button>
+            </div>
+        )
+    } else {
 
-               <>
-        <h1>Click below to connect your wallet with RainbowKit</h1>
-        <ConnectButton.Custom>
-      {({
-        account,
-        chain,
-        openAccountModal,
-        openChainModal,
-        openConnectModal,
-        authenticationStatus,
-        mounted,
-      }) => {
-        // Note: If your app doesn't use authentication, you
-        // can remove all 'authenticationStatus' checks
-        const ready = mounted && authenticationStatus !== 'loading';
-        const connected =
-          ready &&
-          account &&
-          chain &&
-          (!authenticationStatus ||
-            authenticationStatus === 'authenticated');
 
         return (
-          <div
-            {...(!ready && {
-              'aria-hidden': true,
-              'style': {
-                opacity: 0,
-                pointerEvents: 'none',
-                userSelect: 'none',
-              },
-            })}
-          >
-            {(() => {
-              if (!connected) {
-                return (
-                  <button onClick={openConnectModal} type="button">
-                    Connect Wallet
-                  </button>
-                );
-              }
+            <div>
+                <ConnectButton.Custom>
+                    {({ account, chain, openChainModal, openConnectModal, authenticationStatus, mounted, }) => {
+                        // Note: If your app doesn't use authentication, you
+                        // can remove all 'authenticationStatus' checks
+                        const ready = mounted && authenticationStatus !== 'loading';
+                        const connected =
+                            ready &&
+                            account &&
+                            chain &&
+                            (!authenticationStatus ||
+                                authenticationStatus != 'authenticated');
 
-              if (chain.unsupported) {
-                return (
-                  <button onClick={openChainModal} type="button">
-                    Wrong network
-                  </button>
-                );
-              }
+                        return (
+                            <div
+                                {...(!ready && {
+                                    disabled: true,
+                                })}
+                            >
+                                {(() => {
+                                    if (!connected && !isConnected) {
+                                        return (
+                                            <div>
+                                                <button className='px-3 py-2 bg-teal-400 text-xl text-white border rounded-xl hover:scale-125 ' onClick={openConnectModal} type="button">
+                                                    Connect Wallet
+                                                </button>
+                                            </div>
+                                        );
+                                    }
+                                    if (isConnected && address && (!session || session.status != 'authenticated')) {
+                                        return (
+                                            <div className=''>
+                                                <button className='px-3 py-2 m-4 bg-red-400 text-xl text-white border rounded-xl hover:scale-125 ' onClick={() => disconnect()}>Disconnect</button>
+                                            </div>
+                                        )
+                                    }
 
-              return (
-                <div style={{ display: 'flex', gap: 12 }}>
-                  <button
-                    onClick={openChainModal}
-                    style={{ display: 'flex', alignItems: 'center' }}
-                    type="button"
-                  >
-                    {chain.hasIcon && (
-                      <div
-                        style={{
-                          background: chain.iconBackground,
-                          width: 12,
-                          height: 12,
-                          borderRadius: 999,
-                          overflow: 'hidden',
-                          marginRight: 4,
-                        }}
-                      >
-                        {chain.iconUrl && (
-                          <img
-                            alt={chain.name ?? 'Chain icon'}
-                            src={chain.iconUrl}
-                            style={{ width: 12, height: 12 }}
-                          />
-                        )}
-                      </div>
-                    )}
-                    {chain.name}
-                  </button>
+                                    if (chain?.unsupported) {
+                                        return (
+                                            <div>
+                                                <button className='px-3 py-2 m-4 bg-yellow-400 text-xl text-white border rounded-xl hover:scale-125 ' onClick={openChainModal} type="button">
+                                                    Wrong network
+                                                </button>
+                                            </div>
+                                        );
+                                    }
 
-                  <button onClick={openAccountModal} type="button">
-                    {account.displayName}
-                    {account.displayBalance
-                      ? ` (${account.displayBalance})`
-                      : ''}
-                  </button>
-                </div>
-              );
-            })()}
-          </div>
-        );
-      }}
-    </ConnectButton.Custom>
-            </>
-            )}
-        {(!signatureVerified && isConnected) && (
-            <>
-            
-            <button onClick={handleSignMessage}>Sign Message</button>
-            </>
-            )}
-        {signatureVerified&&(<>
-        <div>Verified</div>
-        <div>
-            <div>Address: {address}</div>
-            <button onClick={() => disconnect()}>Disconnect</button>
-        </div>
-        </>)}
-      </div>
-    )
+                                    if (isConnected && account && account.address && session && session.status == 'authenticated') {
+
+
+                                        return (
+                                            <div style={{ display: 'flex', gap: 12 }}>
+                                                <WalletModal account={account} signOutFunc={signOutFull} />
+                                            </div>
+                                        );
+                                    }
+                                })()}
+                            </div>
+                        );
+                    }}
+                </ConnectButton.Custom>
+            </div>
+        )
+    }
 }
 
 export default ConnectingButton
