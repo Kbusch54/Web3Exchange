@@ -64,7 +64,7 @@ export const authOptions: NextAuthOptions = {
       // https://next-auth.js.org/configuration/providers/oauth
       session: {
         strategy: 'jwt',
-        maxAge: 8 * 60 * 60, // 8 hours
+        maxAge: 4 * 60 * 60, // 4 hours
       },
       pages: {
         signIn: "/auth/signin",
