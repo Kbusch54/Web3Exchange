@@ -6,6 +6,7 @@ import { useNewProposal } from '../../../../utils/contractWrites/daos/ariadne/pu
 import { ethers } from 'ethers';
 import { getTransactionHash } from '../../../../utils/helpers/doas';
 import { theseus } from '../../../../utils/address';
+import toast from 'react-hot-toast';
 
 interface Props {
   callData: string,
@@ -111,6 +112,7 @@ const handleWrite = async (e) => {
   console.log('contractWrite ddd',contractWrite);
   //@ts-ignore
   await contractWrite.writeAsync()
+  // @ts-ignore
     .then((con: { wait: (arg0: number) => Promise<any>; hash: any; }) => {
       con.wait(1).then((res) => {
         if (contractWrite.isSuccess || res.status == 1) {
@@ -120,6 +122,7 @@ const handleWrite = async (e) => {
           //update db 
           setLoadingStage((prev) => false);
           setApproved(true);
+          toast.success(`Transaction Sent ${res.transactionHash}`, {  duration: 6000 });
           //custom message
           //notification
           //ask for signature
@@ -131,15 +134,18 @@ const handleWrite = async (e) => {
           contractWrite.isIdle == true ||
           res.status == 0
         ) {
+          toast.error(`Transaction Failed ${res.transactionHash}`, {  duration: 6000 });
           console.log("error see traNSACITON HASH", con.hash);
           console.log(contractWrite?.error?.message);
         } else {
+          toast.error(`Transaction Failed ${res.transactionHash}`, {  duration: 6000 });
           console.log("error see traNSACITON HASH", con.hash);
           console.log(contractWrite?.error?.message);
         }
       });
     })
     .catch((err: any) => {
+      toast.error(`Signer Rejected ${err.details}`, {  duration: 6000, });
       console.log("didnt event fire", err);
     });
 };

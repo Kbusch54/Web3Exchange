@@ -1,16 +1,16 @@
 import Image from "next/image";
 import React from "react";
-import PurposalModal from "../../components/modals/ProposalModal";
-import DaoTransaction from "../../components/tables/daos/DaoTransactions";
 import TheseusTab from "../../components/tabs/TheseusTab";
 import theseus from "../../public/assets/theseus-removed.png";
-import { getServerSession } from "../api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
 import { request, gql } from 'graphql-request';
 import StakingSection from "../../components/forms/StakingSection";
 import { theseus as theseusAdd } from "../../utils/address";
 import DAOPurposals from "../../components/tables/daos/DAOPurposals";
 import TheseusProposalModal from "../../components/modals/TheseusProposalModal";
+import { authOptions } from "../../utils/auth/authOptions";
+import { getServerSession } from "next-auth/next";
+import { Address } from "wagmi";
 async function fetchData(user: string, theseusAdd: string) {
   const query = gql` 
     query getvamm($user: String!, $theseusAdd: String!) {
@@ -93,10 +93,12 @@ async function fetchData(user: string, theseusAdd: string) {
 type Props = {};
 
 async function page(props: Props) {
-  const session = await getServerSession();
-  if (!session) {
-    redirect(`/auth/signin?callbackUrl=/theseusdao`);
+
+  const session = await getServerSession(authOptions)
+  if(!session || !session.user || !session.user.name){
+      return redirect(`/auth/signin?callbackUrl=/theseusdao`);
   }
+  const user = session.user.name as Address;
   const data = await fetchData(session.user.name, theseusAdd);
   //@ts-ignore
   const poolAvailableUsdc = data.users[0].balances.availableUsdc;
@@ -246,16 +248,16 @@ async function page(props: Props) {
             tokenBalance: 0,
             ammPool: 0,
             isFrozen: true
-          }} user={session.user.name} name={'Theseus'} poolBalance={poolBalance} />
+          }} user={user} name={'Theseus'} poolBalance={poolBalance} />
         </div>
         <div className="mb-12">
           {/* @ts-ignore */}
-          <DAOPurposals daoAddress={data.theseusDAOs[0]?data.theseusDAOs[0].id:'0x87ad83DC2F12A14C85D20f178A918a65Edfe1B42'} user={session.user.name} tokenId={data.theseusDAOs[0]?data.theseusDAOs[0].tokenId:0} isTheseus={true} />
+          <DAOPurposals daoAddress={data.theseusDAOs[0]?data.theseusDAOs[0].id:'0x87ad83DC2F12A14C85D20f178A918a65Edfe1B42'} user={user} tokenId={data.theseusDAOs[0]?data.theseusDAOs[0].tokenId:0} isTheseus={true} />
         </div>
       </div>
 
       <div className="flex justify-center">
-        <TheseusProposalModal user={session.user.name} />
+        <TheseusProposalModal user={user} />
       </div>
     </div>
   );

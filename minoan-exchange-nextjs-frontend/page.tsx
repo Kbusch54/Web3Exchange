@@ -9,10 +9,10 @@ import logo from "../public/assets/minotaur-logo-thing.png";
 import ariadne from "../public/assets/ariadne-real.png";
 import theseus from "../public/assets/stone-theseus.png";
 import dynamic from "next/dynamic";
-import LoanPoolTab from "../components/LoanPoolTab";
-import ScrollUp from "../components/utils/ScrollUp";
+import LoanPoolTab from "./components/LoanPoolTab";
+import ScrollUp from "./components/utils/ScrollUp";
 const TradeStepper = dynamic(
-  () => import("../components/mainPage/TradeStepper"),
+  () => import("./components/mainPage/TradeStepper"),
   {
     ssr: false,
   }
