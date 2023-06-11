@@ -17,13 +17,13 @@ interface Props {
 
 
 
-const projectId = '68cd4f66bb75d85ad9574e37bc54a3e8';
+const projectId = process.env.NEXT_PUBLIC_PROJECT_ID;
 
 const { chains, publicClient } = configureChains(
     [goerli],
     [
-        // @ts-ignore
-      alchemyProvider({ apiKey: "X7CfmD6NMU46pX47PooiyVs7J5XxPCqk" }),
+      
+      alchemyProvider({ apiKey: process.env.NEXT_PUBLIC_ALCHEMY_ID || '' }),
       publicProvider()
     ]
   );
@@ -36,7 +36,6 @@ const { chains, publicClient } = configureChains(
   
   const wagmiConfig = createConfig({
     autoConnect: true,
-    
     connectors,
     publicClient
   });
