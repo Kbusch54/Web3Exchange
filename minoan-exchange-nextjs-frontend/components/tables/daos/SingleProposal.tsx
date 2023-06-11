@@ -4,6 +4,7 @@ import { Address } from 'wagmi';
 import VotingProportion from '../utils/VotingProportion';
 import CountDownProposal from '../utils/CountDownProposal';
 import DAOButtonSelection from '../utils/DAOButtonSelection';
+import Copy from '../../utils/Copy';
 
 interface Props {
     index: number;
@@ -151,7 +152,9 @@ const SingleProposal: React.FC<Props> = ({ proposal, dbData, index, user, isHold
                         </div>
                         <div className='text-white text-sm lg:text-lg flex flex-row border justify-evenly text-center border-white/10 col-span-2'>
                             <p className='text-sm lg:text-lg'>TransactionHash:</p>
-                            <p className='text-sm lg:text-lg'>{proposal.transactionHash.slice(0, 15)}{'...[copy]'}</p>
+                            <Copy toCopy={proposal.transactionHash}>
+                            <p className='text-sm lg:text-lg'>{proposal.transactionHash.slice(0, 15)}</p>
+                            </Copy>
                         </div>
                         {dbData && (
                             <div className='text-white text-md lg:text-lg flex flex-row border gap-x-4 text-left m-1 border-white/10 col-span-2 lg:col-span-3'>
@@ -162,7 +165,11 @@ const SingleProposal: React.FC<Props> = ({ proposal, dbData, index, user, isHold
                                 <>
                                 <div className='text-white text-lg flex flex-row border justify-evenly text-center border-white/10'>
                                 <p>Executor:</p>
-                                <p>{dbData? dbData?.executor?  dbData.executor?.slice(0,10):'0x0':'0x0'}</p>
+                                
+                                <Copy toCopy={dbData?.executor? dbData.executor.toString():''}>
+                                    {dbData? dbData?.executor?  dbData.executor?.slice(0,10):'0x0':'0x0'}
+                                </Copy>
+                                
                             </div>
                             <div className='text-white text-lg flex flex-row border justify-evenly text-center border-white/10'>
                                 <p>Result:</p>

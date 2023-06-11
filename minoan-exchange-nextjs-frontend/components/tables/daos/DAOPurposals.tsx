@@ -1,3 +1,4 @@
+// @ts-ignore
 import React, { use } from 'react';
 import request, { gql } from 'graphql-request';
 import { supabase } from '../../../supabase';
