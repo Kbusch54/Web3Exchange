@@ -1,6 +1,7 @@
 import { useState } from "react";
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CheckIcon from '@mui/icons-material/Check';
+import toast from "react-hot-toast";
 
 type CopiedValue = string | null;
 type CopyFn = (text: string) => Promise<boolean>; // Return success
@@ -39,6 +40,7 @@ const Copy: React.FC<Props> = ({ toCopy, size }) => {
     const handleOnClick = (e: { preventDefault: () => void; }) => {
       e.preventDefault();
       copy(toCopy);
+      toast.success('Copied to clipboard', {icon: '📋',duration:3000,position:"bottom-center"});
       setClicked(true);
     };
     return (

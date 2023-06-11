@@ -9,7 +9,7 @@ import { configureChains, createConfig, WagmiConfig } from 'wagmi';
 import { goerli } from 'wagmi/chains';
 import { alchemyProvider } from 'wagmi/providers/alchemy';
 import { publicProvider } from 'wagmi/providers/public';
-import { Session } from 'next-auth';
+import { Toaster } from 'react-hot-toast';
 interface Props {
     children?: React.ReactNode
     // session: Session
@@ -44,6 +44,7 @@ const { chains, publicClient } = configureChains(
         <WagmiConfig config={wagmiConfig}>
             <SessionProvider >
                     <RainbowKitProvider  chains={chains}>
+                        <Toaster />
                         {children}
                     </RainbowKitProvider>
                 </SessionProvider>
