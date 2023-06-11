@@ -75,7 +75,8 @@ const WalletModal: React.FC<Props> = ({ account, signOutFunc }) => {
                 style={customStyles}
                 contentLabel="Wallet Modal"
             >
-                <div className='flex flex-col justify-center gap-y-4 bg-slate-800 p-12 rounded-xl relative'>
+                <div className='flex flex-col justify-center gap-y-4 bg-slate-800 p-12 rounded-xl relative text-center'>
+                    <h1 className='text-amber-400'>WALLET</h1>
                     <div className='object-scale-down self-center bg-gray-600 rounded-full p-4'>
                         {account.address ? (
                             <Image src={`https://avatars.dicebear.com/api/bottts/${account.address}.svg`} height={100} width={100} alt="avatar" />
@@ -88,12 +89,12 @@ const WalletModal: React.FC<Props> = ({ account, signOutFunc }) => {
 
                     <div className='flex flex-row justify-between  text-amber-400 mx-12'>
                         {account.displayName && account.address && (
-                            <div className='flex flex-row bg-slate-700 rounded-xl py-4 px-3 gap-x-2'>
+                            <div className='flex flex-row bg-slate-700 rounded-xl p-4 gap-x-2'>
                                 <p>{account.displayName}</p>
                             <Copy toCopy={account.address.toString()} size={25}/>
                         </div>
                         )}
-                        <p className='bg-slate-700 rounded-xl py-4 px-3'>{account.displayBalance}</p>
+                        <p className='bg-slate-700 rounded-xl p-4'>{account.displayBalance}</p>
                     </div>
                     {session.data?.expires && (
                         <div>
