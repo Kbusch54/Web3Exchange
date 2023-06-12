@@ -48,19 +48,6 @@
   @apply text-xl text-white 
 }
 
-/* Balance Component */
-.balance-container{
-  @apply col-span-6 md:col-span-4 lg:col-span-6 lg:mt-0 grid grid-cols-2 xl:grid-cols-3 mt-12 gap-y-12 text-white
-}
-.balance-container div{
-  @apply flex flex-col text-center border-2 border-blue-800 rounded-t-2xl rounded-b-xl bg-sky-800 m-4 bg-opacity-40
-}
-.balance-container div h1{
-  @apply text-xl md:text-3xl lg:text-5xl mt-4
-}
-.balance-container div h3{
-  @apply text-lg lg:text-xl
-}
 /* Staking and Investor Stats components for pools */
 .asset-info-box{
   @apply flex flex-col gap-y-4 gap-x-12

@@ -14,6 +14,7 @@ import DAOPurposals from "../../../components/tables/daos/DAOPurposals";
 import { authOptions } from '../../../utils/auth/authOptions';
 import { getServerSession } from 'next-auth/next';
 import { Address } from "viem";
+import TypeSelection from "../../../components/menus/TypeSelection";
 
 interface Props {
   params: {
@@ -203,10 +204,13 @@ export default async function PoolPage({ params }: Props) {
             <Balances poolBalances={graphData.loanPool.poolBalance} poolToken={graphData.loanPool.poolToken} />
             <div
               id={"charts"}
-              className="hidden md:block col-span-9  shadow-xl shadow-slate-500"
+              className="hidden md:block col-span-9 px-4  text-lg shadow-xl shadow-slate-500"
             >
               <ReachartsEx height={500} />
             </div>
+            <section id={"select-charts"} className="col-span-9">
+              <TypeSelection />
+            </section>
             <div
               id={"stats"}
               className="col-span-9 lg:col-span-9 flex flex-wrap justify-evenly items-center text-center gap-y-12">
