@@ -79,11 +79,11 @@ export default async function page() {
 
 
 
-            <div className='mx-4 md:mx-8 lg:mx-24 xl:mx-40 border-2 border-slate-700 mt-12'>
+            {/* <div className='mx-4 md:mx-8 lg:mx-24 xl:mx-40 border-2 border-slate-700 mt-12'>
                 {/* <Suspense fallback={<div>Loading...</div>}>
                 </Suspense> */}
-                <RechartLines height={800} /> 
-            </div>
+                {/* <RechartLines height={800} /> 
+            </div> */} 
 
             <DashBoardTradeTab user={user}  />
 

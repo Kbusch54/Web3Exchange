@@ -47,7 +47,6 @@ const VaultUSDCForm: React.FC<Props> = ({ availableUsdc, user }) => {
   useEffect(() => {
     if (data?.value) setWalletBalance((prevState) =>  Number(data.value));
     if (allowance) setAllowanceAmt((prevState) =>  Number(allowance));
-    console.log('allowance',allowanceAmt);
     return () => {
       setWalletBalance(null);
       setAllowanceAmt(0);
@@ -58,7 +57,7 @@ const VaultUSDCForm: React.FC<Props> = ({ availableUsdc, user }) => {
 useEffect(() => {
 },[isPending,isLoading])
   if (isLoading || isPending) return <div>loading</div>
-  if (error || !allowance) return <div>Something went wrong</div>
+  if (error || allowance == null) return <div className="text-3xl text-white">Something went wrong {JSON.stringify(error)}</div>
 
   const handleDepositFocus = (e: React.ChangeEvent<HTMLInputElement>): void => {
     /* @ts-ignore */

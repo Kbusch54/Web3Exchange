@@ -50,7 +50,7 @@ const ReachartsEx: React.FC<Props> = ({height}) => {
     return (
       // <div className="h-max w-96">
         <ResponsiveContainer height={height} width={'100%'} >
-        <ComposedChart data={data}>
+        <ComposedChart data={data} margin={{ top: 0, right: 10, left: 10, bottom: 5 }}>
           <defs>
             <linearGradient id="color" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#2451B7" stopOpacity={0.4} />
