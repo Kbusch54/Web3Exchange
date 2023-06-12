@@ -128,6 +128,7 @@ const DAOPurposals = ({ daoAddress, user,tokenId ,isTheseus}: Props) => {
     const { data, error } = use(supabase.from('Proposals').select().ilike('contractAddress', `%${daoAddress}%`));
     if (proposals) {
         return (
+          // @ts-ignore
             <ProposalType daoAddress={daoAddress} dbData={data} hasStakes={false}  proposals={proposals} tokenId={tokenId} user={user} />
         );
     } else {

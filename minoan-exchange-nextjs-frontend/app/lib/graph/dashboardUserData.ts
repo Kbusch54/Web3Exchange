@@ -1,5 +1,4 @@
 import request, { gql } from "graphql-request";
-// @ts-ignore
 import { cache } from 'react'
 
 

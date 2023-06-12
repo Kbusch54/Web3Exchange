@@ -1,6 +1,5 @@
 'use client'
 import { ethers } from 'ethers';
-// @ts-ignore
 import React, { Suspense, lazy,use,useEffect,useState } from 'react'
 import { Address } from 'wagmi';
 import { getInterestData } from '../../app/lib/graph/interestData';
@@ -17,7 +16,7 @@ const MyLazyComponent = lazy(async () => await import('../countdowns/Countdown')
 
 const InterestData: React.FC<Props> = ({user,amm,symbol}) => {
  
-  const interestData = use(getInterestData(amm,user));
+  const interestData:any = use(getInterestData(amm,user));
   const[timeTillNextInterestPayment,setTimeTillNextInterestPayment] = useState<number>(0);
   const[totalAmountOwed,setTotalAmountOwed] = useState<number>(0);
   const[collateralForNextTrade,setCollateralForNextTrade] = useState<number>(0);

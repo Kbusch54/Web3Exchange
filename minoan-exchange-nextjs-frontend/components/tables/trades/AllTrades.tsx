@@ -1,5 +1,4 @@
 'use client'
-//@ts-ignore
 import React, { use, useEffect } from 'react'
 import SingleTrade from './SingleTrade';
 import { Address } from 'wagmi';
@@ -190,7 +189,7 @@ const AllTrades: React.FC<Props> = ({ user, userAvailableBalance, active = true,
         })
 
     }
-    const tradeData = use(getGlobalTradeData());
+    const tradeData:any = use(getGlobalTradeData());
     if(tradeData.error) return <div>Error...</div>;
 
     const rows: rows = tradesToRows(tradeData.trades);
