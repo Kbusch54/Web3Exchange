@@ -14,10 +14,8 @@ export const useStake = (
        abi:StakingAbi,
       functionName: "stake",
       args: [amount,amm],
-      overrides: {
-        from: signer,
+      account: signer,
         // gasLimit: parseUnits("200000", "wei"),
-      },
       
     });
     return { config, error };

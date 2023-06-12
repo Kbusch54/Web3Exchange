@@ -11,9 +11,7 @@ export const useApproveUsdc = (
        abi:UsdcAbi,
       functionName: "approve",
       args: [ exchange, amount],
-      overrides: {
-        from: signer,
-      },
+      account: signer,
     });
     return { config, error };
   };

@@ -11,9 +11,7 @@ export const useDepositUsdc = (
        abi:ExchangeAbi,
       functionName: "deposit",
       args: [amount],
-      overrides: {
-        from: signer,
-      },
+      account: signer,
     });
     return { config, error };
   };

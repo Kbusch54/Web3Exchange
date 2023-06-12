@@ -11,9 +11,7 @@ export const useWithdrawUsdc = (
        abi:ExchangeAbi,
       functionName: "withdraw",
       args: [amount],
-      overrides: {
-        from: signer,
-      },
+      account: signer,
     });
     return { config, error };
   };

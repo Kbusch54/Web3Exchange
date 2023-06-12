@@ -18,10 +18,8 @@ export const useExecuteProposal = (
        chainId:5,
       functionName: "executeTransaction",
       args: [nonce,addressTo,0,transactionHash,signatures],
-      overrides: {
-        from: signer,
-        gasLimit: parseUnits("200000", "wei"),
-      },
+      account: signer,
+        gas: parseUnits("200000", "wei").toBigInt(),
       
     });
     return { config, error };

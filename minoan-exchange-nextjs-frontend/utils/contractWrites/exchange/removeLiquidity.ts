@@ -15,10 +15,9 @@ export const useRemoveLiquidity = (
        chainId:5,
       functionName: "removeLiquidityFromPosition",
       args: [tradeId,positionSize,payyload],
-      overrides: {
-        from: signer,
-        gasLimit: parseUnits("200000", "wei"),
-      },
+      account: signer,
+      gas: parseUnits("200000", "wei").toBigInt(),
+ 
       
     });
     return { config, error };

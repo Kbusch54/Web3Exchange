@@ -14,10 +14,8 @@ export const useClosePosition = (
        chainId:5,
       functionName: "closeOutPosition",
       args: [tradeId,payload],
-      overrides: {
-        from: signer,
-        gasLimit: parseUnits("200000", "wei"),
-      },
+      account: signer,
+      gas: parseUnits("200000", "wei").toBigInt(),
       
     });
     return { config, error };

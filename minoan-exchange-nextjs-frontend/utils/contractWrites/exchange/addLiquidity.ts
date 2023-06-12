@@ -16,10 +16,8 @@ export const useAddLiquidity = (
        chainId:5,
       functionName: "addLiquidityToPosition",
       args: [tradeId,leverage,collateral,payload],
-      overrides: {
-        from: signer,
-        gasLimit: parseUnits("200000", "wei"),
-      },
+      account: signer,
+        gas: parseUnits("200000", "wei").toBigInt(),
       
     });
     return { config, error };

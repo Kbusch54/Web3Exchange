@@ -21,10 +21,8 @@ export const useOpenPosition = (
        chainId:5,
       functionName: "openPosition",
       args: [amm,collateral,leverage,side,payload],
-      overrides: {
-        from: signer,
-        gasLimit: parseUnits("10000000", "wei"),
-      },
+      account: signer,
+        gas: parseUnits("10000000", "wei").toBigInt(),
       
     });
     return { config, error };

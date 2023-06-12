@@ -15,10 +15,8 @@ export const useAddCollateral = (
        chainId:5,
       functionName: "addCollateral",
       args: [tradeId,collateral],
-      overrides: {
-        from: signer,
-        gasLimit: parseUnits("1000000", "wei"),
-      },
+      account: signer,
+        gas: parseUnits("1000000", "wei").toBigInt(),
       
     });
     return { config, error };
