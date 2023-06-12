@@ -86,7 +86,7 @@ export default async function page(context: { params: { slug: string; }; }) {
   const slug = context.params.slug ?? 'tsla'; // Set the default slug value to 'tsla'
 
   const session = await getServerSession(authOptions)
-  if(!session || !session.user || !session.user.name){
+  if (!session || !session.user || !session.user.name) {
     return redirect(`/auth/signin?callbackUrl=/invest/${slug}`);
   }
   const user = session.user.name as Address;
@@ -114,15 +114,20 @@ export default async function page(context: { params: { slug: string; }; }) {
                     <div className="text-3xl text-white">{slug}</div>
                   </div>
                 )}
+                {stock?.symbol && (
+                  <div className="hidden 2xl:inline">
+                    <StockData stockSymbol={stock?.symbol} />
+                  </div>
+                )}
               </div>
             </div>
             <div className=" mr-8 lg:col-span-7  ">
               <div className="grid grid-rows-6 ">
                 <div className="row-span-4 hidden md:inline-block overflow-clip">
-                <ReachartsEx  height={600}/>
+                  <ReachartsEx height={600} />
                 </div>
                 <div className="row-span-4 inline-flex md:hidden overflow-clip">
-                <ReachartsEx  height={300}/>
+                  <ReachartsEx height={300} />
                 </div>
                 <div className="row-span-2">
                   <ReachartsEx height={200} />
@@ -133,11 +138,13 @@ export default async function page(context: { params: { slug: string; }; }) {
               <InvestForm stockData={stocks} currentData={graphData} user={user} availableUsdc={userData} />
               <VaultUSDCForm availableUsdc={graphData.loanPool.poolToken.tokenBalance[0]?.user ? graphData.loanPool.poolToken.tokenBalance[0].user.balances.availableUsdc : 0} user={user} />
             </div>
-            <div className="col-span-12 grid grid-cols-2 xl:grid-cols-4 gap-x-6 items-center justify-evenly gap-y-8  mt-8">
+            <div className="col-span-12 grid grid-cols-2 xl:grid-cols-4 2xl:grid-cols-3 gap-x-6 items-center justify-evenly gap-y-8  mt-8">
 
-              {stock?.symbol && (
-                <StockData stockSymbol={stock?.symbol} />
-              )}
+              <div className="inline 2xl:hidden ">
+                {stock?.symbol && (
+                  <StockData stockSymbol={stock?.symbol} />
+                )}
+              </div>
 
               <InterestData user={user} amm={graphData.loanPool.id} symbol={slug} />
               <FFRData />
