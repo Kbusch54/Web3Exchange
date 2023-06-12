@@ -5,6 +5,8 @@ import VotingProportion from '../utils/VotingProportion';
 import CountDownProposal from '../utils/CountDownProposal';
 import DAOButtonSelection from '../utils/DAOButtonSelection';
 import Copy from '../../utils/Copy';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 
 interface Props {
     index: number;
@@ -103,7 +105,9 @@ const SingleProposal: React.FC<Props> = ({ proposal, dbData, index, user, isHold
             <div>
                 <div className='grid grid-cols-6 justify-evenly text-center border border-amber-400/40 rounded-lg' key={proposal.nonce}>
                     <div className='text-white text-md  lg:text-xl m-2 gap-x-3 relative'>
-                        <button onClick={handleToggle} className='absolute left-2'>{'->'}</button>
+                        <button onClick={handleToggle} className='absolute left-2'>
+                            {toggle ? (<KeyboardArrowDownIcon />) : (<KeyboardArrowUpIcon />)}
+                            </button>
                         <div className=''>{proposal.nonce}</div>
                     </div>
                     <div className='text-white text-md  lg:text-xl m-2'>{dbData?.etherscanTransactionHash ? (

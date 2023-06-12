@@ -11,6 +11,8 @@ import { formatEther, formatUnits } from 'ethers/lib/utils.js';
 import { moneyFormatter } from '../../../utils/helpers/functions';
 import { Transition } from '@headlessui/react';
 import TradeInformation from './TradeInformation';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 
 interface Props {
     user: Address;
@@ -64,7 +66,7 @@ const SingleTrade: React.FC<Props> = ({ row, index, userAvailableBalance, user }
             <div className='grid grid-cols-7 justify-evenly text-center border border-amber-400/40 rounded-lg '>
                 <div className='text-white text-md  lg:text-xl m-2 gap-x-3 flex flex-row'>
                     {/* @ts-ignore */}
-                    <button onClick={(e) => handleToggle(e)}>{'->'}</button>
+                    <button onClick={(e) => handleToggle(e)}>{toggle ? (<KeyboardArrowDownIcon />) : (<KeyboardArrowUpIcon />)}</button>
                     <div>{row.id.slice(32, 42)}</div>
                 </div>
                 <div className='text-white text-md  lg:text-xl m-2'>{row.asset}</div>
