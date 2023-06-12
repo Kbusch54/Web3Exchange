@@ -1,5 +1,5 @@
 'use client';
-import React, {  useState } from 'react'
+import React, { useState } from 'react'
 import StakingForm from './StakingForm'
 import UnStakingForm from './UnStakingForm';
 import { Address } from 'wagmi';
@@ -32,9 +32,11 @@ const StakingSection: React.FC<Props> = ({ availableUsdc, poolToken, user, name,
         >
             <div className='flex flex-row justify-center'>
                 <h1 className="my-4 text-white">{String(mode).toUpperCase()}</h1>
-                <div className='ml-2 mt-1 bg-amber-400 border rounded-full'>
-                    <Switch color="warning" aria-controls='blue' disabled={false} onChange={handleSwitch} />
+                <div className='mb-6'>
+                    <div className='ml-2 mt-3 pb-2 bg-amber-400 border rounded-full'>
+                        <Switch color="warning" aria-controls='blue' disabled={false} onChange={handleSwitch} />
                     </div>
+                </div>
             </div>
             {mode === "staking" ? (
                 <>
