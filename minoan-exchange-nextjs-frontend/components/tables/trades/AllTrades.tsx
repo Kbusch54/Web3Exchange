@@ -7,6 +7,7 @@ import request, { gql } from 'graphql-request';
 import { ethers } from 'ethers';
 import SingleGlobalTrade from './SingleGlobalTrade';
 import { getAmmId } from '../../../utils/helpers/doas';
+import { getGlobalTradeData } from '../../../app/lib/graph/globalTradeData';
 
 interface Props {
     user: Address;
@@ -189,7 +190,7 @@ const AllTrades: React.FC<Props> = ({ user, userAvailableBalance, active = true,
         })
 
     }
-    const tradeData = use(fetchGlobalTradeData());
+    const tradeData = use(getGlobalTradeData());
     if(tradeData.error) return <div>Error...</div>;
 
     const rows: rows = tradesToRows(tradeData.trades);

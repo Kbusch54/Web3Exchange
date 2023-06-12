@@ -9,7 +9,7 @@ import { theseus as theseusAdd } from "../../utils/address";
 import DAOPurposals from "../../components/tables/daos/DAOPurposals";
 import TheseusProposalModal from "../../components/modals/TheseusProposalModal";
 import { authOptions } from "../../utils/auth/authOptions";
-import { getServerSession } from "next-auth/next";
+import { getServerSession } from "next-auth";
 import { Address } from "wagmi";
 async function fetchData(user: string, theseusAdd: string) {
   const query = gql` 

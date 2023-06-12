@@ -90,7 +90,7 @@ export default async function page(context: { params: { slug: string; }; }) {
     return redirect(`/auth/signin?callbackUrl=/invest/${slug}`);
   }
   const user = session.user.name as Address;
-  const allData = await fetchLoanPoolData(slug.toString().toLowerCase(), session.user.name);
+  const allData = await fetchLoanPoolData(slug.toString().toLowerCase(), user);
   //@ts-ignore
   const graphData = allData.vamms[0];
   //@ts-ignore
@@ -98,7 +98,6 @@ export default async function page(context: { params: { slug: string; }; }) {
   const stock = await getStocks(slug);
   return (
     <>
-
       <div className="my-2 mx-6">
         {stocks && (
           <div className="lg:grid lg:grid-cols-12">
@@ -116,10 +115,7 @@ export default async function page(context: { params: { slug: string; }; }) {
                   </div>
                 )}
               </div>
-
-
             </div>
-
             <div className=" mr-8 lg:col-span-7  ">
               <div className="grid grid-rows-6 ">
                 <div className="row-span-4 hidden md:inline-block overflow-clip">
@@ -133,12 +129,8 @@ export default async function page(context: { params: { slug: string; }; }) {
                 </div>
               </div>
             </div>
-
             <div className="col-span-3">
-
-
               <InvestForm stockData={stocks} currentData={graphData} user={user} availableUsdc={userData} />
-
               <VaultUSDCForm availableUsdc={graphData.loanPool.poolToken.tokenBalance[0]?.user ? graphData.loanPool.poolToken.tokenBalance[0].user.balances.availableUsdc : 0} user={user} />
             </div>
             <div className="col-span-12 grid grid-cols-2 xl:grid-cols-4 gap-x-6 items-center justify-evenly gap-y-8  mt-8">
@@ -147,25 +139,21 @@ export default async function page(context: { params: { slug: string; }; }) {
                 <StockData stockSymbol={stock?.symbol} />
               )}
 
-              {/* <InterestData user={user} amm={graphData.loanPool.id} symbol={slug} /> */}
+              <InterestData user={user} amm={graphData.loanPool.id} symbol={slug} />
               <FFRData />
               <InvestorStats loanPool={graphData.loanPool} />
             </div>
             <div className="my-4 col-start-2 col-span-9  w-full">
-              {/* <CurrentTradesTable />
-               */}
               <Suspense fallback={<div>Loading...</div>}>
 
-                {/* <AllTrades user={user} userAvailableBalance={userData} active={true} global={false} amm={slug} /> */}
+                <AllTrades user={user} userAvailableBalance={userData} active={true} global={false} amm={slug} />
               </Suspense>
             </div>
             <div className="my-4  lg:col-start-2 lg:col-span-9 w-full text-white ">
-              {/* <GlobalTrades />
-             */}
               <h1 className="text-white text-3xl text-center my-4">Recent {stock?.name.toUpperCase()} Trades</h1>
               <Suspense fallback={<div>Loading...</div>}>
 
-                {/* <AllTrades user={user} userAvailableBalance={userData} active={true} global={true} amm={slug} /> */}
+                <AllTrades user={user} userAvailableBalance={userData} active={true} global={true} amm={slug} />
               </Suspense>
             </div>
           </div>

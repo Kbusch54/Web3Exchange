@@ -16,115 +16,13 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '../../utils/auth/authOptions'
 import { Address } from 'wagmi'
 import request, { gql } from 'graphql-request'
+import { getUserData } from '../lib/graph/dashboardUserData'
 
 
 interface Props {
 
 }
-// async function fetchUserData(user: string) {
-//     const query = gql` 
-//       query getAllData($user: String!) {
 
-//     trades(where:{user: $user}){
-//       isActive
-//       ammPool{
-//         id
-//         }
-//       startingCost
-//       tradeBalance{
-//         collateral
-//         pnl
-//       }
-//   }
-//     users(where:{id:$user}){
-//       balances{
-//         availableUsdc
-//         totalCollateralUsdc
-//       }
-//       stakes(where:{user:$user}){
-//         theseusDAO{
-//           tokenId
-//           poolToken{
-//                 totalSupply
-//             tokenBalance{
-//               tokensOwnedbByUser
-//               totalStaked
-//             }
-//           }
-//         }
-//         ammPool{
-//             id
-//           poolToken{
-//             tokenId
-//             totalSupply
-//           }
-//           poolBalance{
-//             totalUsdcSupply
-//           }
-//         }
-//         totalStaked
-//         tokensOwnedbByUser
-//       }
-//     }
-//     trades {
-//       id
-//       created
-//       user{
-//         id
-//       }
-//       tradeBalance {
-//         side
-//         positionSize
-//         leverage
-//         pnl
-//         interestRate
-//         LastFFRPayed
-//         collateral
-//         LastInterestPayed
-//         LastFFRPayed
-//         LastInterestPayed
-//         tradeId {
-//           tradeId
-//         }
-//         loanAmt
-//         positionSize
-//         leverage
-//         entryPrice
-//       }
-//       startingCost
-//       isActive
-//       liquidated
-//       vamm {
-//         id
-//         symbol
-//         loanPool {
-//           maxLoan
-//           minLoan
-//           mmr
-//           interestPeriod
-//         }
-//         priceData {
-//           marketPrice
-//           indexPrice
-//         }
-//         snapshots {
-//           quoteAssetReserve
-//           baseAssetReserve
-//           marketPrice
-//           ffr
-//           indexPrice
-//         }
-//       }
-//     }
-  
-//   }
-// `;
-//     const endpoint = "https://api.studio.thegraph.com/query/46803/subgraph-minoan/version/latest";
-//     const variables = { user: user };
-//     const data = await request(endpoint, query, variables);
-
-//     return data;
-// }
 
 export default async function page() {
 
@@ -134,12 +32,12 @@ export default async function page() {
   }
     const user:Address = session.user.name as Address;
     console.log('this is user',session);
-    // const userData = await fetchUserData(user);
+    const userData = await getUserData(user);
     // console.log('this is userdtaa',userData);
     return (
         <div className='mx-4 flex flex-col gap-y-4 '>
             <h1 className='text-white'>Dashboard</h1>
-            {/* <DashBoardBalances userData={userData} /> */}
+            <DashBoardBalances userData={userData} />
             <div className='grid grid-cols-12'>
                 <div className='col-span-3 px-8'>
                     <div className='h-16 w-1/2 rounded-tr-2xl bg-slate-800  border-b border-blue-300'>
@@ -184,15 +82,15 @@ export default async function page() {
             <div className='mx-4 md:mx-8 lg:mx-24 xl:mx-40 border-2 border-slate-700 mt-12'>
                 {/* <Suspense fallback={<div>Loading...</div>}>
                 </Suspense> */}
-                {/* <RechartLines height={800} />  */}
+                <RechartLines height={800} /> 
             </div>
 
-            {/* <DashBoardTradeTab user={user}  /> */}
+            <DashBoardTradeTab user={user}  />
 
-            {/* {stocks && (
-                // <DashboardAssets userData={userData} stockData={stocks} user={user} />
+            {stocks && (
+                <DashboardAssets userData={userData} stockData={stocks} user={user} />
                 
-            )} */}
+            )}
         </div>
     )
 }

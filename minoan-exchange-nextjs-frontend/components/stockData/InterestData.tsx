@@ -1,9 +1,9 @@
 'use client'
 import { ethers } from 'ethers';
-import request, { gql } from 'graphql-request';
 // @ts-ignore
 import React, { Suspense, lazy,use,useEffect,useState } from 'react'
 import { Address } from 'wagmi';
+import { getInterestData } from '../../app/lib/graph/interestData';
 
 interface Props {
   user: Address;
@@ -11,37 +11,13 @@ interface Props {
   symbol:string;
     
 }
-async function fetchInterestData(ammPoolId: string, user: string) {
-  const query = gql` 
-      query getTradeData($user: String!, $ammPoolId: String!) {
-    trades(where:{
-      user: $user,
-      ammPool:$ammPoolId
-      
-    }) {
-      tradeBalance {
-        interestRate
-        loanAmt
-        LastInterestPayed
-      }
-      ammPool{
-        interestPeriod
-      }
-    }
-  }
-   
-  `;
-  const endpoint = "https://api.studio.thegraph.com/query/46803/subgraph-minoan/version/latest";
-  const variables = { ammPoolId: ammPoolId, user: user };
-  const data = await request(endpoint, query, variables);
 
-  return data;
-}
 
 const MyLazyComponent = lazy(async () => await import('../countdowns/Countdown'));
 
 const InterestData: React.FC<Props> = ({user,amm,symbol}) => {
-  const interestData = use(fetchInterestData(amm,user));
+ 
+  const interestData = use(getInterestData(amm,user));
   const[timeTillNextInterestPayment,setTimeTillNextInterestPayment] = useState<number>(0);
   const[totalAmountOwed,setTotalAmountOwed] = useState<number>(0);
   const[collateralForNextTrade,setCollateralForNextTrade] = useState<number>(0);

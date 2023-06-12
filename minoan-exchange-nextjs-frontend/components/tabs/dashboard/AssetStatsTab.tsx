@@ -12,6 +12,7 @@ import StakingStatsPersonal from "../../balances/dashboard/StakingStatsPersonal"
 import { Address } from "wagmi";
 import { supabase } from "../../../supabase";
 import DAOStatsPersonal from "../../balances/dashboard/DAOStatsPersonal";
+import { getAllProposals } from "../../../app/lib/supabase/allProposals";
 
 
 interface Props {
@@ -25,7 +26,7 @@ const AssetStatsTab: React.FC<Props> = ({stockData,user,userData}) => {
     const handleChange = (event: React.SyntheticEvent, newValue: string) => {
       setValue(newValue);
     };
-    const dataBase = use(supabase.from('Proposals').select('*'))
+    const dataBase = use(getAllProposals())
   return (
     <Box sx={{ width: "100%", typography: "body1" }}>
       <TabContext value={value}>
@@ -34,7 +35,6 @@ const AssetStatsTab: React.FC<Props> = ({stockData,user,userData}) => {
             onChange={handleChange}
             aria-label="lab API tabs example"
             variant="fullWidth"
-            textColor="inherit"
           >
             <Tab className="text-white text-center text-base md:text-lg lg:text-3xl" label="Investments" value="1" />
             <Tab className="text-white text-center text-base md:text-lg lg:text-3xl" label="Staking" value="2" />
