@@ -99,7 +99,7 @@ async function page(props: Props) {
 
   const session = await getServerSession(authOptions)
   if (!session || !session.user || !session.user.name) {
-    return redirect(`/auth/signin?callbackUrl=/theseusdao`);
+    return redirect(`/auth/signin?callbackUrl=/theseusDao`);
   }
   const user = session.user.name as Address;
   const data = await fetchData(session.user.name, theseusAdd);
