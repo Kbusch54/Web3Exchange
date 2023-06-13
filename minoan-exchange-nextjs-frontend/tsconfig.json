@@ -8,6 +8,10 @@
     ],
     "types": ["react/experimental"],
     "allowJs": true,
+    "baseUrl": "./",
+    "paths": {
+      "@assets/*": ["./public/assets/*"]
+    },
     "skipLibCheck": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
