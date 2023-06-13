@@ -10,7 +10,7 @@ interface Props {
 
 const Wallet: React.FC<Props> = ({user}) => {
     return (
-        <div className=''>
+        <div className='mt-0 2xl:mt-8 3xl:mt-0'>
         <div className='bg-transparent flex flex-row mx-[1.53rem]'>
             <p className=' w-1/2 rounded-t-2xl bg-slate-900 text-white text-3xl text-center pt-4 border border-b-0 border-gray-600'>Wallet</p>
             <div className='w-[49.3%]  bg-[rgba(24,24,35,255)] border-b border-gray-600 '></div>
@@ -18,7 +18,7 @@ const Wallet: React.FC<Props> = ({user}) => {
         <div className='mx-6 mb-6 bg-slate-900 border-2 border-gray-600 border-t-0 text-white flex flex-col justify-center text-center gap-y-6 py-12 rounded-2xl'>
 
             <div className='border border-amber-400 p-2 mx-2 rounded-full bg-slate-900'>
-                <h3 className='text-amber-400 text-xl'>{user}</h3>
+                <h3 className='text-amber-400 text-xs lg:text-xl'>{user}</h3>
             </div>
             <div className='grid grid-cols-4 mx-4'>
                 <div className='col-span-3 flex flex-row justify-around'>

@@ -39,7 +39,7 @@ export default async function page() {
             <h1 className='text-white'>Dashboard</h1>
             <DashBoardBalances userData={userData} />
             <div className='grid grid-cols-12'>
-                <div className='col-span-3 px-8'>
+                <div className='col-span-12 mx-0 md:mx-12 lg:col-span-6 2xl:col-span-4 3xl-col-span-3 px-8'>
                     <div className='h-16 w-1/2 rounded-tr-2xl bg-slate-800  border-b border-blue-300'>
                         <p className='text-white text-3xl text-center pt-4'>Investments</p>
                     </div>
@@ -49,8 +49,8 @@ export default async function page() {
 
                     </div>
                 </div>
-                <div className='col-span-5 grid grid-cols-6 gap-x-4'>
-                    <div className='col-span-2 self-center'>
+                <div className='col-span-12 lg:col-span-6 2xl:col-span-8 3xl:col-span-4 grid grid-cols-6 gap-x-4'>
+                    <div className='col-span-6 2xl:col-span-2 self-center mx-16 mt-4 md:mx-40 md:mt-6 2xl:mx-0 2xl:mt-0 2xl:pr-4'>
                         <div className='flex flex-row justify-between bg-slate-800 rounded-2xl px-4 my-4'>
                             <p className='text-white text-3xl text-center p-4'>PNL</p>
                             <button className='text-white text-3xl text-center p-4'>d</button>
@@ -63,12 +63,12 @@ export default async function page() {
                             <RechartTinyBar height={270} />
                         </div>
                     </div>
-                    <div className='col-span-4 mt-24 border border-slate-800 flex flex-col h-fit rounded-xl'>
+                    <div className='col-span-6 2xl:col-span-4 mt-24 border border-slate-800 flex flex-col h-fit rounded-xl'>
                         <p className='text-white text-xl text-center pt-4'>Trading History</p>
                         <RechartLines height={300} />
                     </div>
                 </div>
-                <div className='col-span-4 mx-12 flex flex-col  '>
+                <div className='col-span-12 3xl:col-span-4 mx-12 flex flex-col 2xl:flex-row 2xl:justify-between 3xl:flex-col  '>
                     <Wallet user={user} />
                     <PastTransactions />
 
