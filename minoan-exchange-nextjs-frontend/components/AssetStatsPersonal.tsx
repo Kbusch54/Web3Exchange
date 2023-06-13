@@ -31,11 +31,9 @@ const AssetStatsPersonal: React.FC<Props> = ({ stockData,user,userData }) => {
                 </button>
             </div>
             <div className='text-center'>
-                <Suspense fallback={
-                        <LoadingState />
-                    }>
+
                     <AssetStatsTab stockData={stockData} user={user} userData={userData} />
-                </Suspense>
+
             </div>
         </div>
     )
