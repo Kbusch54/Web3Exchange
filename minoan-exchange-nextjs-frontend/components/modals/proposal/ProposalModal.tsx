@@ -1,14 +1,14 @@
 "use client";
 import React, { useState, useEffect, useRef, Suspense } from 'react';
 import Modal from 'react-modal';
-import { getAllFunctions, getFunctionCallDataLoanPool } from '../../utils/contractReads/loanpool/functionReading';
-import { getAllUpdateFunctions, getFunctionCallDataAriadne } from '../../utils/contractReads/ariadneDao/internalFunctions';
+import { getAllFunctions, getFunctionCallDataLoanPool } from '../../../utils/contractReads/loanpool/functionReading';
+import { getAllUpdateFunctions, getFunctionCallDataAriadne } from '../../../utils/contractReads/ariadneDao/internalFunctions';
 import { Address } from 'wagmi';
-import { useGetCurrentId } from '../../utils/contractReads/ariadneDao/currentId';
-import DAODetails from './interior/DAODetails';
-import { convertCamelCaseToTitle } from '../../utils/helpers/functions';
-import { loanpool } from '../../utils/address';
-import ProposeButton from '../forms/buttons/proposals/ProposeButton';
+import { useGetCurrentId } from '../../../utils/contractReads/ariadneDao/currentId';
+import DAODetails from '../interior/DAODetails';
+import { convertCamelCaseToTitle } from '../../../utils/helpers/functions';
+import { loanpool } from '../../../utils/address';
+import ProposeButton from '../../forms/buttons/proposals/ProposeButton';
 
 
 

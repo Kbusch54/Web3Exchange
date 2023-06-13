@@ -1,18 +1,18 @@
 "use client";
 import React, { useState, useEffect, useRef, Suspense } from 'react';
 import Modal from 'react-modal';
-import { getAllFunctions, getFunctionCallDataLoanPool } from '../../utils/contractReads/loanpool/functionReading';
-import { getAllUpdateFunctions, getFunctionCallDataAriadne } from '../../utils/contractReads/ariadneDao/internalFunctions';
+import { getAllFunctions, getFunctionCallDataLoanPool } from '../../../utils/contractReads/loanpool/functionReading';
+import { getAllUpdateFunctions, getFunctionCallDataAriadne } from '../../../utils/contractReads/ariadneDao/internalFunctions';
 import { Address } from 'wagmi';
-import AriadnePurposeButton from '../forms/buttons/proposals/ProposeButton';
-import { useGetCurrentId } from '../../utils/contractReads/ariadneDao/currentId';
-import DAODetails from './interior/DAODetails';
-import { getFunctionsOf, getAllExchangeFunctions, getFunctionCallDataThesesusAll } from '../../utils/contractReads/theseus/internalFunctions';
-import InputMaster from '../forms/inputs/InputMaster';
-import TheseusButtonSelection from './interior/TheseusButtonSelection';
-import { convertCamelCaseToTitle } from '../../utils/helpers/functions';
-import ProposeButton from '../forms/buttons/proposals/ProposeButton';
-import { theseus } from '../../utils/address';
+import AriadnePurposeButton from '../../forms/buttons/proposals/ProposeButton';
+import { useGetCurrentId } from '../../../utils/contractReads/ariadneDao/currentId';
+import DAODetails from '../interior/DAODetails';
+import { getFunctionsOf, getAllExchangeFunctions, getFunctionCallDataThesesusAll } from '../../../utils/contractReads/theseus/internalFunctions';
+import InputMaster from '../../forms/inputs/InputMaster';
+import TheseusButtonSelection from '../interior/TheseusButtonSelection';
+import { convertCamelCaseToTitle } from '../../../utils/helpers/functions';
+import ProposeButton from '../../forms/buttons/proposals/ProposeButton';
+import { theseus } from '../../../utils/address';
 
 
 const customStyles = {
