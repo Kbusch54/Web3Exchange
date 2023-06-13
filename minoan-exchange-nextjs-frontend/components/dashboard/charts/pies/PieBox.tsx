@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import RechartPie from '../../../charts/poolCharts/recharts/RechartPie'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import { Transition } from '@headlessui/react';
 
 interface Props {
 
@@ -27,10 +28,20 @@ const PieBox: React.FC<Props> = () => {
                         <KeyboardArrowUpIcon height={50} />
                     </button>
                 </div>
-                <div className={`absolute right-0 w-full  ${selected?'grid':'hidden'} bg-slate-800 border-2 border-slate-700  grid-cols-2   `} >
+                <Transition
+                    show={selected}
+                    enter="transition ease-in-out duration-5000 transform"
+                    enterFrom="-translate-x-full"
+                    enterTo="translate-x-0"
+                    leave="transition ease-in-out duration-10000 transform"
+                    leaveFrom="translate-x-0"
+                    leaveTo="-translate-x-full"
+                >
+                <div className={`absolute right-0 w-full  grid bg-slate-800 border-2 border-slate-700  grid-cols-2   `} >
                     <button onClick={()=>setGraphType(1)} className={` col-span-1 text-xl text-center ${graphType == 0?'text-white hover:text-slate-800 hover:bg-white  hover:scale-110':'text-slate-800 bg-white border-4 border-slate-900 scale-90'}`}>Staking</button>
                     <button onClick={()=>setGraphType(0)} className={` col-span-1 text-xl text-center ${graphType == 1?'text-white hover:text-slate-800 hover:bg-white  hover:scale-110':'text-slate-800 bg-white border-4 border-slate-900 scale-90'}`}>Investments</button>
                 </div>
+                </Transition>
             </div>
             <div className='text-white text-3xl w-1/2 bg-[rgba(24,24,35,255)]'></div>
             <div className='bg-slate-800 flex flex-col flex-wrap rounded-2xl rounded-tl-none'>
