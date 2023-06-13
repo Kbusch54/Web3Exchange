@@ -1,7 +1,7 @@
 import { stocks } from "../../utils/stockData";
 import Image from "next/image";
 import { Stock } from "../../../types/custom";
-import PurposalModal from "../../../components/modals/ProposalModal";
+import PurposalModal from "../../../components/modals/proposal/ProposalModal";
 import Balances from "../../../components/balances/Balances";
 import InvestorStats from "../../../components/stockData/InvestorStats";
 import StakingStats from "../../../components/stockData/StakingStats";

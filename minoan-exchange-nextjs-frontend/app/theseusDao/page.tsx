@@ -7,7 +7,7 @@ import { request, gql } from 'graphql-request';
 import StakingSection from "../../components/forms/StakingSection";
 import { theseus as theseusAdd } from "../../utils/address";
 import DAOPurposals from "../../components/tables/daos/DAOPurposals";
-import TheseusProposalModal from "../../components/modals/TheseusProposalModal";
+import TheseusProposalModal from "../../components/modals/proposal/TheseusProposalModal";
 import { authOptions } from "../../utils/auth/authOptions";
 import { getServerSession } from "next-auth";
 import { Address } from "wagmi";
