@@ -120,7 +120,7 @@ async function page(props: Props) {
           <Image alt={"theseus"} src={theseus} height={720} />
         </div>
       </div>
-      <div className="flex flex-row justify-center m-8 border-4 border-amber-400">
+      <div className="flex flex-row justify-center mx-2 my-8  md:m-8 border-4 border-amber-400">
         <TheseusTab />
       </div>
       <div className="flex flex-wrap justify-evenly text-center gap-y-12 text-white">
