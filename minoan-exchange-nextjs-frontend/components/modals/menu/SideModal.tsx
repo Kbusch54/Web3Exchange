@@ -96,7 +96,7 @@ const SideModal: React.FC<Props> = () => {
             </Transition> */}
 
 
-            <div className={` text-center inline-block fixed top-0 z-50 overflow-auto h-full`}>
+            <div className={` text-center inline-block fixed top-0 z-50 overflow-auto h-full no-scrollbar`}>
 
                 <Transition appear show={isOpen} as={'div'}
                     enter="ease-out transform transition duration-[700ms]"
