@@ -143,9 +143,8 @@ const AllTrades: React.FC<Props> = ({ user, userAvailableBalance, active = true,
             const tradeID = encodedData(user.id, vammAdd, trade.created, side);
             const getDateTime = (timestamp: number) => {
                 const date = new Date(timestamp * 1000);
-                const year = date.getFullYear();
-                const month = date.getMonth() + 1;
-                const day = date.getDay() + 4;
+                const month = date.getMonth()+1;
+                const day = date.getDate();
                 const hour = date.getHours();
                 const min = date.getMinutes();
                 const sec = date.getSeconds();
