@@ -37,6 +37,7 @@
     "react-modal": "^3.16.1",
     "recharts": "^2.5.0",
     "swiper": "^9.3.2",
+    "tailwind-scrollbar-hide": "^1.1.7",
     "viem": "^0.3.50",
     "wagmi": "^1.0.9"
   },
