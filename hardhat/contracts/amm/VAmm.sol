@@ -235,7 +235,7 @@ contract VAmm {
         bytes calldata _payload
     ) external onlyExchange returns (int positionSize, uint avgEntryPrice, uint openValue,uint lastFFRIndex) {
             //get oracle index price
-                // getIndexPriceFromOracle(_payload);
+                getIndexPriceFromOracle(_payload);
             if(isFrozen){
                 unFreeze(indexPrice,baseAssetStarter);
             }
@@ -407,10 +407,6 @@ contract VAmm {
         return x / (10 ** 8);
     }
 
-    function setOracle(address _oracle) external {
-        require(msg.sender == address(ammViewer), "only amm viewer");
-        oracle = _oracle;
-    }
     function setBaseAssetStarter(uint _baseAssetStarter) external {
         require(msg.sender == address(ammViewer), "only amm viewer");
         baseAssetStarter = _baseAssetStarter;

@@ -74,7 +74,7 @@ contract ExchangeViewer{
         address _ammPool = _position.amm;
         (uint _interestOwed,) = _pool.interestOwed(_tradeId, _ammPool);
         int _ffrOwed = calcFFRFull(_tradeId, _ammPool, _position.loanedAmount);
-        uint _collateral = _position.collateral;
+        uint _collateral =exchange.tradeCollateral(_tradeId);
          _collateralAfter = int(_collateral) + _ffrOwed - int(_interestOwed);
         VAmm _amm = VAmm(_ammPool);
         _usdcAmt = _amm.getClosePosition(_position.positionSize);
@@ -103,9 +103,16 @@ contract ExchangeViewer{
         (int _collateralAfter, int _usdcAmt) = getValues(_tradeId);
         Position memory _position = getPosition(_tradeId);
         uint _mmr = LoanPool(loanPool).mmr(_position.amm);
-        int _currMMR = int(_collateralAfter  * 10 ** 6) /(int(_position.loanedAmount*2)-_usdcAmt);
+        int _currMMR =0;
+        if(_usdcAmt >int(_position.loanedAmount)){
+            int _diff = _usdcAmt - int(_position.loanedAmount);
+            _currMMR = int((_collateralAfter + _diff)  * 10 ** 6) /(int(_position.loanedAmount));
+        }else{
+            int _diff = int(_position.loanedAmount) - _usdcAmt;
+            _currMMR = int((_collateralAfter -_diff)  * 10 ** 6) /(int(_position.loanedAmount));
+        }
         uint _currMMRUn = _currMMR>0?uint(_currMMR):uint(-_currMMR);
-        if ( _currMMRUn >= _mmr ) {
+        if ( _currMMRUn >= _mmr && _collateralAfter > 0) {
             return false;
         } else {
             return true;
@@ -128,9 +135,11 @@ contract ExchangeViewer{
         bytes[] memory _tradeIdList = exchange.getTradeIdList();
         bytes[] memory _liquidateList = new bytes[](_tradeIdList.length);
         for (uint i = 0; i < _tradeIdList.length; i++) {
-            if (checkLiquidiation(_tradeIdList[i])) {
-                _liquidateList[_count]=(_tradeIdList[i]);
-                _count++;
+            if(exchange.isActive(_tradeIdList[i])){
+                if (checkLiquidiation(_tradeIdList[i])) {
+                    _liquidateList[_count]=(_tradeIdList[i]);
+                    _count++;
+                }
             }
         }
         return _liquidateList;

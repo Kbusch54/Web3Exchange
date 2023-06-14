@@ -69,9 +69,9 @@ address public exchange;
     //Balances Events
     event PayDebt(address indexed amm, uint amount);
     event AddDebt(address indexed amm, uint amount);
-    event PayInterest(bytes tradeId, uint lastPayed);
-    event BorrowAmount(bytes tradeId,address indexed amm, uint amount);
-    event RepayLoan(bytes tradeId,address indexed amm, uint amount);
+    event PayInterest(address indexed trader, uint timestamp, uint lastPayed);
+    event BorrowAmount(address indexed trader, uint timestamp,address indexed amm, uint amount);
+    event RepayLoan(address indexed trader, uint timestamp,address indexed amm, uint amount);
 
    /**
      * @dev Function for repaying a loan.
@@ -86,7 +86,8 @@ address public exchange;
         Exchange _ex = Exchange(exchange);
         _ex.subPoolOutstandingLoans(_ammPool,_amount);
         _ex.addPoolAvailableUsdc(_ammPool,_amount);
-        emit RepayLoan(_tradeId,_ammPool,_amount);
+        (address _trader,,uint timeStamp,) = decodeTradeId(_tradeId);
+        emit RepayLoan(_trader,timeStamp,_ammPool,_amount);
         return true;
     }
 
@@ -119,7 +120,8 @@ address public exchange;
         _ex.subPoolAvailableUsdc(_ammPool,_newLoan);
         loanInterestLastPayed[_tradeId] = block.timestamp;
         interestForTrade[_tradeId] = loanInterestRate[_ammPool];
-        emit BorrowAmount(_tradeId,_ammPool,_newLoan); 
+        (address _trader,,uint _timeStamp,) = decodeTradeId(_tradeId);
+        emit BorrowAmount(_trader,_timeStamp,_ammPool,_newLoan); 
         return true;
     }
       /**
@@ -150,7 +152,8 @@ address public exchange;
      */
     function payInterest(bytes memory _tradeId)external onlyExchange returns(bool){
         loanInterestLastPayed[_tradeId] = block.timestamp;
-        emit PayInterest(_tradeId,block.timestamp);
+        (address _trader,,uint _timeStamp,) = decodeTradeId(_tradeId);
+        emit PayInterest(_trader,_timeStamp,block.timestamp);
         return true;
     }
 
@@ -298,4 +301,14 @@ address public exchange;
         emit LoanPoolValues(_amm,minLoanLimit,maxLoanLimit,minLoanInterestRateLimit,minInterestPeriodsLimit,maxMMRLimit,maxHoldingsReqPercentageLimit,maxTradingFeeLimit);
     }
 
+   function decodeTradeId(
+        bytes memory encodedData
+    ) public pure returns (address, address, uint, int) {
+
+        return abi.decode(
+            encodedData,
+            (address, address, uint256, int256)
+        );
+ 
+    }
 }

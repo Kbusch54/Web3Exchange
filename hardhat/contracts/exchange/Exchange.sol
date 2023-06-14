@@ -20,14 +20,14 @@ contract Exchange is VaultMain {
         
     }
     event NewPosition(
-        bytes indexed tradeId,
         address indexed trader,
         address indexed amm,
         int side,
         uint timeStamp
     );
     event OpenPosition(
-        bytes indexed tradeId,
+        address indexed trader,
+        uint timestamp,
         uint collateral,
         uint loanAmt,
         int positionSize,
@@ -35,25 +35,29 @@ contract Exchange is VaultMain {
         uint lastFundingRate
     );
     event AddLiquidity(
-        bytes indexed tradeId,
+        address indexed trader,
+        uint timestamp,
         uint amount,
         uint newLoan,
         int addiotionalPositionSize
     );
     event RemoveLiquidity(
-        bytes indexed tradeId,
+        address indexed trader,
+        uint timestamp,
         int positionSizeRemoved,
         int amountOwed,
         int usdcReturned
     );
     event ClosePosition(
-        bytes indexed tradeId,
+        address indexed trader,
+        uint timestamp,
         uint closePrice,
         uint closeTime,
         int pnl
     );
     event Liquidated(
-        bytes indexed tradeId
+        address indexed trader,
+        uint timestamp
     );
 
     /** 
@@ -77,7 +81,7 @@ contract Exchange is VaultMain {
             block.timestamp,
             _side
         );
-        emit NewPosition(_tradeId, msg.sender, _amm, _side, block.timestamp);
+        emit NewPosition( msg.sender, _amm, _side, block.timestamp);
         tradeIdList.push(_tradeId);
         LoanPool _pool=LoanPool(loanPool);
         uint _loanAmt = _collateral * _leverage;
@@ -105,7 +109,7 @@ contract Exchange is VaultMain {
         isActive[_tradeId] = true;
         tradeIds[msg.sender].push(_tradeId);
         emit OpenPosition(
-            _tradeId,
+            msg.sender,block.timestamp,
             _collateral,
             _loanAmt,
             _position.positionSize,
@@ -137,6 +141,7 @@ contract Exchange is VaultMain {
     function addLiquidityToPosition(bytes memory _tradeId,uint _leverage,uint _addedCollateral,bytes calldata _payload) public returns (bool) {
         Position storage _position = positions[_tradeId];
         _checkIfAuthorized(_tradeId, _position.trader);
+                (,,uint _timeStamp,) = decodeTradeId(_tradeId);
         require(_addedCollateral > 0);
         _payments(_tradeId, _position.amm);
         require(availableBalance[msg.sender] >= _addedCollateral);
@@ -165,7 +170,7 @@ contract Exchange is VaultMain {
         );
         _position.positionSize += additionalPositionSize;
         _position.loanedAmount += _newLoan;
-        emit AddLiquidity(_tradeId, _addedCollateral, _newLoan, additionalPositionSize);
+        emit AddLiquidity(msg.sender,_timeStamp, _addedCollateral, _newLoan, additionalPositionSize);
         return true;
     }
      /**
@@ -202,7 +207,8 @@ contract Exchange is VaultMain {
         _position.positionSize -= _positionSize;
         _position.loanedAmount -= uint(_amountOwed);
         tradeBalance[_tradeId] -= uint(_amountOwed);
-        emit RemoveLiquidity(_tradeId, _positionSize, _amountOwed, _usdcAmt);
+        (address _trader,,uint _timeStamp,)=decodeTradeId(_tradeId);
+        emit RemoveLiquidity(_trader,_timeStamp, _positionSize, _amountOwed, _usdcAmt);
         return true;
     }
     function closePosition(bytes memory _tradeId,bytes calldata _payload)internal{
@@ -220,7 +226,7 @@ contract Exchange is VaultMain {
         int(_newTC) >= _payment?_payments(_tradeId, _position.amm):();
         int(_newTC)-_payment>=int(_loanAmount)?_inTheMoney(_tradeId,_loanAmount,_position.amm,_position.trader,_newTC,_usdcAmt):_delinquent(_tradeId,_loanAmount,_position.amm);
         tradeCollateral[_tradeId] = 0;
-         emit ClosePosition(_tradeId, _closePrice,block.timestamp, int(_newTC)- (_payment + int(_loanAmount)));
+         emit ClosePosition(_position.trader,_position.timeStamp, _closePrice,block.timestamp, int(_newTC)- (_payment + int(_loanAmount)));
         tradeBalance[_tradeId] =0;
     }
     function _delinquent(bytes memory _tradeId, uint _loanAmt,address _amm)internal{
@@ -281,7 +287,9 @@ contract Exchange is VaultMain {
      function liquidate(bytes memory _tradeId,bytes calldata _payload) public {
         require(ExchangeViewer(exchangeViewer).checkLiquidiation(_tradeId));
         closePosition(_tradeId,_payload);
-        emit Liquidated(_tradeId);
+        (address _trader,,uint _timeStamp,) = decodeTradeId(_tradeId);
+        isActive[_tradeId] = false;
+        emit Liquidated(_trader,_timeStamp);
     } 
 
     function freezeStaking(address _amm)internal {

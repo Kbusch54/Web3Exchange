@@ -42,16 +42,16 @@ contract VaultMain is Balances {
 
 
     event AddCollateral(
-        bytes tradeId,
+        address indexed trader, uint timestamp,
         uint amount
     );
 
     event RemoveCollateral(
-        bytes tradeId,
+        address indexed trader, uint timestamp,
         uint amount
     );
-    event PayInterest(bytes tradeId, uint totalAmount,uint amountToPool);
-    event FfrAdjust(bytes tradeId, int amount);
+    event PayInterest(address indexed trader, uint timestamp, uint totalAmount,uint amountToPool);
+    event FfrAdjust(address indexed trader, uint timestamp, int amount);
 
 function _onlyStaking() private view {
         require(msg.sender == staking);
@@ -118,7 +118,8 @@ function _onlyStaking() private view {
         require(availableBalance[msg.sender] >= _collateral);
         availableBalance[msg.sender] -= _collateral;
         tradeCollateral[_tradeId] += _collateral;
-        emit AddCollateral(_tradeId, _collateral);
+        (address _trader,,uint _timeStamp,) = decodeTradeId(_tradeId);
+        emit AddCollateral(_trader,_timeStamp, _collateral);
         return true;
     }
 
@@ -129,14 +130,14 @@ function _onlyStaking() private view {
      * @return A boolean value indicating whether the operation succeeded
      */
     function removeCollateral(bytes memory _tradeId, uint _collateralToRemove) public returns (bool) {
-        (address _user,address _amm,,) = decodeTradeId(_tradeId);
+        (address _user,address _amm,uint _timeStamp,) = decodeTradeId(_tradeId);
         _checkIfAuthorized(_tradeId, _user);
         _payments(_tradeId, _amm);
         require(_collateralToRemove > 0);
         require(tradeCollateral[_tradeId] >= _collateralToRemove);
         tradeCollateral[_tradeId] -= _collateralToRemove;
         availableBalance[msg.sender] += _collateralToRemove;
-        emit RemoveCollateral(_tradeId, _collateralToRemove);
+        emit RemoveCollateral(_user,_timeStamp, _collateralToRemove);
         return true;
     }
 
@@ -155,7 +156,8 @@ function _onlyStaking() private view {
         positions[_tradeId].collateral -= _fullInterest;
         poolAvailableUsdc[_amm] += _toPools;
         poolTotalUsdcSupply[_amm] += _toPools;
-        emit PayInterest(_tradeId, _fullInterest,_toPools);
+                (address _trader,,uint _timeStamp,) = decodeTradeId(_tradeId);
+        emit PayInterest(_trader,_timeStamp, _fullInterest,_toPools);
         _toPools == _fullInterest ? () :payDebt(_toPools,_amm);
         require(LoanPool(loanPool).payInterest(_tradeId));
         return true;
@@ -189,7 +191,8 @@ function _onlyStaking() private view {
             poolTotalUsdcSupply[_amm] += _ffrCal;
             positions[_tradeId].lastFundingRate = _lastFFR;
         }
-            emit FfrAdjust(_tradeId, _ffrToBePayed);
+                (address _trader,,uint _timeStamp,) = decodeTradeId(_tradeId);
+            emit FfrAdjust(_trader,_timeStamp, _ffrToBePayed);
         return true;
     }
 
