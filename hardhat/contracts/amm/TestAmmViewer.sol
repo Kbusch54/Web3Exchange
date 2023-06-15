@@ -66,7 +66,7 @@ mapping(bytes32=>uint) public priceMap;
     function emitNewSnappshot( uint newIndex) external onlyAmmContract{
         emit NewSnappshot(msg.sender,newIndex);
     }
-     function getPriceValue(bytes32 _stock) public view returns (uint256) {
+     function getPriceValue(bytes calldata _payload,bytes32 _stock) public view returns (uint256) {
         return priceMap[_stock];
     }
     function updatePriceFeed(address _priceFeed) external onlyTheseusDao{
