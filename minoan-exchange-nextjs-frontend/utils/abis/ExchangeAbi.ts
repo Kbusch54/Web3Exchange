@@ -19,10 +19,16 @@ export const ExchangeAbi=[
     "anonymous": false,
     "inputs": [
       {
+        "indexed": true,
+        "internalType": "address",
+        "name": "trader",
+        "type": "address"
+      },
+      {
         "indexed": false,
-        "internalType": "bytes",
-        "name": "tradeId",
-        "type": "bytes"
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
       },
       {
         "indexed": false,
@@ -39,9 +45,15 @@ export const ExchangeAbi=[
     "inputs": [
       {
         "indexed": true,
-        "internalType": "bytes",
-        "name": "tradeId",
-        "type": "bytes"
+        "internalType": "address",
+        "name": "trader",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
       },
       {
         "indexed": false,
@@ -70,9 +82,15 @@ export const ExchangeAbi=[
     "inputs": [
       {
         "indexed": true,
-        "internalType": "bytes",
-        "name": "tradeId",
-        "type": "bytes"
+        "internalType": "address",
+        "name": "trader",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
       },
       {
         "indexed": false,
@@ -119,10 +137,16 @@ export const ExchangeAbi=[
     "anonymous": false,
     "inputs": [
       {
+        "indexed": true,
+        "internalType": "address",
+        "name": "trader",
+        "type": "address"
+      },
+      {
         "indexed": false,
-        "internalType": "bytes",
-        "name": "tradeId",
-        "type": "bytes"
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
       },
       {
         "indexed": false,
@@ -139,9 +163,15 @@ export const ExchangeAbi=[
     "inputs": [
       {
         "indexed": true,
-        "internalType": "bytes",
-        "name": "tradeId",
-        "type": "bytes"
+        "internalType": "address",
+        "name": "trader",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
       }
     ],
     "name": "Liquidated",
@@ -150,12 +180,6 @@ export const ExchangeAbi=[
   {
     "anonymous": false,
     "inputs": [
-      {
-        "indexed": true,
-        "internalType": "bytes",
-        "name": "tradeId",
-        "type": "bytes"
-      },
       {
         "indexed": true,
         "internalType": "address",
@@ -189,9 +213,15 @@ export const ExchangeAbi=[
     "inputs": [
       {
         "indexed": true,
-        "internalType": "bytes",
-        "name": "tradeId",
-        "type": "bytes"
+        "internalType": "address",
+        "name": "trader",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
       },
       {
         "indexed": false,
@@ -231,10 +261,16 @@ export const ExchangeAbi=[
     "anonymous": false,
     "inputs": [
       {
+        "indexed": true,
+        "internalType": "address",
+        "name": "trader",
+        "type": "address"
+      },
+      {
         "indexed": false,
-        "internalType": "bytes",
-        "name": "tradeId",
-        "type": "bytes"
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
       },
       {
         "indexed": false,
@@ -256,10 +292,16 @@ export const ExchangeAbi=[
     "anonymous": false,
     "inputs": [
       {
+        "indexed": true,
+        "internalType": "address",
+        "name": "trader",
+        "type": "address"
+      },
+      {
         "indexed": false,
-        "internalType": "bytes",
-        "name": "tradeId",
-        "type": "bytes"
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
       },
       {
         "indexed": false,
@@ -276,9 +318,15 @@ export const ExchangeAbi=[
     "inputs": [
       {
         "indexed": true,
-        "internalType": "bytes",
-        "name": "tradeId",
-        "type": "bytes"
+        "internalType": "address",
+        "name": "trader",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
       },
       {
         "indexed": false,
