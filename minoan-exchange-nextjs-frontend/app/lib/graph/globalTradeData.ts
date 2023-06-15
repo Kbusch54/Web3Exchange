@@ -1,6 +1,7 @@
 import request, { gql } from "graphql-request";
 import { cache } from 'react'
 
+export const revalidate = 50000 // 500 seconds
 export const getGlobalTradeData = cache(async function fetchGlobalTradeData() {
     const query = gql` 
       query getTrades {
@@ -54,7 +55,7 @@ export const getGlobalTradeData = cache(async function fetchGlobalTradeData() {
         }
       }
     }
-  }
+      }
 `;
 
 // (orderBy: created orderDirection: desc)

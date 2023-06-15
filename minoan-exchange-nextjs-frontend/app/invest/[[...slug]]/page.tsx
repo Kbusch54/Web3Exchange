@@ -17,7 +17,7 @@ import { authOptions } from '../../../utils/auth/authOptions';
 import { getServerSession } from 'next-auth/next';
 import { Address } from "viem";
 type Props = {};
-
+export const revalidate = 8000 // In seconds
 async function fetchLoanPoolData(symbol: string, user: string) {
   const query = gql` 
     query getLoanPool($id: String!,$user: String!) {
