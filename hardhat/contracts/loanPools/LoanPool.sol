@@ -3,6 +3,7 @@ pragma solidity 0.8.17;
 import "./LoanPoolBalances.sol";
 import "../exchange/Balances.sol";
 import "../exchange/Exchange.sol";
+import "../libraries/ExchangeLibrary.sol";
 
 
 /**
@@ -86,7 +87,7 @@ address public exchange;
         Exchange _ex = Exchange(exchange);
         _ex.subPoolOutstandingLoans(_ammPool,_amount);
         _ex.addPoolAvailableUsdc(_ammPool,_amount);
-        (address _trader,,uint timeStamp,) = decodeTradeId(_tradeId);
+        (address _trader,uint timeStamp) = ExchangeLibrary.decodeTradeIdPartial(_tradeId);
         emit RepayLoan(_trader,timeStamp,_ammPool,_amount);
         return true;
     }
@@ -120,7 +121,7 @@ address public exchange;
         _ex.subPoolAvailableUsdc(_ammPool,_newLoan);
         loanInterestLastPayed[_tradeId] = block.timestamp;
         interestForTrade[_tradeId] = loanInterestRate[_ammPool];
-        (address _trader,,uint _timeStamp,) = decodeTradeId(_tradeId);
+        (address _trader,uint _timeStamp) = ExchangeLibrary.decodeTradeIdPartial(_tradeId);
         emit BorrowAmount(_trader,_timeStamp,_ammPool,_newLoan); 
         return true;
     }
@@ -152,7 +153,7 @@ address public exchange;
      */
     function payInterest(bytes memory _tradeId)external onlyExchange returns(bool){
         loanInterestLastPayed[_tradeId] = block.timestamp;
-        (address _trader,,uint _timeStamp,) = decodeTradeId(_tradeId);
+        (address _trader,uint _timeStamp) = ExchangeLibrary.decodeTradeIdPartial(_tradeId);
         emit PayInterest(_trader,_timeStamp,block.timestamp);
         return true;
     }
@@ -301,14 +302,5 @@ address public exchange;
         emit LoanPoolValues(_amm,minLoanLimit,maxLoanLimit,minLoanInterestRateLimit,minInterestPeriodsLimit,maxMMRLimit,maxHoldingsReqPercentageLimit,maxTradingFeeLimit);
     }
 
-   function decodeTradeId(
-        bytes memory encodedData
-    ) public pure returns (address, address, uint, int) {
 
-        return abi.decode(
-            encodedData,
-            (address, address, uint256, int256)
-        );
- 
-    }
 }

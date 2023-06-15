@@ -5,10 +5,12 @@ import "./Balances.sol";
 import "../tokens/Staking.sol";
 import "../amm/VAmm.sol";
 import "./ExchangeViewer.sol";
+import "../libraries/ExchangeLibrary.sol";
 
 contract VaultMain is Balances {
     address public staking;
     address public exchangeViewer;
+    using ExchangeLibrary for bytes;
 
     mapping(bytes => bool) public isActive;
        mapping(bytes => Position) public positions;
@@ -62,8 +64,17 @@ function _onlyStaking() private view {
     function _onlyStakingOrPool() private view {
         require(msg.sender == staking || msg.sender == loanPool);
     }
-    function _checkIfAuthorized(bytes memory _tradeId, address _user) internal view {
-        require(isActive[_tradeId] && (msg.sender == _user || msg.sender == theseusDao));
+ 
+     /**
+     * @dev Check if the sender is authorized for a specific trade ID.
+     * @param _tradeId The trade ID to check authorization for.]
+     */
+    function _checkAuthorization(
+        bytes memory _tradeId
+    ) internal view  {
+        (address _user, , , ) = decodeTradeId(_tradeId);
+        require(isActive[_tradeId]);
+        require(msg.sender == _user || msg.sender == theseusDao);
     }
 
    
@@ -107,19 +118,14 @@ function _onlyStaking() private view {
         bytes memory _tradeId,
         uint _collateral
     ) public returns (bool) {
-        (address _user
-            ,
-            address _amm,,
-        ) = decodeTradeId(_tradeId);
-        _checkIfAuthorized(_tradeId, _user);
-        payInterestPayments(_tradeId, _amm);
-        payFFR(_tradeId,_amm);
+        _checkAuthorization(_tradeId);
+        (address _user,address _amm,uint _timeStamp, ) = decodeTradeId(_tradeId);
+        _payments(_tradeId, _amm);
         require(_collateral > 0);
         require(availableBalance[msg.sender] >= _collateral);
         availableBalance[msg.sender] -= _collateral;
         tradeCollateral[_tradeId] += _collateral;
-        (address _trader,,uint _timeStamp,) = decodeTradeId(_tradeId);
-        emit AddCollateral(_trader,_timeStamp, _collateral);
+        emit AddCollateral(_user,_timeStamp, _collateral);
         return true;
     }
 
@@ -130,8 +136,8 @@ function _onlyStaking() private view {
      * @return A boolean value indicating whether the operation succeeded
      */
     function removeCollateral(bytes memory _tradeId, uint _collateralToRemove) public returns (bool) {
+        _checkAuthorization(_tradeId);
         (address _user,address _amm,uint _timeStamp,) = decodeTradeId(_tradeId);
-        _checkIfAuthorized(_tradeId, _user);
         _payments(_tradeId, _amm);
         require(_collateralToRemove > 0);
         require(tradeCollateral[_tradeId] >= _collateralToRemove);
@@ -159,7 +165,7 @@ function _onlyStaking() private view {
                 (address _trader,,uint _timeStamp,) = decodeTradeId(_tradeId);
         emit PayInterest(_trader,_timeStamp, _fullInterest,_toPools);
         _toPools == _fullInterest ? () :payDebt(_toPools,_amm);
-        require(LoanPool(loanPool).payInterest(_tradeId));
+        LoanPool(loanPool).payInterest(_tradeId);
         return true;
     }
      /**
@@ -181,12 +187,12 @@ function _onlyStaking() private view {
             tradeCollateral[_tradeId] += _ffrCal;
             poolAvailableUsdc[_amm] -= _ffrCal;
             poolTotalUsdcSupply[_amm] -= _ffrCal;
-            positions[_tradeId].collateral + _ffrCal;
+            positions[_tradeId].collateral += _ffrCal;
             positions[_tradeId].lastFundingRate = _lastFFR;
         } else {
             uint _ffrCal = uint(_ffrToBePayed * -1);
             tradeCollateral[_tradeId] -= _ffrCal;
-            positions[_tradeId].collateral - _ffrCal;
+            positions[_tradeId].collateral -= _ffrCal;
             poolAvailableUsdc[_amm] += _ffrCal;
             poolTotalUsdcSupply[_amm] += _ffrCal;
             positions[_tradeId].lastFundingRate = _lastFFR;
@@ -198,7 +204,7 @@ function _onlyStaking() private view {
 
        function _payments(bytes memory _tradeId, address _amm)internal{
         require(payInterestPayments(_tradeId, _amm));
-        // require(payFFR(_tradeId,_amm));
+        require(payFFR(_tradeId,_amm));
     }
    
     function payDebt(uint _amount,address _amm) internal {
@@ -206,25 +212,7 @@ function _onlyStaking() private view {
         availableBalance[theseusDao] += _amount;
         
     }
-    /**
-    *@dev Function to decode a tradeId
-    *@param encodedData The encoded data of the tradeId
-    *@return A tuple containing the following values:
-            - The user address
-            - The AMM address
-            - The timestamp of the trade
-            - The side of the trade (1 for long, -1 for short)
-     */
-    function decodeTradeId(
-        bytes memory encodedData
-    ) public pure returns (address, address, uint, int) {
 
-        return abi.decode(
-            encodedData,
-            (address, address, uint256, int256)
-        );
- 
-    }
     function addAmm(address _amm) public onlyTheseusDao returns(uint){
         require(!isAmm[_amm]);
         isAmm[_amm] = true;
@@ -264,6 +252,26 @@ function _onlyStaking() private view {
     }
     function subPoolOutstandingLoans(address _ammPool, uint _amount) external onlyPool{
         poolOutstandingLoans[_ammPool] -= _amount;
+    }
+
+            /**
+    *@dev Function to decode a tradeId
+    *@param encodedData The encoded data of the tradeId
+    *@return A tuple containing the following values:
+            - The user address
+            - The AMM address
+            - The timestamp of the trade
+            - The side of the trade (1 for long, -1 for short)
+     */
+    function decodeTradeId(
+        bytes memory encodedData
+    ) public pure  returns (address, address, uint, int) {
+
+        return abi.decode(
+            encodedData,
+            (address, address, uint256, int256)
+        );
+ 
     }
 
 }

@@ -6,6 +6,7 @@ import "./ExchangeViewer.sol";
 
 
 contract Exchange is VaultMain {
+    using ExchangeLibrary for *;
   
     /**
  * @dev Constructor for initializing the Exchange contract
@@ -69,12 +70,7 @@ contract Exchange is VaultMain {
     @return A boolean value indicating whether the operation succeeded
     */
     function openPosition(address _amm, uint _collateral,uint _leverage,int _side,bytes calldata _payload) public returns (bool) {
-        require(_side == 1 || _side == -1);
-        require(_collateral > 0);
-        require(_leverage > 0);
-        require(isAmm[_amm]);
-        require(
-            availableBalance[msg.sender] >= _collateral);
+       ExchangeLibrary.validateOpenPosition(_side, _collateral,_leverage, _amm, msg.sender,availableBalance, isAmm);
         bytes memory _tradeId = abi.encode(
             msg.sender,
             _amm,
@@ -95,8 +91,7 @@ contract Exchange is VaultMain {
         poolTotalUsdcSupply[_amm] += _amtToPool;
         poolAvailableUsdc[_amm] += _amtToPool;
         availableBalance[theseusDao] += _amtToDao;
-        require(
-            _pool.borrow(_tradeId, _amm, _loanAmt, _collateral));
+        _pool.borrow(_tradeId, _amm, _loanAmt, _collateral);
         Position storage _position = positions[_tradeId];
         _position.collateral = _collateral;
         _position.loanedAmount = _loanAmt;
@@ -124,8 +119,7 @@ contract Exchange is VaultMain {
      * @param _tradeId The tradeId of the position to close
      */
     function closeOutPosition(bytes memory _tradeId,bytes calldata _payload) public {
-        Position memory _position = positions[_tradeId];
-        _checkIfAuthorized(_tradeId, _position.trader);
+         _checkAuthorization(_tradeId);
         closePosition(_tradeId,_payload);
         tradeCollateral[_tradeId] =0;
         isActive[_tradeId] = false;
@@ -139,22 +133,17 @@ contract Exchange is VaultMain {
      * @return A boolean value indicating whether the operation succeeded
      **/
     function addLiquidityToPosition(bytes memory _tradeId,uint _leverage,uint _addedCollateral,bytes calldata _payload) public returns (bool) {
-        Position storage _position = positions[_tradeId];
-        _checkIfAuthorized(_tradeId, _position.trader);
+       Position storage _position = positions[_tradeId];
+         _checkAuthorization(_tradeId);
                 (,,uint _timeStamp,) = decodeTradeId(_tradeId);
-        require(_addedCollateral > 0);
         _payments(_tradeId, _position.amm);
+        require(_addedCollateral > 0);
         require(availableBalance[msg.sender] >= _addedCollateral);
         availableBalance[msg.sender] -= _addedCollateral;
         tradeCollateral[_tradeId] += _addedCollateral;
         uint _newLoan = _leverage * _addedCollateral;
-        require(
-            LoanPool(loanPool).borrow(
-                _tradeId,
-                _position.amm,
-                _newLoan,
-                tradeCollateral[_tradeId]
-            ));
+
+            LoanPool(loanPool).borrow(_tradeId,_position.amm,_newLoan,tradeCollateral[_tradeId]);
         VAmm _amm = VAmm(_position.amm);
         (int additionalPositionSize, uint avgEntryPrice, ,) = _amm.openPosition(
             _newLoan,
@@ -181,7 +170,7 @@ contract Exchange is VaultMain {
      **/
     function removeLiquidityFromPosition( bytes memory _tradeId,int _positionSize,bytes calldata _payload) public returns (bool) {
         Position storage _position = positions[_tradeId];
-        _checkIfAuthorized(_tradeId, _position.trader);
+         _checkAuthorization(_tradeId);
         require(
             _positionSize * _position.side > 0 &&
                 _positionSize * _position.side <
@@ -197,7 +186,7 @@ contract Exchange is VaultMain {
             checkPool(uint(pnl),_position.trader,_position.amm);
         }else{
             //check tradeCollateral > pnl else revert
-            if(tradeCollateral[_tradeId]>uint(pnl)){
+            if(tradeCollateral[_tradeId]>=uint(pnl)){
                 tradeCollateral[_tradeId] -= uint(pnl * -1);
             }else{
                 revert();
@@ -272,7 +261,6 @@ contract Exchange is VaultMain {
         }else{
             //debt
             _intoDebt(_amtLeftOver,_amm);
-
         }
     }
     function _intoDebt(uint _amtLeftOver, address _amm)internal{
