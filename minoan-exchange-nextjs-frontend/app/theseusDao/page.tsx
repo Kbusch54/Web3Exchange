@@ -104,7 +104,7 @@ async function page(props: Props) {
   const user = session.user.name as Address;
   const data = await fetchData(session.user.name, theseusAdd);
   //@ts-ignore
-  const poolAvailableUsdc = data.users[0].balances.availableUsdc;
+  const poolAvailableUsdc = data.users[0]?data.users[0].balances.availableUsdc:0;
   console.log('poolAvaib', poolAvailableUsdc);
   console.log('data', data);
   //@ts-ignore

@@ -36,10 +36,14 @@ export default async function page() {
     console.log('this is user',session);
     const userData = await getUserData(user);
     // console.log('this is userdtaa',userData);
+
     return (
         <div className='mx-4 flex flex-col gap-y-4 '>
             <h1 className='text-white'>Dashboard</h1>
-            <DashBoardBalances userData={userData} />
+            { userData !== null &&(
+
+                <DashBoardBalances userData={userData} />
+            )}
             <div className='grid grid-cols-12'>
                 <PieBox />
                 <div className='col-span-12 lg:col-span-6 2xl:col-span-8 3xl:col-span-4 grid grid-cols-6 gap-x-4'>
@@ -55,7 +59,7 @@ export default async function page() {
                 </div>
             </div>
             <DashBoardTradeTab user={user}  />
-            {stocks && (
+            {stocks && userData !== null && (
                 <DashboardAssets userData={userData} stockData={stocks} user={user} />
                 
             )}
