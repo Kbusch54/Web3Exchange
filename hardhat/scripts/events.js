@@ -20,13 +20,28 @@ async function main() {
     const filter = exchange.filters.NewPosition(null, "0x87ad83DC2F12A14C85D20f178A918a65Edfe1B42", null, null,null);
 
     // Get past events for the NewPosition event
-    exchange.queryFilter(filter, 9122471, 'latest')
-      .then((events) => {
+    // exchange.queryFilter(filter, 9122471, 'latest')
+    //   .then((events) => {
+    //     events.forEach((event) => {
+    //         event.getBlock().then((receipt) => {
+    //             const { tradeId, trader, amm, side, timeStamp } = event.args;
+    //             console.log(`NewPosition event emitted with trade ID ${tradeId.hash} by trader ${trader} on AMM ${amm} with side ${side} at ${timeStamp}:`);
+    //             // console.log(event);
+    //             console.log('----------------------');
+    //           console.log('Transaction receipt:');
+    //           console.log(receipt.timestamp);
+    //         });
+    //     });
+      // });
+
+      //getAllliquidations
+      const filter2 = exchange.filters.Liquidated(null);
+      exchange.queryFilter(filter2, 9122471, 'latest').then((events) => {
         events.forEach((event) => {
             event.getBlock().then((receipt) => {
-                const { tradeId, trader, amm, side, timeStamp } = event.args;
-                console.log(`NewPosition event emitted with trade ID ${tradeId.hash} by trader ${trader} on AMM ${amm} with side ${side} at ${timeStamp}:`);
-                // console.log(event);
+                const { tradeId} = event.args;
+                console.log(`Liquidation event emitted with trade ID ${tradeId.hash} by trader `);
+                console.log(event);
                 console.log('----------------------');
               console.log('Transaction receipt:');
               console.log(receipt.timestamp);

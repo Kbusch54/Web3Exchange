@@ -48,14 +48,31 @@ const USDC = await hre.ethers.getContractFactory("FakeUsdc");
   const createAriadnes = await CreateAriadnes.deploy(votingTime,maxVotingPower,minVotingPower,votesNeededePercentage,staking.address,poolTokens.address);
   await createAriadnes.deployed();
   console.log('createAriadnes deployed  ',createAriadnes.address);
-  const Exchange = await hre.ethers.getContractFactory('Exchange');
-  const exchange = await Exchange.deploy(usdc.address,staking.address);
-  await exchange.deployed();
-  console.log('exchange deployed  ',exchange.address);
-  const LoanPool = await hre.ethers.getContractFactory('LoanPool');
-  const loanPool = await LoanPool.deploy(exchange.address);
-  await loanPool.deployed();
-  console.log('loanPool deployed  ',loanPool.address);
+  const ExchangeLibrary = await ethers.getContractFactory('ExchangeLibrary');
+
+// Deploy the library contract
+const library = await ExchangeLibrary.deploy();
+await library.deployed();
+console.log('Library deployed at:', library.address);
+
+// Link the library to both contracts
+const Exchange = await hre.ethers.getContractFactory('Exchange', {
+  libraries: {
+    ExchangeLibrary: library.address,
+  },
+});
+const LoanPool = await hre.ethers.getContractFactory('LoanPool', {
+  libraries: {
+    ExchangeLibrary: library.address,
+  },
+});
+
+const exchange = await Exchange.deploy(usdc.address,staking.address);
+await exchange.deployed();
+console.log('exchange deployed  ',exchange.address);
+const loanPool = await LoanPool.deploy(exchange.address);
+await loanPool.deployed();
+console.log('loanPool deployed  ',loanPool.address);
   const minInterestRate = 10000;
   const maxInterestRate = 100000;
   const minLoanAmount = ethers.utils.parseUnits("100", 6);
@@ -196,23 +213,24 @@ console.log('all ready here are the addresses');
 // 
 
 //logging outy the addresses
-    console.log('const ariadneTesla =',teslaAriadneAddress);
-    console.log('const ariadneGoogle =',googleAriadneAddress);
-    console.log('const ariadneMeta =',metaAriadneAddress);
-    console.log("const createAriadnes = ",createAriadnes.address);
-    console.log("const TeslaAmm = ",teslaAmm.address);
-    console.log("const GoogleAmm = ",googleAmm.address);
-    console.log("const MetaAmm = ",metaAmm.address);
-    console.log("const ammViewer = ",ammViewer.address);
-    console.log("const loanpool = ",loanPool.address);
-    console.log("const staking = ",staking.address);
-    console.log("const exchange = ",exchange.address);
-    console.log("const theseus = ",theseus.address);
-    console.log("const poolTokens = ",poolTokens.address);
-    console.log("const stakingHelper = ",stakerHelper.address);
-    console.log("const payload = ",payload.address);
-    console.log("const exchangeViewer = ",exchangeViewer.address);
-    console.log("const usdc = ",usdc.address);
+    console.log(`const ariadneTesla ='`,teslaAriadneAddress,`'`);
+    console.log(`const ariadneGoogle ='`,googleAriadneAddress,`'`);
+    console.log(`const ariadneMeta ='`,metaAriadneAddress,`"`);
+    console.log(`const createAriadnes = "`,createAriadnes.address,`"`);
+    console.log(`const TeslaAmm = "`,teslaAmm.address,`"`);
+    console.log(`const GoogleAmm = "`,googleAmm.address,`"`);
+    console.log(`const MetaAmm = "`,metaAmm.address,`"`);
+    console.log(`const ammViewer = "`,ammViewer.address,`"`);
+    console.log(`const loanpool = "`,loanPool.address,`"`);
+    console.log(`const staking = "`,staking.address,`"`);
+    console.log(`const exchange = "`,exchange.address,`"`);
+    console.log(`const theseus = "`,theseus.address,`"`);
+    console.log(`const poolTokens = "`,poolTokens.address,`"`);
+    console.log(`const stakingHelper = "`,stakerHelper.address,`"`);
+    console.log(`const payload = "`,payload.address,`"`);
+    console.log(`const exchangeViewer = "`,exchangeViewer.address,`"`);
+    console.log(`const usdc = "`,usdc.address,`"`);
+    console.log(`const library ='`, library.address,`'`);
 
     
 

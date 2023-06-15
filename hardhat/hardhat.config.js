@@ -8,7 +8,7 @@ require("hardhat-gas-reporter");
 module.exports = {
   solidity: "0.8.17",
   gasReporter: {
-    enabled: false,
+    enabled: true,
     currency: 'USD',
     gasPrice: 100,
   },
@@ -26,7 +26,7 @@ module.exports = {
   settings: {
     optimizer: {
         enabled: true,
-        runs: 200,
+        runs: 150,
     },
   },
   contractSizer: {

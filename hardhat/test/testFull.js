@@ -1533,7 +1533,7 @@ it.skip('should allow open position on tesla amm',async function(){
   console.log('new balance: $',formatUnits(await exchange.availableBalance(owner.address),6));
 });
 it("should open and add collateral to tesla amm", async function(){
-  const {owner, otherAccount,ammViewer,teslaAmm,usdc,exchange,theseus,poolTokens,loanPool,staking,ABI,loanPoolABI,exhcnageABI,sign,getFunctionCallData,getMethodNameHash,getTransactionHash,decodeCallData,decodeTransaction}=await loadFixture(deployContracts);
+  const {owner, otherAccount,ammViewer,teslaAmm,usdc,exchange,exchangeViewer,theseus,poolTokens,loanPool,staking,ABI,loanPoolABI,exhcnageABI,sign,getFunctionCallData,getMethodNameHash,getTransactionHash,decodeCallData,decodeTransaction}=await loadFixture(deployContracts);
 
   //   console.log('allData',allData);
   const payload ='0x54534c410000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004f7c8c840018887d0fb400000002000000136930bb97bc248b83881038fd2d3af116ff4270b95bd3618280d7af42de9745a762d2a367ea808c2401b9cc7e23cfee490583a706ef6d4e1aaccbe024a92e5501b4d4554410000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006580498a0018887d0fb400000002000000122ae53016c6ac882a8afdd415485653c78531b063a743fee9919b2a298decb8622810beb582e2e80666a08f94d1512a3be684b5b035fdda3bb5087a825c4c8471b474f4f470000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002ea403110018887d0fb400000002000000128fb15e1471e73ffe95071078a7a546058ce90f5608916fd81d8f69f5efd938e4a44d8ed786a4041410854cbe4bc572a11246d577c6c7536172fe3abbf5de6501b00036d616e75616c2d7061796c6f616400000e000002ed57011e0000'
@@ -1549,6 +1549,7 @@ it("should open and add collateral to tesla amm", async function(){
   const collateral = parseUnits("250", 6);
   const leverage = 3;
   const side = 1;
+  await exchange.openPosition(teslaAmm.address, collateral, leverage, side,payload);
   await exchange.openPosition(teslaAmm.address, collateral, leverage, side,payload);
   const loanAmount = collateral.mul(leverage);
   const tradeIds = await exchange.callStatic.getTradeIds(owner.address);
@@ -1569,6 +1570,39 @@ it("should open and add collateral to tesla amm", async function(){
   console.log('user balcne before',formatUnits(prevUserBal,6));
   console.log('user balcne after',formatUnits(postUserBal,6));
   console.log('user balcne after add',formatUnits(postUserBal2,6));
+
+  console.log('postPosition',postPosition);
+  const isActive = await exchange.callStatic.isActive(tradeIds[0]);
+  const loanedAmtPre = await loanPool.callStatic.borrowedAmount(tradeIds[0]);
+
+  // await exchange.removeCollateral(tradeIds[0],20000000);
+  await time.increase(time.duration.hours(30));
+  const interestOwed = await loanPool.callStatic.interestOwed(tradeIds[0],teslaAmm.address);
+  console.log('interestOwed',interestOwed);
+  await exchange.payInterestPayments(tradeIds[0],teslaAmm.address);
+  const interestOwed2 = await loanPool.callStatic.interestOwed(tradeIds[0],teslaAmm.address);
+  console.log('interestOwed2',interestOwed2);
+  const post2Position = await exchange.callStatic.positions(tradeIds[0]);
+  
+  // await exchange.closeOutPosition(tradeIds[0],'0x9d0d');
+  // const postUserBal3 = await exchange.availableBalance(owner.address);
+  // console.log('user balcne after close',formatUnits(postUserBal3,6));
+  console.log('post2Position',post2Position);
+
+  console.log('------------------------------------------------------checkLiquidation------------------------------------------------------');
+  const liquidationList = await exchangeViewer.callStatic.checkLiquidiationList();
+  console.log('liquidationList',liquidationList);
+  const liquidate = await exchange.liquidate(liquidationList[0],payload);
+  console.log('liquidate',liquidate);
+  const liquidationList2 = await exchangeViewer.callStatic.checkLiquidiationList();
+  console.log('liquidationList2',liquidationList2);
+  // const loanedOutAMtPost = await loanPool.callStatic.borrowedAmount(tradeIds[0]);
+  // const isActivePost = await exchange.callStatic.isActive(tradeIds[0]);
+
+  // console.log('loanedAmtPre',formatUnits(loanedAmtPre,6));
+  // console.log('loanedOutAMtPost',formatUnits(loanedOutAMtPost,6));
+  // console.log('isActive',isActive);
+  // console.log('isActivePost',isActivePost);
 
 });
 
