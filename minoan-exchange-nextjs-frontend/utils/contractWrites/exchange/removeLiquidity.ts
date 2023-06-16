@@ -16,7 +16,7 @@ export const useRemoveLiquidity = (
       functionName: "removeLiquidityFromPosition",
       args: [tradeId,positionSize,payyload],
       account: signer,
-      gas: parseUnits("200000", "wei").toBigInt(),
+      gas: parseUnits("4000000", "wei").toBigInt(),
  
       
     });

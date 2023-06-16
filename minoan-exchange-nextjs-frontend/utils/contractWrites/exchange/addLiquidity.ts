@@ -17,9 +17,13 @@ export const useAddLiquidity = (
       functionName: "addLiquidityToPosition",
       args: [tradeId,leverage,collateral,payload],
       account: signer,
-        gas: parseUnits("200000", "wei").toBigInt(),
+      gas: parseUnits("400000", "wei").toBigInt(),
+      gasPrice: parseUnits("20", "gwei").toBigInt(),
+
       
     });
+    console.log("config",config)
+    console.log("error",error)
     return { config, error };
   };
 

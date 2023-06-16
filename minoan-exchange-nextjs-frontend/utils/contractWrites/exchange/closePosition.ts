@@ -15,7 +15,7 @@ export const useClosePosition = (
       functionName: "closeOutPosition",
       args: [tradeId,payload],
       account: signer,
-      gas: parseUnits("200000", "wei").toBigInt(),
+      gas: parseUnits("400000", "wei").toBigInt(),
       
     });
     return { config, error };
