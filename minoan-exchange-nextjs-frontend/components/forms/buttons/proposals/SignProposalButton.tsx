@@ -35,7 +35,9 @@ export default function SignProposalButton({ user, transactionHash, nonce, contr
     if (!transactionHash) {
       alert('no transaction hash')
     } else {
-      const signature = await signMessageAsync(ethers.utils.arrayify(transactionHash)).then((data: string) => {
+      const signature = await signMessageAsync(
+        {message:transactionHash}
+        ).then((data: string) => {
         return data;
       })
         .catch((err: Error) => {
