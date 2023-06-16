@@ -108,7 +108,8 @@ const AddLiquidityModal: React.FC<Props> = ({ tradeId, user, vaultBalance, curre
                 setErrorMessage('Amount exceeds max allowed');
                 setCheck(false);
                 setRawValue(0);
-            } else if (value <= 0 || rawValue <= 0 || leverageValue <= 0 || totalCollateral <= Number(minLoanAmt)) {
+            } else if (value <= 0 || rawValue <= 0 || leverageValue <= 0 || value <= Number(minLoanAmt)) {
+                console.log('here',minLoanAmt,'totalCollateral',value);
                 setIsError(true);
                 setErrorMessage('Amount is less than min allowed');
                 setCheck(false);
