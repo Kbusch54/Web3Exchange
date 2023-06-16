@@ -6,8 +6,7 @@ interface Props {
 }
 
 const DashBoardBalances: React.FC<Props> = ({userData}) => {
-    
-    if(userData.users[0] !== undefined && userData.users[0].staked !==undefined){
+    if(userData.users[0] !== undefined && userData.users[0].stakes !==undefined){
         const cummulativeStartingCost = userData.trades?userData.trades.reduce((a: any, b: any) => Number(a) + Number(b.startingCost), 0):0;
         const cummulativeStartingCostActive = userData.trades?userData.trades.filter((trade: { isActive: any; }) => trade.isActive).reduce((a: any, b: any) => Number(a) + Number(b.startingCost), 0):0;
         const activeTrades = userData.trades?userData.trades.filter((trade: { isActive: any; }) => trade.isActive):0;
