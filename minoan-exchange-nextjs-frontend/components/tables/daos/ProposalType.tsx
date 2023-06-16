@@ -73,7 +73,6 @@ const ProposalType: React.FC<Props> = ({ user, tokenId, daoAddress,proposals,has
     const nonceMap = new Map();
     //@ts-ignore
     dbData.forEach((prop) => {
-        console.log('prop', prop)
         nonceMap.set(prop.nonce, prop);
     });
     return (

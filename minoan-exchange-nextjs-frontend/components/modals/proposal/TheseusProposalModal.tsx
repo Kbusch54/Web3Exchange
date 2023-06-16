@@ -70,7 +70,6 @@ export default function TheseusProposalModal({user}:Props) {
             const checkLength = contractFuncs[selectedFunction].inputs.length;
             const updatedInputData = inputData ? [...inputData] : [];
             updatedInputData[index] = value;
-            console.log('updated input data', updatedInputData);
             setInputData(prevState => updatedInputData);
             if (updatedInputData.length == checkLength && checkIfEmpty(updatedInputData)) {
                 const [callDATA, to] = getFunctionCallDataThesesusAll(contractFuncs[selectedFunction].name, updatedInputData, contract);
@@ -138,6 +137,7 @@ export default function TheseusProposalModal({user}:Props) {
         
 
     }, [currentId, callData,check]);
+
     return (
         <div className=''>
             <button className='py-4 my-6 text-xl px-8 md:px-32 md:py-12 rounded-full md:my-12  bg-amber-400 hover:shadow-2xl hover:shadow-amber-200 text-white md:text-5xl text-center hover:scale-125' onClick={openModal}>Propose</button>
@@ -199,7 +199,8 @@ export default function TheseusProposalModal({user}:Props) {
                                     </div>
                                     <div className='flex flex-row gap-x-28 justify-between my-4'>
                                         <button disabled className='px-2 py-1 bg-red-500 rounded-2xl text-white text-lg hover:scale-125'>Cancel</button>
-                                        {(check && callData && addressTo && description && currentId && user) ? (
+                                       
+                                        {(check == true && callData != null && addressTo !=null && description !=null && currentId !=null&& user) ? (
                                             <ProposeButton addressTo={addressTo} callData={callData} contractAddress={theseus} description={description} nonce={currentId} user={user} disabled={!check} option='thesesu' />
                                         ) : (
                                             <button disabled className='px-2 py-1 bg-teal-500 rounded-2xl text-white text-lg hover:scale-125'>Loading...</button>

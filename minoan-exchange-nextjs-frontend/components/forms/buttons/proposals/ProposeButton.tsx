@@ -41,7 +41,6 @@ export default function ProposeButton  ({ user, disabled, callData, addressTo, d
       alert('no transaction hash')
     } else { 
     const provider = await connector?.getProvider()
-console.log('connector',connector)
 const signature = await provider.send("personal_sign", [transactionHash, user])
       if (signature.result  ) {
       const verified = ethers.utils.verifyMessage(
@@ -77,7 +76,6 @@ const updateDataBase = async (signature:string,transacitonHash:string) => {
 }
 }
 
-console.log('config for ariadne', config);
 const contractWrite = useContractWrite(config);
 useEffect(() => {
   if (error == null) {
@@ -92,7 +90,6 @@ useEffect(() => {
 useEffect(() => {
   if(transactionHash == null && usedNonce !=null){
     const txHash = getTransactionHash(usedNonce,addressTo,0,callData,contractAddress);
-    console.log('txHash',txHash);
     setTransactionHash(prev=>txHash);
   }
 }, [usedNonce]);
@@ -110,7 +107,6 @@ useEffect(() => {
     if(data){
      
       if ( data.status == 'success'|| contractWrite.status == 'success') {
-        console.log(data.transactionHash);
         contractWrite.reset();
         setLoadingStage((prev) => false);
         //custom message for 3 seconds then reset
@@ -148,7 +144,6 @@ useEffect(() => {
     setUsedNonce((prev)=>nonce);
     //@ts-ignore
     
-    // console.log('contractWrite',contractWrite);
      await contractWrite.writeAsync().then(con=>{
 
         }).catch((err: any) => {
