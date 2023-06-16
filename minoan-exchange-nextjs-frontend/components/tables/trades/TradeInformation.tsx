@@ -43,7 +43,7 @@ interface Props {
 }
 
 const TradeInformation: React.FC<Props> = ({user,userAvailableBalance,row}) => {
-    const margin=222.2222
+    const margin=row.information.currentCollateral/row.other.loanAmt
     return (
         <div className={`bg-slate-800 `}>
 
@@ -55,7 +55,7 @@ const TradeInformation: React.FC<Props> = ({user,userAvailableBalance,row}) => {
                             </div>
                             <div className='text-white text-lg flex flex-col border border-white/10'>
                                 <p>Current Margin</p>
-                                <p>{margin.toFixed(2)}%</p>
+                                <p>{(margin*100).toFixed(2)}%</p>
                             </div>
                             <div className='text-white text-lg flex flex-col border border-white/10'>
                                 <p>FFR</p>
