@@ -21,8 +21,8 @@ const DashBoardBalances: React.FC<Props> = ({userData}) => {
                     total += currrentValue(stake.tokensOwnedbByUser,stake.ammPool.poolToken.totalSupply,stake.ammPool.poolBalance.totalUsdcSupply);
                 }
                 if(stake.theseusDAO){
-                    const totalStaked = stake.theseusDAO.poolToken.tokenBalance.reduce((a: any, b: any) => Number(a) + Number(b.totalStaked), 0);
-                    total += currrentValue(stake.tokensOwnedbByUser,stake.theseusDAO.poolToken.totalSupply,totalStaked);
+                    let ll = stake.theseusDAO.poolToken.tokenBalance.reduce((a: any, b: any) => Number(a) + Number(b.totalStaked), 0);
+                    total += currrentValue(stake.tokensOwnedbByUser,stake.theseusDAO.poolToken.totalSupply,ll);
                 }
             });
             return total;
