@@ -1,12 +1,13 @@
 'use client'
 import { supabase } from '../../../../supabase';
 import React, { useEffect, useState } from 'react'
-import { useContractWrite, Address, useSignMessage }  from 'wagmi';
+import { useContractWrite, Address, useWaitForTransaction, useAccount  }  from 'wagmi';
 import { useNewProposal } from '../../../../utils/contractWrites/daos/ariadne/purpose';
 import { ethers } from 'ethers';
 import { getTransactionHash } from '../../../../utils/helpers/doas';
 import { theseus } from '../../../../utils/address';
 import toast from 'react-hot-toast';
+import { redirect } from 'next/navigation';
 
 interface Props {
   callData: string,
@@ -26,16 +27,12 @@ export default function ProposeButton  ({ user, disabled, callData, addressTo, d
   const [loadingStage, setLoadingStage] = useState(false);
   const [usedNonce, setUsedNonce] = useState<number|null>(null);
   const [etherscanTransactionHash, setEtherscanTransactionHash] = useState<string|null>(null);
-  const [transactionHash, setTransactionHash] = useState<string|null>(null);
+  const [transactionHash, setTransactionHash] = useState<string|null>(null);   
+  const [customMessage, setCustomMessage] = useState<string|null>(null);
 
   
   const { config, error } = useNewProposal(addressTo,callData, contractAddress, user,option);
-  const { signMessage,signMessageAsync } = useSignMessage();
-  console.log('config for proposal', config);
-  console.log('addressTo:', addressTo);
-  console.log('callData:', callData);
-  console.log('contractAddress:', contractAddress);
-  console.log('description in propose button', description);
+  const { connector } = useAccount()
   //@ts-ignore
   const hanldeSign = async (e) => {
     e.preventDefault();
@@ -43,22 +40,18 @@ export default function ProposeButton  ({ user, disabled, callData, addressTo, d
     if (!transactionHash) {
       alert('no transaction hash')
     } else { 
-    const signature = await signMessageAsync({ message: transactionHash })
-      .then((data: string) => {
-        return data;
-      })
-      .catch((err: Error) => {
-        alert(err);
-      });
-
-    if (signature) {
+    const provider = await connector?.getProvider()
+console.log('connector',connector)
+const signature = await provider.send("personal_sign", [transactionHash, user])
+      if (signature.result  ) {
       const verified = ethers.utils.verifyMessage(
-        ethers.utils.arrayify(transactionHash),
-        signature
+       ethers.utils.arrayify(transactionHash),
+        signature.result
       );
-      console.log('is verified', verified);
-      if (verified == user) {
-        await updateDataBase(signature,transactionHash);
+        if (verified.toLowerCase() == user.toLowerCase()) {
+        await updateDataBase(signature.result,transactionHash);
+      }else{
+        alert('not verified');
       }
     }
   }
@@ -97,73 +90,103 @@ useEffect(() => {
   console.log('NONCE', nonce);
 }, [approved,nonce]);
 useEffect(() => {
-  if(!transactionHash && usedNonce){
+  if(transactionHash == null && usedNonce !=null){
     const txHash = getTransactionHash(usedNonce,addressTo,0,callData,contractAddress);
-    setTransactionHash(txHash);
+    console.log('txHash',txHash);
+    setTransactionHash(prev=>txHash);
   }
 }, [usedNonce]);
-
-
-//@ts-ignore
-const handleWrite = async (e) => {
-  e.preventDefault();
-  setLoadingStage((prev) => true);
-  setUsedNonce((prev)=>nonce);
-  console.log('contractWrite ddd',contractWrite);
-  //@ts-ignore
-  await contractWrite.writeAsync()
-  // @ts-ignore
-    .then((con: { wait: (arg0: number) => Promise<any>; hash: any; }) => {
-      con.wait(1).then((res) => {
-        if (contractWrite.isSuccess || res.status == 1) {
-          console.log(res.transactionHash);
-          setEtherscanTransactionHash((prev)=>res.transactionHash);
-          console.log('res', res);
-          //update db 
-          setLoadingStage((prev) => false);
-          setApproved(true);
-          toast.success(`Transaction Sent ${res.transactionHash}`, {  duration: 6000 });
-          //custom message
-          //notification
-          //ask for signature
-          //wait for signature
-          //refresh page?? 
-        } else if (
+const { data, isError, isLoading,isSuccess } = useWaitForTransaction({
+  hash: contractWrite.data?.hash,
+})
+useEffect(() => {
+    if (error == null) {
+      setErrorWithContractLoad(false);
+    } else {
+      setErrorWithContractLoad(true);
+    }
+  }, [error]);
+  useEffect(() => {
+    if(data){
+     
+      if ( data.status == 'success'|| contractWrite.status == 'success') {
+        console.log(data.transactionHash);
+        contractWrite.reset();
+        setLoadingStage((prev) => false);
+        //custom message for 3 seconds then reset
+        setEtherscanTransactionHash((prev)=>data.transactionHash);
+        //update db 
+        setLoadingStage((prev) => false);
+        setApproved(true);
+        toast.success(`Transaction Sent ${data.transactionHash}`, {  duration: 6000 });
+        setCustomMessage('Success');
+       }
+        } 
+        else if (
           contractWrite.status == "idle" ||
           contractWrite.status == "error" ||
-          contractWrite.isIdle == true ||
-          res.status == 0
+          contractWrite.isIdle == true 
         ) {
-          toast.error(`Transaction Failed ${res.transactionHash}`, {  duration: 6000 });
-          console.log("error see traNSACITON HASH", con.hash);
+          console.log("error see traNSACITON HASH", error);
           console.log(contractWrite?.error?.message);
         } else {
-          toast.error(`Transaction Failed ${res.transactionHash}`, {  duration: 6000 });
-          console.log("error see traNSACITON HASH", con.hash);
+          console.log("error see traNSACITON HASH", isError);
+          console.log(contractWrite?.error?.message);
+          toast.error(`Transaction Failed ${contractWrite.data?.hash}`, {  duration: 6000 });
+          console.log("error see traNSACITON HASH", contractWrite.data?.hash);
           console.log(contractWrite?.error?.message);
         }
-      });
-    })
-    .catch((err: any) => {
-      toast.error(`Signer Rejected ${err.details}`, {  duration: 6000, });
-      console.log("didnt event fire", err);
-    });
-};
+        },[data]);
+          
 
+
+   //@ts-ignore
+   const handleWrite = async (e) => {
+    e.preventDefault();
+    setLoadingStage((prev) => true);
+    // await contractWrite.writeAsync()
+    setUsedNonce((prev)=>nonce);
+    //@ts-ignore
+    
+    // console.log('contractWrite',contractWrite);
+     await contractWrite.writeAsync().then(con=>{
+
+        }).catch((err: any) => {
+        console.log("didnt event fire", err);
+        if(err.message.includes('User rejected request')){
+          console.log('user rejected');
+          contractWrite.reset();
+          setLoadingStage((prev) => false);
+          //error isContractError for 3 seconds then reset
+          setErrorWithContractLoad(true);
+          setCustomMessage('User rejected request');
+          setTimeout(() => {
+            setErrorWithContractLoad(false);
+            setCustomMessage(null);
+          }
+          , 3000);
+        };
+        console.log("didnt event fire", err);
+        console.log('message',err.message);
+      });
+  };
   if (contractWrite.isLoading || loadingStage)
-    return (
-      <div className="px-2 py-1 rounded-lg bg-teal-400 text-white">
-        Processing…
-      </div>
-    );
-  if (errorWithContractLoad)
-    return (
-      <div className=" px-2 py-1 rounded-lg bg-red-600 text-white animate-pulse">
-        <p className='text-xs md:text-md lg:text-lg'>
-          Error With current transaciton…
-        </p>
-      </div>
-    );
+  return (
+    <div className="px-2 py-1 rounded-2xl mt-4 font-extrabold bg-teal-400 text-white">
+      Processing…
+    </div>
+  );
+if (errorWithContractLoad)
+  return (
+    <div className="px-2 py-1 rounded-2xl  mt-4 font-extrabold bg-red-600 text-white animate-pulse">
+      {customMessage? (
+        <p>{customMessage}</p>
+      ):(
+        <p>Error With current transaciton…</p>
+      )}
+    </div>
+  );
+
   if (approved)
     return (
       <button onClick={hanldeSign} className=" px-2 py-1 rounded-lg bg-green-600 text-white animate-pulse text-xs md:text-md lg:text-lg">

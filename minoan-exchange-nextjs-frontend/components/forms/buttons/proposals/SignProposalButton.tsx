@@ -1,7 +1,8 @@
 import { ethers } from 'ethers';
 import React, {useEffect, useState } from 'react'
-import { useContractWrite, Address, useSignMessage } from 'wagmi';
+import {  Address, useAccount } from 'wagmi';
 import { supabase } from '../../../../supabase';
+import { verifyMessage } from 'viem';
 
 interface Props {
   user: Address,
@@ -20,6 +21,8 @@ export default function SignProposalButton({ user, transactionHash, nonce, contr
   const [addedToDB, setAddedToDB] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
+  const { connector } = useAccount()
+
   useEffect(() => {
     return () => {
       setSigned(false);
@@ -28,30 +31,23 @@ export default function SignProposalButton({ user, transactionHash, nonce, contr
     }
   }, [signed, addedToDB, error]);
 
-  const { signMessageAsync } = useSignMessage();
   //@ts-ignore
   const hanldeSign = async (e) => {
     e.preventDefault();
     if (!transactionHash) {
       alert('no transaction hash')
     } else {
-      const signature = await signMessageAsync(
-        {message:transactionHash}
-        ).then((data: string) => {
-        return data;
-      })
-        .catch((err: Error) => {
-          alert(err);
-        });
+      const provider = await connector?.getProvider()
+      const signature = await provider.send("personal_sign", [transactionHash, user])
 
-      if (signature) {
-        const verified = ethers.utils.verifyMessage(
-          ethers.utils.arrayify(transactionHash),
-          signature
-        );
-        if (verified == user) {
+            if (signature.result  ) {
+            const verified = ethers.utils.verifyMessage(
+             ethers.utils.arrayify(transactionHash),
+              signature.result
+            );
+        if (verified.toLowerCase() == user.toLowerCase()) {
           setSigned(true);
-          await updateDataBase(signature, transactionHash);
+          await updateDataBase(signature.result, transactionHash);
         } else {
           setError('Signature not verified')
         }
