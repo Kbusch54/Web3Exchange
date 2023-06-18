@@ -14,6 +14,7 @@ export const getUserData = cache(async function fetchUserData(user: string) {
       startingCost
       tradeBalance{
         collateral
+        exitTime
         pnl
       }
   }
@@ -64,6 +65,7 @@ export const getUserData = cache(async function fetchUserData(user: string) {
         LastInterestPayed
         LastFFRPayed
         LastInterestPayed
+        exitTime
         tradeId {
           tradeId
         }
