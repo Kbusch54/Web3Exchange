@@ -148,7 +148,7 @@ const AllTrades: React.FC<Props> = ({ user, userAvailableBalance, active = true,
                 const hour = date.getHours();
                 const min = date.getMinutes();
                 const sec = date.getSeconds();
-                return `${month}/${day} ${hour > 12 ? hour - 12 : hour}:${min} ${hour > 12 ? 'PM' : 'AM'}`;
+                return `${month}/${day} ${hour > 12 ? hour - 12 : hour}:${min<10 ?'0'.concat(min.toString()):min} ${hour > 12 ? 'PM' : 'AM'}`;
             }
             return {
                 id: tradeID,
