@@ -21,8 +21,8 @@ const DashBoardBalances: React.FC<Props> = ({userData}) => {
                     total += currrentValue(stake.tokensOwnedbByUser,stake.ammPool.poolToken.totalSupply,stake.ammPool.poolBalance.totalUsdcSupply);
                 }
                 if(stake.theseusDAO){
-                    let ll = stake.theseusDAO.poolToken.tokenBalance.reduce((a: any, b: any) => Number(a) + Number(b.totalStaked), 0);
-                    total += currrentValue(stake.tokensOwnedbByUser,stake.theseusDAO.poolToken.totalSupply,ll);
+                    let usdcSupply = stake.theseusDAO.poolToken.tokenBalance.reduce((a: any, b: any) => Number(a) + Number(b.totalStaked), 0);
+                    total += currrentValue(stake.tokensOwnedbByUser,stake.theseusDAO.poolToken.totalSupply,usdcSupply);
                 }
             });
             return total;
@@ -31,15 +31,15 @@ const DashBoardBalances: React.FC<Props> = ({userData}) => {
         <section className="lg:mt-0 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-7   mt-12 gap-y-6 gap-x-6 text-white">
             <div className='flex flex-col text-center border-2 border-blue-800 rounded-t-2xl rounded-b-xl bg-sky-800  bg-opacity-40'>
                 <h1>${userData.users[0]?moneyFormatter(userData.users[0].balances.availableUsdc):0}</h1>
-                <h3>USDC</h3>
+                <h3>USDC in Vault</h3>
             </div>
             <div className='flex flex-col text-center border-2 border-blue-800 rounded-t-2xl rounded-b-xl bg-sky-800  bg-opacity-40'>
                 <h1>{userData.trades?userData.trades.length:0}</h1>
-                <h3># Investments Made</h3>
+                <h3># Trades</h3>
             </div>
             <div className='flex flex-col text-center border-2 border-blue-800 rounded-t-2xl rounded-b-xl bg-sky-800  bg-opacity-40'>
                 <h1>${cummulativeStartingCost>0?moneyFormatter(cummulativeStartingCost):0.00}</h1>
-                <h3>USDC Currently Invested</h3>
+                <h3>USDC Invested</h3>
             </div>
             <div className='flex flex-col text-center border-2 border-blue-800 rounded-t-2xl rounded-b-xl bg-sky-800  bg-opacity-40'>
                 <h1>{activeTrades.length}</h1>
