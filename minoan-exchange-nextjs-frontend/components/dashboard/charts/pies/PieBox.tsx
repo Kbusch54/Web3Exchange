@@ -16,6 +16,7 @@ const PieBox: React.FC<Props> = ({ userData ,user}) => {
     const [selected, setSelected] = useState(false)
     const [graphType, setGraphType] = useState(0)
 
+    console.log('this is user data', userData);
     // getting user trades
     const investmentData: { name: string; value: number; }[] = [];
     const stakingData: { name: string; value: number; }[] = [];
@@ -23,16 +24,16 @@ const PieBox: React.FC<Props> = ({ userData ,user}) => {
     const ammInvestMap = new Map();
     const ammStakeMap = new Map();
     for(let i = 0; i < userData?.trades?.length; i++){
-           let amm = getAmmName(userData.trades[i].ammPool.id.toLowerCase());
-           ammInvestMap.set(amm, (ammInvestMap.get(amm) ?? 0) + 1)
+        if(userData.trades[i].isActive == false){
+            let amm = getAmmName(userData.trades[i].ammPool.id.toLowerCase());
+            ammInvestMap.set(amm, (ammInvestMap.get(amm) ?? 0) + 1)
+        }
     }
     for(let i = 0; i < userData?.users[0]?.stakes?.length; i++){
               let amm;
               let amount = userData.users[0].stakes[i].totalStaked /10**6;
               if(userData.users[0].stakes[i].ammPool != null){
                   amm = getAmmName(userData.users[0].stakes[i].ammPool.id.toLowerCase());
-                  console.log('this is amm pool id', userData.users[0].stakes[i].ammPool.id);
-                  console.log('this is amm', amm);
                   ammStakeMap.set(amm, (ammStakeMap.get(amm) ?? 0) + amount)
                 }else{
                     amm = 'Theseus';
@@ -45,10 +46,7 @@ const PieBox: React.FC<Props> = ({ userData ,user}) => {
     ammStakeMap.forEach(function(value, key) {
         stakingData.push({name: key, value: value})
     })
-    console.log('this is staking data', stakingData);
-    useEffect(() => {
-        setSelected(prev => false)
-    }, [graphType])
+  
     return (
         <div className='col-span-12 mx-0 md:mx-12 lg:col-span-6 2xl:col-span-4 3xl-col-span-3 px-8'>
             <div className='h-16 w-1/2 rounded-tr-2xl bg-slate-800  border-b border-blue-300 relative'>
