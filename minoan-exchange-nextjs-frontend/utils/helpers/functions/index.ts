@@ -18,5 +18,5 @@ export const getHoursAndMinutes = (totalMinutes: number) => {
     const totalTime = totalMinutes/ 360000*6;
     const minutes = totalTime % 60;
     const hours = Math.floor(totalTime / 60);
-    return [`${hours}h${minutes > 0 ? ` ${Math.floor(minutes)}m ` : ''}`, `${padTo2Digits(hours)}:${padTo2Digits(Math.floor(minutes))}`,totalTime];
+    return [`${hours}h${minutes > 0 ? ` ${Math.floor(minutes)}m ` : ''}`, `${padTo2Digits(hours)}:${padTo2Digits(Math.floor(minutes))}`,totalTime,{hours,minutes}];
 }
