@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import { Address } from "wagmi";
-import { ariadneTesla, ariadneGoogle, ariadneMeta,GoogleAmm,TeslaAmm,MetaAmm } from "../../address";
+import { ariadneTesla, ariadneGoogle, ariadneMeta,GoogleAmm,TeslaAmm,MetaAmm, theseus } from "../../address";
 import { useGetCurrentId } from "../../contractReads/ariadneDao/currentId";
 
 export const getTransactionHashFull = async (
@@ -45,6 +45,7 @@ export const getTransactionHash = (_nonce:number, to:Address, value:number, data
     }
   }
 
+
     export const getAmmId = (ammId: string) =>{
         const amm =String(ammId).toLowerCase();
         if(amm === "tesla" || amm === "tsla"){
@@ -58,3 +59,29 @@ export const getTransactionHash = (_nonce:number, to:Address, value:number, data
             return TeslaAmm;
         }
     }
+    export const getAmmName= (ammAddress: string) =>{
+      const amm =String(ammAddress).toLowerCase();
+      if(amm === TeslaAmm.toLowerCase() ){
+          return "Tesla";
+      }else if(amm === GoogleAmm.toLowerCase()){
+          return 'Google';
+      }else if(amm === MetaAmm.toLowerCase()){
+          return 'Meta';
+      }
+      else{
+          return 'Theseus';
+      }
+  }
+  export const getAridneName = (ammAddress: string) =>{
+    const amm =String(ammAddress).toLowerCase();
+    if(amm === ariadneTesla.toLowerCase() ){
+        return "Tesla";
+    }else if(amm === ariadneGoogle.toLowerCase()){
+        return 'Google';
+    }else if(amm === ariadneMeta.toLowerCase()){
+        return 'Meta';
+    }
+    else{
+        return 'Theseus';
+    }
+}
