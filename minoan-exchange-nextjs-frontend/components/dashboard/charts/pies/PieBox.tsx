@@ -27,9 +27,8 @@ const PieBox: React.FC<Props> = ({ userData ,user}) => {
            ammInvestMap.set(amm, (ammInvestMap.get(amm) ?? 0) + 1)
     }
     for(let i = 0; i < userData?.users[0]?.stakes?.length; i++){
-              //all user trades
               let amm;
-              let amount = userData.users[0].stakes[i].totalStaked / 10**6;
+              let amount = userData.users[0].stakes[i].totalStaked /10**6;
               if(userData.users[0].stakes[i].ammPool != null){
                   amm = getAmmName(userData.users[0].stakes[i].ammPool.id.toLowerCase());
                   console.log('this is amm pool id', userData.users[0].stakes[i].ammPool.id);
