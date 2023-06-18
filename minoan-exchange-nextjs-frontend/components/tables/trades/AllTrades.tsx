@@ -209,7 +209,6 @@ const AllTrades: React.FC<Props> = ({ user, userAvailableBalance, active = true,
                 <hr className='border-white' />
                 {/* @ts-ignore */}
                 {rows.map((row, index) => {
-                      console.log('this is row',row.isActive,row.id)
                     if (active && row.isActive && !row.liquidated && String(row.userAdd).toLowerCase() === String(user).toLowerCase()) {
                         if(amm? (String(row.vamm).toLowerCase() === String(ammId).toLowerCase()):true){
                             return <SingleTrade key={row.id} row={row} index={index} user={user} userAvailableBalance={userAvailableBalance} />;
@@ -244,7 +243,6 @@ const AllTrades: React.FC<Props> = ({ user, userAvailableBalance, active = true,
                 <hr className='border-white' />
                 {/* @ts-ignore */}
                 {rows.map((row, index) => {
-                    console.log('this is row',row.isActive)
                     if (active && row.isActive && !row.liquidated && String(row.userAdd).toLowerCase() != String(user).toLowerCase()) {
                         if(amm? (String(row.vamm).toLowerCase() === String(ammId).toLowerCase()):true){
                             return <SingleGlobalTrade key={row.id} row={row} index={index} />;
