@@ -45,7 +45,7 @@ export default async function page() {
                 <DashBoardBalances userData={userData} />
             )}
             <div className='grid grid-cols-12'>
-                <PieBox />
+                <PieBox userData={userData} user={user} />
                 <div className='col-span-12 lg:col-span-6 2xl:col-span-8 3xl:col-span-4 grid grid-cols-6 gap-x-4'>
                     <TinyBar />
                     <div className='col-span-6 2xl:col-span-4 mt-24 border border-slate-800 flex flex-col h-fit rounded-xl'>

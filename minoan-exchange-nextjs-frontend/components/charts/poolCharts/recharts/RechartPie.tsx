@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 
 import { PieChart, Pie, Sector, ResponsiveContainer, Cell, Tooltip, Legend, Label } from 'recharts';
+import { moneyFormatter } from 'utils/helpers/functions';
 
 const data = [
   { name: 'Tesla', value: 800 },
@@ -60,22 +61,24 @@ const renderActiveShape = (props: { cx: any; cy: any; midAngle: any; innerRadius
   );
 };
 interface Props {
+    dataForPie?: { name: string; value: number; }[]
+    toolTipLabel?: string
 }
 // @ts-ignore
-const CustomTooltip = ({ active, payload }) => {
+const CustomTooltip = ({ active, payload,toolTipLabel }) => {
   if (active) {
      return (
      <div
         className="text-amber-400 bg-slate-900 border-2 border-gray-800 rounded-lg p-2"
        
       >
-        <label>{`${payload[0].name} : ${payload[0].value}`}</label>
+        <label>{`${payload[0].name} : ${toolTipLabel?toolTipLabel:''}${ toolTipLabel == '$'?moneyFormatter(payload[0].value*10**6) :payload[0].value}`}</label>
         <br />
         </div>
     );
  }
 };
-const RechartPie: React.FC<Props> = () => {
+const RechartPie: React.FC<Props> = ({dataForPie,toolTipLabel}) => {
     
  
   const [activeIndex, setActiveIndex] = useState(0);
@@ -90,7 +93,7 @@ const RechartPie: React.FC<Props> = () => {
           <Pie
             activeIndex={activeIndex}
             activeShape={renderActiveShape}
-            data={data}
+            data={dataForPie? dataForPie:data}
             cx="50%"
             cy="50%"
             innerRadius={'30%'}
@@ -117,7 +120,7 @@ const RechartPie: React.FC<Props> = () => {
             {/* <Label value={`${data[activeIndex].name}`}  className='text-white text-2xl absolute top-1/2 left-1/3'/> */}
             </Pie>
             {/* @ts-ignore */}
-          <Tooltip content={<CustomTooltip active={activeIndex} payload={data}/>} />
+          <Tooltip content={<CustomTooltip active={activeIndex} payload={data} toolTipLabel={toolTipLabel}/>} />
         <Legend  type='diamond'/>
         </PieChart>
       </ResponsiveContainer>
