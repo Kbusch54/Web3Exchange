@@ -7,7 +7,7 @@ export const getPNlByUser = (trades: any, user: Address,newArrLength:number) => 
         if(trades[i].user.id.toLowerCase() !== user.toLowerCase() || trades[i].isActive == true) continue;
 
         pnl.push({date:trades[i].created,value:trades[i].tradeBalance.pnl})
-        avg += trades[i].tradeBalance.pnl;
+        avg += Number(trades[i].tradeBalance.pnl);
     }
     avg = avg/pnl.length;
     return {pnl,avg};
