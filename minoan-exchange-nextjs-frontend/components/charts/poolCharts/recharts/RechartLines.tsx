@@ -12,6 +12,7 @@ import {
     Legend,
   } from "recharts";
   import { format, parseISO, subDays } from "date-fns";
+import { convertCamelCaseToTitle } from "utils/helpers/functions";
   
   const data: any[] | undefined = [];
   for (let num = 12; num >= 0; num--) {
@@ -28,45 +29,46 @@ import {
   
 
 interface Props {
-    height: number
+    height: number,
+    lineData?: any
     
 }
 const COLORS = ["#2451B7","#9251B7", "rgb(30 58 138)", "rgb(2 132 199)",  "rgb(153 27 27)"];
 //@ts-ignore
 function CustomTooltip({ active, payload, label }) {
     if (active) {
+      const date = new Date(label);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const mmm =date.toDateString().split(' ')[1];
+      const day = String(date.getDate() +1).padStart(2, '0');
+      const formattedDate = `${mmm} ${day}`;
       return (
         <div className="tooltip opacity-60">
-          <h4>{format(parseISO(label), "eeee, d MMM, yyyy")}</h4>
-          <p>{payload[0].value} Tesla</p>
-          <p>{payload[1].value} Google</p>
-          <p>{payload[2].value} Meta</p>
-            <p>{payload[0].value+payload[1].value+payload[2].value} All</p>
+         <h4>{formattedDate}</h4> 
+          <p>{payload[0].value} {convertCamelCaseToTitle(payload[0].dataKey) }</p>
+          <p>{payload[1].value} {convertCamelCaseToTitle(payload[1].dataKey)}</p>
+          <p>{payload[2].value} {convertCamelCaseToTitle(payload[2].dataKey)}</p>
+            <p>{payload[0].value+payload[1].value+payload[2].value} Total</p> 
         </div>
       );
     }
     return null;
   }
 
-const ReachartLines: React.FC<Props> = ({height}) => {
+const ReachartLines: React.FC<Props> = ({height,lineData}) => {
     return (
-      // <div className="h-max w-96">
         <ResponsiveContainer height={height} width={'100%'} >
-        <ComposedChart data={data}>
+        <ComposedChart data={lineData?lineData: data}>
           <defs>
             <linearGradient id="color" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#2451B7" stopOpacity={0.4} />
               <stop offset="75%" stopColor="#2451B7" stopOpacity={0.05} />
             </linearGradient>
           </defs>
-  
-          <Area dataKey="tesla" stroke="#2451B7" fill="url(#color)" activeDot={{ r: 8 }} />
-          <Area dataKey="google" stroke="#9251B7" fill="url(#color)" activeDot={{ r: 8 }}  />
-          <Area dataKey="meta" stroke="#9491D7" fill="url(#color)" activeDot={{ r: 8 }}  />
-          {/* <Line dataKey={'All'} stroke="rgb(22 163 74)" fill="rgb(2 132 199)" type="monotoneY"  /> */}
-          
-          
-  
+          <Area dataKey="Tesla" stroke="#2451B7" fill="url(#color)" activeDot={{ r: 8 }} />
+          <Area dataKey="Google" stroke="#9251B7" fill="url(#color)" activeDot={{ r: 8 }}  />
+          <Area dataKey="Meta" stroke="#9491D7" fill="url(#color)" activeDot={{ r: 8 }}  />
           <XAxis
             dataKey="date"
             accumulate="sum"
