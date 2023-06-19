@@ -58,7 +58,7 @@ const TinyBar: React.FC<Props> = ({ userData, user }) => {
                     <div className=' flex flex-col flex-wrap bg-slate-800 rounded-2xl '>
                         <div className='flex flex-row justify-between align-middle place-items-center px-2 mt-8 text-white text-2xl text-center'>
                             <p className=''>Avg Duration</p>
-                            <p className='text-amber-400 text-lg'>{getHoursAndMinutes(avgDuration*1000)[0]}</p>
+                            <p className='text-amber-400 text-lg'>{getHoursAndMinutes(avgDuration*1000)[0].toString()}</p>
                         </div>
                             <RechartTinyBar height={270}  dataBar={duration} toolTipLabel='Duration: ' />
                     </div>
