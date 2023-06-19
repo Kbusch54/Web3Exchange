@@ -14,6 +14,7 @@ import { Address } from 'wagmi'
 import { getUserData } from '../lib/graph/dashboardUserData'
 import PieBox from '../../components/dashboard/charts/pies/PieBox'
 import TinyBar from '../../components/dashboard/charts/bar/TinyBar'
+import { getTradeHistory } from 'utils/helpers/dataMutations';
 
 
 interface Props {
@@ -24,12 +25,15 @@ interface Props {
 export default async function page() {
 
     const session = await getServerSession(authOptions)
-  if(!session || !session.user){
-    return redirect("/auth/signin?callbackUrl=/dashboard")
-  }
+    if(!session || !session.user){
+        return redirect("/auth/signin?callbackUrl=/dashboard")
+    }
     const user:Address = session.user.name as Address;
     console.log('this is user',session);
     const userData = await getUserData(user);
+    // @ts-ignore
+    const lineData = getTradeHistory(userData.trades,user)
+    console.log('this is line data',lineData);
     // console.log('this is userdtaa',userData);
 
     return (
@@ -45,7 +49,7 @@ export default async function page() {
                     <TinyBar userData={userData} user={user}/>
                     <div className='col-span-6 2xl:col-span-4 mt-24 border border-slate-800 flex flex-col h-fit rounded-xl'>
                         <p className='text-white text-xl text-center pt-4'>Trading History</p>
-                        <RechartLines height={300} />
+                        <RechartLines height={300} lineData={lineData} />
                     </div>
                 </div>
                 <div className='col-span-12 3xl:col-span-4 mx-12 flex flex-col 2xl:flex-row 2xl:justify-between 3xl:flex-col  '>
