@@ -8,6 +8,7 @@ export const getUserData = cache(async function fetchUserData(user: string) {
 
     trades(where:{user: $user}){
       isActive
+      created
       ammPool{
         id
         }
