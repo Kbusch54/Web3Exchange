@@ -6,26 +6,15 @@ import {
     YAxis,
     Area,
     Tooltip,
-    CartesianGrid,
     ComposedChart,
-    Line,
     Legend,
   } from "recharts";
-  import { format, parseISO, subDays } from "date-fns";
+  import { format, parseISO } from "date-fns";
 import { convertCamelCaseToTitle } from "utils/helpers/functions";
-  
-  const data: any[] | undefined = [];
-  for (let num = 12; num >= 0; num--) {
-    let rando = Math.random();
-    let rando2 = Math.random();
-    data.push({
-      date: subDays(new Date(), num).toISOString().substring(0, 10),
-      tesla: Math.floor(2 *(rando+rando2)),
-      google: Math.floor(2 *rando) ,
-      meta: Math.floor((Math.random() +Math.random() )*2) ,
-      All: Math.floor(( 2 *(rando+rando2)) + (2 *rando ) + 0),
-    });
-  }
+
+  const data =  [{ date: '2023-06-16', Tesla: 0, Google: 0, Meta: 0, All: 0 },
+  { date: '2023-06-16', Tesla: 1, Google: 0, Meta: 0, All: 1 },
+  { date: '2023-06-18', Tesla: 0, Google: 2, Meta: 0, All: 2 }]
   
 
 interface Props {
@@ -33,7 +22,7 @@ interface Props {
     lineData?: any
     
 }
-const COLORS = ["#2451B7","#9251B7", "rgb(30 58 138)", "rgb(2 132 199)",  "rgb(153 27 27)"];
+const COLORS = ["rgb(30 58 138)","#2451B7", "#9251B7", "rgb(2 132 199)",  "rgb(153 27 27)"];
 //@ts-ignore
 function CustomTooltip({ active, payload, label }) {
     if (active) {
@@ -43,13 +32,18 @@ function CustomTooltip({ active, payload, label }) {
       const mmm =date.toDateString().split(' ')[1];
       const day = String(date.getDate() +1).padStart(2, '0');
       const formattedDate = `${mmm} ${day}`;
+      const total = payload.reduce((acc:any,cur:any)=>{
+        return acc+cur.value
+      },0)
       return (
         <div className="tooltip opacity-60">
          <h4>{formattedDate}</h4> 
-          <p>{payload[0].value} {convertCamelCaseToTitle(payload[0].dataKey) }</p>
-          <p>{payload[1].value} {convertCamelCaseToTitle(payload[1].dataKey)}</p>
-          <p>{payload[2].value} {convertCamelCaseToTitle(payload[2].dataKey)}</p>
-            <p>{payload[0].value+payload[1].value+payload[2].value} Total</p> 
+         {
+          payload.map((item:any,index:number)=>{
+            return <p>{item.value} {convertCamelCaseToTitle(item.dataKey)}</p>
+          })
+         }    
+            <p>{total} Total</p> 
         </div>
       );
     }
@@ -57,6 +51,7 @@ function CustomTooltip({ active, payload, label }) {
   }
 
 const ReachartLines: React.FC<Props> = ({height,lineData}) => {
+  const keyNames = Object.keys(lineData? lineData[0]:data[0]);
     return (
         <ResponsiveContainer height={height} width={'100%'} >
         <ComposedChart data={lineData?lineData: data}>
@@ -66,9 +61,13 @@ const ReachartLines: React.FC<Props> = ({height,lineData}) => {
               <stop offset="75%" stopColor="#2451B7" stopOpacity={0.05} />
             </linearGradient>
           </defs>
-          <Area dataKey="Tesla" stroke="#2451B7" fill="url(#color)" activeDot={{ r: 8 }} />
-          <Area dataKey="Google" stroke="#9251B7" fill="url(#color)" activeDot={{ r: 8 }}  />
-          <Area dataKey="Meta" stroke="#9491D7" fill="url(#color)" activeDot={{ r: 8 }}  />
+          {
+            keyNames.map((keyName,index)=>{
+              if(index>0 && index<keyNames.length-1){
+                return <Area dataKey={keyName} stroke={COLORS[index]} fill="url(#color)"  activeDot={{ r: 8 }} />
+              }
+            })
+          }
           <XAxis
             dataKey="date"
             accumulate="sum"
@@ -76,10 +75,11 @@ const ReachartLines: React.FC<Props> = ({height,lineData}) => {
             tickLine={false}
             tickFormatter={(str) => {
               const date = parseISO(str);
-              if (date.getDate() % 7 === 0) {
-                return format(date, "MMM, d");
-              }
-              return "";
+              console.log('this is date',date.getDate());
+              const mmm =date.toDateString().split(' ')[1];
+              const day = String(date.getDate() +1).padStart(2, '0');
+              const formattedDate = `${mmm} ${day}`;
+              return formattedDate;
             }}
           />
   
