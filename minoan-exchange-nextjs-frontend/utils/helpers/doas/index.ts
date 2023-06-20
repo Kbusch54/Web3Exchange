@@ -85,3 +85,17 @@ export const getTransactionHash = (_nonce:number, to:Address, value:number, data
         return 'Theseus';
     }
 }
+
+export const getAridneFromAmm = (ammAddress: string) =>{
+  const amm =String(ammAddress).toLowerCase();
+  if(amm === TeslaAmm.toLowerCase() ){
+      return ariadneTesla;
+  }else if(amm === GoogleAmm.toLowerCase()){
+      return ariadneGoogle;
+  }else if(amm === MetaAmm.toLowerCase()){
+      return ariadneMeta;
+  }
+  else{
+      return 'Theseus';
+  }
+}
