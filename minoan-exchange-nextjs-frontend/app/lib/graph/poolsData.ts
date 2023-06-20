@@ -105,7 +105,20 @@ export const fetchLoanPoolData = cache(async(symbol: string, user: string) => {
           isActive
           liquidated
         }
+        proposals{
+          passedAt
+          proposedAt
+          proposer
+          executor
+          dAO{
+            id
+            votingTime
+            ammPool{
+              id 
+            }
+          }
         }
+      }
     `;
   
   
