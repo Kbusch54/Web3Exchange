@@ -1,5 +1,7 @@
 import { Address } from "wagmi";
-import { getAmmName } from "../doas";
+import { getAmmName, getAridneFromAmm } from "../doas";
+import { getAllProposals } from "app/lib/supabase/allProposals";
+import { cache } from "react";
 
 export const getPNlByUser = (trades: any, user: Address,newArrLength:number) => {
     let pnl :{ date: string; value: number; }[] = [];
@@ -51,6 +53,44 @@ export const getTardeSidesByAmm = (trades: any, amm?:Address,user?:Address) => {
     data[1].value = short;
     return data;
 }
+export const getProposalsByAmm = (proposals: any, amm?:Address,user?:Address) => {
+    let data:{date:string,beforeExecuted:number} []= [];
+    var today = new Date();
+    var substract_no_of_days = 300;
+    const firstDate = today.setTime(today.getTime() - substract_no_of_days* 24 * 60 * 60 * 10);
+    const fd = new Date(firstDate).toISOString().substring(0, 10);
+    data.push({date:fd,beforeExecuted:0})
+    for (let i = 0; i <proposals.length; i++) {
+            if(user){
+                if(proposals[i].executor.toLowerCase() !== user.toLowerCase() && proposals[i].proposer !== user.toLowerCase()) continue;
+            }
+            if(amm){
+                if(proposals[i].dAO?.ammPool?.id.toLowerCase() !== amm.toLowerCase() && proposals[i].dAO?.id.toLowerCase() !== amm.toLowerCase() && proposals[i].theseusDAO?.id.toLowerCase() !== amm.toLowerCase() ) continue;
+            }
+            if(proposals[i].executor == null) continue;
+            const timeBeforeExecution = (proposals[i].passedAt - proposals[i].proposedAt)*1000;
+            const dateOfExecution = new Date(proposals[i].passedAt * 1000).toISOString().substring(0, 10);
+            data.push({date:dateOfExecution,beforeExecuted:timeBeforeExecution})
+        }
+    return data;
+}
+export const getProposalTime = (proposals: any, amm?:Address,user?:Address) => {
+    let avgProposalTime =0;
+    let proposalsnum = 0;
+
+    for (let i = 0; i <proposals.length; i++) {
+            if(user){
+                if(proposals[i].executor.toLowerCase() !== user.toLowerCase() && proposals[i].proposer !== user.toLowerCase()) continue;
+            }
+            if(amm){
+                if(proposals[i].dAO?.ammPool?.id.toLowerCase() !== amm.toLowerCase() && proposals[i].dAO?.id.toLowerCase() !== amm.toLowerCase() && proposals[i].theseusDAO?.id.toLowerCase() !== amm.toLowerCase() ) continue;
+            }
+            if(proposals[i].executor == null) continue;
+            proposalsnum++;
+            avgProposalTime += (proposals[i].passedAt - proposals[i].proposedAt)*1000;
+        }
+    return avgProposalTime/proposalsnum;
+}
 
 export const getTradeHistory = (trades: any, user?: Address,amm?:Address) => {
     let data: { date: string; Tesla: number; Google: number; Meta: number; All: number; }[] = [];
@@ -89,7 +129,6 @@ export const getTradeHistory = (trades: any, user?: Address,amm?:Address) => {
             newData.push({ date: key, [name]: value[name] }); // Use square brackets to set the key dynamically
             
         });
-        console.log('insded amm',newData);
         return newData;
     }else{
         // @ts-ignore
@@ -99,6 +138,25 @@ export const getTradeHistory = (trades: any, user?: Address,amm?:Address) => {
         });
        
         return data;
+    
+    
     }
+}
+    export const getProposalSignersByAmm = cache(async(amm?:Address,user?:Address) => {
+        const proposals = await getAllProposals();
+        let avgSignatures =0;
+        let numOfProposals =0;
+        proposals.data?.forEach((proposal:any) => {
+            
+            if(user){
+                if(proposal.executor.toLowerCase() !== user.toLowerCase() && proposal.proposer !== user.toLowerCase()) return;
+            }
+            if(amm){
+                if(proposal.contractAddress.toLowerCase() !== getAridneFromAmm(amm).toLowerCase()) return;
+            }
+            numOfProposals++;
+            avgSignatures += proposal.signatures.length;
+        });
+        return [avgSignatures/numOfProposals,numOfProposals];
 
-    }
+    });
