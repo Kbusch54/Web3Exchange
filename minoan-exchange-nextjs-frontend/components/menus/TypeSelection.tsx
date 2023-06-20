@@ -3,16 +3,28 @@ import React, { useState } from 'react'
 import SelectType from './options/selectTypeOptions';
 import ReachartLines from '../charts/poolCharts/recharts/RechartLines';
 import RechartPie from '../charts/poolCharts/recharts/RechartPie';
+import { Address } from 'wagmi';
+import { getTardeSidesByAmm, getTradeHistory } from 'utils/helpers/dataMutations';
 
 interface Props {
-
+    poolData: any
+    user: Address
 }
 
-const TypeSelection: React.FC<Props> = () => {
+const TypeSelection: React.FC<Props> = ({poolData,user}) => {
     const [type, setType] = useState<string>('pool');
     const handleChange = (newType: string) => {
         setType(prevState => newType)
     }
+    const poolBalances = poolData.vamms[0].loanPool.poolBalance;
+    const trades = poolData.trades;
+    const poolDataForPie = [
+        { name: 'Available USDC', value: Number(poolBalances.availableUsdc)/10**6 },
+        { name: 'Outstanding Loan USDC', value: Number(poolBalances.outstandingLoanUsdc)/10**6 },
+    ]
+    const pieDataForTrading = getTardeSidesByAmm(trades,poolData.vamms[0].loanPool.id);
+    const lineDataForTrading = getTradeHistory(trades,undefined,poolData.vamms[0].loanPool.id);
+
     return (
         <div className='flex flex-col justify-center self-center'>
             <div>
@@ -22,7 +34,7 @@ const TypeSelection: React.FC<Props> = () => {
                 <div className="grid grid-cols-7 lg:grid-cols-12 gap-x-8  items-center">
                     <div className='col-span-7 flex-col inline-flex'>
                         <div>
-                            <ReachartLines height={400} />
+                            {/* <ReachartLines height={400} /> */}
                         </div>
                         <div className='flex flex-row justify-around pt-10'>
                             <div className='flex flex-col text-center border-2 border-blue-800 rounded-t-2xl rounded-b-lg bg-sky-800 m-4 bg-opacity-40 p-4'>
@@ -45,7 +57,7 @@ const TypeSelection: React.FC<Props> = () => {
                         </div>
                         <div className='text-white text-3xl w-1/2 bg-[rgba(24,24,35,255)]'></div>
                         <div className='bg-slate-800 flex flex-col justify-center rounded-2xl rounded-tl-none text-lg'>
-                            <RechartPie />
+                            <RechartPie dataForPie={poolDataForPie}  toolTipLabel='$'/>
 
                         </div>
                     </div>
@@ -55,7 +67,7 @@ const TypeSelection: React.FC<Props> = () => {
                 <div className="grid grid-cols-7 lg:grid-cols-12 gap-x-8  items-center">
                 <div className='col-span-7 flex-col inline-flex'>
                     <div>
-                        <ReachartLines height={400} />
+                        <ReachartLines height={400} lineData={lineDataForTrading} />
                     </div>
                     <div className='flex flex-row justify-around pt-10'>
                         <div className='flex flex-col text-center border-2 border-blue-800 rounded-t-2xl rounded-b-lg bg-sky-800 m-4 bg-opacity-40 p-4'>
@@ -78,7 +90,7 @@ const TypeSelection: React.FC<Props> = () => {
                     </div>
                     <div className='text-white text-3xl w-1/2 bg-[rgba(24,24,35,255)]'></div>
                     <div className='bg-slate-800 flex flex-col justify-center rounded-2xl rounded-tl-none text-lg'>
-                        <RechartPie />
+                        <RechartPie dataForPie={pieDataForTrading}/>
 
                     </div>
                 </div>
@@ -88,7 +100,7 @@ const TypeSelection: React.FC<Props> = () => {
                   <div className="grid grid-cols-7 lg:grid-cols-12 gap-x-8  items-center">
                   <div className='col-span-7 flex-col inline-flex'>
                       <div>
-                          <ReachartLines height={400} />
+                          {/* <ReachartLines height={400} /> */}
                       </div>
                       <div className='flex flex-row justify-around pt-10'>
                           <div className='flex flex-col text-center border-2 border-blue-800 rounded-t-2xl rounded-b-lg bg-sky-800 m-4 bg-opacity-40 p-4'>

@@ -15,6 +15,7 @@ import { authOptions } from '../../../utils/auth/authOptions';
 import { getServerSession } from 'next-auth/next';
 import { Address } from "viem";
 import TypeSelection from "../../../components/menus/TypeSelection";
+import { fetchLoanPoolData } from "app/lib/graph/poolsData";
 
 interface Props {
   params: {
@@ -22,6 +23,7 @@ interface Props {
   };
 }
 interface GraphData {
+ 
   vamms: {
     name: string;
     loanPool: {
@@ -68,88 +70,6 @@ interface GraphData {
 
 
 
-async function fetchLoanPoolData(symbol: string, user: string) {
-  const query = gql` 
-    query getLoanPool($id: String!,$user: String!) {
-      vamms(where: { symbol: $id}) {
-        name
-        loanPool {
-          id
-          created
-          minLoan
-          maxLoan
-          interestRate
-          interestPeriod
-          mmr
-          minHoldingsReqPercentage
-          tradingFee
-          poolBalance {
-            totalUsdcSupply
-            availableUsdc
-            outstandingLoanUsdc
-          }
-          stakes{
-            totalStaked
-            }
-          poolToken{
-            ammPool{
-              ariadneDAO{
-                id
-                votesNeededPercentage
-                votingTime
-                poolToken{
-                totalSupply
-                tokenBalance(where:{user:$user}) {
-                    tokensOwnedbByUser
-                    }
-                }
-              }
-            }
-            tokenId
-            totalSupply
-            tokenBalance(where:{user:$user}){
-              tokensOwnedbByUser
-              totalStaked
-              user{
-                balances{
-                  availableUsdc
-                }
-              }
-            }
-          }
-          loanPoolTheseus{
-            minMMR
-            maxMMR
-            minInterestRate
-            maxInterestRate
-            minTradingFee
-            maxInterestPeriod
-            minInterestPeriod
-            minHoldingsReqPercentage
-            maxHoldingsReqPercentage
-            maxTradingFee
-            minLoan
-            maxLoan
-          }
-        }
-      }
-      users(where:{id:$user}){
-        id
-        balances{
-          availableUsdc
-        }
-      }
-      }
-  `;
-
-
-
-  const endpoint = "https://api.studio.thegraph.com/query/46803/subgraph-minoan/version/latest";
-  const variables = { id: symbol, user: user };
-  const data = await request(endpoint, query, variables);
-
-  return data;
-}
 
 
 const getStocks = async (slug: string) => {
@@ -172,7 +92,7 @@ export default async function PoolPage({ params }: Props) {
 
 
   const user = session.user.name as Address;
-
+ 
   const allData = await fetchLoanPoolData(params.slug.toLowerCase(), session.user.name);
   //@ts-ignore
   const graphData = allData.vamms[0];
@@ -209,7 +129,7 @@ export default async function PoolPage({ params }: Props) {
               <ReachartsEx height={500} />
             </div>
             <section id={"select-charts"} className="col-span-9">
-              <TypeSelection />
+              <TypeSelection poolData={allData} user={user}/>
             </section>
             <div
               id={"stats"}
