@@ -32,19 +32,15 @@ function CustomTooltip({ active, payload, label }) {
       const mmm =date.toDateString().split(' ')[1];
       const day = String(date.getDate() +1).padStart(2, '0');
       const formattedDate = `${mmm} ${day}`;
-      const total = payload.reduce((acc:any,cur:any)=>{
-        return acc+cur.value
-      },0)
       return (
         <div className="tooltip opacity-60">
          <h4>{formattedDate}</h4> 
          {
-          payload.map((item:any,index:number)=>{
-            return <p>{item.value} {convertCamelCaseToTitle(item.dataKey)}</p>
-          })
-         }    
-            <p>{total} Total</p> 
-        </div>
+           payload.map((item:any,index:number)=>{
+             return <p>{item.value} {convertCamelCaseToTitle(item.dataKey)}</p>
+           })
+          }    
+         </div>
       );
     }
     return null;
@@ -52,6 +48,8 @@ function CustomTooltip({ active, payload, label }) {
 
 const ReachartLines: React.FC<Props> = ({height,lineData}) => {
   const keyNames = Object.keys(lineData? lineData[0]:data[0]);
+  console.log('this is keynames',keyNames);
+  console.log('this is line data',lineData);
     return (
         <ResponsiveContainer height={height} width={'100%'} >
         <ComposedChart data={lineData?lineData: data}>
@@ -63,7 +61,9 @@ const ReachartLines: React.FC<Props> = ({height,lineData}) => {
           </defs>
           {
             keyNames.map((keyName,index)=>{
-              if(index>0 && index<keyNames.length-1){
+              console.log('this is keyname',keyName);
+              (index>0 && index<keyNames.length)?console.log('this is index',index):null
+              if(index>0 && index<keyNames.length){
                 return <Area dataKey={keyName} stroke={COLORS[index]} fill="url(#color)"  activeDot={{ r: 8 }} />
               }
             })
