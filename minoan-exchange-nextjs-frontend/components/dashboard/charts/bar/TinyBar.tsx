@@ -16,7 +16,7 @@ const TinyBar: React.FC<Props> = ({ userData, user }) => {
     const [selected, setSelected] = useState(false)
     const [graphType, setGraphType] = useState(0)
     const { pnl, avg: avgPnl } = getPNlByUser(userData.trades, user, 9);
-    const { duration, avg: avgDuration } = getTradeDurationByUser(userData.trades, user, 9);
+    const { duration, avg: avgDuration } = getTradeDurationByUser(userData.trades,9,user);
 
     return (
         <div className='col-span-6 2xl:col-span-2 self-center mx-16 mt-4 md:mx-40 md:mt-6 2xl:mx-0 2xl:mt-0 2xl:pr-4'>
