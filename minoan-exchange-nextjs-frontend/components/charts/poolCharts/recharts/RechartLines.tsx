@@ -10,7 +10,7 @@ import {
     Legend,
   } from "recharts";
   import { format, parseISO } from "date-fns";
-import { convertCamelCaseToTitle } from "utils/helpers/functions";
+import { convertCamelCaseToTitle, getHoursAndMinutes } from "utils/helpers/functions";
 
   const data =  [{ date: '2023-06-16', Tesla: 0, Google: 0, Meta: 0, All: 0 },
   { date: '2023-06-16', Tesla: 1, Google: 0, Meta: 0, All: 1 },
@@ -20,11 +20,12 @@ import { convertCamelCaseToTitle } from "utils/helpers/functions";
 interface Props {
     height: number,
     lineData?: any
+    type?: string
     
 }
 const COLORS = ["rgb(30 58 138)","#2451B7", "#9251B7", "rgb(2 132 199)",  "rgb(153 27 27)"];
 //@ts-ignore
-function CustomTooltip({ active, payload, label }) {
+function CustomTooltip({ active, payload, label,type }) {
     if (active) {
       const date = new Date(label);
       const year = date.getFullYear();
@@ -37,7 +38,7 @@ function CustomTooltip({ active, payload, label }) {
          <h4>{formattedDate}</h4> 
          {
            payload.map((item:any,index:number)=>{
-             return <p>{item.value} {convertCamelCaseToTitle(item.dataKey)}</p>
+             return <p>{type=='time'?getHoursAndMinutes(item.value)[0].toString() :item.value} {convertCamelCaseToTitle(item.dataKey)}</p>
            })
           }    
          </div>
@@ -46,10 +47,8 @@ function CustomTooltip({ active, payload, label }) {
     return null;
   }
 
-const ReachartLines: React.FC<Props> = ({height,lineData}) => {
+const ReachartLines: React.FC<Props> = ({height,lineData,type}) => {
   const keyNames = Object.keys(lineData? lineData[0]:data[0]);
-  console.log('this is keynames',keyNames);
-  console.log('this is line data',lineData);
     return (
         <ResponsiveContainer height={height} width={'100%'} >
         <ComposedChart data={lineData?lineData: data}>
@@ -61,8 +60,6 @@ const ReachartLines: React.FC<Props> = ({height,lineData}) => {
           </defs>
           {
             keyNames.map((keyName,index)=>{
-              console.log('this is keyname',keyName);
-              (index>0 && index<keyNames.length)?console.log('this is index',index):null
               if(index>0 && index<keyNames.length){
                 return <Area dataKey={keyName} stroke={COLORS[index]} fill="url(#color)"  activeDot={{ r: 8 }} />
               }
@@ -75,7 +72,6 @@ const ReachartLines: React.FC<Props> = ({height,lineData}) => {
             tickLine={false}
             tickFormatter={(str) => {
               const date = parseISO(str);
-              console.log('this is date',date.getDate());
               const mmm =date.toDateString().split(' ')[1];
               const day = String(date.getDate() +1).padStart(2, '0');
               const formattedDate = `${mmm} ${day}`;
@@ -91,7 +87,7 @@ const ReachartLines: React.FC<Props> = ({height,lineData}) => {
             tickFormatter={(number) => `${Math.floor(number)}`}
           /> */}
           {/* @ts-ignore */}
-          <Tooltip content={<CustomTooltip  />} />
+          <Tooltip content={<CustomTooltip type={type}  />} />
   
           {/* <CartesianGrid opacity={0.1} vertical={true} /> */}
           <Legend />
