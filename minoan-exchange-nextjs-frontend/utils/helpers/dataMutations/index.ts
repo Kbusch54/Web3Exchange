@@ -15,10 +15,10 @@ export const getPNlByUser = (trades: any, user: Address,newArrLength:number) => 
     avg = avg/pnl.length;
     return {pnl,avg};
 }
-export const getTradeDurationByUser = (trades: any, newArrLength:number,user?: Address,amm?:Address) => {
+export const getTradeDurationByUser = (trades: any, newArrLength?:number,user?: Address,amm?:Address) => {
     let duration :{ date: string; value: number; }[] = [];;
     let avg =0;
-    for (let i = trades.length >= newArrLength? newArrLength-1:trades.length-1; i >=0; i--) {
+    for (let i = newArrLength? trades.length >= newArrLength? newArrLength-1:trades.length-1:trades.length-1; i >=0; i--) {
         if(user){
             if(trades[i].user.id.toLowerCase() !== user.toLowerCase() || trades[i].isActive == true) continue;
         }
@@ -30,6 +30,25 @@ export const getTradeDurationByUser = (trades: any, newArrLength:number,user?: A
     }
     avg = avg/duration.length;
     return {duration,avg};
+}
+export const avgStakes = (stakes: any,user:Address) => {
+    let avg =0;
+    let avgUserStakes =0;
+    let lastStake =0;
+    let userStakesLength = 0;
+    for (let i = 0; i <stakes.length; i++) {
+        avg += Number(stakes[i].usdcStaked);
+        if(stakes[i].user.id.toLowerCase() === user.toLowerCase()){
+            avgUserStakes += Number(stakes[i].usdcStaked);
+            userStakesLength++;
+        }
+        console.log('money staked',stakes[i].usdcStaked/10**6)
+        lastStake = stakes[i].usdcStaked;
+    }
+    console.log('avg',avg , 'stakes length',stakes.length)
+    avg = avg/stakes.length;
+    avgUserStakes = avgUserStakes/userStakesLength;
+    return {avg,avgUserStakes,lastStake};
 }
 export const getTardeSidesByAmm = (trades: any, amm?:Address,user?:Address) => {
    let data:{name:string,value:number} []= [{name:'long',value:0},{name:'short',value:0}];
@@ -136,10 +155,7 @@ export const getTradeHistory = (trades: any, user?: Address,amm?:Address) => {
         dateMap.forEach((value, key) => {
             data.push({date:key,Tesla:value.Tesla,Google:value.Google,Meta:value.Meta,All:value.All})
         });
-       
         return data;
-    
-    
     }
 }
     export const getProposalSignersByAmm = cache(async(amm?:Address,user?:Address) => {
