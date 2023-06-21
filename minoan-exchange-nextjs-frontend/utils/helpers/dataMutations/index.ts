@@ -31,22 +31,27 @@ export const getTradeDurationByUser = (trades: any, newArrLength?:number,user?: 
     avg = avg/duration.length;
     return {duration,avg};
 }
-export const avgStakes = (stakes: any,user:Address) => {
+export const avgStakes = (stakes: any,user:Address, amm?:Address) => {
     let avg =0;
     let avgUserStakes =0;
     let lastStake =0;
     let userStakesLength = 0;
+    let ammStakeLength = 0;
     for (let i = 0; i <stakes.length; i++) {
-        avg += Number(stakes[i].usdcStaked);
-        if(stakes[i].user.id.toLowerCase() === user.toLowerCase()){
-            avgUserStakes += Number(stakes[i].usdcStaked);
-            userStakesLength++;
+        if(amm){
+            if(stakes[i].ammPool?.id.toLowerCase() != amm.toLowerCase() && stakes[i].theseusDAO?.id.toLowerCase() != amm.toLowerCase())continue;
+            ammStakeLength++;
         }
-        console.log('money staked',stakes[i].usdcStaked/10**6)
-        lastStake = stakes[i].usdcStaked;
+        console.log('taked ysdc',stakes[i].usdcStaked/10**6)
+        avg += Number(stakes[i].usdcStaked);
+            if(stakes[i].user.id.toLowerCase() === user.toLowerCase()){
+                avgUserStakes += Number(stakes[i].usdcStaked);
+                userStakesLength++;
+            }
+            lastStake = stakes[i].usdcStaked;
     }
-    console.log('avg',avg , 'stakes length',stakes.length)
-    avg = avg/stakes.length;
+    
+    avg = amm?avg/ammStakeLength:avg/stakes.length;
     avgUserStakes = avgUserStakes/userStakesLength;
     return {avg,avgUserStakes,lastStake};
 }
@@ -158,7 +163,7 @@ export const getTradeHistory = (trades: any, user?: Address,amm?:Address) => {
         return data;
     }
 }
-    export const getProposalSignersByAmm = cache(async(amm?:Address,user?:Address) => {
+export const getProposalSignersByAmm = cache(async(amm?:Address,user?:Address) => {
         const proposals = await getAllProposals();
         let avgSignatures =0;
         let numOfProposals =0;
@@ -176,7 +181,7 @@ export const getTradeHistory = (trades: any, user?: Address,amm?:Address) => {
         return [avgSignatures/numOfProposals,numOfProposals];
 
     });
-    export const getExecutedAndFailedProposalsByAmm = (proposals: any, amm?:Address,user?:Address) => {
+export const getExecutedAndFailedProposalsByAmm = (proposals: any, amm?:Address,user?:Address) => {
         let data = [{name:'executed',value:0},{name:'failed',value:0}]
         for (let i = 0; i <proposals.length; i++) {
                 if(user){

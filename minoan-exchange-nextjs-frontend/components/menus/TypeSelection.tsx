@@ -36,7 +36,7 @@ const TypeSelection: React.FC<Props> = ({poolData,user}) => {
     const proposalVersusData  = getExecutedAndFailedProposalsByAmm(proposals,poolData.vamms[0].loanPool.id);
     const {duration,avg: avgTradeTime } = getTradeDurationByUser(trades,undefined,undefined,poolData.vamms[0].loanPool.id);
     // @ts-ignore
-    const {avg:avgStake,avgUserStakes,lastStake} = avgStakes(stakingData.singleStakes,user)
+    const {avg:avgStake,avgUserStakes,lastStake} = avgStakes(stakingData.singleStakes,user,poolData.vamms[0].loanPool.id)
     return (
         <div className='flex flex-col justify-center self-center'>
             <div>
