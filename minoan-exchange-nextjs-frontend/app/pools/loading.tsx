@@ -23,27 +23,27 @@ const loading: React.FC<Props> = () => {
             id={"balances"}
             className="col-span-6 md:col-span-4 lg:col-span-6 lg:mt-0 grid grid-cols-2 xl:grid-cols-3 mt-12 gap-y-12 text-white animate-pulse"
           >
-            <div className='flex flex-col text-center border-2 justify-center align-middle border-blue-800 rounded-t-2xl rounded-b-xl bg-blue-800 m-4 bg-opacity-40 relative'>
+            <div className='flex flex-col text-center border-2 border-blue-800 rounded-t-2xl rounded-b-xl bg-sky-800  bg-opacity-40'>
               <h1 className=' h-8 bg-gray-600 rounded-full dark:bg-gray-700 m-4'>...</h1>
               <h3 className='text-xs md:text-lg'> Your Token Balance</h3>
             </div>
-            <div className='flex flex-col text-center border-2 justify-center align-middle border-blue-800 rounded-t-2xl rounded-b-xl bg-blue-800 m-4 bg-opacity-40 relative'>
+            <div className='flex flex-col text-center border-2 border-blue-800 rounded-t-2xl rounded-b-xl bg-sky-800  bg-opacity-40'>
               <h1 className=' h-8 bg-gray-600 rounded-full dark:bg-gray-700 m-4'>...</h1>
               <h3 className='text-xs md:text-lg'> Current Token Value</h3>
             </div>
-            <div className='flex flex-col text-center border-2 justify-center align-middle border-blue-800 rounded-t-2xl rounded-b-xl bg-blue-800 m-4 bg-opacity-40 relative'>
+            <div className='flex flex-col text-center border-2 border-blue-800 rounded-t-2xl rounded-b-xl bg-sky-800  bg-opacity-40'>
               <h1 className='  h-8 bg-gray-600 rounded-full dark:bg-gray-700 m-4'>...</h1>
               <h3 className='text-xs md:text-lg'> Total Supply</h3>
             </div>
-            <div className='flex flex-col text-center border-2 justify-center align-middle border-blue-800 rounded-t-2xl rounded-b-xl bg-blue-800 m-4 bg-opacity-40 relative'>
+            <div className='flex flex-col text-center border-2 border-blue-800 rounded-t-2xl rounded-b-xl bg-sky-800  bg-opacity-40'>
               <h1 className='  h-8 bg-gray-600 rounded-full dark:bg-gray-700 m-4'>...</h1>
               <h3 className='text-xs md:text-lg'> Available USDC Supply</h3>
             </div>
-            <div className='flex flex-col text-center border-2 justify-center align-middle border-blue-800 rounded-t-2xl rounded-b-xl bg-blue-800 m-4 bg-opacity-40 relative'>
+            <div className='flex flex-col text-center border-2 border-blue-800 rounded-t-2xl rounded-b-xl bg-sky-800  bg-opacity-40'>
               <h1 className='  h-8 bg-gray-600 rounded-full dark:bg-gray-700 m-4'>...</h1>
               <h3 className='text-xs md:text-lg'> Loaned Out</h3>
             </div>
-            <div className='flex flex-col text-center border-2 justify-center align-middle border-blue-800 rounded-t-2xl rounded-b-xl bg-blue-800 m-4 bg-opacity-40 relative'>
+            <div className='flex flex-col text-center border-2 border-blue-800 rounded-t-2xl rounded-b-xl bg-sky-800  bg-opacity-40'>
               <h1 className=' h-8 bg-gray-600 rounded-full dark:bg-gray-700 m-4'>...</h1>
               <h3 className='text-xs md:text-lg'>Total USDC Supply</h3>
             </div>
