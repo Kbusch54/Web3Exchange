@@ -160,3 +160,18 @@ export const getTradeHistory = (trades: any, user?: Address,amm?:Address) => {
         return [avgSignatures/numOfProposals,numOfProposals];
 
     });
+    export const getExecutedAndFailedProposalsByAmm = (proposals: any, amm?:Address,user?:Address) => {
+        let data = [{name:'executed',value:0},{name:'failed',value:0}]
+        for (let i = 0; i <proposals.length; i++) {
+                if(user){
+                    if(proposals[i].executor.toLowerCase() !== user.toLowerCase() && proposals[i].proposer !== user.toLowerCase()) continue;
+                }
+                if(amm){
+                    if(proposals[i].dAO?.ammPool?.id.toLowerCase() !== amm.toLowerCase() && proposals[i].dAO?.id.toLowerCase() !== amm.toLowerCase() && proposals[i].theseusDAO?.id.toLowerCase() !== amm.toLowerCase() ) continue;
+                }
+                if(proposals[i].executor == null && proposals[i].passedAt == null ) data[1].value++;
+                if(proposals[i].passedAt != null || proposals[i].executor !=null) data[0].value++;
+            }
+        return data;
+
+    }

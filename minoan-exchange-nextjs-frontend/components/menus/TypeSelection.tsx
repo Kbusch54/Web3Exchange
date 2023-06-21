@@ -4,7 +4,7 @@ import SelectType from './options/selectTypeOptions';
 import ReachartLines from '../charts/poolCharts/recharts/RechartLines';
 import RechartPie from '../charts/poolCharts/recharts/RechartPie';
 import { Address } from 'wagmi';
-import { getProposalSignersByAmm, getProposalTime, getProposalsByAmm, getTardeSidesByAmm, getTradeHistory } from 'utils/helpers/dataMutations';
+import { getExecutedAndFailedProposalsByAmm, getProposalSignersByAmm, getProposalTime, getProposalsByAmm, getTardeSidesByAmm, getTradeHistory } from 'utils/helpers/dataMutations';
 import { getHoursAndMinutes } from 'utils/helpers/functions';
 
 interface Props {
@@ -21,7 +21,7 @@ const TypeSelection: React.FC<Props> = ({poolData,user}) => {
     const poolBalances = poolData.vamms[0].loanPool.poolBalance;
     const trades = poolData.trades;
     const proposals = poolData.proposals;
-    console.log('this is proposals',proposals);
+    console.log('this is proposals',poolData);
     const poolDataForPie = [
         { name: 'Available USDC', value: Number(poolBalances.availableUsdc)/10**6 },
         { name: 'Outstanding Loan USDC', value: Number(poolBalances.outstandingLoanUsdc)/10**6 },
@@ -31,10 +31,7 @@ const TypeSelection: React.FC<Props> = ({poolData,user}) => {
     const lineDataForProposal = getProposalsByAmm(proposals,poolData.vamms[0].loanPool.id);
     const avgProposalTime = getProposalTime(proposals,poolData.vamms[0].loanPool.id);
     const avgSigners = use(getProposalSignersByAmm(poolData.vamms[0].loanPool.id));
-    console.log('this is avg signers',avgSigners);
-    console.log('this is avg proposal time',avgProposalTime);
-
-    console.log('this is lineDataForProposal',lineDataForProposal);
+    const proposalVersusData  = getExecutedAndFailedProposalsByAmm(proposals,poolData.vamms[0].loanPool.id);
     return (
         <div className='flex flex-col justify-center self-center'>
             <div>
@@ -133,7 +130,7 @@ const TypeSelection: React.FC<Props> = ({poolData,user}) => {
                       </div>
                       <div className='text-white text-3xl w-1/2 bg-[rgba(24,24,35,255)]'></div>
                       <div className='bg-slate-800 flex flex-col justify-center rounded-2xl rounded-tl-none text-lg'>
-                          <RechartPie />
+                          <RechartPie dataForPie={proposalVersusData} />
   
                       </div>
                   </div>
