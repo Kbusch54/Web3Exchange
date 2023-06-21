@@ -117,6 +117,10 @@ export const fetchLoanPoolData = cache(async(symbol: string, user: string) => {
               id 
             }
           }
+          theseusDAO{
+            id
+            votingTime
+          }
         }
       }
     `;
