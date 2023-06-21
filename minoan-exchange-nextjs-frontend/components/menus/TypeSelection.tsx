@@ -4,8 +4,9 @@ import SelectType from './options/selectTypeOptions';
 import ReachartLines from '../charts/poolCharts/recharts/RechartLines';
 import RechartPie from '../charts/poolCharts/recharts/RechartPie';
 import { Address } from 'wagmi';
-import { getExecutedAndFailedProposalsByAmm, getProposalSignersByAmm, getProposalTime, getProposalsByAmm, getTardeSidesByAmm, getTradeHistory } from 'utils/helpers/dataMutations';
-import { getHoursAndMinutes } from 'utils/helpers/functions';
+import { avgStakes, getExecutedAndFailedProposalsByAmm, getProposalSignersByAmm, getProposalTime, getProposalsByAmm, getTardeSidesByAmm, getTradeDurationByUser, getTradeHistory } from 'utils/helpers/dataMutations';
+import { getHoursAndMinutes, moneyFormatter } from 'utils/helpers/functions';
+import { fetchStakes } from 'app/lib/graph/stakes';
 
 interface Props {
     poolData: any
@@ -17,6 +18,7 @@ const TypeSelection: React.FC<Props> = ({poolData,user}) => {
     const handleChange = (newType: string) => {
         setType(prevState => newType)
     }
+    const stakingData = use(fetchStakes());
     console.log('this is pool data',poolData)
     const poolBalances = poolData.vamms[0].loanPool.poolBalance;
     const trades = poolData.trades;
@@ -32,6 +34,9 @@ const TypeSelection: React.FC<Props> = ({poolData,user}) => {
     const avgProposalTime = getProposalTime(proposals,poolData.vamms[0].loanPool.id);
     const avgSigners = use(getProposalSignersByAmm(poolData.vamms[0].loanPool.id));
     const proposalVersusData  = getExecutedAndFailedProposalsByAmm(proposals,poolData.vamms[0].loanPool.id);
+    const {duration,avg: avgTradeTime } = getTradeDurationByUser(trades,undefined,undefined,poolData.vamms[0].loanPool.id);
+    // @ts-ignore
+    const {avg:avgStake,avgUserStakes,lastStake} = avgStakes(stakingData.singleStakes,user)
     return (
         <div className='flex flex-col justify-center self-center'>
             <div>
@@ -45,15 +50,15 @@ const TypeSelection: React.FC<Props> = ({poolData,user}) => {
                         </div>
                         <div className='flex flex-row justify-around pt-10'>
                             <div className='flex flex-col text-center border-2 border-blue-800 rounded-t-2xl rounded-b-lg bg-sky-800 m-4 bg-opacity-40 p-4'>
-                                <h1 className=' lg:text-5xl mt-4'>${20}</h1>
+                                <h1 className=' lg:text-5xl mt-4'>{moneyFormatter(avgStake)}</h1>
                                 <h3 className='text-xs md:text-lg'> Avg. Stake</h3>
                             </div>
                             <div className='flex flex-col text-center border-2 border-blue-800 rounded-t-2xl rounded-b-lg bg-sky-800 m-4 bg-opacity-40 p-4'>
-                                <h1 className=' lg:text-5xl mt-4'>${20}</h1>
+                                <h1 className=' lg:text-5xl mt-4'>{moneyFormatter(avgUserStakes)}</h1>
                                 <h3 className='text-xs md:text-lg'> Your Avg Stake</h3>
                             </div>
                             <div className='flex flex-col text-center border-2 border-blue-800 rounded-t-2xl rounded-b-lg bg-sky-800 m-4 bg-opacity-40 p-4'>
-                                <h1 className=' lg:text-5xl mt-4'>${20}</h1>
+                                <h1 className=' lg:text-5xl mt-4'>{moneyFormatter(lastStake)}</h1>
                                 <h3 className='text-xs md:text-lg'> Last Stake</h3>
                             </div>
                         </div>
@@ -82,7 +87,7 @@ const TypeSelection: React.FC<Props> = ({poolData,user}) => {
                             <h3 className='text-xs md:text-lg'>Avg Loan Amt</h3>
                         </div>
                         <div className='flex flex-col text-center border-2 border-blue-800 rounded-t-2xl rounded-b-lg bg-sky-800 m-4 bg-opacity-40 p-4'>
-                            <h1 className=' lg:text-5xl mt-4'>${20}</h1>
+                            <h1 className=' lg:text-5xl mt-4'>{getHoursAndMinutes(avgTradeTime*1000)[0].toString()}</h1>
                             <h3 className='text-xs md:text-lg'>Avg Trading Time</h3>
                         </div>
                         <div className='flex flex-col text-center border-2 border-blue-800 rounded-t-2xl rounded-b-lg bg-sky-800 m-4 bg-opacity-40 p-4'>
