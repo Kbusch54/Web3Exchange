@@ -15,8 +15,6 @@ interface Props {
 const PieBox: React.FC<Props> = ({ userData ,user}) => {
     const [selected, setSelected] = useState(false)
     const [graphType, setGraphType] = useState(0)
-
-    console.log('this is user data', userData);
     // getting user trades
     const investmentData: { name: string; value: number; }[] = [];
     const stakingData: { name: string; value: number; }[] = [];
@@ -40,11 +38,11 @@ const PieBox: React.FC<Props> = ({ userData ,user}) => {
                     ammStakeMap.set(amm, (ammStakeMap.get(amm) ?? 0) + amount)
                 }
     }
-    ammInvestMap.forEach(function(value, key) {
-        investmentData.push({name: key, value: value})
-    })
     ammStakeMap.forEach(function(value, key) {
         stakingData.push({name: key, value: value})
+    })
+    ammInvestMap.forEach(function(value, key) {
+        investmentData.push({name: key, value: value})
     })
   
     return (
