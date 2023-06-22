@@ -97,7 +97,7 @@ const ClosePositionModal: React.FC<Props> = ({ tradeId, user, currentCollateral,
                         <div className='flex flex-row justify-around m-2 '>
                             <p className='text-sm lg:text-lg'>Trade ID</p>
                             <div className='flex-col'>
-                                <p className='text-sm md:text-md lg:text:lg text-sky-100'>{tradeId}</p>
+                                <p className='text-sm md:text-md lg:text:lg text-sky-100'>{tradeId.slice(30,45)}</p>
                                 <hr />
                             </div>
                         </div>
@@ -144,7 +144,7 @@ const ClosePositionModal: React.FC<Props> = ({ tradeId, user, currentCollateral,
                         <button className='px-2 py-1 text-white bg-sky-200 rounded-lg text-sm md:text-md lg:text-lg' onClick={closeModal}>Cancel</button>
                         {payload?(
 
-                            <CloseOutPositionButton  tradeId={tradeId} disabled={false} user={user} payload={payload} />
+                            <CloseOutPositionButton  tradeId={tradeId} disabled={false} user={user} payload={payload} close={closeModal}/>
                             ):(
                                 <div className='px-2 py-1 rounded-lg bg-teal-400 text-white'>
                                     Processing…
