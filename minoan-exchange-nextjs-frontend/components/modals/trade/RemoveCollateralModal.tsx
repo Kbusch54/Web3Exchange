@@ -1,6 +1,5 @@
 'use client';
 import React,{useState,useEffect,useRef} from 'react';
-import ReactDOM from 'react-dom';
 import Modal from 'react-modal';
 import { Address } from 'wagmi';
 import { ethers } from 'ethers';
@@ -94,6 +93,7 @@ const RemoveCollateralModal: React.FC<Props> = ({tradeId,user,minimummarginReq,c
                 style={customStyles}
                 contentLabel="Remove Collateral Modal"
             >
+                
                 <div className='flex flex-col  modal-background opacity-90 gap-y-8 w-[80vw] md:w-auto p-12 md:p-12 text-lg relative'>
                     <button onClick={closeModal} className='text-lg text-white bg-red-500 rounded-full py-[.07rem] px-[.375rem] absolute top-5 right-4'>X</button>
                     <h1 className='text-white text-center text-3xl '>Remove Collateral</h1>
@@ -142,7 +142,7 @@ const RemoveCollateralModal: React.FC<Props> = ({tradeId,user,minimummarginReq,c
                     </div>
                     <div className='flex flex-row justify-evenly gap-x-8'>
                         <button className='px-2 py-1 text-white bg-sky-200 rounded-lg text-sm md:text-md lg:text-lg' onClick={closeModal}>Cancel</button>
-                        <RemoveCollateralButton value={rawValue} tradeId={tradeId} disabled={!check && rawValue < 0} user={user} />
+                        <RemoveCollateralButton value={rawValue} tradeId={tradeId} disabled={!check && rawValue < 0} user={user} close={closeModal} />
                     </div>
                 </div>
             </Modal>
