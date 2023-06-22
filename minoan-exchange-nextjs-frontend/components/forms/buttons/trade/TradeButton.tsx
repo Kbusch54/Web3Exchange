@@ -1,9 +1,13 @@
 'use client';
-import React,{useEffect, useState} from 'react'
+import React,{useEffect, useRef, useState} from 'react'
 import { useOpenPosition } from '../../../../utils/contractWrites/exchange/openPosition';
-// import { Address, useContractWrite } from 'wagmi';
-import { useContractWrite,Address } from 'wagmi'
-import { getPayload } from '../../../../utils/contractWrites/exchange';
+import { useContractWrite,Address, useWaitForTransaction } from 'wagmi'
+import toast from 'react-hot-toast';
+import { addTransaction } from '../helper/database';
+import { getAmmName } from 'utils/helpers/doas';
+import SideSelection from 'components/tables/utils/SideSelection';
+import { moneyFormatter } from 'utils/helpers/functions';
+import EtherscanLogo from 'components/tables/utils/EtherscanLogo';
 
 interface Props {
     leverage: number,
@@ -21,11 +25,9 @@ const TradeButton: React.FC<Props> = ({leverage,collateral,side,user,ammId,disab
     const [loadingStage, setLoadingStage] = useState(false); 
     const [customMessage, setCustomMessage] = useState<string|null>(null);
     const collateralAmount = collateral * 10 ** 6;
-    // const payload = use(getPayload());
-    console.log('payload',payload);
     const {config,error} = useOpenPosition(side,collateralAmount,leverage,ammId, user,payload);
-    console.log('config',config);
     const contractWrite = useContractWrite(config);
+    const isMounted = useRef(true);
     useEffect(() => {
         if (error == null) {
           setErrorWithContractLoad(false);
@@ -33,74 +35,101 @@ const TradeButton: React.FC<Props> = ({leverage,collateral,side,user,ammId,disab
           setErrorWithContractLoad(true);
         }
       }, [error]);
+      const waiting = useWaitForTransaction({hash:contractWrite.data?.hash})
+      useEffect(() => {
+        if (isMounted.current) {
+          if(waiting.isError){
+            setLoadingStage((prev) => false);
+            setErrorWithContractLoad((prev) => true);
+            toast.error(`Error With Transaction ${waiting.error}`, {  duration: 6000 ,position:'top-right'});
+            console.log('err',waiting.error);
+            isMounted.current = false;
+            setTimeout(() => {
+              contractWrite.reset();
+              isMounted.current = true;
+            }, 10000);
+          }else if(waiting.isSuccess && waiting.data){
+            setApproved(prev=>true)
+            setLoadingStage((prev) => false);
+            isMounted.current = false;
+            toast.custom((t) => (
+              <div className='bg-slate-800 border-2 border-amber-500 px-24 py-2 rounded-3xl flex flex-col justify-center text-center gap-y-4'>
+                <div className="text-3xl text-amber-400">Opened Trade</div>
+                <div className="flex flex-row justify-around">
+                  <p className='bg-amber-400 p-3 rounded-2xl text-xl text-white'>{ammId.toUpperCase()}</p>
+                  <div className='bg-amber-400 p-3 rounded-2xl text-xl text-white'>
+                  <SideSelection side={side}  />
+                  </div>
+                </div>
+                <div className="flex flex-col justify-between mt-4 bg-amber-400 rounded-3xl">
+                  <p className='text-white text-lg'> Collateral ${moneyFormatter(collateralAmount)}</p>
+                  <p className='text-white text-lg'>Leverage {leverage}X</p>
+              </div>
+              <EtherscanLogo txHash={waiting.data?waiting.data.transactionHash:''}/>
+              </div>
+            ), {
+              duration: 10000,
+              position: 'top-right',
+            });
+            const date = new Date().toISOString().toLocaleString();
+            addTransaction(waiting.data.transactionHash,user,date,'Opened Trade','trade').then((res)=>{
+              console.log('res added transaction',res);
+            })
+            setTimeout(() => {
+              setApproved(prev=>false)
+              contractWrite.reset();
+              isMounted.current = true;
+            }, 10000);
+              
+          }
+      }
+        return () => {
+        }
+      }, [waiting])
+ 
       //@ts-ignore
       const handleWrite = async (e) => {
         e.preventDefault();
         setLoadingStage((prev) => true);
         //@ts-ignore
-         await contractWrite.writeAsync()
-         //@ts-ignore
-         .then((con: { wait: (arg0: number) => Promise<any>; hash: any; }) => {
-            con.wait(1).then((res) => {
-              if (contractWrite.isSuccess || res.status == 1) {
-                //success
-                console.log(res.transactionHash); contractWrite.reset();
-                setLoadingStage((prev) => false);
-                //custom message for 3 seconds then reset
-                setCustomMessage('Trade Successful');
-                setTimeout(() => {
-                  setCustomMessage(null);
-                }
-                , 3000);
-              } else if (
-                contractWrite.status == "idle" ||
-                contractWrite.status == "error" ||
-                contractWrite.isIdle == true ||
-                res.status == 0
-              ) {
-                console.log("error see traNSACITON HASH", con.hash);
-                console.log(contractWrite?.error?.message);
-              } else {
-                console.log("error see traNSACITON HASH", con.hash);
-                console.log(contractWrite?.error?.message);
-              }
-            });
+         await contractWrite.writeAsync().then((res) => {
           })
-          .catch((err: any) => {
-            
-            if(err.message.includes('User rejected request')){
-              console.log('user rejected');
+          .catch((err) => {
+            console.log('err',err);
+            setLoadingStage((prev) => false);
+            setErrorWithContractLoad((prev) => true);
+            toast.error(`Error With Transaction ${err.details}`, {  duration: 6000 ,position:'top-right'});
+            setErrorWithContractLoad((prev) => false);
+            setCustomMessage(err.details);
+            setTimeout(() => {
               contractWrite.reset();
-              setLoadingStage((prev) => false);
-              //error isContractError for 3 seconds then reset
-              setErrorWithContractLoad(true);
-              setCustomMessage('User rejected request');
-              setTimeout(() => {
-                setErrorWithContractLoad(false);
-                setCustomMessage(null);
-              }
-              , 3000);
-            };
-            console.log("didnt event fire", err);
-            console.log('message',err.message);
+              setCustomMessage(null);
+            }, 10000);
           });
-      };
+         
+        };
       if (contractWrite.isLoading || loadingStage)
         return (
           <div className="px-2 py-1 rounded-2xl mt-4 font-extrabold bg-teal-400 text-white">
             Processing…
           </div>
         );
-      if (errorWithContractLoad)
-        return (
-          <div className="px-2 py-1 rounded-2xl  mt-4 font-extrabold bg-red-600 text-white animate-pulse">
-            {customMessage? (
-              <p>{customMessage}</p>
-            ):(
-              <p>Error With current transaciton…</p>
-            )}
-          </div>
-        );
+        if (errorWithContractLoad)
+      return (
+        <div className="px-2 py-1 rounded-2xl  mt-4 font-extrabold bg-red-600 text-white animate-pulse">
+          {customMessage? (
+            <p>{customMessage}</p>
+          ):(
+            <p>Error With current transaciton…</p>
+          )}
+        </div>
+      );
+      if (approved)
+          return (
+            <div className="px-2 py-1 rounded-2xl  mt-4 font-extrabold bg-sky-600 text-white animate-pulse">
+              Openend Trade Successfully
+            </div>
+          );
     return (
         <div className='bg-amber-400 px-2 py-1 rounded-2xl text-white mt-4 hover:scale-125'>
             <button disabled={disabled} onClick={handleWrite} className="">{customMessage?customMessage:'Trade'}</button>
