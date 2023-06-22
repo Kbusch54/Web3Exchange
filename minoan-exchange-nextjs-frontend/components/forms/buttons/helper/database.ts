@@ -14,8 +14,6 @@ export const getTransactions = cache(async (user: string) => {
             .select()
             .ilike('user', user)
             .order('timestamp', { ascending: false })
-            .range(0, 5)
-            console.log('data',data);
-            console.log('err',error);
+            .range(0, 4)
             return data;
     });
