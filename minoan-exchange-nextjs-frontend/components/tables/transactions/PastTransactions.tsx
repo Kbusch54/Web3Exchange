@@ -10,12 +10,14 @@ interface Props {
 const PastTransactions: React.FC<Props> = ({ user }) => {
     const dbData = use(getTransactions(user))
     const typeClass = (type: string) => {
-        if (type == "vault") {
+        if (type == "pool") {
             return 'font-extrabold text-yellow-300 bg-yellow-200  shadow-xl shadow-yellow-200 mb-1'
         } else if (type == "trade") {
             return 'font-extrabold text-sky-300 bg-sky-200  shadow-xl shadow-sky-200 mb-1'
-        } else {
+        } else if(type == 'vault'){
             return 'font-extrabold text-green-300 bg-green-200  shadow-xl shadow-green-200 mb-1'
+        }else{
+            return 'font-extrabold text-amber-400 bg-amber-300  shadow-xl shadow-amber-300 mb-1'
         }
     }
     if (dbData) {
