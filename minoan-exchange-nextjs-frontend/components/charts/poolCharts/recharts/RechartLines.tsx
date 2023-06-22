@@ -38,7 +38,7 @@ function CustomTooltip({ active, payload, label,type }) {
          <h4>{formattedDate}</h4> 
          {
            payload.map((item:any,index:number)=>{
-             return <p>{type=='time'?getHoursAndMinutes(item.value)[0].toString() :item.value} {convertCamelCaseToTitle(item.dataKey)}</p>
+             return <p key={item}>{type=='time'?getHoursAndMinutes(item.value)[0].toString() :item.value} {convertCamelCaseToTitle(item.dataKey)}</p>
            })
           }    
          </div>
