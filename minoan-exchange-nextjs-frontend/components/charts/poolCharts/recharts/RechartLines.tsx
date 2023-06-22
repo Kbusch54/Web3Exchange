@@ -61,7 +61,7 @@ const ReachartLines: React.FC<Props> = ({height,lineData,type}) => {
           {
             keyNames.map((keyName,index)=>{
               if(index>0 && index<keyNames.length){
-                return <Area dataKey={keyName} stroke={COLORS[index]} fill="url(#color)"  activeDot={{ r: 8 }} />
+                return <Area key={keyName} dataKey={keyName} stroke={COLORS[index]} fill="url(#color)"  activeDot={{ r: 8 }} />
               }
             })
           }
