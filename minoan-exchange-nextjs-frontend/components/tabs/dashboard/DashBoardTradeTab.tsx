@@ -12,8 +12,9 @@ import { Address } from "wagmi";
 
 interface Props {
   user: Address;
+  vaultBal: number;
 }
-export default function DashBoardTradeTab({user}:Props) {
+export default function DashBoardTradeTab({user,vaultBal}:Props) {
   const [value, setValue] = React.useState("1");
 
   const handleChange = (event: React.SyntheticEvent, newValue: string) => {
@@ -35,10 +36,10 @@ export default function DashBoardTradeTab({user}:Props) {
           </TabList>
         </Box>
         <TabPanel value="1">
-          <AllTrades user={user} userAvailableBalance={0} global={false} active={true}   />
+          <AllTrades user={user} userAvailableBalance={vaultBal} global={false} active={true}   />
         </TabPanel>
         <TabPanel value="2">
-            <AllTrades user={user} userAvailableBalance={0} global={false} active={false}   />
+            <AllTrades user={user} userAvailableBalance={vaultBal} global={false} active={false}   />
         </TabPanel>
       </TabContext>
     </Box>
