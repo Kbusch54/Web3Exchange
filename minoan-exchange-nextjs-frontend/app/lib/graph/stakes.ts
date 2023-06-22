@@ -32,6 +32,12 @@ export const fetchStakes = cache(async function getStakes() {
       usdcUnstaked
       timeStamp
     }
+    stakes{
+      totalStaked
+        ammPool{
+          id
+        }
+    }
   }
 `;
 
