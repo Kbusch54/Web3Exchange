@@ -103,9 +103,9 @@ const RechartPie: React.FC<Props> = ({dataForPie,toolTipLabel}) => {
             onMouseEnter={onPieEnter}
             >
                {data.map((entry, index) => (
-                <>
+         
            <Cell
-           key={`cell-${index}`}
+           key={`cell-${entry}`}
            fill={COLORS[index % COLORS.length]}
            stroke='rgb(255 255 235)'
            style={{
@@ -114,7 +114,6 @@ const RechartPie: React.FC<Props> = ({dataForPie,toolTipLabel}) => {
              stroke: COLORS[index % COLORS.length]
             }}
             />
-            </>
             
             ))}
             {/* <Label value={`${data[activeIndex].name}`}  className='text-white text-2xl absolute top-1/2 left-1/3'/> */}
