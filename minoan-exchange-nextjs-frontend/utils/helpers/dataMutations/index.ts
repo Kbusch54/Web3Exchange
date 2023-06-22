@@ -1,5 +1,5 @@
 import { Address } from "wagmi";
-import { getAmmName, getAridneFromAmm } from "../doas";
+import { getAmmName, getAridneFromAmm, getAridneName } from "../doas";
 import { getAllProposals } from "app/lib/supabase/allProposals";
 import { cache } from "react";
 
@@ -196,3 +196,31 @@ export const getExecutedAndFailedProposalsByAmm = (proposals: any, amm?:Address,
         return data;
 
     }
+export const proposalsExecutedByAmm = cache(async() => {
+    const data:{name:string,proposals:number,executed:number}[] = [];
+    const proposals = await getAllProposals();
+    const amms = ['Tesla','Google','Meta','Theseus'];
+    const ammmap = new Map<string,{executed:number,proposals:number}>();
+    proposals.data?.forEach((proposal:any) => {
+        let executed = 0;
+        let proposals=0
+        if(ammmap.has(proposal.contractAddress)){
+            // @ts-ignore
+            executed = ammmap.get(proposal.contractAddress.toLowerCase()).executed;
+            // @ts-ignore
+            proposals = ammmap.get(proposal.contractAddress.toLowerCase()).proposals;
+        }else{
+            ammmap.set(proposal.contractAddress.toLowerCase(),{executed:0,proposals:0});
+        }
+        if(proposal.executor != null ||proposal.isProposalPassed == true ) executed++;
+        proposals++;
+        ammmap.set(proposal.contractAddress.toLowerCase(),{executed,proposals});
+
+    });
+    ammmap.forEach((value,key)=>{
+        const nameForAmm = getAridneName(key);
+        data.push({name:nameForAmm,proposals:value.proposals,executed:value.executed});
+    })
+    console.log('data',data)
+    return data;
+});
