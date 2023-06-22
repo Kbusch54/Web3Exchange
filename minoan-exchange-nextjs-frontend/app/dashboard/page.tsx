@@ -31,9 +31,11 @@ export default async function page() {
     const user:Address = session.user.name as Address;
     console.log('this is user',session);
     const userData = await getUserData(user);
+    console.log('this is user data',userData)
+    // @ts-ignore
+    const vaultBal = userData.users[0] ? userData.users[0].balances.availableUsdc : 0;
     // @ts-ignore
     const lineData = getTradeHistory(userData.trades,user)
-    console.log('this is line data',lineData);
     // console.log('this is userdtaa',userData);
 
     return (
@@ -54,10 +56,10 @@ export default async function page() {
                 </div>
                 <div className='col-span-12 3xl:col-span-4 mx-12 flex flex-col 2xl:flex-row 2xl:justify-between 3xl:flex-col  '>
                     <Wallet user={user} />
-                    <PastTransactions />
+                    <PastTransactions user={user}/>
                 </div>
             </div>
-            <DashBoardTradeTab user={user}  />
+            <DashBoardTradeTab user={user} vaultBal={vaultBal} />
             {stocks && userData !== null && (
                 <DashboardAssets userData={userData} stockData={stocks} user={user} />
                 
