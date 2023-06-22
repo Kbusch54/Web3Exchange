@@ -1,7 +1,9 @@
 'use client'
-import React, { useEffect,useState } from 'react'
-import {useContractWrite , Address } from 'wagmi';
+import React, { useEffect,useRef,useState } from 'react'
+import {useContractWrite , Address, useWaitForTransaction } from 'wagmi';
 import { useUnStake } from '../../../../utils/contractWrites/staking/unStake';
+import { addTransaction } from '../helper/database';
+import toast from 'react-hot-toast';
 
 interface Props {
     value:number,
@@ -14,62 +16,94 @@ export default  function  StakingButton({value,ammId,user,disabled}:Props)  {
     const [approved, setApproved] = React.useState<boolean>(false);
     const [errorWithContractLoad, setErrorWithContractLoad] = React.useState<boolean>(false);   
     const [loadingStage, setLoadingStage] = useState(false); 
+    const [customMessage, setCustomMessage] = useState<string|null>(null);
     // const amount = parseFloat(value);
     const {config,error} = useUnStake(value,ammId, user);
     const contractWrite = useContractWrite(config);
+    const isMounted = useRef(true);
     useEffect(() => {
         if (error == null) {
           setErrorWithContractLoad(false);
         } else {
           setErrorWithContractLoad(true);
         }
-        if(contractWrite.isLoading){
-            setLoadingStage(true);
-        }else{
-            setLoadingStage(false);
-        }
       }, [error]);
+      const waiting = useWaitForTransaction({hash:contractWrite.data?.hash})
+      useEffect(() => {
+        if (isMounted.current) {
+          if(waiting.isError){
+            setLoadingStage((prev) => false);
+            setErrorWithContractLoad((prev) => true);
+            toast.error(`Error With Transaction ${waiting.error}`, {  duration: 6000 ,position:'top-right'});
+            console.log('err',waiting.error);
+            isMounted.current = false;
+            setTimeout(() => {
+              contractWrite.reset();
+              isMounted.current = true;
+            }, 10000);
+          }else if(waiting.isSuccess && waiting.data){
+            setApproved(prev=>true)
+            setLoadingStage((prev) => false);
+            isMounted.current = false;
+            toast.success(`$${value} Unstaked ${waiting.data.transactionHash}`, {  duration: 6000 ,position:'top-right'});
+            const date = new Date().toISOString().toLocaleString();
+            addTransaction(waiting.data.transactionHash,user,date,'Unstaked','pool').then((res)=>{
+              console.log('res added transaction',res);
+            })
+            setTimeout(() => {
+              setApproved(prev=>false)
+              contractWrite.reset();
+              isMounted.current = true;
+            }, 10000);
+              
+          }
+      }
+        return () => {
+        }
+      }, [waiting])
       //@ts-ignore
       const handleWrite = async (e) => {
         e.preventDefault();
         setLoadingStage((prev) => true);
         //@ts-ignore
-         await contractWrite.writeAsync()
-         .then((con: { wait: (arg0: number) => Promise<any>; hash: any; }) => {
-            con.wait(1).then((res) => {
-              if (contractWrite.isSuccess || res.status == 1) {
-                console.log(res.transactionHash);
-              } else if (
-                contractWrite.status == "idle" ||
-                contractWrite.status == "error" ||
-                contractWrite.isIdle == true ||
-                res.status == 0
-              ) {
-                console.log("error see traNSACITON HASH", con.hash);
-                console.log(contractWrite?.error?.message);
-              } else {
-                console.log("error see traNSACITON HASH", con.hash);
-                console.log(contractWrite?.error?.message);
-              }
-            });
+         await contractWrite.writeAsync().then((res) => {
           })
-          .catch((err: any) => {
-            console.log("didnt event fire", err);
+          .catch((err) => {
+            console.log('err',err);
+            setLoadingStage((prev) => false);
+            setErrorWithContractLoad((prev) => true);
+            toast.error(`Error With Transaction ${err.details}`, {  duration: 6000 ,position:'top-right'});
+            setErrorWithContractLoad((prev) => false);
+            setCustomMessage(err.details);
+            setTimeout(() => {
+              contractWrite.reset();
+              setCustomMessage(null);
+            }, 10000);
           });
-      };
+         
+        };
       if (contractWrite.isLoading || loadingStage)
         return (
           <div className="px-2 py-1 rounded-2xl mt-4 font-extrabold bg-teal-400 text-white">
             Processing…
           </div>
         );
-      if (errorWithContractLoad)
-        return (
-          <div className="px-2 py-1 rounded-2xl  mt-4 font-extrabold bg-red-600 text-white animate-pulse">
-            Error With current transaciton…
-          </div>
-        );
-    
+        if (errorWithContractLoad)
+      return (
+        <div className="px-2 py-1 rounded-2xl  mt-4 font-extrabold bg-red-600 text-white animate-pulse">
+          {customMessage? (
+            <p>{customMessage}</p>
+          ):(
+            <p>Error With current transaciton…</p>
+          )}
+        </div>
+      );
+      if (approved)
+          return (
+            <div className="px-2 py-1 rounded-2xl  mt-4 font-extrabold bg-sky-600 text-white animate-pulse">
+              Unstaked Successfully
+            </div>
+          );
     return (
         <div className='px-2 mx-12 py-1 rounded-2xl text-white mt-4 font-extrabold bg-amber-400 hover:scale-125'>
             <button disabled={disabled} onClick={handleWrite} >UnStake</button>
