@@ -11,6 +11,9 @@ export const getGlobalTradeData = cache(async function fetchGlobalTradeData() {
       user{
         id
       }
+      ammPool{
+        id
+      }
       tradeBalance {
         side
         positionSize
