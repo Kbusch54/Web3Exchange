@@ -1,7 +1,9 @@
 'use client'
-import React, { useEffect,useState } from 'react'
-import {useContractWrite , Address } from 'wagmi';
+import React, { useEffect,useRef,useState } from 'react'
+import {useContractWrite , Address,useWaitForTransaction  } from 'wagmi';
 import { useWithdrawUsdc } from '../../../../utils/contractWrites/exchange/withdraw';
+import { toast } from 'react-hot-toast';
+import { addTransaction } from '../helper/databaseAdd';
 
 interface Props {
     value:number,
@@ -15,6 +17,7 @@ export default  function  WithdrawButton({value,user,disabled}:Props)  {
     const [loadingStage, setLoadingStage] = useState(false); 
     const {config,error} = useWithdrawUsdc(value, user);
     const contractWrite = useContractWrite(config);
+    const isMounted = useRef(true);
     useEffect(() => {
         if (error == null) {
           setErrorWithContractLoad(false);
@@ -22,37 +25,58 @@ export default  function  WithdrawButton({value,user,disabled}:Props)  {
           setErrorWithContractLoad(true);
         }
       }, [error]);
+      const waiting = useWaitForTransaction({hash:contractWrite.data?.hash})
+      useEffect(() => {
+        if (isMounted.current) {
+          if(waiting.isError){
+            setLoadingStage((prev) => false);
+            setErrorWithContractLoad((prev) => true);
+            toast.error(`Error With Transaction ${waiting.error}`, {  duration: 6000 ,position:'top-right'});
+            console.log('err',waiting.error);
+            isMounted.current = false;
+            setTimeout(() => {
+              contractWrite.reset();
+              isMounted.current = true;
+            }, 10000);
+          }else if(waiting.isSuccess && waiting.data){
+            setApproved(prev=>true)
+            setLoadingStage((prev) => false);
+            isMounted.current = false;
+            toast.success(`$${value} Withdrawn ${waiting.data.transactionHash}`, {  duration: 6000 ,position:'top-right'});
+            const date = new Date().toISOString().toLocaleString();
+            addTransaction(waiting.data.transactionHash,user,date,'Withdraw','vault').then((res)=>{
+              console.log('res added transaction',res);
+            })
+            setTimeout(() => {
+              setApproved(prev=>false)
+              contractWrite.reset();
+              isMounted.current = true;
+            }, 10000);
+              
+          }
+      }
+        return () => {
+        }
+      }, [waiting])
       //@ts-ignore
       const handleWrite = async (e) => {
         e.preventDefault();
         setLoadingStage((prev) => true);
         //@ts-ignore
-        // await contractWrite.writeAsync()
-        
-        // console.log('contractWrite',contractWrite);
-         await contractWrite.writeAsync()
-          .then((con: { wait: (arg0: number) => Promise<any>; hash: any; }) => {
-            con.wait(1).then((res) => {
-              if (contractWrite.isSuccess || res.status == 1) {
-                console.log(res.transactionHash);
-              } else if (
-                contractWrite.status == "idle" ||
-                contractWrite.status == "error" ||
-                contractWrite.isIdle == true ||
-                res.status == 0
-              ) {
-                console.log("error see traNSACITON HASH", con.hash);
-                console.log(contractWrite?.error?.message);
-              } else {
-                console.log("error see traNSACITON HASH", con.hash);
-                console.log(contractWrite?.error?.message);
-              }
-            });
+         await contractWrite.writeAsync().then((res) => {
           })
-          .catch((err: any) => {
-            console.log("didnt event fire", err);
+          .catch((err) => {
+            console.log('err',err);
+            setLoadingStage((prev) => false);
+            setErrorWithContractLoad((prev) => true);
+            toast.error(`Error With Transaction ${err.details}`, {  duration: 6000 ,position:'top-right'});
+            setTimeout(() => {
+              setErrorWithContractLoad((prev) => false);
+              contractWrite.reset();
+            }, 10000);
           });
-      };
+         
+        };
       if (contractWrite.isLoading || loadingStage)
         return (
           <div className="px-2 py-1 rounded-2xl mt-4 font-extrabold bg-teal-400 text-white">
@@ -65,6 +89,12 @@ export default  function  WithdrawButton({value,user,disabled}:Props)  {
             Error WIth current transaciton…
           </div>
         );
+      if (approved)
+          return (
+            <div className="px-2 py-1 rounded-2xl  mt-4 font-extrabold bg-green-600 text-white animate-pulse">
+              Withdrawn Successfully
+            </div>
+          );
     
     return (
         <div>
