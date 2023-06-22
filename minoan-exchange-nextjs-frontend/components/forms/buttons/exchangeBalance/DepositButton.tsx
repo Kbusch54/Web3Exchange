@@ -4,7 +4,7 @@ import {useContractWrite , Address, useWaitForTransaction } from 'wagmi';
 import { useDepositUsdc } from '../../../../utils/contractWrites/exchange/deposit';
 import toast from 'react-hot-toast';
 import { redirect } from 'next/navigation';
-import { addTransaction } from '../helper/databaseAdd';
+import { addTransaction } from '../helper/database';
 
 interface Props {
     value:number,

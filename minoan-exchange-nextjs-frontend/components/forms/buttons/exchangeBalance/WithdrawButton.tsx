@@ -3,7 +3,7 @@ import React, { useEffect,useRef,useState } from 'react'
 import {useContractWrite , Address,useWaitForTransaction  } from 'wagmi';
 import { useWithdrawUsdc } from '../../../../utils/contractWrites/exchange/withdraw';
 import { toast } from 'react-hot-toast';
-import { addTransaction } from '../helper/databaseAdd';
+import { addTransaction } from '../helper/database';
 
 interface Props {
     value:number,
