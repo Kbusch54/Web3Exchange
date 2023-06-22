@@ -14,85 +14,8 @@ import { Address } from "wagmi";
 import Ranges from "../../components/theseus/Ranges";
 import ProtocalStats from "../../components/theseus/ProtocalStats";
 import Balances from "../../components/theseus/Balances";
-async function fetchData(user: string, theseusAdd: string) {
-  const query = gql` 
-    query getvamm($user: String!, $theseusAdd: String!) {
-     
-      theseusDAOs{
-        id
-        currentId
-        votingTime
-        maxVotingPower
-        minVotingPower
-        tokenId
-        votesNeededPercentage
-        insuranceFundMin
-        poolToken{
-          tokenId
-          totalSupply
-          tokenBalance(where:{user:$user}){
-              tokensOwnedbByUser
-              totalStaked
-            }
+import { fetchTheseus } from "app/lib/graph/theseusData";
 
-        }
-      }
-      stakes(where:{theseusDAO:$theseusAdd}){
-        totalStaked
-      }
-      vamms {
-        name
-        loanPool {
-          id
-          poolBalance {
-            totalUsdcSupply
-            availableUsdc
-            outstandingLoanUsdc
-          }
-          stakes{
-            totalStaked
-            }
-          poolToken{
-            tokenId
-            totalSupply
-            tokenBalance(where:{user:$user}){
-              tokensOwnedbByUser
-              totalStaked
-            }
-          }
-          loanPoolTheseus{
-            minMMR
-            maxMMR
-            minInterestRate
-            maxInterestRate
-            minTradingFee
-            maxInterestPeriod
-            minInterestPeriod
-            minHoldingsReqPercentage
-            maxHoldingsReqPercentage
-            maxTradingFee
-            minLoan
-            maxLoan
-          }
-        }
-      }
-      users(where:{id:$user}){
-        id
-        balances{
-          availableUsdc
-        }
-      }
-      }
-  `;
-
-
-
-  const endpoint = "https://api.studio.thegraph.com/query/46803/subgraph-minoan/version/latest";
-  const variables = { user: user, theseusAdd: theseusAdd };
-  const data = await request(endpoint, query, variables);
-
-  return data;
-}
 type Props = {};
 
 async function page(props: Props) {
@@ -102,7 +25,7 @@ async function page(props: Props) {
     return redirect(`/auth/signin?callbackUrl=/theseusDao`);
   }
   const user = session.user.name as Address;
-  const data = await fetchData(session.user.name, theseusAdd);
+  const data = await fetchTheseus(session.user.name, theseusAdd);
   //@ts-ignore
   const poolAvailableUsdc = data.users[0]?data.users[0].balances.availableUsdc:0;
   console.log('poolAvaib', poolAvailableUsdc);
@@ -142,7 +65,7 @@ async function page(props: Props) {
         </div>
         <div className="mb-12">
           {/* @ts-ignore */}
-          <DAOPurposals daoAddress={data.theseusDAOs[0] ? data.theseusDAOs[0].id : '0x87ad83DC2F12A14C85D20f178A918a65Edfe1B42'} user={user} tokenId={data.theseusDAOs[0] ? data.theseusDAOs[0].tokenId : 0} isTheseus={true} />
+          <DAOPurposals daoAddress={data.theseusDAOs[0] ? data.theseusDAOs[0].id : '0x831EA4685Fc3b8fF331eB4887070Ba42C15FC8E4'} user={user} tokenId={data.theseusDAOs[0] ? data.theseusDAOs[0].tokenId : 0} isTheseus={true} />
         </div>
       </div>
 
