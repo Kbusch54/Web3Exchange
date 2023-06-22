@@ -12,7 +12,9 @@ export const getTransactions = cache(async (user: string) => {
     const { data, error } = await supabase
             .from('Past Transactions')
             .select()
-            .ilike('user', user);
+            .ilike('user', user)
+            .order('timestamp', { ascending: false })
+            .range(0, 5)
             console.log('data',data);
             console.log('err',error);
             return data;
