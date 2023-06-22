@@ -18,7 +18,6 @@ const PastTransactions: React.FC<Props> = ({ user }) => {
             return 'font-extrabold text-green-300 bg-green-200  shadow-xl shadow-green-200 mb-1'
         }
     }
-    console.log('dbData', dbData);
     if (dbData) {
         return (
             <div className=''>
