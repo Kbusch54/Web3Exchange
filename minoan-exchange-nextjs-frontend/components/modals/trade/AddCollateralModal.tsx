@@ -1,6 +1,5 @@
 'use client';
 import React,{useState,useEffect,useRef} from 'react';
-import ReactDOM from 'react-dom';
 import Modal from 'react-modal';
 import AddCollateralButton from '../../forms/buttons/trade/AddCollateralButton';
 import { Address } from 'wagmi';
@@ -38,8 +37,6 @@ const customStyles = {
 // Modal.setAppElement('#yourAppElement');
 const AddCollateralModal: React.FC<Props> = ({tradeId,user,vaultBalance,currentCollateral}) => {
     const maxAllowed = vaultBalance; //would be  vault balacne
-
-    let subtitle;
     const [modalIsOpen, setIsOpen] = useState(false);
     const [isError, setIsError] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
@@ -134,7 +131,7 @@ const AddCollateralModal: React.FC<Props> = ({tradeId,user,vaultBalance,currentC
                     </div>
                     <div className='flex flex-row justify-evenly gap-x-8'>
                         <button className='px-2 py-1 text-white bg-sky-200 rounded-lg text-sm md:text-md lg:text-lg' onClick={closeModal}>Cancel</button>
-                        <AddCollateralButton value={rawValue} tradeId={tradeId} disabled={!check && rawValue < 0} user={user} />
+                        <AddCollateralButton value={rawValue} tradeId={tradeId} disabled={!check && rawValue < 0} user={user} closeModal={closeModal} />
                     </div>
                 </div>
             </Modal>
