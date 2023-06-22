@@ -274,7 +274,7 @@ const AddLiquidityModal: React.FC<Props> = ({ tradeId, user, vaultBalance, curre
                         <button className='px-2 py-1 text-white bg-sky-200 rounded-lg text-sm md:text-md lg:text-lg' onClick={closeModal}>Cancel</button>
                         {payload && rawValue && check && user && leverageValue?(
 
-                            <AddLiquidityButton payload={payload} value={Number(rawValue)} tradeId={tradeId} disabled={!check && rawValue < 0 && leverageValue < 0} user={user} leverage={leverageValue} />
+                            <AddLiquidityButton payload={payload} value={Number(rawValue)} tradeId={tradeId} disabled={!check && rawValue < 0 && leverageValue < 0} user={user} leverage={leverageValue} close={closeModal} />
                         ):
                         (
                             <button className='px-2 py-1 text-white bg-sky-300 rounded-lg'>Loading...</button>

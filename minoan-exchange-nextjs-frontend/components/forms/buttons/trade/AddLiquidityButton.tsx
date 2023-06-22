@@ -1,10 +1,11 @@
 'use client'
-import React, { useEffect,useState } from 'react'
+import React, { useEffect,useRef,useState } from 'react'
 import {useContractWrite , Address, useWaitForTransaction } from 'wagmi';
 import { useAddLiquidity } from '../../../../utils/contractWrites/exchange/addLiquidity';
-import { getPayload } from '../../../../utils/contractWrites/exchange';
-import { redirect } from 'next/navigation';
 import toast from 'react-hot-toast';
+import EtherscanLogo from 'components/tables/utils/EtherscanLogo';
+import { moneyFormatter } from 'utils/helpers/functions';
+import { addTransaction } from '../helper/database';
 
 interface Props {
     value:number,
@@ -13,111 +14,102 @@ interface Props {
     leverage:number,
     disabled:boolean
     payload:string
+    close:()=>void
 }
 
-export default  function  AddLiquidityButton({value,user,disabled,tradeId,leverage,payload}:Props)  {
+export default  function  AddLiquidityButton({value,user,disabled,tradeId,leverage,payload,close}:Props)  {
   const [approved, setApproved] = React.useState<boolean>(false);
   const [errorWithContractLoad, setErrorWithContractLoad] = React.useState<boolean>(false);    
   const [loadingStage, setLoadingStage] = useState(false); 
   const [customMessage, setCustomMessage] = useState<string|null>(null);
     const {config,error} = useAddLiquidity( user,tradeId,leverage,value,payload);
-    console.log('payload',payload)
-    console.log('config',config); 
     const contractWrite = useContractWrite(config);
-    const { data, isError, isLoading,isSuccess } = useWaitForTransaction({
-      hash: contractWrite.data?.hash,
-    })
+    const isMounted = useRef(true);
     useEffect(() => {
         if (error == null) {
           setErrorWithContractLoad(false);
         } else {
           setErrorWithContractLoad(true);
         }
-        if(contractWrite.isLoading){
-            setLoadingStage(true);
-        }else{
-            setLoadingStage(false);
-        }
       }, [error]);
+      const waiting = useWaitForTransaction({hash:contractWrite.data?.hash})
       useEffect(() => {
-        if(data){
-         
-          if ( data.status == 'success'|| contractWrite.status == 'success') {
-            console.log(data.transactionHash);
-            contractWrite.reset();
+        if (isMounted.current) {
+          if(waiting.isError){
             setLoadingStage((prev) => false);
-            setApproved(prev=>true)
-            //custom message for 3 seconds then reset
-            
-            toast.success(`$${value} Added liquidity ${data.transactionHash}`, {  duration: 6000 ,position:'top-right'});
-            setCustomMessage('You have staked');
+            setErrorWithContractLoad((prev) => true);
+            toast.error(`Error With Transaction ${waiting.error}`, {  duration: 6000 ,position:'top-right'});
+            console.log('err',waiting.error);
+            isMounted.current = false;
             setTimeout(() => {
-              setCustomMessage(null);
+              contractWrite.reset();
+              isMounted.current = true;
+            }, 10000);
+          }else if(waiting.isSuccess && waiting.data){
+            setApproved(prev=>true)
+            setLoadingStage((prev) => false);
+            isMounted.current = false;
+            toast.custom((t) => (
+              <div className='bg-slate-800 border-2 border-amber-500 px-24 py-2 rounded-3xl flex flex-col justify-center text-center gap-y-4'>
+                <div className="text-3xl text-amber-400">Added Liquidity</div>
+                <div className="flex flex-row justify-around">
+                </div>
+                <div className="flex flex-col justify-between mt-4 bg-amber-400 rounded-3xl">
+                  <p className='text-white text-lg'>Collateral ${moneyFormatter(value)}</p>
+                  <p className='text-white text-lg'>Leverage {leverage}X</p>
+              </div>
+              <EtherscanLogo txHash={waiting.data?waiting.data.transactionHash:''}/>
+              </div>
+            ), {
+              duration: 6000,
+              position: 'top-right',
+            });
+            const date = new Date().toISOString().toLocaleString();
+            addTransaction(waiting.data.transactionHash,user,date,'Add Liquidity','trade').then((res)=>{
+              console.log('res added transaction',res);
+            })
+            setTimeout(() => {
               setApproved(prev=>false)
               contractWrite.reset();
-              redirect('/pools/TSLA');
-            }
-            , 8000);
+              isMounted.current = true;
+              close()
+            }, 6000);
+              
           }
-              } 
-              else if (
-                contractWrite.status == "idle" ||
-                contractWrite.status == "error" ||
-                contractWrite.isIdle == true 
-              ) {
-                console.log("error see traNSACITON HASH", error);
-                console.log(contractWrite?.error?.message);
-              } else {
-                console.log("error see traNSACITON HASH", isError);
-                console.log(contractWrite?.error?.message);
-              }
-            },[data]);
-              
-              
+      }
+        return () => {
+        }
+      }, [waiting])
+ 
       //@ts-ignore
       const handleWrite = async (e) => {
         e.preventDefault();
         setLoadingStage((prev) => true);
         //@ts-ignore
-        // await contractWrite.writeAsync()
-        
-        // console.log('contractWrite',contractWrite);
-         await contractWrite.writeAsync().then(con=>{
-
-            }).catch((err: any) => {
-            console.log("didnt event fire", err);
-            if(err.message.includes('User rejected request')){
-              console.log('user rejected');
+         await contractWrite.writeAsync().then((res) => {
+          })
+          .catch((err) => {
+            console.log('err',err);
+            setLoadingStage((prev) => false);
+            setErrorWithContractLoad((prev) => true);
+            toast.error(`Error With Transaction ${err.details}`, {  duration: 6000 ,position:'top-right'});
+            setErrorWithContractLoad((prev) => false);
+            setCustomMessage(err.details);
+            setTimeout(() => {
               contractWrite.reset();
-              setLoadingStage((prev) => false);
-              //error isContractError for 3 seconds then reset
-              setErrorWithContractLoad(true);
-              setCustomMessage('User rejected request');
-              setTimeout(() => {
-                setErrorWithContractLoad(false);
-                setCustomMessage(null);
-              }
-              , 3000);
-            };
-            console.log("didnt event fire", err);
-            console.log('message',err.message);
+              setCustomMessage(null);
+              close()
+            }, 10000);
           });
-      };
+         
+        };
       if (contractWrite.isLoading || loadingStage)
-      return (
-        <div className="px-2 py-1 rounded-2xl mt-4 font-extrabold bg-teal-400 text-white">
-          Processing…
-        </div>
-      );
-      if(approved){
         return (
-          <div className="px-2 py-1 rounded-2xl  mt-4 font-extrabold bg-blue-600 text-white animate-pulse">
-            <p>{customMessage}</p>
+          <div className="px-2 py-1 rounded-2xl mt-4 font-extrabold bg-teal-400 text-white">
+            Processing…
           </div>
-
-        )
-      }
-    if (errorWithContractLoad)
+        );
+        if (errorWithContractLoad)
       return (
         <div className="px-2 py-1 rounded-2xl  mt-4 font-extrabold bg-red-600 text-white animate-pulse">
           {customMessage? (
@@ -127,8 +119,12 @@ export default  function  AddLiquidityButton({value,user,disabled,tradeId,levera
           )}
         </div>
       );
-    
-    
+      if (approved)
+          return (
+            <div className="px-2 py-1 rounded-2xl  mt-4 font-extrabold bg-sky-600 text-white animate-pulse">
+              Added Liquidity Successfully
+            </div>
+          );
     return (
         <div>
             <button disabled={disabled} onClick={handleWrite} className='px-2 py-1 text-white bg-sky-800 rounded-lg'>Add Liquidity</button>
