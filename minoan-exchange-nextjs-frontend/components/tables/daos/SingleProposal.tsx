@@ -7,6 +7,7 @@ import DAOButtonSelection from '../utils/DAOButtonSelection';
 import Copy from '../../utils/Copy';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import EtherscanLogo from '../utils/EtherscanLogo';
 
 interface Props {
     index: number;
@@ -140,11 +141,15 @@ const SingleProposal: React.FC<Props> = ({ proposal, dbData, index, user, isHold
                     <div className='grid grid-cols-2  lg:grid-cols-3 justify-evenly text-center border border-amber-400/40 rounded-lg gap-y-4 bg-slate-700'>
                         <div className='text-white text-lg flex flex-row border justify-evenly text-center border-white/10'>
                             <p>Proposer:</p>
+                        <Copy toCopy={proposal.proposer}>
                             <p>{proposal.proposer.slice(0, 10)}</p>
+                            </Copy>
                         </div>
                         <div className='text-white text-lg flex flex-row border justify-evenly text-center border-white/10'>
                             <p>To:</p>
+                            <Copy toCopy={proposal.to}>
                             <p>{proposal.to.slice(0, 10)}</p>
+                            </Copy>
                         </div>
                         <div className='text-white text-lg flex flex-row border justify-evenly text-center border-white/10'>
                             <p># of Signers:</p>
@@ -152,7 +157,7 @@ const SingleProposal: React.FC<Props> = ({ proposal, dbData, index, user, isHold
                         </div>
                         <div className='text-white text-lg flex flex-row border justify-evenly text-center border-white/10'>
                             <p>Created:</p>
-                            <p>{proposal.proposedAt}</p>
+                            <p>{new Date(proposal.proposedAt.toString().length<11?proposal.proposedAt*1000:proposal.proposedAt ).toLocaleDateString()}</p>
                         </div>
                         <div className='text-white text-sm lg:text-lg flex flex-row border justify-evenly text-center border-white/10 col-span-2'>
                             <p className='text-sm lg:text-lg'>TransactionHash:</p>
@@ -161,10 +166,20 @@ const SingleProposal: React.FC<Props> = ({ proposal, dbData, index, user, isHold
                             </Copy>
                         </div>
                         {dbData && (
+                            <>
                             <div className='text-white text-md lg:text-lg flex flex-row border gap-x-4 text-left m-1 border-white/10 col-span-2 lg:col-span-3'>
                                 <p className='ml-6'>Description:</p>
                                 <p className='overflow-auto'>{dbData.description}</p>
-                            </div>)}
+                            </div>
+                            { type != 1 && dbData.etherscanTransactionHash&&(
+                            <div className='text-white text-lg flex flex-row border justify-evenly text-center border-white/10'>
+                            <p>Proposed Hash:</p>
+                                <EtherscanLogo txHash={dbData.etherscanTransactionHash}/>
+                            
+                        </div>
+                            )}
+                        </>
+                            )}
                             {type === 1&&(
                                 <>
                                 <div className='text-white text-lg flex flex-row border justify-evenly text-center border-white/10'>
@@ -176,8 +191,18 @@ const SingleProposal: React.FC<Props> = ({ proposal, dbData, index, user, isHold
                                 
                             </div>
                             <div className='text-white text-lg flex flex-row border justify-evenly text-center border-white/10'>
+                                <p>Proposed Hash:</p>
+                                {dbData && dbData?.etherscanTransactionHash?(
+                                    <EtherscanLogo txHash={dbData.etherscanTransactionHash}/>
+                                ):'0x0'}
+                                
+                            </div>
+                            <div className='text-white text-lg flex flex-row border justify-evenly text-center border-white/10'>
                                 <p>Result:</p>
-                                <p>{dbData? dbData?.result?  dbData.result?.slice(0,10):'0x0':'0x0'}</p>
+                                {dbData && dbData?.result?(
+                                    <EtherscanLogo txHash={dbData.result}/>
+                                ):'0x0'}
+                                
                             </div>
                                 </>
                             )}
