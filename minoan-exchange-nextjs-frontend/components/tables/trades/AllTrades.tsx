@@ -7,6 +7,7 @@ import { ethers } from 'ethers';
 import SingleGlobalTrade from './SingleGlobalTrade';
 import { getAmmId } from '../../../utils/helpers/doas';
 import { getGlobalTradeData } from '../../../app/lib/graph/globalTradeData';
+import { useRouter } from 'next/navigation';
 
 interface Props {
     user: Address;
@@ -115,8 +116,11 @@ async function fetchGlobalTradeData() {
 }
 
 
-
 const AllTrades: React.FC<Props> = ({ user, userAvailableBalance, active = true, amm, global=false }) => {
+    const router = useRouter();
+    const refetch = () =>{
+        router.refresh();
+    }
     const getInterestPayment = (loanAmt: number, interestRate: number, now: number, lastInterestPayed: number, interestPeriod: number) => {
         return Math.floor((now - lastInterestPayed) / interestPeriod) * (loanAmt * interestRate / 10 ** 6);
     }
@@ -211,13 +215,13 @@ const AllTrades: React.FC<Props> = ({ user, userAvailableBalance, active = true,
                 {rows.map((row, index) => {
                     if (active && row.isActive && !row.liquidated && String(row.userAdd).toLowerCase() === String(user).toLowerCase()) {
                         if(amm? (String(row.vamm).toLowerCase() === String(ammId).toLowerCase()):true){
-                            return <SingleTrade key={row.id} row={row} index={index} user={user} userAvailableBalance={userAvailableBalance} />;
+                            return <SingleTrade key={row.id} row={row} index={index} user={user} userAvailableBalance={userAvailableBalance} refetch={refetch}/>;
                         }else{
                             return null;
                         }
                     } else if (!active && (!row.isActive || row.liquidated) &&String(row.userAdd).toLowerCase() === String(user).toLowerCase()) {
                         if(amm? (String(row.vamm).toLowerCase() === String(ammId).toLowerCase()):true){
-                            return <SingleTrade key={row.id} row={row} index={index} user={user} userAvailableBalance={userAvailableBalance} />;
+                            return <SingleTrade key={row.id} row={row} index={index} user={user} userAvailableBalance={userAvailableBalance} refetch={refetch} />;
                         }else{
                             return null;
                         }

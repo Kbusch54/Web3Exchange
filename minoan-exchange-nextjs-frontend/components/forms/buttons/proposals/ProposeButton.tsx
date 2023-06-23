@@ -7,7 +7,7 @@ import { ethers } from 'ethers';
 import { getTransactionHash } from '../../../../utils/helpers/doas';
 import { theseus } from '../../../../utils/address';
 import toast from 'react-hot-toast';
-import { redirect } from 'next/navigation';
+import { redirect, useRouter } from 'next/navigation';
 import { addProposal, upsertProposal } from '../helper/database';
 
 interface Props {
@@ -31,7 +31,7 @@ export default function ProposeButton  ({ user, disabled, callData, addressTo, d
   const [transactionHash, setTransactionHash] = useState<string|null>(null);   
   const [customMessage, setCustomMessage] = useState<string|null>(null);
   const isMounted = useRef(true);
-
+  const router = useRouter();
   
   const { config, error } = useNewProposal(addressTo,callData, contractAddress, user,option);
   const { connector } = useAccount()
@@ -91,6 +91,7 @@ const signature = await provider.send("personal_sign", [transactionHash, user])
             setTimeout(() => {
               setApproved(prev=>false)
               contractWrite.reset();
+              router.refresh();
               close();
             }, 10000);
             })

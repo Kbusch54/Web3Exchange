@@ -79,6 +79,7 @@ const AddCollateralModal: React.FC<Props> = ({tradeId,user,vaultBalance,currentC
               }
        }
     };
+    
     return (
          <div>
             <button className='lg:px-2 py-1 bg-green-500 rounded-xl hover:scale-125' onClick={openModal}>Add Collateral</button>

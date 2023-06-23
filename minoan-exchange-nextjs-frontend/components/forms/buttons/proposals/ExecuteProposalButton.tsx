@@ -4,6 +4,7 @@ import { useContractWrite, Address, useWaitForTransaction } from 'wagmi';
 import { useExecuteProposal } from '../../../../utils/contractWrites/daos/ariadne/execute';
 import toast from 'react-hot-toast';
 import { executedProposal } from '../helper/database';
+import { useRouter } from 'next/navigation';
 
 interface Props {
   callData: string,
@@ -23,7 +24,7 @@ export default function ExecuteProposalButton({ user, disabled, callData, nonce,
   const isMounted = useRef(true);
   const { config, error } = useExecuteProposal(Number(nonce), addressTo, callData, signatures, ariadneAdd, user);
 
-
+  const router = useRouter();
   const contractWrite = useContractWrite(config);
   useEffect(() => {
     if (error == null) {
@@ -57,6 +58,7 @@ export default function ExecuteProposalButton({ user, disabled, callData, nonce,
         setTimeout(() => {
           contractWrite.reset();
           isMounted.current = true;
+          router.refresh();
         }, 8000);
 
       }

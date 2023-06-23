@@ -10,9 +10,10 @@ interface Props {
     ammId:string,
     user:Address
     disabled:boolean
+    handleAction:()=>void
 }
 
-export default  function  StakingButton({value,ammId,user,disabled}:Props)  {
+export default  function  StakingButton({value,ammId,user,disabled,handleAction}:Props)  {
     const [approved, setApproved] = React.useState<boolean>(false);
     const [errorWithContractLoad, setErrorWithContractLoad] = React.useState<boolean>(false);   
     const [loadingStage, setLoadingStage] = useState(false); 
@@ -45,7 +46,7 @@ export default  function  StakingButton({value,ammId,user,disabled}:Props)  {
             setApproved(prev=>true)
             setLoadingStage((prev) => false);
             isMounted.current = false;
-            toast.success(`$${value} Unstaked ${waiting.data.transactionHash}`, {  duration: 6000 ,position:'top-right'});
+            toast.success(`Unstaked ${value/10**8} tokens ${waiting.data.transactionHash}`, {  duration: 6000 ,position:'top-right'});
             const date = new Date().toISOString().toLocaleString();
             addTransaction(waiting.data.transactionHash,user,date,'Unstaked','pool').then((res)=>{
               console.log('res added transaction',res);
@@ -54,6 +55,7 @@ export default  function  StakingButton({value,ammId,user,disabled}:Props)  {
               setApproved(prev=>false)
               contractWrite.reset();
               isMounted.current = true;
+              handleAction();
             }, 10000);
               
           }

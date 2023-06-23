@@ -14,10 +14,11 @@ interface Props {
   availableUsdc: number;
   name: string;
   user:Address;
+  handleAction:()=>void;
 }
 
 
-export default function StakingForm({poolToken,totalUSDCSupply,availableUsdc,name,user}: Props) {
+export default function StakingForm({poolToken,totalUSDCSupply,availableUsdc,name,user,handleAction}: Props) {
   const [errorMessage, setErrorMessage] = useState("");
   const [className, setClassName] = useState("");
   const [isError, setIsError] = useState<boolean>(true);
@@ -99,7 +100,7 @@ export default function StakingForm({poolToken,totalUSDCSupply,availableUsdc,nam
       setErrorMessage("");
       setIsError(error=>false);
       setRawDecimal(prevState=>Number(value));
-      if(estTokensRef.current) estTokensRef.current.value = (calcTokenAmt(Number(value))/10**18).toFixed(10);
+      if(estTokensRef.current) estTokensRef.current.value = (calcTokenAmt(Number(value))/10**8).toFixed(10);
     }
   };
 
@@ -110,6 +111,12 @@ export default function StakingForm({poolToken,totalUSDCSupply,availableUsdc,nam
       setIsError(error=>false);
     }
   }, [totalUsdc, totalSupply,rawDecimal]);
+  const clear = () => {
+    if (usdcRef.current) usdcRef.current.value = "";
+    if(decimalsRef.current) decimalsRef.current.value = "";
+    if(estTokensRef.current) estTokensRef.current.value = "";
+    handleAction();
+    }
 
 
   return (
@@ -156,7 +163,7 @@ export default function StakingForm({poolToken,totalUSDCSupply,availableUsdc,nam
           <button className={`px-4 py-2 ${isError?'bg-red-500/50 ' :'bg-amber-400 hover:animate-pulse'} text-white rounded-3xl mt-4 `} disabled={isError}>Stake</button>
       ):
       (
-        <StakingButton disabled={isError} ammId={name} value={rawDecimal} user={user}   />
+        <StakingButton disabled={isError} ammId={name} value={rawDecimal} user={user}  handleAction={clear} />
       )}
     </form>
   );

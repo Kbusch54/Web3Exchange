@@ -4,7 +4,6 @@ import { useOpenPosition } from '../../../../utils/contractWrites/exchange/openP
 import { useContractWrite,Address, useWaitForTransaction } from 'wagmi'
 import toast from 'react-hot-toast';
 import { addTransaction } from '../helper/database';
-import { getAmmName } from 'utils/helpers/doas';
 import SideSelection from 'components/tables/utils/SideSelection';
 import { moneyFormatter } from 'utils/helpers/functions';
 import EtherscanLogo from 'components/tables/utils/EtherscanLogo';
@@ -17,9 +16,10 @@ interface Props {
     user: Address
     disabled:boolean
     payload:string
+    clearRefresh:()=>void
 }
 
-const TradeButton: React.FC<Props> = ({leverage,collateral,side,user,ammId,disabled,payload}) => {
+const TradeButton: React.FC<Props> = ({leverage,collateral,side,user,ammId,disabled,payload,clearRefresh}) => {
     const [approved, setApproved] = React.useState<boolean>(false);
     const [errorWithContractLoad, setErrorWithContractLoad] = React.useState<boolean>(false);   
     const [loadingStage, setLoadingStage] = useState(false); 
@@ -79,6 +79,7 @@ const TradeButton: React.FC<Props> = ({leverage,collateral,side,user,ammId,disab
               setApproved(prev=>false)
               contractWrite.reset();
               isMounted.current = true;
+              clearRefresh();
             }, 10000);
               
           }

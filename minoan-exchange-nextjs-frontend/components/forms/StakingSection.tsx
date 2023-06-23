@@ -4,6 +4,7 @@ import StakingForm from './StakingForm'
 import UnStakingForm from './UnStakingForm';
 import { Address } from 'wagmi';
 import { Switch } from '@mui/material';
+import { useRouter } from 'next/navigation';
 
 interface Props {
     availableUsdc: number;
@@ -18,12 +19,16 @@ interface Props {
 
 const StakingSection: React.FC<Props> = ({ availableUsdc, poolToken, user, name, poolBalance }) => {
     const [mode, setMode] = useState<string>("staking");
+    const router = useRouter();
     const handleSwitch = () => {
         if (mode === "staking") {
             setMode("unstaking");
         } else {
             setMode("staking");
         }
+    }
+    const handleAction = () => {
+        router.refresh();
     }
     return (
         <div
@@ -40,11 +45,11 @@ const StakingSection: React.FC<Props> = ({ availableUsdc, poolToken, user, name,
             </div>
             {mode === "staking" ? (
                 <>
-                    <StakingForm availableUsdc={availableUsdc} poolToken={poolToken} user={user} name={name} totalUSDCSupply={poolBalance.totalUsdcSupply} />
+                    <StakingForm availableUsdc={availableUsdc} poolToken={poolToken} user={user} name={name} totalUSDCSupply={poolBalance.totalUsdcSupply} handleAction={handleAction}/>
                 </>
             ) : (
                 <>
-                    <UnStakingForm poolAvailableUsdc={poolBalance.availableUsdc} poolToken={poolToken} user={user} name={name} totalUSDCSupply={poolBalance.totalUsdcSupply} />
+                    <UnStakingForm poolAvailableUsdc={poolBalance.availableUsdc} poolToken={poolToken} user={user} name={name} totalUSDCSupply={poolBalance.totalUsdcSupply}handleAction={handleAction} />
                 </>
             )}
         </div>

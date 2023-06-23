@@ -15,6 +15,7 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 
 interface Props {
+    refetch: () => void;
     user: Address;
     userAvailableBalance: number
     index: number;
@@ -50,7 +51,7 @@ interface Props {
     }
 }
 
-const SingleTrade: React.FC<Props> = ({ row, index, userAvailableBalance, user }) => {
+const SingleTrade: React.FC<Props> = ({ row, index, userAvailableBalance, user,refetch }) => {
     const [toggle, setToggle] = useState<boolean>(true)
     const handleToggle = () => {
         setToggle(!toggle)
@@ -86,7 +87,7 @@ const SingleTrade: React.FC<Props> = ({ row, index, userAvailableBalance, user }
                     leaveFrom="translate-x-0"
                     leaveTo="-translate-x-full"
                 >
-                    <TradeInformation row={row} user={user} userAvailableBalance={userAvailableBalance}/>
+                    <TradeInformation row={row} user={user} userAvailableBalance={userAvailableBalance} refetch={refetch}/>
                 </Transition>
             </div>
         </div>

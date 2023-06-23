@@ -83,7 +83,7 @@ export default function SignProposalButton({ user, transactionHash, nonce, contr
           .from('Proposals')
           .insert([{ contractAddress: contractAdd, contractNonce: contractAdd + '_' + Number(nonce), etherscanTransactionHash: null, proposer: user, nonce: Number(nonce), to: addressTo, transactionHashToSign: transacitonHash, executor: null, signatures: [signature], timeStamp: timeStamp, isProposalPassed: false, description: null, result: null, signers: [user] }])
         if(error) setError('Error adding proposal')
-          if(!error) router.refresh();;
+          if(!error) router.refresh();
         toast.success(`Signed ${nonce} created DB`, {  duration: 6000 ,position:'top-right'});
         if (error) {
           console.error('Error adding proposal:', error);

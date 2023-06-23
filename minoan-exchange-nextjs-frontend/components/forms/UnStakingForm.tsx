@@ -14,10 +14,11 @@ interface Props {
   poolAvailableUsdc: number;
   name: string;
   user:Address;
+  handleAction:()=>void;
 }
 
 
-export default function UnStakingForm({poolToken,totalUSDCSupply,poolAvailableUsdc,name,user}: Props) {
+export default function UnStakingForm({poolToken,totalUSDCSupply,poolAvailableUsdc,name,user,handleAction}: Props) {
   const [errorMessage, setErrorMessage] = useState("");
   const [className, setClassName] = useState("");
   const [isError, setIsError] = useState<boolean>(true);
@@ -68,7 +69,7 @@ export default function UnStakingForm({poolToken,totalUSDCSupply,poolAvailableUs
   const validate = () => {
     if (tokenRef.current) {
       if(decimalsRef.current) decimalsRef.current.value ='0'
-      validateValue(String(parseFloat(tokenRef.current.value)*10**18));
+      validateValue(String(parseFloat(tokenRef.current.value)*10**8));
     }
   }
 
@@ -112,13 +113,19 @@ export default function UnStakingForm({poolToken,totalUSDCSupply,poolAvailableUs
     }
   }, [totalUsdc, tokenSupply,rawDecimal]);
 
+  const clear = () => {
+    if (tokenRef.current) tokenRef.current.value = "";
+    if(decimalsRef.current) decimalsRef.current.value = "";
+    if(estUsdcRef.current) estUsdcRef.current.value = "";
+    handleAction();
+    }
 
   return (
     <form className="flex flex-col justify-evenly bg-cyan-700 bg-opacity-10 rounded-2xl shadow-xl shadow-amber-400 text-lg p-4 mx-4 lg:mx-36 relative ">
       <h1 className="t-2 rigth-1/2 text-red-500 animate-pulse">
         {errorMessage}
       </h1>
-      <p>{tokensOwned?tokensOwned/10**18:0}</p>
+      <p>{tokensOwned?tokensOwned/10**8:0}</p>
       <div className="flex flex-wrap justify-center">
         <p className=" hidden md:block text-xs text-gray-600 mt-[1.88rem] mr-1">
           Tokens
@@ -157,7 +164,7 @@ export default function UnStakingForm({poolToken,totalUSDCSupply,poolAvailableUs
           <button className={`px-4 py-2 ${isError?'bg-red-500/50 ' :'bg-amber-400 hover:animate-pulse'} text-white rounded-3xl mt-4 `} disabled={isError}>Stake</button>
       ):
       (
-        <UnStakingButton disabled={isError} ammId={name} value={rawDecimal} user={user}   />
+        <UnStakingButton disabled={isError} ammId={name} value={rawDecimal} user={user} handleAction={clear}  />
       )}
     </form>
   );

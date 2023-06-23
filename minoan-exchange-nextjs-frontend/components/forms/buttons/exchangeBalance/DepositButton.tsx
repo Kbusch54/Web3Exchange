@@ -3,16 +3,17 @@ import React, { useEffect,useRef,useState } from 'react'
 import {useContractWrite , Address, useWaitForTransaction } from 'wagmi';
 import { useDepositUsdc } from '../../../../utils/contractWrites/exchange/deposit';
 import toast from 'react-hot-toast';
-import { redirect } from 'next/navigation';
 import { addTransaction } from '../helper/database';
+import { moneyFormatter } from 'utils/helpers/functions';
 
 interface Props {
     value:number,
     user:Address
     disabled:boolean
+    handleZero:()=>void
 }
 
-export default  function  DepositButton({value,user,disabled}:Props)  {
+export default  function  DepositButton({value,user,disabled,handleZero}:Props)  {
     const [approved, setApproved] = React.useState<boolean>(false);
     const [errorWithContractLoad, setErrorWithContractLoad] = React.useState<boolean>(false);    
     const [loadingStage, setLoadingStage] = useState(false); 
@@ -44,7 +45,7 @@ export default  function  DepositButton({value,user,disabled}:Props)  {
             setApproved(prev=>true)
             setLoadingStage((prev) => false);
             isMounted.current = false;
-            toast.success(`$${value} Deposit ${waiting.data.transactionHash}`, {  duration: 6000 ,position:'top-right'});
+            toast.success(`$${moneyFormatter(value)} Deposited ${waiting.data.transactionHash}`, {  duration: 6000 ,position:'top-right'});
             const date = new Date().toISOString().toLocaleString();
             addTransaction(waiting.data.transactionHash,user,date,'Deposit','vault').then((res)=>{
               console.log('res added transaction',res);
@@ -53,6 +54,7 @@ export default  function  DepositButton({value,user,disabled}:Props)  {
               setApproved(prev=>false)
               contractWrite.reset();
               isMounted.current = true;
+              handleZero();
             }, 10000);
               
           }

@@ -6,6 +6,7 @@ import WithdrawButton from "./buttons/exchangeBalance/WithdrawButton";
 import ApproveButton from "./buttons/exchangeBalance/ApproveButton";
 import DepositButton from "./buttons/exchangeBalance/DepositButton";
 import { usdc } from "../../utils/address";
+import { useRouter } from "next/navigation";
 interface Props {
   availableUsdc: number;
   user: Address;
@@ -27,7 +28,7 @@ const VaultUSDCForm: React.FC<Props> = ({ availableUsdc, user }) => {
   const [isError, setIsError] = useState(true);
 
 
-
+  const router = useRouter();
 
   function rawToDisplay(value: number | null) {
     if (value === undefined) {
@@ -177,6 +178,17 @@ useEffect(() => {
       }
     }
   };
+  const handleZeroOut = () => {
+    if (withdrawRef.current) {
+      withdrawRef.current.value = "$0.00";
+      setWithdrawDisplayValue("$0.00");
+    }
+    if(depositRef.current) {
+      depositRef.current.value = "$0.00";
+      setDepositDisplayValue("$0.00");
+    }
+    router.refresh();
+  };
 
 
   return (
@@ -245,13 +257,13 @@ useEffect(() => {
 
             {
               buttonValue === "Withdraw"&& withdrawRawValue&& (
-                <WithdrawButton value={withdrawRawValue} user={user} disabled={isError} />
+                <WithdrawButton value={withdrawRawValue} user={user} disabled={isError} handleZero={handleZeroOut}/>
               )}
             {buttonValue === "Deposit" && depositRawValue && (
-              <DepositButton value={depositRawValue} user={user} disabled={isError}/>
+              <DepositButton value={depositRawValue} user={user} disabled={isError} handleZero={handleZeroOut}/>
             )}
             {buttonValue === "Approve" && depositRawValue && (
-              <ApproveButton value={depositRawValue} user={user} disabled={isError} />
+              <ApproveButton value={depositRawValue} user={user} disabled={isError} handleZero={handleZeroOut} />
             )}
             {!withdrawRawValue && !depositRawValue && (
               <button className={'px-2 py-1 rounded-2xl text-white mt-4 font-extrabold bg-slate-700 '} disabled>Deposit </button>

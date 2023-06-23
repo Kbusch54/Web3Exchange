@@ -5,7 +5,7 @@ import AssetOptions from '../menus/AssetOptions';
 import SideSelection from './SideSelection';
 import TradeButton from './buttons/trade/TradeButton';
 import { Address } from 'wagmi';
-
+import { useRouter } from 'next/navigation';
 import useRedstonePayload from "../../utils/contractWrites/exchange/index";
 
 
@@ -34,6 +34,7 @@ const InvestForm: React.FC<Props> = ({ stockData, currentData, user, availableUs
   const totalCostRef = useRef<HTMLInputElement>(null);
 
 
+  const router = useRouter();
   function calculateThirdValue() {
     if (sizeInputRef.current) sizeInputRef.current.value = '';
     if (leverageInputRef.current) {
@@ -95,6 +96,14 @@ const InvestForm: React.FC<Props> = ({ stockData, currentData, user, availableUs
   }
   const payload = useRedstonePayload(); 
 
+  const clearRefresh = () => {
+    if (sizeInputRef.current) sizeInputRef.current.value = '';
+    if (psizeInputRef.current) psizeInputRef.current.value = '';
+    if (leverageInputRef.current) leverageInputRef.current.value = '';
+    if (collateralInputRef.current) collateralInputRef.current.value = '';
+    if (totalCostRef.current) totalCostRef.current.value = '';
+    router.refresh();
+  }
 
   return (
     <div className="outside-box mt-4">
@@ -129,7 +138,7 @@ const InvestForm: React.FC<Props> = ({ stockData, currentData, user, availableUs
         </div>
         {collateral > 0 && leverage > 0 && side && check && payload ? (
           <Suspense fallback={<div className='bg-slate-700 px-2 py-1 rounded-2xl text-white mt-4 hover:scale-125'> <button disabled >Loading...</button></div>}>
-            <TradeButton leverage={leverage} side={side} collateral={collateral} disabled={!check} ammId={currentData.name} user={user} payload={payload} />
+            <TradeButton leverage={leverage} side={side} collateral={collateral} disabled={!check} ammId={currentData.name} user={user} payload={payload} clearRefresh={clearRefresh} />
           </Suspense>
         ) : (
           <div className='bg-slate-700 px-2 py-1 rounded-2xl text-white mt-4 hover:scale-125'>

@@ -8,6 +8,7 @@ import RemoveCollateralModal from '../../modals/trade/RemoveCollateralModal'
 import RemoveLiquidityModal from '../../modals/trade/RemoveLiquidityModal'
 
 interface Props {
+    refetch: () => void;
     user: Address;
     userAvailableBalance: number
     row: {
@@ -42,7 +43,7 @@ interface Props {
     }
 }
 
-const TradeInformation: React.FC<Props> = ({user,userAvailableBalance,row}) => {
+const TradeInformation: React.FC<Props> = ({user,userAvailableBalance,row,refetch}) => {
     const margin=row.information.currentCollateral/row.other.loanAmt
     return (
         <div className={`bg-slate-800 `}>
@@ -95,7 +96,7 @@ const TradeInformation: React.FC<Props> = ({user,userAvailableBalance,row}) => {
                             </div>
                         </div>
                         <div className='flex flex-row justify-evenly text-center text-white mt-4 pb-4 text-sm md:text-md lg:text-xl'>
-                            <AddCollateralModal user={user} tradeId={row.id} vaultBalance={userAvailableBalance} currentCollateral={row.information.currentCollateral} />
+                            <AddCollateralModal user={user} tradeId={row.id} vaultBalance={userAvailableBalance} currentCollateral={row.information.currentCollateral}  />
                             <RemoveCollateralModal user={user} tradeId={row.id} minimummarginReq={Math.floor(row.information.mmr * row.other.loanAmt / 10 ** 6)} currentCollateral={row.information.currentCollateral} />
                             <AddLiquidityModal user={user} tradeId={row.id} vaultBalance={userAvailableBalance} leverage={row.lev} minLoanAmt={row.other.minLoanAmt}
                                 positionSize={row.size} vammData={{ baseAsset: row.other.baseAssetReserve, quoteAsset: row.other.quoteAssetReserve }} minimummarginReq={row.information.mmr}
