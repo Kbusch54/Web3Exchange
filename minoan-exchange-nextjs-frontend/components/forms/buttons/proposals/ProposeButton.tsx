@@ -1,6 +1,6 @@
 'use client'
 import { supabase } from '../../../../supabase';
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useContractWrite, Address, useWaitForTransaction, useAccount  }  from 'wagmi';
 import { useNewProposal } from '../../../../utils/contractWrites/daos/ariadne/purpose';
 import { ethers } from 'ethers';
@@ -8,6 +8,7 @@ import { getTransactionHash } from '../../../../utils/helpers/doas';
 import { theseus } from '../../../../utils/address';
 import toast from 'react-hot-toast';
 import { redirect } from 'next/navigation';
+import { addProposal, upsertProposal } from '../helper/database';
 
 interface Props {
   callData: string,
@@ -18,21 +19,56 @@ interface Props {
   contractAddress: Address,
   addressTo: Address,
   option?: string
+  close: () => void
 
 }
 
-export default function ProposeButton  ({ user, disabled, callData, addressTo, description,nonce,contractAddress,option }: Props) {
+export default function ProposeButton  ({ user, disabled, callData, addressTo, description,nonce,contractAddress,option,close }: Props) {
   const [approved, setApproved] = React.useState<boolean>(false);
   const [errorWithContractLoad, setErrorWithContractLoad] = React.useState<boolean>(false);
   const [loadingStage, setLoadingStage] = useState(false);
   const [usedNonce, setUsedNonce] = useState<number|null>(null);
-  const [etherscanTransactionHash, setEtherscanTransactionHash] = useState<string|null>(null);
   const [transactionHash, setTransactionHash] = useState<string|null>(null);   
   const [customMessage, setCustomMessage] = useState<string|null>(null);
+  const isMounted = useRef(true);
 
   
   const { config, error } = useNewProposal(addressTo,callData, contractAddress, user,option);
   const { connector } = useAccount()
+  
+const contractWrite = useContractWrite(config);
+const waiting = useWaitForTransaction({
+  hash: contractWrite.data?.hash,
+})
+  useEffect(() => {
+    if (isMounted.current) {
+      if(waiting.isError){
+        setLoadingStage((prev) => false);
+        setErrorWithContractLoad((prev) => true);
+        toast.error(`Error With Transaction ${waiting.error}`, {  duration: 6000 ,position:'top-right'});
+        console.log('err',waiting.error);
+        isMounted.current = false;
+        setTimeout(() => {
+          contractWrite.reset();
+          isMounted.current = true;
+        }, 10000);
+      }else if(waiting.isSuccess && waiting.data){
+        setLoadingStage((prev) => false);
+        isMounted.current = false;
+        toast.success(`Proposed ${description} `, {  duration: 6000 ,position:'top-right'});
+        if(usedNonce && transactionHash){
+          addProposal(contractAddress,usedNonce,user,addressTo,transactionHash,description,waiting.data.transactionHash).then((res)=>{
+            console.log('res added transaction',res);
+          })
+          setApproved(prev=>true)
+        }
+      
+          
+      }
+  }
+    return () => {
+    }
+  }, [waiting])
   //@ts-ignore
   const hanldeSign = async (e) => {
     e.preventDefault();
@@ -48,35 +84,26 @@ const signature = await provider.send("personal_sign", [transactionHash, user])
         signature.result
       );
         if (verified.toLowerCase() == user.toLowerCase()) {
-        await updateDataBase(signature.result,transactionHash);
-      }else{
-        alert('not verified');
-      }
+          if(usedNonce ){
+            await upsertProposal(contractAddress,usedNonce,user,signature.result).then((res)=>{
+            console.log('res added transaction',res);
+            toast.success(`Signed proposal ${usedNonce} `, {  duration: 6000 ,position:'top-right'});
+            setTimeout(() => {
+              setApproved(prev=>false)
+              contractWrite.reset();
+              close();
+            }, 10000);
+            })
+        }
+        }else{
+          alert('not verified');
+          setCustomMessage(prev=>'Not verified');
+        }
     }
   }
 };
-const updateDataBase = async (signature:string,transacitonHash:string) => {
-  if(!usedNonce) return console.log('no nonce');
-  else{
 
-  
-  try {
-    const { data, error } = await supabase
-      .from('Proposals')
-      .insert([ {contractAddress:contractAddress,contractNonce:contractAddress+'_'+Number(usedNonce),etherscanTransactionHash:etherscanTransactionHash,proposer:user,nonce:Number(usedNonce), to:addressTo, transactionHashToSign:transacitonHash, executor:null, signatures:[signature], timeStamp:Date.now(), isProposalPassed:false, description:description, result:null, signers:[user]} ]);
 
-    if (error) {
-      console.error('Error adding proposal:', error);
-    } else {
-      console.log('Proposal added successfully');
-    }
-  } catch (error) {
-    console.error('Error adding proposal:', error);
-  }
-}
-}
-
-const contractWrite = useContractWrite(config);
 useEffect(() => {
   if (error == null) {
     setErrorWithContractLoad(false);
@@ -84,55 +111,12 @@ useEffect(() => {
     setErrorWithContractLoad(true);
   }
 }, [error]);
-useEffect(() => {
-  console.log('NONCE', nonce);
-}, [approved,nonce]);
-useEffect(() => {
-  if(transactionHash == null && usedNonce !=null){
-    const txHash = getTransactionHash(usedNonce,addressTo,0,callData,contractAddress);
-    setTransactionHash(prev=>txHash);
-  }
-}, [usedNonce]);
-const { data, isError, isLoading,isSuccess } = useWaitForTransaction({
-  hash: contractWrite.data?.hash,
-})
-useEffect(() => {
-    if (error == null) {
-      setErrorWithContractLoad(false);
-    } else {
-      setErrorWithContractLoad(true);
-    }
-  }, [error]);
-  useEffect(() => {
-    if(data){
-     
-      if ( data.status == 'success'|| contractWrite.status == 'success') {
-        contractWrite.reset();
-        setLoadingStage((prev) => false);
-        //custom message for 3 seconds then reset
-        setEtherscanTransactionHash((prev)=>data.transactionHash);
-        //update db 
-        setLoadingStage((prev) => false);
-        setApproved(true);
-        toast.success(`Transaction Sent ${data.transactionHash}`, {  duration: 6000 });
-        setCustomMessage('Success');
-       }
-        } 
-        else if (
-          contractWrite.status == "idle" ||
-          contractWrite.status == "error" ||
-          contractWrite.isIdle == true 
-        ) {
-          console.log("error see traNSACITON HASH", error);
-          console.log(contractWrite?.error?.message);
-        } else {
-          console.log("error see traNSACITON HASH", isError);
-          console.log(contractWrite?.error?.message);
-          toast.error(`Transaction Failed ${contractWrite.data?.hash}`, {  duration: 6000 });
-          console.log("error see traNSACITON HASH", contractWrite.data?.hash);
-          console.log(contractWrite?.error?.message);
-        }
-        },[data]);
+
+
+    
+
+
+  
           
 
 
@@ -142,28 +126,25 @@ useEffect(() => {
     setLoadingStage((prev) => true);
     // await contractWrite.writeAsync()
     setUsedNonce((prev)=>nonce);
+    console.log('nonce from contract write',nonce);
+    const txHash = getTransactionHash(nonce,addressTo,0,callData,contractAddress);
+    setTransactionHash(prev=>txHash);
     //@ts-ignore
     
-     await contractWrite.writeAsync().then(con=>{
+    await contractWrite.writeAsync().then((res) => {
+    })
+    .catch((err) => {
+      console.log('err',err);
+      setLoadingStage((prev) => false);
+      setErrorWithContractLoad((prev) => true);
+      toast.error(`Error With Transaction ${err.details}`, {  duration: 6000 ,position:'top-right'});
+      setTimeout(() => {
+        setErrorWithContractLoad((prev) => false);
+        contractWrite.reset();
+      }, 10000);
+    });
 
-        }).catch((err: any) => {
-        console.log("didnt event fire", err);
-        if(err.message.includes('User rejected request')){
-          console.log('user rejected');
-          contractWrite.reset();
-          setLoadingStage((prev) => false);
-          //error isContractError for 3 seconds then reset
-          setErrorWithContractLoad(true);
-          setCustomMessage('User rejected request');
-          setTimeout(() => {
-            setErrorWithContractLoad(false);
-            setCustomMessage(null);
-          }
-          , 3000);
-        };
-        console.log("didnt event fire", err);
-        console.log('message',err.message);
-      });
+     
   };
   if (contractWrite.isLoading || loadingStage)
   return (

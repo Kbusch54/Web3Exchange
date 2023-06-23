@@ -3,6 +3,7 @@ import React, {useEffect, useState } from 'react'
 import {  Address, useAccount } from 'wagmi';
 import { supabase } from '../../../../supabase';
 import { verifyMessage } from 'viem';
+import { toast } from 'react-hot-toast';
 
 interface Props {
   user: Address,
@@ -23,13 +24,7 @@ export default function SignProposalButton({ user, transactionHash, nonce, contr
 
   const { connector } = useAccount()
 
-  useEffect(() => {
-    return () => {
-      setSigned(false);
-      setAddedToDB(false);
-      setError(null);
-    }
-  }, [signed, addedToDB, error]);
+
 
   //@ts-ignore
   const hanldeSign = async (e) => {
@@ -56,24 +51,34 @@ export default function SignProposalButton({ user, transactionHash, nonce, contr
   };
   const updateDataBase = async (signature: string, transacitonHash: string) => {
     if (signatures && signers) {
-      if (signers.includes(user)) return setError('Already signed')
+      if (signers.includes(user)) {
+         setError('Already signed') 
+         toast.error(`Already signed ${nonce} `, {  duration: 6000 ,position:'top-right'});
+      }
       //update
       try {
+        console.log('updating');
         const { error } = await supabase
-        .from('Proposals').update([{ timeStamp:timeStamp,signatures: [...signatures, signature], signers: [...signers, user] }]).eq('contractNonce', contractAdd + '_' + Number(nonce));
+        .from('Proposals')
+        .update([{ timeStamp:timeStamp,signatures: [...signatures, signature], signers: [...signers, user] }])
+        .eq('contractNonce', contractAdd + '_' + Number(nonce));
         setAddedToDB(true);  
+        toast.success(`Signed ${nonce} updated DB `, {  duration: 6000 ,position:'top-right'});
       } catch (error) {
         console.error('Error updating proposal:', error);
         setError('Error updating proposal')
+        toast.error(`Error updating proposal ${nonce} `, {  duration: 6000 ,position:'top-right'});
       }
     }
     else {
       //create
       try {
+        console.log('creating');
         const { error } = await supabase
           .from('Proposals')
           .insert([{ contractAddress: contractAdd, contractNonce: contractAdd + '_' + Number(nonce), etherscanTransactionHash: null, proposer: user, nonce: Number(nonce), to: addressTo, transactionHashToSign: transacitonHash, executor: null, signatures: [signature], timeStamp: timeStamp, isProposalPassed: false, description: null, result: null, signers: [user] }]);
         setAddedToDB(true);
+        toast.success(`Signed ${nonce} created DB`, {  duration: 6000 ,position:'top-right'});
         if (error) {
           console.error('Error adding proposal:', error);
         } else {
@@ -83,6 +88,7 @@ export default function SignProposalButton({ user, transactionHash, nonce, contr
       } catch (error) {
         console.error('Error adding proposal:', error);
         setError('Error adding proposal')
+        toast.error(`Error adding proposal ${nonce} `, {  duration: 6000 ,position:'top-right'});
       }
     }
   }

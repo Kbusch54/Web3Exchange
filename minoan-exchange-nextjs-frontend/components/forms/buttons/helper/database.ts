@@ -17,3 +17,28 @@ export const getTransactions = cache(async (user: string) => {
             .range(0, 4)
             return data;
     });
+    export const addProposal = async (contractAddress:string, nonce:number,user:string, addressTo:string,transacitonHash:string,description:string,etherscanTransactionHash:string) => {
+        const { data, error } = await supabase
+      .from('Proposals')
+      .insert([ {contractAddress:contractAddress,contractNonce:contractAddress+'_'+Number(nonce),etherscanTransactionHash:etherscanTransactionHash,proposer:user,nonce:Number(nonce), to:addressTo, transactionHashToSign:transacitonHash, executor:null, signatures:[], timeStamp:Date.now(), isProposalPassed:false, description:description, result:null, signers:[]} ]);
+      console.log('data or err on add proposal',data,error)
+        return data;
+    }
+    export const upsertProposal = async(contractAddress:string, nonce:number,user:string,signatures:string) => {
+        console.log('signature',signatures)
+        console.log('nonce',nonce)
+        console.log('user',user)
+        const { data, error } = await supabase
+        .from('Proposals')
+        .update({signatures:[signatures],signers:[user]})
+        .eq('contractNonce',contractAddress+'_'+Number(nonce))
+        .select()
+        console.log('data or err on upsert',data,error)
+        return data;
+    }
+    export const executedProposal = async(contractAddress:string, nonce:number,executor:string,executionTransactionhash:string) => {
+        const { data, error } = await supabase
+      .from('Proposals')
+      .update([{result:executionTransactionhash,isProposalPassed:true,executor:executor}])
+        .eq('contractNonce', contractAddress+'_'+Number(nonce))
+    }

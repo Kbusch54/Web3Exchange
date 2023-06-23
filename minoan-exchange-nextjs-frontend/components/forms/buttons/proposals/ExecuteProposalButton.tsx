@@ -1,8 +1,9 @@
 'use client'
-import { supabase } from '../../../../supabase';
-import React, { useEffect, useState } from 'react'
-import { useContractWrite, Address, useSigner } from 'wagmi';
+import React, { useEffect, useRef, useState } from 'react'
+import { useContractWrite, Address, useWaitForTransaction } from 'wagmi';
 import { useExecuteProposal } from '../../../../utils/contractWrites/daos/ariadne/execute';
+import toast from 'react-hot-toast';
+import { executedProposal } from '../helper/database';
 
 interface Props {
   callData: string,
@@ -15,84 +16,74 @@ interface Props {
 
 }
 
-export default function ExecuteProposalButton  ({ user, disabled, callData,nonce,addressTo,signatures,ariadneAdd }: Props) {
+export default function ExecuteProposalButton({ user, disabled, callData, nonce, addressTo, signatures, ariadneAdd }: Props) {
   const [approved, setApproved] = React.useState<boolean>(false);
   const [errorWithContractLoad, setErrorWithContractLoad] = React.useState<boolean>(false);
   const [loadingStage, setLoadingStage] = useState(false);
-  
-  const { config, error } = useExecuteProposal(Number(nonce),addressTo,callData,signatures, ariadneAdd, user);
+  const isMounted = useRef(true);
+  const { config, error } = useExecuteProposal(Number(nonce), addressTo, callData, signatures, ariadneAdd, user);
 
-const updateDataBase = async (transacitonHash:string) => {
-  try {
-    const { data, error } = await supabase
-      .from('Proposals')
-      .update([{result:transacitonHash,isProposalPassed:true,executor:user}])
-        .eq('contractNonce', ariadneAdd+'_'+Number(nonce));
 
-    if (error) {
-      console.error('Error adding proposal:', error);
+  const contractWrite = useContractWrite(config);
+  useEffect(() => {
+    if (error == null) {
+      setErrorWithContractLoad(false);
     } else {
-      console.log('Proposal added successfully');
+      setErrorWithContractLoad(true);
     }
-  } catch (error) {
-    console.error('Error adding proposal:', error);
-  }
-}
+  }, [error]);
+  const waiting = useWaitForTransaction({
+    hash: contractWrite.data?.hash,
+  })
+  useEffect(() => {
+    if (isMounted.current) {
+      if (waiting.isError) {
+        setLoadingStage((prev) => false);
+        setErrorWithContractLoad((prev) => true);
+        toast.error(`Error With Transaction ${waiting.error}`, { duration: 6000, position: 'top-right' });
+        console.log('err', waiting.error);
+        isMounted.current = false;
+        setTimeout(() => {
+          contractWrite.reset();
+          isMounted.current = true;
+        }, 10000);
+      } else if (waiting.isSuccess && waiting.data) {
+        setLoadingStage((prev) => false);
+        isMounted.current = false;
+        executedProposal(ariadneAdd, nonce, user, waiting.data.transactionHash).then((res) => {
+          setApproved(prev => true)
+          toast.success(`Executed ${nonce} `, { duration: 6000, position: 'top-right' });
+        })
+        setTimeout(() => {
+          contractWrite.reset();
+          isMounted.current = true;
+        }, 8000);
 
-console.log('config for ariadne execute', config);
-const contractWrite = useContractWrite(config);
-useEffect(() => {
-  if (error == null) {
-    setErrorWithContractLoad(false);
-  } else {
-    setErrorWithContractLoad(true);
-  }
-}, [error]);
-useEffect(() => {
-//   console.log('NONCE', nonce);
-}, [approved,nonce]);
+      }
+    }
+    return () => {
+    }
+  }, [waiting])
 
-
-//@ts-ignore
-const handleWrite = async (e) => {
-  e.preventDefault();
-  setLoadingStage((prev) => true);
-  console.log('contractWrite ddd',contractWrite);
   //@ts-ignore
-  await contractWrite.writeAsync()
-    .then((con: { wait: (arg0: number) => Promise<any>; hash: any; }) => {
-      con.wait(1).then((res) => {
-        if (contractWrite.isSuccess || res.status == 1) {
-          console.log(res.transactionHash);
-          console.log('res', res);
-          updateDataBase(res.transactionHash)
-          setLoadingStage((prev) => false);
-          setApproved(true);
-          //custom message
-          //notification
-          //ask for signature
-          //wait for signature
-          //refresh page?? 
-        } else if (
-          contractWrite.status == "idle" ||
-          contractWrite.status == "error" ||
-          contractWrite.isIdle == true ||
-          res.status == 0
-          ) {
-            console.log('error se', res);
-          console.log("error see traNSACITON HASH", con.hash);
-          console.log(contractWrite?.error);
-          console.log(contractWrite?.error?.message);
-        } else {
-          console.log("error see traNSACITON HASH", con.hash);
-          console.log(contractWrite?.error?.message);
-        }
-      });
+  const handleWrite = async (e) => {
+    e.preventDefault();
+    setLoadingStage((prev) => true);
+    console.log('contractWrite ddd', contractWrite);
+    //@ts-ignore
+    await contractWrite.writeAsync().then((res) => {
     })
-    .catch((err: any) => {
-      console.log("didnt event fire", err);
-    });
-};
+      .catch((err) => {
+        console.log('err', err);
+        setLoadingStage((prev) => false);
+        setErrorWithContractLoad((prev) => true);
+        toast.error(`Error With Transaction ${err.details}`, { duration: 6000, position: 'top-right' });
+        setTimeout(() => {
+          setErrorWithContractLoad((prev) => false);
+          contractWrite.reset();
+        }, 10000);
+      });
+  };
 
 
   if (contractWrite.isLoading || loadingStage)
@@ -117,9 +108,9 @@ const handleWrite = async (e) => {
     );
 
   return (
-    <div className={`${approved?'hidden':'block'}`}>
+    <div className={`${approved ? 'hidden' : 'block'}`}>
       <button disabled={disabled} onClick={handleWrite} className='bg-amber-500 px-2 py-1  rounded-2xl text-white text-lg hover:scale-125'>Execute</button>
     </div>
   )
-  
+
 }
