@@ -176,7 +176,7 @@ export const getProposalSignersByAmm = cache(async(amm?:Address,user?:Address) =
                 if(proposal.contractAddress.toLowerCase() !== getAridneFromAmm(amm).toLowerCase()) return;
             }
             numOfProposals++;
-            avgSignatures += proposal.signatures.length;
+            avgSignatures += proposal.signatures?.length;
         });
         return [avgSignatures/numOfProposals,numOfProposals];
 
