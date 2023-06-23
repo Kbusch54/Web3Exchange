@@ -4,6 +4,7 @@ import {  Address, useAccount } from 'wagmi';
 import { supabase } from '../../../../supabase';
 import { verifyMessage } from 'viem';
 import { toast } from 'react-hot-toast';
+import {  useRouter } from 'next/navigation';
 
 interface Props {
   user: Address,
@@ -23,6 +24,7 @@ export default function SignProposalButton({ user, transactionHash, nonce, contr
   const [error, setError] = useState<string | null>(null);
 
   const { connector } = useAccount()
+  const router = useRouter();
 
 
 
@@ -58,11 +60,13 @@ export default function SignProposalButton({ user, transactionHash, nonce, contr
       //update
       try {
         console.log('updating');
+        setAddedToDB(true);  
         const { error } = await supabase
         .from('Proposals')
         .update([{ timeStamp:timeStamp,signatures: [...signatures, signature], signers: [...signers, user] }])
         .eq('contractNonce', contractAdd + '_' + Number(nonce));
-        setAddedToDB(true);  
+        if(error) setError('Error adding proposal')
+        if(!error) router.refresh();
         toast.success(`Signed ${nonce} updated DB `, {  duration: 6000 ,position:'top-right'});
       } catch (error) {
         console.error('Error updating proposal:', error);
@@ -74,10 +78,12 @@ export default function SignProposalButton({ user, transactionHash, nonce, contr
       //create
       try {
         console.log('creating');
+        setAddedToDB(true);
         const { error } = await supabase
           .from('Proposals')
-          .insert([{ contractAddress: contractAdd, contractNonce: contractAdd + '_' + Number(nonce), etherscanTransactionHash: null, proposer: user, nonce: Number(nonce), to: addressTo, transactionHashToSign: transacitonHash, executor: null, signatures: [signature], timeStamp: timeStamp, isProposalPassed: false, description: null, result: null, signers: [user] }]);
-        setAddedToDB(true);
+          .insert([{ contractAddress: contractAdd, contractNonce: contractAdd + '_' + Number(nonce), etherscanTransactionHash: null, proposer: user, nonce: Number(nonce), to: addressTo, transactionHashToSign: transacitonHash, executor: null, signatures: [signature], timeStamp: timeStamp, isProposalPassed: false, description: null, result: null, signers: [user] }])
+        if(error) setError('Error adding proposal')
+          if(!error) router.refresh();;
         toast.success(`Signed ${nonce} created DB`, {  duration: 6000 ,position:'top-right'});
         if (error) {
           console.error('Error adding proposal:', error);
