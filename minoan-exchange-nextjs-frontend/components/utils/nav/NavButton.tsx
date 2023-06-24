@@ -26,7 +26,7 @@ const NavButton: React.FC<Props> = () => {
             <NavLink href="/"><p className='bg-slate-900 p-3 rounded-full hover:text-slate-900 hover:bg-white '>Home</p></NavLink>
           </Menu.Item>
           <Menu.Item>
-            <NavLink href="/todos"><p className='bg-slate-900 p-3 rounded-full hover:text-slate-900 hover:bg-white '>Docs</p></NavLink>
+            <NavLink href="/docs"><p className='bg-slate-900 p-3 rounded-full hover:text-slate-900 hover:bg-white '>Docs</p></NavLink>
           </Menu.Item>
           <Menu.Item>
             <NavLink href="/theseusDao"><p className='bg-slate-900 p-3 rounded-full hover:text-slate-900 hover:bg-white'>Theseus DAO</p></NavLink>

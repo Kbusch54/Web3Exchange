@@ -24,7 +24,7 @@ const Header: React.FC<Props> = () => {
           </div>
         </div>
         <div className=" hidden lg:flex  gap-x-14 lg:gap-x-20 xl:gap-x-32 2xl:gap-x-64 mt-4 text-lg  ">
-          <a href="/todos">
+          <a href="/docs">
             Docs
           </a>
           <a href="/theseusDao">Theseus Dao</a>
