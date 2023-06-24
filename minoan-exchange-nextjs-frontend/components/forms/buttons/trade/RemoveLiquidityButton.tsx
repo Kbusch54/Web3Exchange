@@ -2,8 +2,6 @@
 import React, { useEffect,useRef,useState } from 'react'
 import {useContractWrite , Address, useWaitForTransaction } from 'wagmi';
 import { useRemoveLiquidity } from '../../../../utils/contractWrites/exchange/removeLiquidity';
-import { getPayload } from '../../../../utils/contractWrites/exchange';
-import { redirect } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { addTransaction } from '../helper/database';
 import EtherscanLogo from 'components/tables/utils/EtherscanLogo';
