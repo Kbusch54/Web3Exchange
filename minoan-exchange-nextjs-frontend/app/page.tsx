@@ -11,6 +11,7 @@ import theseus from "../public/assets/stone-theseus.png";
 import dynamic from "next/dynamic";
 import LoanPoolTab from "../components/LoanPoolTab";
 import ScrollUp from "../components/utils/ScrollUp";
+import FirstSection from "components/mainPage/FirstSection";
 const TradeStepper = dynamic(
   () => import("../components/mainPage/TradeStepper"),
   {
@@ -24,42 +25,7 @@ export default function page({}: Props): ReactElement {
   return (
     <div className="text-[rgba(41,87,109,255)] ">
       <section className="min-h-screen  text-center lg:ml-8 m-2" id="top">
-        <div className="absolute flex justify-center text-center ">
-          <Image
-            src={main}
-            alt="logo"
-            className="hidden lg:block  w-[100vw] h-[90vh] "
-          />
-        </div>
-        <div className="md:grid grid-cols-1 mx-2 lg:grid-cols-3 lg:px-24  z-30 text-center 2xl:mt-12">
-          {/* w-[90vw] mt-36 ml-24 */}
-          <div className="md:col-span-3 lg:col-span-1  lg:mr-12 flex flex-col z-30 mt-24 gap-y-4 justify-center text-center">
-            <h1 className="text-2xl 2xl:text-3xl text-white">
-              MINOAN EXCHANGE
-            </h1>
-            <h3 className="xl:text-xl 2xl:text-2xl">
-              A Perpetual stock exchange
-            </h3>
-            <p className="text-white text-xs lg:text-lg lg:mb-8  xl:text-md   2xl:mx-32 ">
-              Minoan exchange allows user to trade s&p500 stocks using p2p funds
-              with USDC, to short or long stocks. Utilizing DOA's and real time
-              stock data. Become a liquidity provider to lend to traders, and
-              earn interest on your loans. Or lend from the pools and start
-              betting. Learn more by clicking one of the tabs, or go to the
-              Docs.
-            </p>
-
-            <div className="flex flex-wrap justify-evenly md:gap-x-2 gap-y-3  2xl:mx-24 2xl:text-lg 2xl:my-8 2xl:gap-x-0 2xl:gap-y-4">
-              <p>How to trade</p>
-              <p>Loan Pools</p>
-              <p>Join the Thesus DOA</p>
-              <p>Thesus DOA</p>
-              <p>Ariadne Pools</p>
-              <p>White Paper</p>
-              <p>Docs</p>
-            </div>
-          </div>
-        </div>
+       <FirstSection/>
       </section>
       <section className="py-20 relative" id="trade-page">
         <div className="hidden lg:block relative">

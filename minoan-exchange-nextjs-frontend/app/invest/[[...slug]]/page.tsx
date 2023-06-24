@@ -16,8 +16,9 @@ import AllTrades from "../../../components/tables/trades/AllTrades";
 import { authOptions } from '../../../utils/auth/authOptions';
 import { getServerSession } from 'next-auth/next';
 import { Address } from "viem";
+import axios from "axios";
 type Props = {};
-export const revalidate = 8000 // In seconds
+export const revalidate = 60;
 async function fetchLoanPoolData(symbol: string, user: string) {
   const query = gql` 
     query getLoanPool($id: String!,$user: String!) {
@@ -71,7 +72,6 @@ async function fetchLoanPoolData(symbol: string, user: string) {
   const endpoint = "https://api.studio.thegraph.com/query/46803/subgraph-minoan/version/latest";
   const variables = { id: symbol, user: user };
   const data = await request(endpoint, query, variables);
-
   return data;
 }
 
@@ -89,12 +89,16 @@ export default async function page(context: { params: { slug: string; }; }) {
   if (!session || !session.user || !session.user.name) {
     return redirect(`/auth/signin?callbackUrl=/invest/${slug}`);
   }
+  
   const user = session.user.name as Address;
-  const allData = await fetchLoanPoolData(slug.toString().toLowerCase(), user);
   //@ts-ignore
-  const graphData = allData.vamms[0];
+  const loanPoolData = await fetchLoanPoolData(slug.toString().toLowerCase(), user).then((res) => {
+    return res;
+    });
   //@ts-ignore
-  const userData = allData.users[0] ? allData.users[0].balances.availableUsdc : 0;
+  const graphData = loanPoolData.vamms[0];
+  //@ts-ignore
+  const userData = loanPoolData.users[0] ? loanPoolData.users[0].balances.availableUsdc : 0;
   const stock = await getStocks(slug);
   return (
     <>
