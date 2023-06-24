@@ -13,7 +13,7 @@ const DAOStatsPersonal: React.FC<Props> = ({user,userDAO,sybmol}) => {
     const ammID = getAriadnePool(sybmol);
     const allData = userDAO?.filter((db:any)=>String(db.contractAddress).toLowerCase()=== String(ammID).toLowerCase());
     const totalProposed = allData?.filter((db:any)=>db.proposer.toLowerCase()===user.toLowerCase());
-    const signaturesFound = allData?.filter((db:any)=>db.signers.find((sig:any)=>sig.toLowerCase()===user.toLowerCase())).length;
+    const signaturesFound = allData?.filter((db:any)=>db.signers?.find((sig:any)=>sig.toLowerCase()===user.toLowerCase())).length;
     const executedProposals = allData?.filter((db:any)=>db.executor!=null&&db.executor.toLowerCase()===user.toLowerCase()).length;
     const proposedPassed = totalProposed?.filter((db:any)=>db.isProposalPassed == true).length;
     return (
