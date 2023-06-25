@@ -4,7 +4,7 @@ import SelectType from './options/selectTypeOptions';
 import ReachartLines from '../charts/poolCharts/recharts/RechartLines';
 import RechartPie from '../charts/poolCharts/recharts/RechartPie';
 import { Address } from 'wagmi';
-import { avgStakes, getExecutedAndFailedProposalsByAmm, getProposalSignersByAmm, getProposalTime, getProposalsByAmm, getTardeSidesByAmm, getTradeDurationByUser, getTradeHistory } from 'utils/helpers/dataMutations';
+import { avgStakes, getExecutedAndFailedProposalsByAmm, getPNlByUser, getProposalSignersByAmm, getProposalTime, getProposalsByAmm, getTardeSidesByAmm, getTradeDurationByUser, getTradeHistory } from 'utils/helpers/dataMutations';
 import { getHoursAndMinutes, moneyFormatter } from 'utils/helpers/functions';
 import { fetchStakes } from 'app/lib/graph/stakes';
 
@@ -34,6 +34,7 @@ const TypeSelection: React.FC<Props> = ({poolData,user}) => {
     const avgProposalTime = getProposalTime(proposals,poolData.vamms[0].loanPool.id);
     const avgSigners = use(getProposalSignersByAmm(poolData.vamms[0].loanPool.id));
     const proposalVersusData  = getExecutedAndFailedProposalsByAmm(proposals,poolData.vamms[0].loanPool.id);
+    const {avg: avgPnl } = getPNlByUser(trades,undefined,undefined,poolData.vamms[0].loanPool.id);
     const {duration,avg: avgTradeTime } = getTradeDurationByUser(trades,undefined,undefined,poolData.vamms[0].loanPool.id);
     // @ts-ignore
     const {avg:avgStake,avgUserStakes,lastStake} = avgStakes(stakingData.singleStakes,user,poolData.vamms[0].loanPool.id)
@@ -91,7 +92,7 @@ const TypeSelection: React.FC<Props> = ({poolData,user}) => {
                             <h3 className='text-xs md:text-lg'>Avg Trading Time</h3>
                         </div>
                         <div className='flex flex-col text-center border-2 border-blue-800 rounded-t-2xl rounded-b-lg bg-sky-800 m-4 bg-opacity-40 p-4'>
-                            <h1 className=' lg:text-5xl mt-4'>${20}</h1>
+                            <h1 className=' lg:text-5xl mt-4'>${moneyFormatter(avgPnl)}</h1>
                             <h3 className='text-xs md:text-lg'>Avg Pnl</h3>
                         </div>
                     </div>

@@ -3,14 +3,38 @@ import { getAmmName, getAridneFromAmm, getAridneName } from "../doas";
 import { getAllProposals } from "app/lib/supabase/allProposals";
 import { cache } from "react";
 
-export const getPNlByUser = (trades: any, user: Address,newArrLength:number) => {
+export const getPNlByUser = (trades: any, user?: Address,newArrLength?:number,amm?:string) => {
     let pnl :{ date: string; value: number; }[] = [];
     let avg =0;
-    for (let i =  trades.length >= newArrLength? newArrLength-1:trades.length-1; i >=0; i--) {
-        if(trades[i].user.id.toLowerCase() !== user.toLowerCase() || trades[i].isActive == true) continue;
-
-        pnl.push({date:trades[i].created,value:trades[i].tradeBalance.pnl})
-        avg += Number(trades[i].tradeBalance.pnl);
+    if(newArrLength){
+        
+        for (let i = trades.length - newArrLength; i  < trades.length; i++) {
+            if(trades[i].isActive == true) continue;
+            if(user){
+                if(trades[i].user.id.toLowerCase() !== user.toLowerCase()) continue;
+            }
+            if(amm){
+                if(trades[i].ammPool.id.toLowerCase() !== amm.toLowerCase()) continue;
+            }
+            
+            pnl.push({date:trades[i].created,value:trades[i].tradeBalance.pnl})
+            avg += Number(trades[i].tradeBalance.pnl);
+        }
+    }
+    else{
+        
+        for (let i = 0; i < trades.length;  i++) {
+            if(trades[i].isActive == true) continue;
+            if(user){
+                if(trades[i].user.id.toLowerCase() !== user.toLowerCase()) continue;
+            }
+            if(amm){
+                if(trades[i].ammPool.id.toLowerCase() !== amm.toLowerCase()) continue;
+            }
+            
+            pnl.push({date:trades[i].created,value:trades[i].tradeBalance.pnl})
+            avg += Number(trades[i].tradeBalance.pnl);
+        }
     }
     avg = avg/pnl.length;
     return {pnl,avg};
@@ -18,13 +42,14 @@ export const getPNlByUser = (trades: any, user: Address,newArrLength:number) => 
 export const getTradeDurationByUser = (trades: any, newArrLength?:number,user?: Address,amm?:Address) => {
     let duration :{ date: string; value: number; }[] = [];;
     let avg =0;
-    for (let i = newArrLength? trades.length >= newArrLength? newArrLength-1:trades.length-1:trades.length-1; i >=0; i--) {
+    for (let i = newArrLength? trades.length - newArrLength:0; i  < trades.length; i++) {
         if(user){
-            if(trades[i].user.id.toLowerCase() !== user.toLowerCase() || trades[i].isActive == true) continue;
+            if(trades[i].user.id.toLowerCase() !== user.toLowerCase()) continue;
         }
         if(amm){
             if(trades[i].ammPool.id.toLowerCase() !== amm.toLowerCase()) continue;
         }
+        if(trades[i].isActive == true) continue;
         duration.push({date:trades[i].created,value:trades[i].tradeBalance.exitTime - trades[i].created})
         avg += trades[i].tradeBalance.exitTime - trades[i].created;
     }
