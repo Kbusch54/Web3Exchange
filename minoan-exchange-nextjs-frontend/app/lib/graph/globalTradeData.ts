@@ -49,7 +49,7 @@ export const getGlobalTradeData = cache(async function fetchGlobalTradeData() {
           marketPrice
           indexPrice
         }
-        snapshots {
+        snapshots(orderDirection: desc, orderBy: index) {
           quoteAssetReserve
           baseAssetReserve
           marketPrice
