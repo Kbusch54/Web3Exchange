@@ -6,7 +6,7 @@ interface Props { }
 export default function page({ }: Props): ReactElement {
   return (
 
-    <section className="min-h-screen  text-center" id="top">
+    <section className="text-center">
       <FirstSection/>
 
      
