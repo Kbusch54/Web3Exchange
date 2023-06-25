@@ -348,6 +348,9 @@ contract VAmm {
         ammViewer.emitAmmClosePosition(positionSize);
         updateFutureFundingRate();
         absolutePositionSize==0? isFrozen = true : isFrozen = false;
+        if(absolutePositionSize==0){
+            ammViewer.emitFreeze();
+        }
     }
 
 
