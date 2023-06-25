@@ -21,7 +21,12 @@ const TinyBar: React.FC<Props> = ({ userData, user }) => {
     return (
         <div className='col-span-6 2xl:col-span-2 self-center mx-16 mt-4 md:mx-40 md:mt-6 2xl:mx-0 2xl:mt-0 2xl:pr-4'>
             <div className='flex flex-row justify-between bg-slate-800 rounded-2xl px-4 my-4 relative'>
-                <p className='text-white text-3xl text-center p-4'>{graphType == 0 ? 'PNL' : "Trade Duration"}</p>
+                <div className='text-white text-3xl text-left p-4 flex flex-row gap-x-4'>
+                    <p>{graphType == 0 ? 'PNL' : "Duration"}</p>
+                <p className='text-xs bg-amber-600 text-white p-1 rounded-3xl text-center self-center'>Last 9 trades</p>
+                </div>
+                
+                
                 <button className={`text-3xl text-white ${selected ? 'hidden' : 'block'}`} onClick={() => setSelected(prev => !prev)} >
                     <KeyboardArrowDownIcon height={50} />
                 </button>
@@ -29,7 +34,7 @@ const TinyBar: React.FC<Props> = ({ userData, user }) => {
                     <KeyboardArrowUpIcon height={50} />
                 </button>
                 <div className={`absolute right-0 top-24 w-full  ${selected ? 'grid' : 'hidden'} bg-slate-800 border-2 border-slate-700  grid-cols-2   `} >
-                    <button onClick={() => setGraphType(0)} className={` col-span-1 text-lg text-center ${graphType == 1 ? 'text-white hover:text-slate-800 hover:bg-white  hover:scale-110' : 'text-slate-800 bg-white border-4 border-slate-900 scale-90'}`}>PNL</button>
+                    <button onClick={() => setGraphType(0)} className={` col-span-1 text-lg text-center ${graphType == 1 ? 'text-white hover:text-slate-800 hover:bg-white  hover:scale-110' : 'text-slate-800 bg-white border-4 border-slate-900 scale-90'}`}>PNL </button>
                     <button onClick={() => setGraphType(1)} className={` col-span-1 text-lg text-center ${graphType == 0 ? 'text-white hover:text-slate-800 hover:bg-white  hover:scale-110' : 'text-slate-800 bg-white border-4 border-slate-900 scale-90'}`}>Trade Durations</button>
                 </div>
             </div>
