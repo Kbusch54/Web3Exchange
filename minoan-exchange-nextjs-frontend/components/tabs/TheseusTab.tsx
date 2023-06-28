@@ -9,7 +9,7 @@ import ReachartsEx from "../charts/poolCharts/ReachartsEx";
 import RechartPie from "../charts/poolCharts/recharts/RechartPie";
 import ReachartLines from "../charts/poolCharts/recharts/RechartLines";
 import RechartDoubleBar from "../charts/poolCharts/recharts/RechartDoubleBar";
-import { getTradeHistory, proposalsExecutedByAmm } from "utils/helpers/dataMutations";
+import { getPNlByUser, getTradeHistory, getTradeShortVLong, proposalsExecutedByAmm } from "utils/helpers/dataMutations";
 import { fetchStakes } from "app/lib/graph/stakes";
 import { use } from "react";
 import { getAmmName } from "utils/helpers/doas";
@@ -36,18 +36,18 @@ type Trades = {
   }[];
 };
 export default function TheseusTab() {
-  const [value, setValue] = React.useState("1");
+  const [value, setValue] = React.useState("2");
 
   const handleChange = (event: React.SyntheticEvent, newValue: string) => {
     setValue(newValue);
   };
-  const dddd = proposalsExecutedByAmm();
+  const proposalData = use(proposalsExecutedByAmm());
   const {trades}:Trades = use(getGlobalTradeData())as Trades;
   const stakes:Stakes = use(fetchStakes()) as Stakes;
   const stakingData: { name: string; value: number; }[] = [];
-
-  const tradeData = getTradeHistory(trades,undefined,undefined);
-  console.log('tradeData', tradeData);
+  const longVsShort = getTradeShortVLong(trades);
+  const {data ,pnl} = getTradeHistory(trades,undefined,undefined);
+  console.log('pnl', pnl);
   const ammStakeMap = new Map();
   for(let i = 0; i < stakes.stakes?.length; i++){
     let amm;
@@ -74,18 +74,16 @@ stakingData.push({name: key, value: value})
             variant="scrollable"
             textColor="inherit"
           >
-            <Tab className="text-white" label="Insurance Fund" value="1" />
+
             <Tab className="text-white" label="Pool Earnings" value="2" />
             <Tab className="text-white" label="Staked in Pools" value="3" />
             <Tab className="text-white" label="Long vs Shorts" value="4" />
             <Tab className="text-white" label="Trades" value="5" />
             <Tab className="text-white" label="Proposals" value="6" />
-            <Tab className="text-white" label="Avg Pnl" value="7" />
+            <Tab className="text-white" label="Pnl" value="7" />
           </TabList>
         </Box>
-        <TabPanel value="1">
-          <ReachartsEx height={400} />
-        </TabPanel>
+
         <TabPanel value="2">
           <ReachartsEx height={400} />
         </TabPanel>
@@ -93,15 +91,15 @@ stakingData.push({name: key, value: value})
           <RechartPie  dataForPie={stakingData} toolTipLabel="$"/>
         </TabPanel>
         <TabPanel value="4">
-          <RechartPie />
+          <RechartPie dataForPie={longVsShort} />
         </TabPanel>
         <TabPanel value="5">
           <div className="grid grid-cols-4 items-center mx-2">
             <div className=" hidden  lg:inline lg:col-span-3">
-              <ReachartLines height={400} lineData={tradeData}  />
+              <ReachartLines height={400} lineData={data}  />
             </div>
             <div className="col-span-4 lg:hidden">
-              <ReachartLines height={200} lineData={tradeData}  />
+              <ReachartLines height={200} lineData={data}  />
             </div>
             <div className="col-span-4 lg:col-span-1">
               <RechartPie />
@@ -109,10 +107,10 @@ stakingData.push({name: key, value: value})
           </div>
         </TabPanel>
         <TabPanel value="6">
-          <RechartDoubleBar />
+          <RechartDoubleBar dataForGraph={proposalData} />
         </TabPanel>
         <TabPanel value="7">
-          <ReachartLines height={400} />
+          <ReachartLines height={400} lineData={pnl} type="$" />
         </TabPanel>
       </TabContext>
     </Box>
