@@ -37,7 +37,7 @@ async function page(props: Props) {
       <div className="flex flex-row justify-between">
         <div className="mt-12 ml-24 text-white  ">
           <h1 className="text-5xl ">Theseus DAO</h1>
-          <Balances />
+          <Balances data={data}/>
         </div>
         <div className="hidden lg:block">
           <Image alt={"theseus"} src={theseus} height={720} />

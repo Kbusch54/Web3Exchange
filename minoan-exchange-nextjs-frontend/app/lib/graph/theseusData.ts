@@ -69,6 +69,13 @@ export const fetchTheseus = cache(async function fetchData(user: string, theseus
             availableUsdc
           }
         }
+        trades{
+          isActive
+          startingCost
+        }
+        balances{
+          availableUsdc
+        }
         }
     `;
   
