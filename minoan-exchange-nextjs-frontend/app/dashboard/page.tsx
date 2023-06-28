@@ -29,13 +29,11 @@ export default async function page() {
         return redirect("/auth/signin?callbackUrl=/dashboard")
     }
     const user:Address = session.user.name as Address;
-    console.log('this is user',session);
     const userData = await getUserData(user);
-    console.log('this is user data',userData)
     // @ts-ignore
     const vaultBal = userData.users[0] ? userData.users[0].balances.availableUsdc : 0;
     // @ts-ignore
-    const lineData = getTradeHistory(userData.trades,user)
+    const {data:lineData} = getTradeHistory(userData.trades,user)
     // console.log('this is userdtaa',userData);
 
     return (
