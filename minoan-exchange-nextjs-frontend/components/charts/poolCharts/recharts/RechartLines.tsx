@@ -10,7 +10,7 @@ import {
     Legend,
   } from "recharts";
   import { format, parseISO } from "date-fns";
-import { convertCamelCaseToTitle, getHoursAndMinutes } from "utils/helpers/functions";
+import { convertCamelCaseToTitle, getHoursAndMinutes, moneyFormatter } from "utils/helpers/functions";
 
   const data =  [{ date: '2023-06-16', Tesla: 0, Google: 0, Meta: 0, All: 0 },
   { date: '2023-06-16', Tesla: 1, Google: 0, Meta: 0, All: 1 },
@@ -38,7 +38,7 @@ function CustomTooltip({ active, payload, label,type }) {
          <h4>{formattedDate}</h4> 
          {
            payload.map((item:any,index:number)=>{
-             return <p key={item}>{type=='time'?getHoursAndMinutes(item.value)[0].toString() :item.value} {convertCamelCaseToTitle(item.dataKey)}</p>
+             return <p key={item}>{type=='time'?getHoursAndMinutes(item.value)[0].toString() :type=='$'?`$${moneyFormatter(item.value)}`  : item.value} {convertCamelCaseToTitle(item.dataKey)}</p>
            })
           }    
          </div>
