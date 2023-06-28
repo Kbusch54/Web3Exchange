@@ -32,7 +32,7 @@ export const getPNlByUser = (trades: any, user?: Address,newArrLength?:number,am
                 if(trades[i].ammPool.id.toLowerCase() !== amm.toLowerCase()) continue;
             }
             
-            pnl.push({date:trades[i].created,value:trades[i].tradeBalance.pnl})
+            pnl.push({date: new Date(trades[i].created * 1000).toISOString().substring(0, 10),value:trades[i].tradeBalance.pnl})
             avg += Number(trades[i].tradeBalance.pnl);
         }
     }
@@ -142,30 +142,42 @@ export const getProposalTime = (proposals: any, amm?:Address,user?:Address) => {
 }
 
 export const getTradeHistory = (trades: any, user?: Address,amm?:Address) => {
-    let data: { date: string; Tesla: number; Google: number; Meta: number; All: number; }[] = [];
+    let neData: { date: string; Tesla: number; Google: number; Meta: number; All: number; }[] = [];
+    let pnl :{ date: string; Tesla: number; Google: number; Meta: number; All: number; }[] = [];
     let dateMap = new Map();
+    let pnlMap = new Map();
     let leastDate;
     for (let i = 0; i <trades.length; i++) {
         if(user){
             if(trades[i].user.id.toLowerCase() !== user.toLowerCase() || trades[i].isActive == true) continue;
         }
         if(amm){
+            // console.log('amm before',amm,trades[i].ammPool.id.toLowerCase())
             if(trades[i].ammPool.id.toLowerCase() !== amm.toLowerCase()) continue;
         }
+        console.log('amm after',amm,trades[i].ammPool.id.toLowerCase())
         let created = new Date((trades[i].created * 1000) ).toISOString().substring(0, 10);
         if(!leastDate) leastDate = created;
         if(leastDate > created) leastDate = created;
         if(dateMap.has(created)){
             let temp = dateMap.get(created);
+            let pnlTemp = pnlMap.get(created);
             temp[getAmmName(trades[i].ammPool.id) as keyof typeof temp] ++;
+            pnlTemp[getAmmName(trades[i].ammPool.id) as keyof typeof temp] += Number(trades[i].tradeBalance.pnl);
             temp['All'] ++;
+            pnlTemp['All'] += Number(trades[i].tradeBalance.pnl);
             dateMap.set(created,temp);
+            pnlMap.has(created)&&pnlMap.set(created,pnlTemp)
         }else{
+            let pnlTemp :{ "Tesla": number; "Google": number; "Meta": number; "All": number; }= { "Tesla": 0, "Google": 0, "Meta": 0, "All": 0 };
             let temp: { "Tesla": number; "Google": number; "Meta": number; "All": number; }= {"Tesla":0,"Google":0,"Meta":0,"All":0};
             let ammName = getAmmName(trades[i].ammPool.id);
             temp[ammName as keyof typeof temp] ++;
+            pnlTemp[ammName as keyof typeof temp] += Number(trades[i].tradeBalance.pnl);
+            pnlTemp['All'] += Number(trades[i].tradeBalance.pnl);
             temp['All'] ++;
             dateMap.set(created,temp);
+            !pnlMap.has(created)&&pnlMap.set(created,pnlTemp)
         }   
     }
     if(amm){
@@ -173,20 +185,39 @@ export const getTradeHistory = (trades: any, user?: Address,amm?:Address) => {
         // @ts-ignore
         let newData: { date: string , [key: string]: number }[] = [];
         // @ts-ignore
+        let pnlData: { date: string , [key: string]: number }[] = [];
+        // @ts-ignore
         newData.push({ date: leastDate, [name]: 0 });
         dateMap.forEach((value, key) => {
             newData.push({ date: key, [name]: value[name] }); // Use square brackets to set the key dynamically
             
         });
-        return newData;
+        pnlMap.forEach((value, key) => {
+            pnlData.push({ date: key, [name]: value[name] }); // Use square brackets to set the key dynamically
+            
+        });
+         let data = newData;
+        console.log('newData',newData)
+        return {data,pnlMap};
     }else{
         // @ts-ignore
-        data.push({date:leastDate,Tesla:0,Google:0,Meta:0,All:0})
+        neData.push({date:leastDate,Tesla:0,Google:0,Meta:0,All:0})
         dateMap.forEach((value, key) => {
-            data.push({date:key,Tesla:value.Tesla,Google:value.Google,Meta:value.Meta,All:value.All})
+            neData.push({date:key,Tesla:value.Tesla,Google:value.Google,Meta:value.Meta,All:value.All})
         });
-        return data;
+        pnlMap.forEach((value, key) => {
+            pnl.push({date:key,Tesla:value.Tesla,Google:value.Google,Meta:value.Meta,All:value.All})
+        });
+        let data = neData;
+        return {data,pnl};
     }
+}
+export const getTradeShortVLong = (trades: any, user?: Address,amm?:Address) => {
+    let data =[{name:'long',value:0},{name:'short',value:0}];
+    for (let i = 0; i <trades.length; i++) {
+        trades[i].tradeBalance.side == 1?data[0].value++:data[1].value++;
+    }
+    return data;
 }
 export const getProposalSignersByAmm = cache(async(amm?:Address,user?:Address) => {
         const proposals = await getAllProposals();
