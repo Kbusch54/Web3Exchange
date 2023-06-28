@@ -106,7 +106,7 @@ async function fetchGlobalTradeData() {
   }
 `;
 
-// (orderBy: created orderDirection: desc)
+    // (orderBy: created orderDirection: desc)
 
     const endpoint = "https://api.studio.thegraph.com/query/46803/subgraph-minoan/version/latest";
     // const variables = {};
@@ -116,9 +116,9 @@ async function fetchGlobalTradeData() {
 }
 
 
-const AllTrades: React.FC<Props> = ({ user, userAvailableBalance, active = true, amm, global=false }) => {
+const AllTrades: React.FC<Props> = ({ user, userAvailableBalance, active = true, amm, global = false }) => {
     const router = useRouter();
-    const refetch = () =>{
+    const refetch = () => {
         router.refresh();
     }
     const getInterestPayment = (loanAmt: number, interestRate: number, now: number, lastInterestPayed: number, interestPeriod: number) => {
@@ -132,10 +132,10 @@ const AllTrades: React.FC<Props> = ({ user, userAvailableBalance, active = true,
         return Math.floor(Math.abs(Number(baseAsset) - Number(newBaseAsset)) - Math.abs(Number(cost) + Number(loanAmt) + Number(interestPayed)));
     }
     const encodedData = (addr1: Address, addr2: Address, num: Number, intNum: Number) => ethers.utils.defaultAbiCoder.encode(['address', 'address', 'uint256', 'int256'], [addr1, addr2, num, intNum]);
-   
+
     const tradesToRows = (trades: any) => {
         return trades.map((trade: any) => {
-            const { tradeBalance, startingCost, isActive, liquidated, vamm,user } = trade;
+            const { tradeBalance, startingCost, isActive, liquidated, vamm, user } = trade;
             const { side, positionSize, leverage, pnl, interestRate, LastFFRPayed, collateral, LastInterestPayed, tradeId, loanAmt, entryPrice } = tradeBalance;
             const { mmr, interestPeriod, maxLoan, minLoan } = vamm.loanPool;
             const { marketPrice, indexPrice } = vamm.priceData;
@@ -147,12 +147,12 @@ const AllTrades: React.FC<Props> = ({ user, userAvailableBalance, active = true,
             const tradeID = encodedData(user.id, vammAdd, trade.created, side);
             const getDateTime = (timestamp: number) => {
                 const date = new Date(timestamp * 1000);
-                const month = date.getMonth()+1;
+                const month = date.getMonth() + 1;
                 const day = date.getDate();
                 const hour = date.getHours();
                 const min = date.getMinutes();
                 const sec = date.getSeconds();
-                return `${month}/${day} ${hour > 12 ? hour - 12 : hour}:${min<10 ?'0'.concat(min.toString()):min} ${hour > 12 ? 'PM' : 'AM'}`;
+                return `${month}/${day} ${hour > 12 ? hour - 12 : hour}:${min < 10 ? '0'.concat(min.toString()) : min} ${hour > 12 ? 'PM' : 'AM'}`;
             }
             return {
                 id: tradeID,
@@ -175,7 +175,7 @@ const AllTrades: React.FC<Props> = ({ user, userAvailableBalance, active = true,
                     interestPeriod: interestPeriod,
                     interestAccrued: interestPayment,
                     startCollateral: collateral,
-                    currentCollateral: collateral  - interestPayment,
+                    currentCollateral: collateral - interestPayment,
                     openValue: 'openValue',
                     currentValue: 'currentValue',
                 },
@@ -192,46 +192,74 @@ const AllTrades: React.FC<Props> = ({ user, userAvailableBalance, active = true,
         })
 
     }
-    const tradeData:any = use(getGlobalTradeData());
-    if(tradeData.error) return <div>Error...</div>;
+    const tradeData: any = use(getGlobalTradeData());
+    if (tradeData.error) return <div>Error...</div>;
 
     const rows: rows = tradesToRows(tradeData.trades);
     let inD = 0;
-    const ammId = amm?getAmmId(amm):null;
+    const ammId = amm ? getAmmId(amm) : null;
     if (!global) {
-        return (
-            <div className='border-2 border-amber-400/20 flex flex-col bg-slate-900 shadow-lg shadow-amber-400 rounded-2xl'>
-                <div className='grid grid-cols-7 justify-evenly text-center '>
-                    <div className='text-white text-lg lg:text-2xl m-2'>TradeId</div>
-                    <div className='text-white text-lg lg:text-2xl m-2'>Assets</div>
-                    <div className='text-white text-lg lg:text-2xl m-2'>Side</div>
-                    <div className='text-white text-lg lg:text-2xl m-2'>Position Size</div>
-                    <div className='text-white text-lg lg:text-2xl m-2'>Leverage</div>
-                    <div className='text-white text-lg lg:text-2xl m-2'>Pnl</div>
-                    <div className='text-white text-lg lg:text-2xl m-2'>Active Since</div>
-                </div>
-                <hr className='border-white' />
-                {/* @ts-ignore */}
-                {rows.map((row, index) => {
-                    if (active && row.isActive && !row.liquidated && String(row.userAdd).toLowerCase() === String(user).toLowerCase()) {
-                        if(amm? (String(row.vamm).toLowerCase() === String(ammId).toLowerCase()):true){
-                            return <SingleTrade key={row.id} row={row} index={index} user={user} userAvailableBalance={userAvailableBalance} refetch={refetch}/>;
-                        }else{
+        if (active) {
+            return (
+                <div className='border-2 border-amber-400/20 flex flex-col bg-slate-900 shadow-lg shadow-amber-400 rounded-2xl'>
+                    <div className='grid grid-cols-7 justify-evenly text-center '>
+                        <div className='text-white text-lg lg:text-2xl m-2'>TradeId</div>
+                        <div className='text-white text-lg lg:text-2xl m-2'>Assets</div>
+                        <div className='text-white text-lg lg:text-2xl m-2'>Side</div>
+                        <div className='text-white text-lg lg:text-2xl m-2'>Position Size</div>
+                        <div className='text-white text-lg lg:text-2xl m-2'>Leverage</div>
+                        <div className='text-white text-lg lg:text-2xl m-2'>Pnl</div>
+                        <div className='text-white text-lg lg:text-2xl m-2'>Active Since</div>
+                    </div>
+                    <hr className='border-white' />
+                    {/* @ts-ignore */}
+                    {rows.map((row, index) => {
+                        if (active && row.isActive && !row.liquidated && String(row.userAdd).toLowerCase() === String(user).toLowerCase()) {
+                            if (amm ? (String(row.vamm).toLowerCase() === String(ammId).toLowerCase()) : true) {
+                                return <SingleTrade key={row.id} row={row} index={index} user={user} userAvailableBalance={userAvailableBalance} refetch={refetch} />;
+                            } else {
+                                return null;
+                            }
+                        } else if (!active && (!row.isActive || row.liquidated) && String(row.userAdd).toLowerCase() === String(user).toLowerCase()) {
+                            if (amm ? (String(row.vamm).toLowerCase() === String(ammId).toLowerCase()) : true) {
+                                return <SingleTrade key={row.id} row={row} index={index} user={user} userAvailableBalance={userAvailableBalance} refetch={refetch} />;
+                            } else {
+                                return null;
+                            }
+                        } else {
                             return null;
                         }
-                    } else if (!active && (!row.isActive || row.liquidated) &&String(row.userAdd).toLowerCase() === String(user).toLowerCase()) {
-                        if(amm? (String(row.vamm).toLowerCase() === String(ammId).toLowerCase()):true){
-                            return <SingleTrade key={row.id} row={row} index={index} user={user} userAvailableBalance={userAvailableBalance} refetch={refetch} />;
-                        }else{
-                            return null;
-                        }
-                    } else {
-                        return null;
-                    }
-                })}
+                    })}
 
-            </div>
-        )
+                </div>
+            )
+        } else {
+            return (
+                <div className='border-2 border-amber-400/20 flex flex-col bg-slate-900 shadow-lg shadow-amber-400 rounded-2xl'>
+                    <div className='grid grid-cols-7 justify-evenly text-center '>
+                        <div className='text-white text-lg lg:text-2xl m-2'>TradeId</div>
+                        <div className='text-white text-lg lg:text-2xl m-2'>Assets</div>
+                        <div className='text-white text-lg lg:text-2xl m-2'>Side</div>
+                        <div className='text-white text-lg lg:text-2xl m-2'>Open Position Size</div>
+                        <div className='text-white text-lg lg:text-2xl m-2'>Open Leverage</div>
+                        <div className='text-white text-lg lg:text-2xl m-2'>Pnl</div>
+                        <div className='text-white text-lg lg:text-2xl m-2'>Created</div>
+                    </div>
+                    <hr className='border-white' />
+                    {/* @ts-ignore */}
+                    {rows.map((row, index) => {
+                       if(!active && (!row.isActive || row.liquidated) && String(row.userAdd).toLowerCase() === String(user).toLowerCase()) {
+                            if (amm ? (String(row.vamm).toLowerCase() === String(ammId).toLowerCase()) : true) {
+                                return <SingleTrade key={row.id} row={row} index={index} user={user} userAvailableBalance={userAvailableBalance} refetch={refetch} />;
+                            } else {
+                                return null;
+                            }
+                        }
+                    })}
+
+                </div>
+            )
+        }
     } else {
         return (
             <div className='border-2 border-amber-400/20 flex flex-col bg-slate-900 shadow-lg shadow-amber-400 rounded-2xl'>
@@ -248,15 +276,15 @@ const AllTrades: React.FC<Props> = ({ user, userAvailableBalance, active = true,
                 {/* @ts-ignore */}
                 {rows.map((row, index) => {
                     if (active && row.isActive && !row.liquidated && String(row.userAdd).toLowerCase() != String(user).toLowerCase()) {
-                        if(amm? (String(row.vamm).toLowerCase() === String(ammId).toLowerCase()):true){
+                        if (amm ? (String(row.vamm).toLowerCase() === String(ammId).toLowerCase()) : true) {
                             return <SingleGlobalTrade key={row.id} row={row} index={index} />;
-                        }else{
+                        } else {
                             return null;
                         }
                     } else if (!active && (!row.isActive || row.liquidated) && String(row.userAdd).toLowerCase() != String(user).toLowerCase()) {
-                        if(amm? (String(row.vamm).toLowerCase() === String(ammId).toLowerCase()):true){
+                        if (amm ? (String(row.vamm).toLowerCase() === String(ammId).toLowerCase()) : true) {
                             return <SingleGlobalTrade key={row.id} row={row} index={index} />;
-                        }else{
+                        } else {
                             return null;
                         }
                     } else {

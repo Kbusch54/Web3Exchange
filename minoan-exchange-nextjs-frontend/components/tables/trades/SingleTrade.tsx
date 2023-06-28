@@ -1,19 +1,14 @@
 'use client';
 import React, { useEffect, useState } from 'react'
 import SideSelection from '../utils/SideSelection';
-import AddCollateralModal from '../../modals/trade/AddCollateralModal';
 import { Address } from 'wagmi';
-import RemoveCollateralModal from '../../modals/trade/RemoveCollateralModal';
-import AddLiquidityModal from '../../modals/trade/AddLiquidityModal';
-import RemoveLiquidityModal from '../../modals/trade/RemoveLiquidityModal';
-import ClosePositionModal from '../../modals/trade/ClosePositionModal';
-import { formatEther, formatUnits } from 'ethers/lib/utils.js';
 import { moneyFormatter } from '../../../utils/helpers/functions';
 import { Transition } from '@headlessui/react';
 import TradeInformation from './TradeInformation';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import Copy from 'components/utils/Copy';
+import PastTradeInformation from './PastTradeInformation';
 
 interface Props {
     refetch: () => void;
@@ -28,6 +23,7 @@ interface Props {
         lev: number;
         pnl: string;
         created: number;
+        isActive: boolean;
         information: {
             mmr: number;
             ffr: number;
@@ -89,7 +85,12 @@ const SingleTrade: React.FC<Props> = ({ row, index, userAvailableBalance, user,r
                     leaveFrom="translate-x-0"
                     leaveTo="-translate-x-full"
                 >
-                    <TradeInformation row={row} user={user} userAvailableBalance={userAvailableBalance} refetch={refetch}/>
+                    {row.isActive?(
+
+                        <TradeInformation row={row} user={user} userAvailableBalance={userAvailableBalance} refetch={refetch}/>
+                        ):(
+                        <PastTradeInformation row={row} user={user} userAvailableBalance={userAvailableBalance} refetch={refetch}/>
+                        )}
                 </Transition>
             </div>
         </div>
