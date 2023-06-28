@@ -19,17 +19,15 @@ const TypeSelection: React.FC<Props> = ({poolData,user}) => {
         setType(prevState => newType)
     }
     const stakingData = use(fetchStakes());
-    console.log('this is pool data',poolData)
     const poolBalances = poolData.vamms[0].loanPool.poolBalance;
     const trades = poolData.trades;
     const proposals = poolData.proposals;
-    console.log('this is proposals',poolData);
     const poolDataForPie = [
         { name: 'Available USDC', value: Number(poolBalances.availableUsdc)/10**6 },
         { name: 'Outstanding Loan USDC', value: Number(poolBalances.outstandingLoanUsdc)/10**6 },
     ]
     const pieDataForTrading = getTardeSidesByAmm(trades,poolData.vamms[0].loanPool.id);
-    const lineDataForTrading = getTradeHistory(trades,undefined,poolData.vamms[0].loanPool.id);
+    const {data :lineDataForTrading} = getTradeHistory(trades,undefined,poolData.vamms[0].loanPool.id);
     const lineDataForProposal = getProposalsByAmm(proposals,poolData.vamms[0].loanPool.id);
     const avgProposalTime = getProposalTime(proposals,poolData.vamms[0].loanPool.id);
     const avgSigners = use(getProposalSignersByAmm(poolData.vamms[0].loanPool.id));
