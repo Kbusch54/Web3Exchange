@@ -3,7 +3,7 @@ import React from 'react'
 import { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Bar, Cell } from 'recharts'
 
 interface Props {
-    
+    dataForGraph?:any
 }
 const data = [
     {
@@ -54,13 +54,13 @@ const data = [
     return null;
   }
 
-const RechartDoubleBar: React.FC<Props> = () => {
+const RechartDoubleBar: React.FC<Props> = ({dataForGraph}) => {
     return (
         <ResponsiveContainer width="100%" height={400}>
             <BarChart
             width={500}
             height={300}
-            data={dataMutate(data)}
+            data={dataForGraph?dataMutate(dataForGraph):dataMutate(data)}
             margin={{
                 top: 20,
                 right: 30,
