@@ -213,24 +213,24 @@ console.log('all ready here are the addresses');
 // 
 
 //logging outy the addresses
-    console.log(`const ariadneTesla ='`,teslaAriadneAddress,`'`);
-    console.log(`const ariadneGoogle ='`,googleAriadneAddress,`'`);
-    console.log(`const ariadneMeta ='`,metaAriadneAddress,`"`);
-    console.log(`const createAriadnes = "`,createAriadnes.address,`"`);
-    console.log(`const TeslaAmm = "`,teslaAmm.address,`"`);
-    console.log(`const GoogleAmm = "`,googleAmm.address,`"`);
-    console.log(`const MetaAmm = "`,metaAmm.address,`"`);
-    console.log(`const ammViewer = "`,ammViewer.address,`"`);
-    console.log(`const loanpool = "`,loanPool.address,`"`);
-    console.log(`const staking = "`,staking.address,`"`);
-    console.log(`const exchange = "`,exchange.address,`"`);
-    console.log(`const theseus = "`,theseus.address,`"`);
-    console.log(`const poolTokens = "`,poolTokens.address,`"`);
-    console.log(`const stakingHelper = "`,stakerHelper.address,`"`);
-    console.log(`const payload = "`,payload.address,`"`);
-    console.log(`const exchangeViewer = "`,exchangeViewer.address,`"`);
-    console.log(`const usdc = "`,usdc.address,`"`);
-    console.log(`const library ='`, library.address,`'`);
+    console.log(`const ariadneTesla:Address ="`,teslaAriadneAddress,`"`);
+    console.log(`const ariadneGoogle:Address ="`,googleAriadneAddress,`"`);
+    console.log(`const ariadneMeta:Address ="`,metaAriadneAddress,`"`);
+    console.log(`const createAriadnes:Address = "`,createAriadnes.address,`"`);
+    console.log(`const TeslaAmm:Address = "`,teslaAmm.address,`"`);
+    console.log(`const GoogleAmm:Address = "`,googleAmm.address,`"`);
+    console.log(`const MetaAmm:Address = "`,metaAmm.address,`"`);
+    console.log(`const ammViewer:Address = "`,ammViewer.address,`"`);
+    console.log(`const loanpool:Address = "`,loanPool.address,`"`);
+    console.log(`const staking:Address = "`,staking.address,`"`);
+    console.log(`const exchange:Address = "`,exchange.address,`"`);
+    console.log(`const theseus:Address = "`,theseus.address,`"`);
+    console.log(`const poolTokens:Address = "`,poolTokens.address,`"`);
+    console.log(`const stakingHelper:Address = "`,stakerHelper.address,`"`);
+    console.log(`const payload:Address = "`,payload.address,`"`);
+    console.log(`const exchangeViewer:Address = "`,exchangeViewer.address,`"`);
+    console.log(`const usdc:Address = "`,usdc.address,`"`);
+    console.log(`const library:Address ="`, library.address,`"`);
 
     
 

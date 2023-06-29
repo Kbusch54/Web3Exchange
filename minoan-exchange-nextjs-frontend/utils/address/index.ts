@@ -1,23 +1,23 @@
 import { Address } from "wagmi/dist"
 // 0x87ad83DC2F12A14C85D20f178A918a65Edfe1B42
-const ariadneTesla:Address ='0xA55340Cb5e6fBB8e5Bf6Ded140056e09Dc172761'
-const ariadneGoogle:Address ='0x1026B9CDBdAA2edaC4F1d398933fEF47Ad2F44B5'
-const ariadneMeta:Address ='0x4Db44592B3BD30940bf72BCd3e8C0d5F3fB4a707'
-const createAriadnes:Address = "0x8A14D2a9669D3cEEc3038A7d7DBBBA49fe517e85"
-const TeslaAmm:Address ="0xd03605192d07Be814B409293beE01B0abE0B1685"
-const GoogleAmm:Address ="0x45C415C7C9fa0081d3244612902b52da6a22f439"
-const MetaAmm:Address ="0xB77B90B93be5b2964dEf0faC6F5C372d95AB3776"
-const ammViewer:Address ="0xE1c16CA78CAfD20044238D8A08Cd983249870221"
-const loanpool:Address ="0xd13427B7aa8Ef6f3B009F07D3c6762a3354B3C68"
-const staking:Address ="0x07d1495D080f2C986C9e87C916326eFd2E6c6015"
-const exchange:Address ="0x909ABE9609cC77286f5201d6CfFB91aCefC86903"
-const theseus:Address ="0x831EA4685Fc3b8fF331eB4887070Ba42C15FC8E4"
-const poolTokens:Address ="0xC910f7B18C061a9533E3006893F9174B8D58c36e"
-const stakingHelper:Address ="0x8fb047e27c6dc702d2d542e3097660134d8aca0E"
-const payload:Address ="0x31b1b5d2e0D99b0A5512f1e11EC59BF843d1dD98"
-const exchangeViewer:Address ="0x8E63036a15314045b2C66f4Ef694421643a66764"
-const usdc:Address ="0xe5E99f23c8a14568936b64445ee76B919B2A956f"
-const library:Address ='0xbab8bE5a29BeEF17A644931829b260F1dc12265d'
+const ariadneTesla:Address ="0x164444b95f54E619438C3132967464D07EE93bB2"
+const ariadneGoogle:Address ="0xc60aD0B017C6E1BC55D5d7fcEa9F2037b26a8b01"
+const ariadneMeta:Address ="0xC48c8324938F52103d557153ca07a2529919d9b6"
+const createAriadnes:Address ="0x0F19f9B392a9ECcF0518F4af2dB27a9A39D25395"
+const TeslaAmm:Address ="0xB9bbeB3B30C89b34F1D06434164Fd27beDb565E4"
+const GoogleAmm:Address ="0xf25Eb8B7817797B86aae3c19fdDcF787323e2152"
+const MetaAmm:Address ="0x0FFaE85a8f923E3d078598083B88c194442B6544"
+const ammViewer:Address ="0xD2b4FaBEA3A7a620c091EE447775733B0Fe6C23F"
+const loanpool:Address ="0x8071f9eF2715d99A9C6E59A90C7adD22357F251b"
+const staking:Address ="0x0cb6aa84aDaadeA6aE7E7B5616207c8A09F7360b"
+const exchange:Address ="0xF94Ad8f331830D353782bac55AD4965f35aC3cD6"
+const theseus:Address ="0x9971256545fe1eE74B224b3D0cA5B4e6DDc3283d"
+const poolTokens:Address ="0x6BbD089D16C3dd4EE54297EbCeb4489885C6263b"
+const stakingHelper:Address ="0x0Cfc74925b7D381D22B6182bb0c8390345AD68f3"
+const payload:Address ="0xcC26b3C51Fbbe71BeE6849CDA830b8c4De55Bc20"
+const exchangeViewer:Address ="0xE7A6830cffa37909f0438e4a545650Eb8AbfaEaa"
+const usdc:Address ="0x63df0332A87393687Fa87F432CcD8f99DEE8Daa6"
+const library:Address ="0x55e149319D2fC44AFB972dF034940906e4c806c9"
 export {usdc,exchange,exchangeViewer,payload,poolTokens,theseus,staking,loanpool,ammViewer,MetaAmm,GoogleAmm,TeslaAmm,createAriadnes,library,ariadneMeta,stakingHelper,ariadneGoogle,ariadneTesla
 }
 
