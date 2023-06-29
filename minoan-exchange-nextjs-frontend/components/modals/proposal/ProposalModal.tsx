@@ -64,7 +64,7 @@ interface Props {
     votesNeededPercentage: number,
     votingTime: number,
     poolToken: { 
-      totalSupply: '1009900000000000000',
+      totalSupply: number,
        tokenBalance:[ {
         tokensOwnedbByUser:number;
       }
@@ -92,9 +92,9 @@ export default function ProposalModal({currentValue,ammAddress,user,symbol,loanP
 
   const { currentId } = useGetCurrentId(symbol);
 
-  useEffect(() => {
+  // useEffect(() => {
  
-  }, [currentId]);
+  // }, [currentId]);
   const currentValues = {
     interestPeriods: currentValue.interestPeriod,
     loanInterestRate: currentValue.interestRate,
@@ -123,7 +123,7 @@ export default function ProposalModal({currentValue,ammAddress,user,symbol,loanP
     { maxLoan: [10 ** 6, 'USDC'] },
     { minHoldingsReqPercentage: [1, '%'] },
     { minLoan: [10 ** 6, 'USDC'] },
-    { tradingFee: [10 ** 5, '%'] },
+    { tradingFee: [10 ** 4, '%'] },
   ];
 
 
