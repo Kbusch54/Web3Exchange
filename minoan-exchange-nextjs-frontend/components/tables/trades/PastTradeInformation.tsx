@@ -37,11 +37,25 @@ interface Props {
             maxLoanAmt: number,
             interestPeriodsPassed: number
             minLoanAmt: number,
+            openLeverage: number,
+            openLoan: number,
+            tradingFee: number,
+            openLeverageAmt: number
         }
     }
 }
 
 const PastTradeInformation: React.FC<Props> = ({ row, user }) => {
+    const getDateTime = (timestamp: number) => {
+        const date = new Date(timestamp * 1000);
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
+        const hour = date.getHours();
+        const min = date.getMinutes();
+        const sec = date.getSeconds();
+        return `${month}/${day} ${hour > 12 ? hour - 12 : hour}:${min < 10 ? '0'.concat(min.toString()) : min} ${hour > 12 ? 'PM' : 'AM'}`;
+    }
+    console.log(row.information.exitPrice)
     return (
         <div className={`bg-slate-800 `}>
 
@@ -53,35 +67,35 @@ const PastTradeInformation: React.FC<Props> = ({ row, user }) => {
                 </div>
                 <div className='text-white text-lg flex flex-col border border-white/10'>
                     <p className='text-red-500'>Close Value</p>
-                    <p>{(20 * 100).toFixed(2)}%</p>
+                    <p>${moneyFormatter(Number(Number(row.information.exitPrice)*Number(row.size)/10**8))}</p>
                 </div>
                 <div className='text-white text-lg flex flex-col border border-white/10'>
-                    <p>Total PNl</p>
-                    <p>{Number(row.information.ffr) / 10 ** 4}</p>
+                    <p>Total PNL</p>
+                    <p>${moneyFormatter(Number(row.pnl))}</p>
                 </div>
                 <div className='text-white text-lg flex flex-col border border-white/10'>
                     <p>Interest Fees</p>
-                    <p>$123.44</p>
+                    <p>${moneyFormatter(row.information.interestAccrued)}</p>
                 </div>
                 <div className='text-white text-lg flex flex-col border border-white/10'>
                     <p>FFR Total</p>
-                    <p>${moneyFormatter(row.information.startCollateral)}</p>
+                    <p>${moneyFormatter(Number(row.information.ffr) * Number(row.other.openLoan) / 10**6)}</p>
                 </div>
                 <div className='text-white text-lg flex flex-col border border-white/10'>
                     <p>Trading Fee</p>
-                    <p>${moneyFormatter(row.information.currentCollateral)}</p>
+                    <p>${moneyFormatter(row.other.tradingFee)}</p>
                 </div>
                 <div className='text-white text-lg flex flex-col border border-white/10'>
                     <p>Total Cost</p>
-                    <p>{Number(row.information.interestRate) / 10 ** 4}%</p>
+                    <p>${moneyFormatter(Number(row.information.interestAccrued) + Number(row.other.tradingFee) + Number(Number(row.information.ffr) * Number(row.other.openLoan) / 10**6)) }</p>
                 </div>
                 <div className='text-white text-lg flex flex-col border border-white/10'>
                     <p className='text-green-500'>Open Time</p>
-                    <p>{row.other.interestPeriodsPassed}</p>
+                    <p>{row.created}</p>
                 </div>
                 <div className='text-white text-lg flex flex-col border border-white/10'>
                     <p className='text-red-500'>Close Time</p>
-                    <p>${row.information.currentValue}</p>
+                    <p>{getDateTime(row.information.exitTime)}</p>
                 </div>
                 <div className='text-white text-lg flex flex-col border border-white/10'>
                     <p className='text-green-500'>Open Collateral</p>
@@ -89,11 +103,11 @@ const PastTradeInformation: React.FC<Props> = ({ row, user }) => {
                 </div>
                 <div className='text-white text-lg flex flex-col border border-white/10'>
                     <p className='text-green-500'>Open Loan</p>
-                    <p>${row.information.currentValue}</p>
+                    <p>${moneyFormatter(row.other.openLoan)}</p>
                 </div>
                 <div className='text-white text-lg flex flex-col border border-white/10'>
                     <p className='text-green-500'>Open Leverage</p>
-                    <p>${moneyFormatter(row.information.openValue)}</p>
+                    <p>{row.other.openLeverage}</p>
                 </div>
                 <div className='text-white text-lg flex flex-col border border-white/10'>
                     <p className='text-green-500'>Open Price</p>

@@ -47,13 +47,16 @@ interface Props {
             maxLoanAmt: number,
             interestPeriodsPassed: number
             minLoanAmt: number,
+            openLeverage: number,
+            openLoanAmt: number,
+            tradingFee: number
         }
     }
 }
 
-const SingleTrade: React.FC<Props> = ({ row, index, userAvailableBalance, user,refetch }) => {
+const SingleTrade: React.FC<Props> = ({ row, index, userAvailableBalance, user, refetch }) => {
     const [toggle, setToggle] = useState<boolean>(true)
-    
+
     const handleToggle = () => {
         setToggle(!toggle)
     }
@@ -63,14 +66,21 @@ const SingleTrade: React.FC<Props> = ({ row, index, userAvailableBalance, user,r
 
 
     const margin = row.information.currentCollateral / (row.lev * row.information.startCollateral) * 100
+    // console.log('user 0x'.concat(row.id.slice(26, 66)))
+    // console.log('amm 0x'.concat(row.id.slice(90, 130)))
+    // console.log('timestamp 0x'.concat(row.id.slice(186, 194)))
+    // console.log('side 0x'.concat(row.id.slice(254, 258)))
     return (
         <div key={row.id} className=' '>
             <div className='grid grid-cols-7 justify-evenly text-center border border-amber-400/40 rounded-lg '>
                 <div className='text-white text-md  lg:text-xl m-2 gap-x-3 flex flex-row'>
                     {/* @ts-ignore */}
                     <button onClick={(e) => handleToggle(e)}>{toggle ? (<KeyboardArrowDownIcon />) : (<KeyboardArrowUpIcon />)}</button>
-                    <div>{row.id.slice(32, 42)}</div>
-                    <Copy toCopy={row.id.toString()} />
+
+                    <Copy toCopy={row.id.toString()}>
+                        <div className='hidden lg:inline'>{row.id.slice(127, 130) + row.id.slice(186, 194) + '...'}</div>
+                        <div className='inline lg:hidden text-xs'>{'id'}</div>
+                    </Copy>
                 </div>
                 <div className='text-white text-md  lg:text-xl m-2'>{row.asset}</div>
                 <div className='text-white text-md  lg:text-xl m-2'><SideSelection side={row.side} /></div>
@@ -89,12 +99,12 @@ const SingleTrade: React.FC<Props> = ({ row, index, userAvailableBalance, user,r
                     leaveFrom="translate-x-0"
                     leaveTo="-translate-x-full"
                 >
-                    {row.isActive?(
+                    {row.isActive ? (
 
-                        <TradeInformation row={row} user={user} userAvailableBalance={userAvailableBalance} refetch={refetch}/>
-                        ):(
-                        <PastTradeInformation row={row} user={user} userAvailableBalance={userAvailableBalance} refetch={refetch}/>
-                        )}
+                        <TradeInformation row={row} user={user} userAvailableBalance={userAvailableBalance} refetch={refetch} />
+                    ) : (
+                        <PastTradeInformation row={row} user={user} userAvailableBalance={userAvailableBalance} refetch={refetch} />
+                    )}
                 </Transition>
             </div>
         </div>

@@ -50,6 +50,9 @@ interface rows {
             maxLoanAmt: number,
             interestPeriodsPassed: number
             minLoanAmt: number,
+            openLoan: number,
+            openLeverage: number,
+            tradingFee: number
         }
     }
 }
@@ -125,6 +128,7 @@ const AllTrades: React.FC<Props> = ({ user, userAvailableBalance, active = true,
         router.refresh();
     }
     const getInterestPayment = (loanAmt: number, interestRate: number, now: number, lastInterestPayed: number, interestPeriod: number) => {
+        console.log('now - last',(now - lastInterestPayed) / interestPeriod) 
         return Math.floor((now - lastInterestPayed) / interestPeriod) * (loanAmt * interestRate / 10 ** 6);
     }
     const getPnl = (baseAsset: number, quoteAsset: number, psize: number,  loanAmt: number, collateral: number, interestPayed: number,tradingFee:number) => {
@@ -143,12 +147,11 @@ const AllTrades: React.FC<Props> = ({ user, userAvailableBalance, active = true,
             const { mmr, interestPeriod, maxLoan, minLoan } = vamm.loanPool;
             const { marketPrice, indexPrice } = vamm.priceData[0];
             const { ffr, baseAssetReserve, quoteAssetReserve } = vamm.snapshots[0];
-            const now = Math.floor(Date.now() / 1000);
-            const interestPayment = getInterestPayment(loanAmt, interestRate, now, LastInterestPayed, interestPeriod);
+            const now = isActive?Math.floor(Date.now() / 1000):exitTime;
+            const interestPayment = getInterestPayment(isActive?loanAmt:openLoanAmt, isActive?interestRate:openInterestRate, now, isActive?LastInterestPayed:trade.created, interestPeriod);
             const pnlCalc = getPnl(baseAssetReserve, quoteAssetReserve, positionSize,  loanAmt, collateral, interestPayment,tradingFee);
             const vammAdd = vamm.id;
             const tradeID = encodedData(user.id, vammAdd, trade.created, side);
-            isActive?console.log('trading fee',tradingFee,'$',moneyFormatter(tradingFee)):''
             const getDateTime = (timestamp: number) => {
                 const date = new Date(timestamp * 1000);
                 const month = date.getMonth() + 1;
@@ -193,6 +196,9 @@ const AllTrades: React.FC<Props> = ({ user, userAvailableBalance, active = true,
                     maxLoanAmt: maxLoan,
                     interestPeriodsPassed: Math.floor((now - LastInterestPayed) / interestPeriod),
                     minLoanAmt: minLoan,
+                    openLoan:openLoanAmt,
+                    openLeverage:openLeverage,
+                    tradingFee:tradingFee
 
                 }
             }
