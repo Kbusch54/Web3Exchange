@@ -6,6 +6,7 @@ import AddLiquidityModal from '../../modals/trade/AddLiquidityModal'
 import ClosePositionModal from '../../modals/trade/ClosePositionModal'
 import RemoveCollateralModal from '../../modals/trade/RemoveCollateralModal'
 import RemoveLiquidityModal from '../../modals/trade/RemoveLiquidityModal'
+import { moneyFormatter } from 'utils/helpers/functions'
 
 interface Props {
     refetch: () => void;
@@ -45,6 +46,7 @@ interface Props {
 
 const TradeInformation: React.FC<Props> = ({user,userAvailableBalance,row,refetch}) => {
     const margin=row.information.currentCollateral/row.other.loanAmt
+    
     return (
         <div className={`bg-slate-800 `}>
 
@@ -88,11 +90,11 @@ const TradeInformation: React.FC<Props> = ({user,userAvailableBalance,row,refetc
                             </div>
                             <div className='text-white text-lg flex flex-col border border-white/10'>
                                 <p>Open Value</p>
-                                <p>${row.information.openValue}</p>
+                                <p>${moneyFormatter(row.information.openValue)}</p>
                             </div>
                             <div className='text-white text-lg flex flex-col border border-white/10'>
                                 <p>Current Value</p>
-                                <p>${row.information.currentValue}</p>
+                                <p>${moneyFormatter(row.information.currentValue)}</p>
                             </div>
                         </div>
                         <div className='flex flex-row justify-evenly text-center text-white mt-4 pb-4 text-sm md:text-md lg:text-xl'>

@@ -8,6 +8,7 @@ import SingleGlobalTrade from './SingleGlobalTrade';
 import { getAmmId } from '../../../utils/helpers/doas';
 import { getGlobalTradeData } from '../../../app/lib/graph/globalTradeData';
 import { useRouter } from 'next/navigation';
+import { moneyFormatter } from 'utils/helpers/functions';
 
 interface Props {
     user: Address;
@@ -39,6 +40,8 @@ interface rows {
             currentCollateral: number;
             openValue: number;
             currentValue: number;
+            entryPrice: number;
+            exitPrice: number;
         }
         other: {
             baseAssetReserve: number,
@@ -124,27 +127,28 @@ const AllTrades: React.FC<Props> = ({ user, userAvailableBalance, active = true,
     const getInterestPayment = (loanAmt: number, interestRate: number, now: number, lastInterestPayed: number, interestPeriod: number) => {
         return Math.floor((now - lastInterestPayed) / interestPeriod) * (loanAmt * interestRate / 10 ** 6);
     }
-    const getPnl = (baseAsset: number, quoteAsset: number, psize: number, startingCost: number, loanAmt: number, collateral: number, interestPayed: number) => {
+    const getPnl = (baseAsset: number, quoteAsset: number, psize: number,  loanAmt: number, collateral: number, interestPayed: number,tradingFee:number) => {
         let quoteWPsz = Number(quoteAsset) + Number(psize);
         let k = Number(baseAsset) * Number(quoteAsset);
         let newBaseAsset = (Number(k)) / Number(quoteWPsz);
-        let cost = startingCost - collateral;
-        return Math.floor(Math.abs(Number(baseAsset) - Number(newBaseAsset)) - Math.abs(Number(cost) + Number(loanAmt) + Number(interestPayed)));
+        return Math.floor(Math.abs(Number(baseAsset) - Number(newBaseAsset)) - Math.abs(Number(tradingFee) + Number(loanAmt) + Number(interestPayed)));
     }
     const encodedData = (addr1: Address, addr2: Address, num: Number, intNum: Number) => ethers.utils.defaultAbiCoder.encode(['address', 'address', 'uint256', 'int256'], [addr1, addr2, num, intNum]);
 
     const tradesToRows = (trades: any) => {
         return trades.map((trade: any) => {
-            const { tradeBalance, startingCost, isActive, liquidated, vamm, user } = trade;
-            const { side, positionSize, leverage, pnl, interestRate, LastFFRPayed, collateral, LastInterestPayed, tradeId, loanAmt, entryPrice } = tradeBalance;
+            const { tradeBalance, startingCost, isActive, liquidated, vamm, user,tradeOpenValues } = trade;
+            const {	openValue,openLoanAmt,openCollateral,openLeverage,openEntryPrice,openPositionSize,openInterestRate,tradingFee  } = tradeOpenValues;
+            const { side, positionSize, leverage, pnl, interestRate, LastFFRPayed, collateral, LastInterestPayed, tradeId, loanAmt, entryPrice,exitPrice,exitTime  } = tradeBalance;
             const { mmr, interestPeriod, maxLoan, minLoan } = vamm.loanPool;
-            const { marketPrice, indexPrice } = vamm.priceData;
+            const { marketPrice, indexPrice } = vamm.priceData[0];
             const { ffr, baseAssetReserve, quoteAssetReserve } = vamm.snapshots[0];
             const now = Math.floor(Date.now() / 1000);
             const interestPayment = getInterestPayment(loanAmt, interestRate, now, LastInterestPayed, interestPeriod);
-            const pnlCalc = getPnl(baseAssetReserve, quoteAssetReserve, positionSize, startingCost, loanAmt, collateral, interestPayment);
+            const pnlCalc = getPnl(baseAssetReserve, quoteAssetReserve, positionSize,  loanAmt, collateral, interestPayment,tradingFee);
             const vammAdd = vamm.id;
             const tradeID = encodedData(user.id, vammAdd, trade.created, side);
+            isActive?console.log('trading fee',tradingFee,'$',moneyFormatter(tradingFee)):''
             const getDateTime = (timestamp: number) => {
                 const date = new Date(timestamp * 1000);
                 const month = date.getMonth() + 1;
@@ -158,8 +162,8 @@ const AllTrades: React.FC<Props> = ({ user, userAvailableBalance, active = true,
                 id: tradeID,
                 side: side,
                 asset: vamm.symbol,
-                size: positionSize,
-                lev: leverage,
+                size: active?positionSize:openPositionSize,
+                lev: active?leverage:openLeverage,
                 pnl: pnlCalc,
                 created: getDateTime(trade.created),
                 isActive: isActive,
@@ -171,13 +175,16 @@ const AllTrades: React.FC<Props> = ({ user, userAvailableBalance, active = true,
                     ffr: ffr,
                     ffrReturn: 'ffrReturn',
                     liquidationPrice: 'liquidationPrice',
-                    interestRate: interestRate,
+                    interestRate:active? interestRate:openInterestRate,
                     interestPeriod: interestPeriod,
                     interestAccrued: interestPayment,
-                    startCollateral: collateral,
+                    startCollateral: openCollateral,
                     currentCollateral: collateral - interestPayment,
-                    openValue: 'openValue',
-                    currentValue: 'currentValue',
+                    openValue: openEntryPrice*openPositionSize/10**8,
+                    currentValue: Number(marketPrice)*Number(positionSize)/10**8,
+                    entryPrice: entryPrice,
+                    exitPrice:exitPrice,
+                    exitTime:exitTime
                 },
                 other: {
                     baseAssetReserve: baseAssetReserve,
@@ -200,6 +207,7 @@ const AllTrades: React.FC<Props> = ({ user, userAvailableBalance, active = true,
     const ammId = amm ? getAmmId(amm) : null;
     if (!global) {
         if (active) {
+            
             return (
                 <div className='border-2 border-amber-400/20 flex flex-col bg-slate-900 shadow-lg shadow-amber-400 rounded-2xl'>
                     <div className='grid grid-cols-7 justify-evenly text-center '>
@@ -214,6 +222,7 @@ const AllTrades: React.FC<Props> = ({ user, userAvailableBalance, active = true,
                     <hr className='border-white' />
                     {/* @ts-ignore */}
                     {rows.map((row, index) => {
+                        
                         if (active && row.isActive && !row.liquidated && String(row.userAdd).toLowerCase() === String(user).toLowerCase()) {
                             if (amm ? (String(row.vamm).toLowerCase() === String(ammId).toLowerCase()) : true) {
                                 return <SingleTrade key={row.id} row={row} index={index} user={user} userAvailableBalance={userAvailableBalance} refetch={refetch} />;

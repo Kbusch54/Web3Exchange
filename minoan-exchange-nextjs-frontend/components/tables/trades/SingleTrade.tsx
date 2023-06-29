@@ -36,6 +36,9 @@ interface Props {
             currentCollateral: number;
             openValue: number;
             currentValue: number;
+            entryPrice: number;
+            exitPrice: number;
+            exitTime: number;
         }
         other: {
             baseAssetReserve: number,
@@ -50,6 +53,7 @@ interface Props {
 
 const SingleTrade: React.FC<Props> = ({ row, index, userAvailableBalance, user,refetch }) => {
     const [toggle, setToggle] = useState<boolean>(true)
+    
     const handleToggle = () => {
         setToggle(!toggle)
     }
@@ -72,7 +76,7 @@ const SingleTrade: React.FC<Props> = ({ row, index, userAvailableBalance, user,r
                 <div className='text-white text-md  lg:text-xl m-2'><SideSelection side={row.side} /></div>
                 <div className='text-white text-md  lg:text-xl m-2'>{(row.size / 10 ** 8).toFixed(4)}</div>
                 <div className='text-white text-md  lg:text-xl m-2'>{row.lev}</div>
-                <div className='text-white text-md  lg:text-xl m-2'>{Number(row.pnl) > 0 ? `$${moneyFormatter(Number(row.pnl)/10)}` : ` - $${Number(moneyFormatter(Number(row.pnl)/10 * -1))}`}</div>
+                <div className='text-white text-md  lg:text-xl m-2'>{Number(row.pnl) > 0 ? `$${moneyFormatter(Number(row.pnl))}` : ` - $${Number(moneyFormatter(Number(row.pnl) * -1))}`}</div>
                 <div className='text-white text-md  lg:text-xl m-2'>{row.created}</div>
             </div>
             <div >
