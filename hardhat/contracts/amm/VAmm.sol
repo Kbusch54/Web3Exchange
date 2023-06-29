@@ -344,7 +344,7 @@ contract VAmm {
             liquidityChangedSnapshots.length - 1
         ] = lastSnapshot;
 
-        exitPrice = uint(intToFixed(int(usdcAmt)) / (positionSize));
+        exitPrice = uint(intToFixed(int(usdcAmt)) / (positionSize) * side);
         ammViewer.emitAmmClosePosition(positionSize);
         updateFutureFundingRate();
         absolutePositionSize==0? isFrozen = true : isFrozen = false;
