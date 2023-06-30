@@ -128,7 +128,6 @@ const AllTrades: React.FC<Props> = ({ user, userAvailableBalance, active = true,
         router.refresh();
     }
     const getInterestPayment = (loanAmt: number, interestRate: number, now: number, lastInterestPayed: number, interestPeriod: number) => {
-        console.log('now - last',(now - lastInterestPayed) / interestPeriod) 
         return Math.floor((now - lastInterestPayed) / interestPeriod) * (loanAmt * interestRate / 10 ** 6);
     }
     const getPnl = (baseAsset: number, quoteAsset: number, psize: number,  loanAmt: number, collateral: number, interestPayed: number,tradingFee:number) => {
