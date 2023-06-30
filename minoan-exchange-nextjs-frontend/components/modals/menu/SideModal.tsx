@@ -14,7 +14,6 @@ const SideModal: React.FC<Props> = () => {
     let [isOpen, setIsOpen] = useState(false)
     let completeButtonRef = useRef(null)
     const pathname = usePathname();
-    console.log(pathname);
     function closeModal() {
         setIsOpen(false)
     }
