@@ -31,6 +31,10 @@ export const fetchTheseus = cache(async function fetchData(user: string, theseus
           name
           loanPool {
             id
+            poolPnl{
+              amount
+              timeStamp
+              }
             poolBalance {
               totalUsdcSupply
               availableUsdc

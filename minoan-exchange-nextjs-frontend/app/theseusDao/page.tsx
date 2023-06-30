@@ -28,8 +28,6 @@ async function page(props: Props) {
   const data = await fetchTheseus(session.user.name, theseusAdd);
   //@ts-ignore
   const poolAvailableUsdc = data.users[0]?data.users[0].balances.availableUsdc:0;
-  console.log('poolAvaib', poolAvailableUsdc);
-  console.log('data', data);
   //@ts-ignore
   const poolBalance = { availableUsdc: data.stakes[0] ? data.stakes[0].totalStaked - data.theseusDAOs[0] ? data.theseusDAOs[0].insuranceFundMin : 0 : 0, totalUsdcSupply: data.stakes[0] ? data.stakes[0].totalStaked : 0 };
   return (
@@ -44,7 +42,8 @@ async function page(props: Props) {
         </div>
       </div>
       <div className="flex flex-row justify-center mx-2 my-8  md:m-8 border-4 border-amber-400">
-        <TheseusTab />
+        {/* @ts-ignore */}
+        <TheseusTab theseusData={data} />
       </div>
       <div className="flex flex-wrap justify-evenly text-center gap-y-12 text-white">
         <Ranges />
