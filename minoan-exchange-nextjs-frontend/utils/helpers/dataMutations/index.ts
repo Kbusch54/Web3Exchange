@@ -2,6 +2,7 @@ import { Address } from "wagmi";
 import { getAmmName, getAridneFromAmm, getAridneName } from "../doas";
 import { getAllProposals } from "app/lib/supabase/allProposals";
 import { cache } from "react";
+import { loanpool } from "utils/address";
 
 export const getPNlByUser = (trades: any, user?: Address,newArrLength?:number,amm?:string) => {
     let pnl :{ date: string; value: number; }[] = [];
@@ -211,6 +212,40 @@ export const getTradeHistory = (trades: any, user?: Address,amm?:Address) => {
         let data = neData;
         return {data,pnl};
     }
+}
+export const getPoolPnl = (vamms: any) => {
+    let pnl :{ date: string; Tesla: number; Google: number; Meta: number; All: number; }[] = [];
+    let dateMap = new Map();
+    let leastDate;
+    for (let i = 0; i <vamms.length; i++) {
+        if(vamms[i].loanPool.poolPnl == undefined)continue;
+        if(vamms[i].loanPool.poolPnl.length == 0)continue;
+        for(let j =0; j<vamms[i].loanPool.poolPnl.length;j++){
+            let created = new Date((vamms[i].loanPool.poolPnl[j].timeStamp * 1000) ).toISOString().substring(0, 10);
+            if(!leastDate) leastDate = created;
+            if(leastDate > created) leastDate = created;
+            if(dateMap.has(created)){
+                let temp = dateMap.get(created);
+
+                temp[getAmmName(vamms[i].loanPool.id) as keyof typeof temp] +=Number(vamms[i].loanPool.poolPnl[j].amount);
+                temp['All'] +=Number(vamms[i].loanPool.poolPnl[j].amount)
+                dateMap.set(created,temp);
+            }else{
+                let temp: { "Tesla": number; "Google": number; "Meta": number; "All": number; }= {"Tesla":0,"Google":0,"Meta":0,"All":0};
+                let ammName = getAmmName(vamms[i].loanPool.id);
+                temp[ammName as keyof typeof temp] += Number(vamms[i].loanPool.poolPnl[j].amount);
+                temp['All'] += Number(vamms[i].loanPool.poolPnl[j].amount);
+                dateMap.set(created,temp);
+            }   
+        }
+    }
+    // @ts-ignore
+    pnl.push({date:leastDate,Tesla:0,Google:0,Meta:0,All:0})
+        dateMap.forEach((value, key) => {
+            pnl.push({date:key,Tesla:value.Tesla,Google:value.Google,Meta:value.Meta,All:value.All})
+        });
+        console.log('pnl from index',pnl)
+    return pnl;
 }
 export const getTradeShortVLong = (trades: any, user?: Address,amm?:Address) => {
     let data =[{name:'long',value:0},{name:'short',value:0}];
