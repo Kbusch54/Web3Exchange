@@ -43,7 +43,7 @@ export default  function  StakingButton({value,ammId,user,disabled,handleAction}
             setTimeout(() => {
               contractWrite.reset();
               isMounted.current = true;
-            }, 10000);
+            }, 6000);
           }else if(waiting.isSuccess && waiting.data){
             setApproved(prev=>true)
             setLoadingStage((prev) => false);
@@ -58,7 +58,7 @@ export default  function  StakingButton({value,ammId,user,disabled,handleAction}
               contractWrite.reset();
               isMounted.current = true;
               handleAction();
-            }, 10000);
+            }, 6000);
               
           }
       }

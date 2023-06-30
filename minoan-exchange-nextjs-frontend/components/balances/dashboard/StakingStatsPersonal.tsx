@@ -10,8 +10,9 @@ interface Props {
 
 const StakingStatsPersonal: React.FC<Props> = ({symbol,userStakes}) => {
     const ammID = getAmmId(symbol)
+    if(!userStakes) return null
     //ammPool could be null
-    const stakesWhereAmmPoolId = userStakes.stakes.filter((stake:any)=>stake.ammPool!=null&&stake.ammPool.id.toLowerCase() === ammID.toLowerCase())
+    const stakesWhereAmmPoolId = userStakes.stakes?.filter((stake:any)=>stake.ammPool!=null&&stake.ammPool.id.toLowerCase() === ammID.toLowerCase())
     const currrentValue = (tokensOwned:number,totalTokenSupply:number, totalUsdcSupply:number)=>{
         return Number(tokensOwned)/Number(totalTokenSupply)* Number(totalUsdcSupply);
     } 
