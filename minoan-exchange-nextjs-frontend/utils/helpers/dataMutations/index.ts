@@ -9,12 +9,12 @@ export const getPNlByUser = (trades: any, user?: Address,newArrLength?:number,am
     if(newArrLength){
         
         for (let i = trades.length - newArrLength; i  < trades.length; i++) {
-            if(trades[i].isActive == true) continue;
+            if(trades[i]?.isActive == true) continue;
             if(user){
-                if(trades[i].user.id.toLowerCase() !== user.toLowerCase()) continue;
+                if(trades[i]?.user.id.toLowerCase() !== user.toLowerCase()) continue;
             }
             if(amm){
-                if(trades[i].ammPool.id.toLowerCase() !== amm.toLowerCase()) continue;
+                if(trades[i]?.ammPool.id.toLowerCase() !== amm.toLowerCase()) continue;
             }
             
             pnl.push({date:trades[i].created,value:trades[i].tradeBalance.pnl})
@@ -44,10 +44,10 @@ export const getTradeDurationByUser = (trades: any, newArrLength?:number,user?: 
     let avg =0;
     for (let i = newArrLength? trades.length - newArrLength:0; i  < trades.length; i++) {
         if(user){
-            if(trades[i].user.id.toLowerCase() !== user.toLowerCase()) continue;
+            if(trades[i]?.user.id.toLowerCase() !== user.toLowerCase()) continue;
         }
         if(amm){
-            if(trades[i].ammPool.id.toLowerCase() !== amm.toLowerCase()) continue;
+            if(trades[i]?.ammPool.id.toLowerCase() !== amm.toLowerCase()) continue;
         }
         if(trades[i].isActive == true) continue;
         duration.push({date:trades[i].created,value:trades[i].tradeBalance.exitTime - trades[i].created})
