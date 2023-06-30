@@ -3,9 +3,10 @@ import React, { useState, useEffect } from "react";
 
 interface CountdownProps {
   targetDate: Date;
+  zeroHit?: () => void;
 }
 
-const Countdown: React.FC<CountdownProps> = ({ targetDate }) => {
+const Countdown: React.FC<CountdownProps> = ({ targetDate ,zeroHit}) => {
   const [timeLeft, setTimeLeft] = useState<number>(0);
 
   useEffect(() => {
@@ -24,10 +25,13 @@ const Countdown: React.FC<CountdownProps> = ({ targetDate }) => {
   }, [targetDate]);
 
   const formatTimeLeft = (milliseconds: number) => {
-    if(milliseconds === 0) return <p className="animate-pulse text-red-500">
+    if(milliseconds === 0){ 
+      zeroHit?zeroHit():'';
+      return <p className="animate-pulse text-red-500">
 
       0:00:00
     </p>
+    }
     const totalSeconds = Math.floor(milliseconds / 1000);
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
