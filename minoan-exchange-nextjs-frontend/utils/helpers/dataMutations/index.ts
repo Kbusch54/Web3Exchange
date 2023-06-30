@@ -68,7 +68,6 @@ export const avgStakes = (stakes: any,user:Address, amm?:Address) => {
             if(stakes[i].ammPool?.id.toLowerCase() != amm.toLowerCase() && stakes[i].theseusDAO?.id.toLowerCase() != amm.toLowerCase())continue;
             ammStakeLength++;
         }
-        console.log('taked ysdc',stakes[i].usdcStaked/10**6)
         avg += Number(stakes[i].usdcStaked);
             if(stakes[i].user.id.toLowerCase() === user.toLowerCase()){
                 avgUserStakes += Number(stakes[i].usdcStaked);
@@ -153,10 +152,8 @@ export const getTradeHistory = (trades: any, user?: Address,amm?:Address) => {
             if(trades[i].user.id.toLowerCase() !== user.toLowerCase() || trades[i].isActive == true) continue;
         }
         if(amm){
-            // console.log('amm before',amm,trades[i].ammPool.id.toLowerCase())
             if(trades[i].ammPool.id.toLowerCase() !== amm.toLowerCase()) continue;
         }
-        console.log('amm after',amm,trades[i].ammPool.id.toLowerCase())
         let created = new Date((trades[i].created * 1000) ).toISOString().substring(0, 10);
         if(!leastDate) leastDate = created;
         if(leastDate > created) leastDate = created;
@@ -198,7 +195,6 @@ export const getTradeHistory = (trades: any, user?: Address,amm?:Address) => {
             
         });
          let data = newData;
-        console.log('newData',newData)
         return {data,pnlMap};
     }else{
         // @ts-ignore
@@ -244,7 +240,6 @@ export const getPoolPnl = (vamms: any) => {
         dateMap.forEach((value, key) => {
             pnl.push({date:key,Tesla:value.Tesla,Google:value.Google,Meta:value.Meta,All:value.All})
         });
-        console.log('pnl from index',pnl)
     return pnl;
 }
 export const getTradeShortVLong = (trades: any, user?: Address,amm?:Address) => {
@@ -312,6 +307,5 @@ export const proposalsExecutedByAmm = cache(async() => {
         const nameForAmm = getAridneName(key);
         data.push({name:nameForAmm,proposals:value.proposals,executed:value.executed});
     })
-    console.log('data',data)
     return data;
 });
