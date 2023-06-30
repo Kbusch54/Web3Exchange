@@ -9,7 +9,7 @@ import ReachartsEx from "../charts/poolCharts/ReachartsEx";
 import RechartPie from "../charts/poolCharts/recharts/RechartPie";
 import ReachartLines from "../charts/poolCharts/recharts/RechartLines";
 import RechartDoubleBar from "../charts/poolCharts/recharts/RechartDoubleBar";
-import { getPNlByUser, getTradeHistory, getTradeShortVLong, proposalsExecutedByAmm } from "utils/helpers/dataMutations";
+import { getPNlByUser, getPoolPnl, getTradeHistory, getTradeShortVLong, proposalsExecutedByAmm } from "utils/helpers/dataMutations";
 import { fetchStakes } from "app/lib/graph/stakes";
 import { use } from "react";
 import { getAmmName } from "utils/helpers/doas";
@@ -35,7 +35,26 @@ type Trades = {
     isActive: boolean;
   }[];
 };
-export default function TheseusTab() {
+type Vamms ={
+  vamms: {
+      name:string,
+      loanPool: {
+        id:string,
+        poolPnl:{
+          amount:number,
+          timeStamp:number,
+          }[]
+        }
+      }[]
+}
+interface Props {
+  theseusData: {
+    trades: Trades;
+    vamms: Vamms;
+  }
+}
+
+export default function TheseusTab({theseusData}:Props) {
   const [value, setValue] = React.useState("2");
 
   const handleChange = (event: React.SyntheticEvent, newValue: string) => {
@@ -44,10 +63,11 @@ export default function TheseusTab() {
   const proposalData = use(proposalsExecutedByAmm());
   const {trades}:Trades = use(getGlobalTradeData())as Trades;
   const stakes:Stakes = use(fetchStakes()) as Stakes;
+  const vamms = theseusData.vamms;
+  const pnlForPools = getPoolPnl(vamms);
   const stakingData: { name: string; value: number; }[] = [];
   const longVsShort = getTradeShortVLong(trades);
   const {data ,pnl} = getTradeHistory(trades,undefined,undefined);
-  console.log('pnl', pnl);
   const ammStakeMap = new Map();
   for(let i = 0; i < stakes.stakes?.length; i++){
     let amm;
@@ -85,7 +105,7 @@ stakingData.push({name: key, value: value})
         </Box>
 
         <TabPanel value="2">
-          <ReachartsEx height={400} />
+          <ReachartLines height={400}  lineData={pnlForPools} type="$" />
         </TabPanel>
         <TabPanel value="3">
           <RechartPie  dataForPie={stakingData} toolTipLabel="$"/>
