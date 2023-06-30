@@ -25,7 +25,7 @@ const SideModal: React.FC<Props> = () => {
         setIsOpen(prev => !prev)
     }
     return (
-        <div className={`text-white ${(pathname == '/docs' || pathname == '/')? 'hidden' : 'block'}`}>
+        <div className={`text-white ${(pathname == '/docs' || pathname == '/'||pathname.includes('/auth'))? 'hidden' : 'block'}`}>
             <div className="fixed top-1/2 flex items-center justify-left z-[70]">
                 <button
                     type="button"
