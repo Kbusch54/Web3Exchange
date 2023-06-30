@@ -6,7 +6,8 @@ export const getInterestData = cache(async(ammPoolId: string, user: string)=> {
         query getTradeData($user: String!, $ammPoolId: String!) {
       trades(where:{
         user: $user,
-        ammPool:$ammPoolId
+        ammPool:$ammPoolId,
+        isActive:true
         
       }) {
         tradeBalance {
