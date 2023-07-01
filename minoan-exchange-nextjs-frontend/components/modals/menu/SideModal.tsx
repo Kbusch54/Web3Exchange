@@ -1,18 +1,27 @@
 'use client'
-import { useState, Fragment, useRef } from 'react'
+import { useState, Fragment, useRef, use } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import Wallet from '../../dashboard/Wallet'
 import { stocks } from '../../../app/utils/stockData'
 import helmet from "@assets/silhoute-helmet.png"
 import Image from 'next/image';
-import { usePathname } from 'next/navigation';
+import { redirect, usePathname } from 'next/navigation';
+import { getServerSession } from 'next-auth'
+import { useSession } from 'next-auth/react'
+import { Address } from 'wagmi'
+import PastTransactions from 'components/tables/transactions/PastTransactions'
+import Balances from 'components/balances/sidemodal/Balances'
 interface Props {
 
 }
 
 const SideModal: React.FC<Props> = () => {
+    const session = useSession()
+    if(!session || session.status == 'unauthenticated'){
+        return null
+    }
+    const user:Address = session.data?.user?.name as  Address
     let [isOpen, setIsOpen] = useState(false)
-    let completeButtonRef = useRef(null)
     const pathname = usePathname();
     function closeModal() {
         setIsOpen(false)
@@ -37,7 +46,7 @@ const SideModal: React.FC<Props> = () => {
             </div>
 
 
-            <div className={` text-center inline-block fixed top-0 z-50 overflow-auto h-full no-scrollbar`}>
+            <div className={` text-center inline-block fixed top-0 z-50 overflow-auto h-full no-scrollbar `}>
 
                 <Transition appear show={isOpen} as={'div'}
                     enter="ease-out transform transition duration-[700ms]"
@@ -47,37 +56,19 @@ const SideModal: React.FC<Props> = () => {
                     leaveFrom="opacity-100 translate-x-0"
                     leaveTo="opacity-0 -translate-x-60">
                     <div className='   '>
-                        <div className=' bg-slate-900 ring-opacity-80 bg-opacity-90 text-white  flex flex-col justify-center text-center   max-w-xs md:max-w-md lg:max-w-lg xl:max-w-full  '>
-                            <Wallet user={'0x0'} />
-                            <section
-                                id={"balances"}
-                                className="col-span-6 md:col-span-4 lg:col-span-6 lg:mt-0 grid grid-cols-2 xl:grid-cols-3 mt-8 gap-y-2 text-white"
+                        <div className=' bg-slate-900 ring-opacity-80 bg-opacity-90 text-white  flex flex-col justify-center text-center   max-w-xs md:max-w-md lg:max-w-lg xl:max-w-full relative  pt-4'>
+                            {user&&(
+
+                                <Wallet user={user} />
+                            )}
+                            <a href='/invest'
+                                
                             >
-                                <div className='flex flex-col text-center border-2 border-blue-800 rounded-t-2xl rounded-b-xl bg-sky-800 m-4 bg-opacity-40'>
-                                    <h1 className=' lg:text-5xl mt-4'>{0}</h1>
-                                    <h3 className='text-xs md:text-lg'> Your Token Balance</h3>
-                                </div>
-                                <div className='flex flex-col text-center border-2 border-blue-800 rounded-t-2xl rounded-b-xl bg-sky-800 m-4 bg-opacity-40'>
-                                    <h1 className=' lg:text-5xl mt-4'>${666}</h1>
-                                    <h3 className='text-xs md:text-lg'> Current Token Value</h3>
-                                </div>
-                                <div className='flex flex-col text-center border-2 border-blue-800 rounded-t-2xl rounded-b-xl bg-sky-800 m-4 bg-opacity-40'>
-                                    <h1 className=' lg:text-5xl mt-4'>{4545}</h1>
-                                    <h3 className='text-xs md:text-lg'> Total Supply</h3>
-                                </div>
-                                <div className='flex flex-col text-center border-2 border-blue-800 rounded-t-2xl rounded-b-xl bg-sky-800 m-4 bg-opacity-40'>
-                                    <h1 className=' lg:text-5xl mt-4'>${4545}</h1>
-                                    <h3 className='text-xs md:text-lg'> Available USDC Supply</h3>
-                                </div>
-                                <div className='flex flex-col text-center border-2 border-blue-800 rounded-t-2xl rounded-b-xl bg-sky-800 m-4 bg-opacity-40'>
-                                    <h1 className=' lg:text-5xl mt-4'>${4545}</h1>
-                                    <h3 className='text-xs md:text-lg'> Loaned Out</h3>
-                                </div>
-                                <div className='flex flex-col text-center border-2 border-blue-800 rounded-t-2xl rounded-b-xl bg-sky-800 m-4 bg-opacity-40'>
-                                    <h1 className=' lg:text-5xl mt-4'>${454545}</h1>
-                                    <h3 className='text-xs md:text-lg'>Total USDC Supply</h3>
-                                </div>
-                            </section>
+                               <Balances user={user} />
+                              
+                            </a>
+                            <PastTransactions user={user} limit={3} />
+                        
                             <div className='text-white text-center my-12  m-12 md:mx-24'>
                                 <h1 className='text-5xl mb-4'>Ariadne Pools</h1>
                                 <div className='flex flex-wrap  items-center gap-12 '>
