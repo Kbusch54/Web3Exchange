@@ -5,6 +5,7 @@ import { supabase } from '../../../../supabase';
 import { verifyMessage } from 'viem';
 import { toast } from 'react-hot-toast';
 import {  useRouter } from 'next/navigation';
+import { addTransaction } from '../helper/database';
 
 interface Props {
   user: Address,
@@ -65,8 +66,13 @@ export default function SignProposalButton({ user, transactionHash, nonce, contr
         .from('Proposals')
         .update([{ timeStamp:timeStamp,signatures: [...signatures, signature], signers: [...signers, user] }])
         .eq('contractNonce', contractAdd + '_' + Number(nonce));
+
         if(error) setError('Error adding proposal')
         if(!error) router.refresh();
+        const date = new Date().toISOString().toLocaleString();
+        addTransaction(transactionHash,user,date,'Signed Proposal','proposal').then((res)=>{
+          console.log('res added transaction',res);
+        })
         toast.success(`Signed ${nonce} updated DB `, {  duration: 6000 ,position:'top-right'});
       } catch (error) {
         console.error('Error updating proposal:', error);
@@ -79,6 +85,10 @@ export default function SignProposalButton({ user, transactionHash, nonce, contr
       try {
         console.log('creating');
         setAddedToDB(true);
+        const date = new Date().toISOString().toLocaleString();
+        addTransaction(transactionHash,user,date,'Signed Proposal','proposal').then((res)=>{
+          console.log('res added transaction',res);
+        })
         const { error } = await supabase
           .from('Proposals')
           .insert([{ contractAddress: contractAdd, contractNonce: contractAdd + '_' + Number(nonce), etherscanTransactionHash: null, proposer: user, nonce: Number(nonce), to: addressTo, transactionHashToSign: transacitonHash, executor: null, signatures: [signature], timeStamp: timeStamp, isProposalPassed: false, description: null, result: null, signers: [user] }])

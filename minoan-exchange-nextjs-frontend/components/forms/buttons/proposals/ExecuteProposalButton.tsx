@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useContractWrite, Address, useWaitForTransaction } from 'wagmi';
 import { useExecuteProposal } from '../../../../utils/contractWrites/daos/ariadne/execute';
 import toast from 'react-hot-toast';
-import { executedProposal } from '../helper/database';
+import { addTransaction, executedProposal } from '../helper/database';
 import { useRouter } from 'next/navigation';
 
 interface Props {
@@ -55,11 +55,15 @@ export default function ExecuteProposalButton({ user, disabled, callData, nonce,
           setApproved(prev => true)
           toast.success(`Executed ${nonce} `, { duration: 6000, position: 'top-right' });
         })
+        const date = new Date().toISOString().toLocaleString();
+        addTransaction(waiting.data.transactionHash,user,date,'Executed Proposal','proposal').then((res)=>{
+          console.log('res added transaction',res);
+        })
         setTimeout(() => {
           contractWrite.reset();
           isMounted.current = true;
           router.refresh();
-        }, 8000);
+        }, 5000);
 
       }
     }

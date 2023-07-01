@@ -8,7 +8,7 @@ import { getTransactionHash } from '../../../../utils/helpers/doas';
 import { theseus } from '../../../../utils/address';
 import toast from 'react-hot-toast';
 import { redirect, useRouter } from 'next/navigation';
-import { addProposal, upsertProposal } from '../helper/database';
+import { addProposal, addTransaction, upsertProposal } from '../helper/database';
 
 interface Props {
   callData: string,
@@ -27,6 +27,7 @@ export default function ProposeButton  ({ user, disabled, callData, addressTo, d
   const [approved, setApproved] = React.useState<boolean>(false);
   const [errorWithContractLoad, setErrorWithContractLoad] = React.useState<boolean>(false);
   const [loadingStage, setLoadingStage] = useState(false);
+  const [loadingStageSign, setLoadingStageSign] = useState(false);
   const [usedNonce, setUsedNonce] = useState<number|null>(null);
   const [transactionHash, setTransactionHash] = useState<string|null>(null);   
   const [customMessage, setCustomMessage] = useState<string|null>(null);
@@ -60,6 +61,10 @@ const waiting = useWaitForTransaction({
           addProposal(contractAddress,usedNonce,user,addressTo,transactionHash,description,waiting.data.transactionHash).then((res)=>{
             console.log('res added transaction',res);
           })
+          const date = new Date().toISOString().toLocaleString();
+          addTransaction(waiting.data.transactionHash,user,date,'Added Proposal','proposal').then((res)=>{
+            console.log('res added transaction',res);
+          })
           setApproved(prev=>true)
         }
       
@@ -78,7 +83,7 @@ const waiting = useWaitForTransaction({
     } else { 
     const provider = await connector?.getProvider()
 const signature = await provider.send("personal_sign", [transactionHash, user])
-      if (signature.result  ) {
+      if (signature.result) {
       const verified = ethers.utils.verifyMessage(
        ethers.utils.arrayify(transactionHash),
         signature.result
@@ -88,12 +93,16 @@ const signature = await provider.send("personal_sign", [transactionHash, user])
             await upsertProposal(contractAddress,usedNonce,user,signature.result).then((res)=>{
             console.log('res added transaction',res);
             toast.success(`Signed proposal ${usedNonce} `, {  duration: 6000 ,position:'top-right'});
+            const date = new Date().toISOString().toLocaleString();
+            addTransaction(transactionHash,user,date,'Signed Proposal','proposal').then((res)=>{
+              console.log('res added transaction',res);
+            })
             setTimeout(() => {
               setApproved(prev=>false)
               contractWrite.reset();
               router.refresh();
               close();
-            }, 10000);
+            }, 6000);
             })
         }
         }else{
@@ -124,7 +133,7 @@ useEffect(() => {
    //@ts-ignore
    const handleWrite = async (e) => {
     e.preventDefault();
-    setLoadingStage((prev) => true);
+    setLoadingStageSign((prev) => true);
     // await contractWrite.writeAsync()
     setUsedNonce((prev)=>nonce);
     console.log('nonce from contract write',nonce);
@@ -170,6 +179,13 @@ if (errorWithContractLoad)
         Sign Transaction
       </button>
     );
+    if(loadingStageSign&&approved){
+      return (
+        <div className="px-2 py-1 rounded-2xl mt-4 font-extrabold bg-teal-400 text-white">
+          Signed....
+        </div>
+      );
+    }
 
   return (
     <div className={`${approved?'hidden':'block'}`}>
