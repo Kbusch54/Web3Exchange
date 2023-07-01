@@ -4,10 +4,11 @@ import EtherscanLogo from '../utils/EtherscanLogo'
 
 interface Props {
     user: string
+    limit?: number
 
 }
 
-const PastTransactions: React.FC<Props> = ({ user }) => {
+const PastTransactions: React.FC<Props> = ({ user,limit }) => {
     const dbData = use(getTransactions(user))
     const typeClass = (type: string) => {
         if (type == "pool") {
@@ -23,6 +24,8 @@ const PastTransactions: React.FC<Props> = ({ user }) => {
     if (dbData) {
         return (
             <div className=''>
+                {!limit&&(
+                    <>
                 <div className='bg-transparent flex flex-row 2xl:px-64 3xl:px-0 2xl:mr-40 3xl:mr-0 '>
                     <p className=' w-1/2 rounded-t-2xl bg-slate-800 opacity-80 text-white text-3xl text-center pt-4 border border-b-0 border-gray-600 inline 2xl:hidden 3xl:inline'>Past Transactions</p>
                     <div className='w-[49%] text-white text-3xl  bg-[rgba(24,24,35,255)]   border-b border-gray-600 '></div>
@@ -30,10 +33,12 @@ const PastTransactions: React.FC<Props> = ({ user }) => {
                 <div className='hidden 2xl:block 2xl:mt-12 rounded-t-2xl 3xl:mt-0 mt-0 3xl:hidden bg-slate-800 opacity-80 text-white text-3xl text-center pt-4 border border-b-0 border-gray-600 w-3/4'>
                     <p>Past Transactions</p>
                 </div>
-
-                <div className='bg-slate-800 opacity-80 flex flex-col flex-wrap rounded-2xl rounded-tl-none border border-t-0 border-gray-600 '>
+                </>
+                    )}
+                <div className={` flex  flex-col flex-wrap ${limit?'': 'bg-slate-800 opacity-80 rounded-2xl rounded-tl-none border border-t-0 border-gray-600'} `}>
                     <div className='mb-6'></div>
-                    {dbData.map((data) => {
+                    {dbData.map((data,index:number) => {
+                        if(limit&&index>=limit)return null
                         return (
                             <div className='flex flex-row text-white mx-4 items-center justify-between border border-gray-500 my-2 bg-slate-700 '>
                                 <div className='flex flex-row gap-x-4 items-center'>
