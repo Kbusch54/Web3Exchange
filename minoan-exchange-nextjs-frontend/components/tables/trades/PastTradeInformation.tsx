@@ -41,6 +41,7 @@ interface Props {
             openLoan: number,
             tradingFee: number,
             openLeverageAmt: number
+
         }
     }
 }
@@ -79,7 +80,7 @@ const PastTradeInformation: React.FC<Props> = ({ row, user }) => {
                 </div>
                 <div className='text-white text-lg flex flex-col border border-white/10'>
                     <p>FFR Total</p>
-                    <p>${moneyFormatter(Number(row.information.ffr) * Number(row.other.openLoan) / 10**6)}</p>
+                    <p>${moneyFormatter(Number(row.information.ffr) * Number(row.other.openLoan) *Number(-row.side) / 10**6)}</p>
                 </div>
                 <div className='text-white text-lg flex flex-col border border-white/10'>
                     <p>Trading Fee</p>
@@ -87,7 +88,7 @@ const PastTradeInformation: React.FC<Props> = ({ row, user }) => {
                 </div>
                 <div className='text-white text-lg flex flex-col border border-white/10'>
                     <p>Total Cost</p>
-                    <p>${moneyFormatter(Number(row.information.interestAccrued) + Number(row.other.tradingFee) + Number(Number(row.information.ffr) * Number(row.other.openLoan) / 10**6)) }</p>
+                    <p>${moneyFormatter(Number(row.information.interestAccrued) + Number(row.other.tradingFee) + Number(Number(row.information.ffr) * Number(row.other.openLoan)*Number(-row.side) / 10**6)) }</p>
                 </div>
                 <div className='text-white text-lg flex flex-col border border-white/10'>
                     <p className='text-green-500'>Open Time</p>
@@ -99,7 +100,7 @@ const PastTradeInformation: React.FC<Props> = ({ row, user }) => {
                 </div>
                 <div className='text-white text-lg flex flex-col border border-white/10'>
                     <p className='text-green-500'>Open Collateral</p>
-                    <p>${moneyFormatter(row.information.openValue)}</p>
+                    <p>${moneyFormatter(row.information.startCollateral)}</p>
                 </div>
                 <div className='text-white text-lg flex flex-col border border-white/10'>
                     <p className='text-green-500'>Open Loan</p>
