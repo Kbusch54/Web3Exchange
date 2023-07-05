@@ -2,12 +2,15 @@
 "use client";
 import React, { useEffect, useLayoutEffect, useState } from "react";
 import axios from "axios";
+import { moneyFormatter } from "utils/helpers/functions";
 
 interface Props {
   stockSymbol: String;
+  priceData?: any;
 }
-const StockInfo: React.FC<Props> = ({ stockSymbol }) => {
+const StockInfo: React.FC<Props> = ({ stockSymbol,priceData }) => {
   const [stockData, setStockData] = useState<any>(null);
+  const [stockPrice, setStockPrice] = useState<any>(null);
 
   const fetchStockData = async () => {
     const rapidAPIKey = "e70ebb1b60mshf11976b783c2186p1cc165jsnffe0a87e55b3";
@@ -34,13 +37,23 @@ const StockInfo: React.FC<Props> = ({ stockSymbol }) => {
     //interval for 5 minutes
     setInterval(() => {
       fetchStockData();
-    }, 300000);
+    }, 30000);
   }
   else{
     fetchStockData();
   }
     // fetchStockData();
   }, []);
+
+  useLayoutEffect(() => {
+    let pdL = priceData.length
+    if(priceData && priceData[pdL-1].isFrozen == false){
+
+      setStockPrice(priceData[pdL-1].marketPrice);
+    }else{
+      (stockData && stockData.currentPrice)?setStockPrice(stockData.currentPrice.raw*10**6):setStockPrice(null);
+    }
+  }, [priceData]);
 
     if (!stockData) {
       return <div>Loading...</div>;
@@ -62,6 +75,10 @@ const StockInfo: React.FC<Props> = ({ stockSymbol }) => {
           {stockData.recommendationKey.toUpperCase().replace("_", " ")}
           </p>
         </div>
+          {stockPrice&&(
+            <div className="flex flex-row justify-between text-xl"><p>Market Price:</p> <p>${moneyFormatter(stockPrice)}</p></div>
+           
+          )}
       </div>
     </div>
   );
