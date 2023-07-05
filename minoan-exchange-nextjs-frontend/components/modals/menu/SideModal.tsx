@@ -1,12 +1,11 @@
 'use client'
-import { useState, Fragment, useRef, use } from 'react'
-import { Dialog, Transition } from '@headlessui/react'
+import { useState } from 'react'
+import { Transition } from '@headlessui/react'
 import Wallet from '../../dashboard/Wallet'
 import { stocks } from '../../../app/utils/stockData'
 import helmet from "@assets/silhoute-helmet.png"
 import Image from 'next/image';
-import { redirect, usePathname } from 'next/navigation';
-import { getServerSession } from 'next-auth'
+import {usePathname } from 'next/navigation';
 import { useSession } from 'next-auth/react'
 import { Address } from 'wagmi'
 import PastTransactions from 'components/tables/transactions/PastTransactions'
@@ -17,9 +16,7 @@ interface Props {
 
 const SideModal: React.FC<Props> = () => {
     const session = useSession()
-    if(!session || session.status == 'unauthenticated'){
-        return null
-    }
+
     const user:Address = session.data?.user?.name as  Address
     let [isOpen, setIsOpen] = useState(false)
     const pathname = usePathname();
@@ -27,14 +24,17 @@ const SideModal: React.FC<Props> = () => {
         setIsOpen(false)
     }
 
-    function openModal() {
-        setIsOpen(true)
-    }
     function handleModal() {
-        setIsOpen(prev => !prev)
+        setIsOpen(isOpen => !isOpen)
+    }
+    if(!session || session.status == 'unauthenticated'){
+        return null
+    }
+    if(pathname == '/docs' || pathname == '/'||pathname.includes('/auth')){
+        return null
     }
     return (
-        <div className={`text-white ${(pathname == '/docs' || pathname == '/'||pathname.includes('/auth'))? 'hidden' : 'block'}`}>
+        <div className={`text-white`}>
             <div className="fixed top-1/2 flex items-center justify-left z-[70]">
                 <button
                     type="button"
