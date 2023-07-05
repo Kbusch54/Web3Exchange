@@ -1,5 +1,5 @@
 'use client'
-import React, { use, useEffect } from 'react'
+import React, { use, useEffect, useState } from 'react'
 import SingleTrade from './SingleTrade';
 import { Address } from 'wagmi';
 import request, { gql } from 'graphql-request';
@@ -10,6 +10,7 @@ import { getGlobalTradeData } from '../../../app/lib/graph/globalTradeData';
 import { useRouter } from 'next/navigation';
 import { moneyFormatter } from 'utils/helpers/functions';
 
+const revalidate = 8000;
 interface Props {
     user: Address;
     userAvailableBalance: number;
@@ -56,72 +57,6 @@ interface rows {
         }
     }
 }
-async function fetchGlobalTradeData() {
-    const query = gql` 
-      query getTrades {
-    trades {
-      id
-      created
-      user{
-        id
-      }
-      tradeBalance {
-        side
-        positionSize
-        leverage
-        pnl
-        interestRate
-        LastFFRPayed
-        collateral
-        LastInterestPayed
-        LastFFRPayed
-        LastInterestPayed
-        tradeId {
-          tradeId
-        }
-        loanAmt
-        positionSize
-        leverage
-        entryPrice
-      }
-      startingCost
-      isActive
-      liquidated
-      vamm {
-        id
-        symbol
-        loanPool {
-          maxLoan
-          minLoan
-          mmr
-          interestPeriod
-        }
-        priceData {
-          marketPrice
-          indexPrice
-        }
-        snapshots {
-          quoteAssetReserve
-          baseAssetReserve
-          marketPrice
-          ffr
-          indexPrice
-        }
-      }
-    }
-  }
-`;
-
-    // (orderBy: created orderDirection: desc)
-
-    const endpoint = "https://api.studio.thegraph.com/query/46803/subgraph-minoan/version/latest";
-    // const variables = {};
-    const data = await request(endpoint, query);
-
-    return data;
-}
-
-
 const AllTrades: React.FC<Props> = ({ user, userAvailableBalance, active = true, amm, global = false }) => {
     const router = useRouter();
     const refetch = () => {
@@ -204,10 +139,25 @@ const AllTrades: React.FC<Props> = ({ user, userAvailableBalance, active = true,
         })
 
     }
-    const tradeData: any = use(getGlobalTradeData());
-    if (tradeData.error) return <div>Error...</div>;
+    const [tradeData, setTradeData] = useState<any|null>(null);
+    const [loading, setLoading] = useState<boolean>(true);
 
-    const rows: rows = tradesToRows(tradeData.trades);
+useEffect(() => {
+      fetch(`http://localhost:3000/api/tradeData`, {
+        next:{
+            revalidate:1000
+        }
+      }).then((res) => res.json()).then((data) => {
+        console.log('data', data);
+        setTradeData(data);
+        setLoading(false);
+      })
+
+}, []);
+if (loading) return <div>Loading...</div>;
+    if(!tradeData) return <div>Error...</div>;
+
+    const rows: rows = tradesToRows(tradeData);
     let inD = 0;
     const ammId = amm ? getAmmId(amm) : null;
     if (!global) {
