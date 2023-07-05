@@ -17,13 +17,21 @@ import { authOptions } from '../../../utils/auth/authOptions';
 import { getServerSession } from 'next-auth/next';
 import { Address } from "viem";
 import axios from "axios";
+import PriceData from "components/stockData/charts/PriceData";
+import { fetchStockData } from "app/lib/api/fetchStockData";
 type Props = {};
-export const revalidate = 60;
+export const revalidate = 8000
 async function fetchLoanPoolData(symbol: string, user: string) {
   const query = gql` 
     query getLoanPool($id: String!,$user: String!) {
       vamms(where: { symbol: $id}) {
         name
+        priceData(orderBy: timeStamp, orderDirection: asc) {
+      marketPrice
+        marketPrice
+        isFrozen
+        timeStamp
+        }
         loanPool {
           id
           created
@@ -89,17 +97,20 @@ export default async function page(context: { params: { slug: string; }; }) {
   if (!session || !session.user || !session.user.name) {
     return redirect(`/auth/signin?callbackUrl=/invest/${slug}`);
   }
-  
+
   const user = session.user.name as Address;
   //@ts-ignore
   const loanPoolData = await fetchLoanPoolData(slug.toString().toLowerCase(), user).then((res) => {
     return res;
-    });
+  });
+  const stockPriceData = await fetchStockData(slug[0].toUpperCase());
   //@ts-ignore
   const graphData = loanPoolData.vamms[0];
   //@ts-ignore
   const userData = loanPoolData.users[0] ? loanPoolData.users[0].balances.availableUsdc : 0;
   const stock = await getStocks(slug);
+  // @ts-ignore
+  const priceData = loanPoolData.vamms[0].priceData;
   return (
     <>
       <div className="my-2 mx-6">
@@ -127,12 +138,7 @@ export default async function page(context: { params: { slug: string; }; }) {
             </div>
             <div className=" mr-8 lg:col-span-7  ">
               <div className="grid grid-rows-6 ">
-                <div className="row-span-4 hidden md:inline-block overflow-clip">
-                  <ReachartsEx height={600} />
-                </div>
-                <div className="row-span-4 inline-flex md:hidden overflow-clip">
-                  <ReachartsEx height={300} />
-                </div>
+                <PriceData priceData={priceData} stockPriceData={stockPriceData} />
                 <div className="row-span-2">
                   <ReachartsEx height={200} />
                 </div>
