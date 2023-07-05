@@ -12,12 +12,13 @@ import {
     Legend,
   } from "recharts";
   import { format, parseISO, subDays } from "date-fns";
+import { moneyFormatter } from "utils/helpers/functions";
   
-  const data: any[] | undefined = [];
+  const datas: any[] | undefined = [];
   for (let num = 30; num >= 0; num--) {
     let rando = Math.random();
     let rando2 = Math.random();
-    data.push({
+    datas.push({
       date: subDays(new Date(), num).toISOString().substring(0, 10),
       index: 200 *(rando+rando2),
       market: 222 *rando ,
@@ -27,30 +28,32 @@ import {
   
 
 interface Props {
-    height: number
+    height: number,
+    dataForGraph?: any
     
 }
 const COLORS = ["#2451B7","#9251B7", "rgb(30 58 138)", "rgb(88 28 135)",  "rgb(153 27 27)"];
 //@ts-ignore
 function CustomTooltip({ active, payload, label }) {
     if (active) {
+      const date = new Date(label).toLocaleDateString() + " " + new Date(label).toLocaleTimeString();
       return (
         <div className="tooltip ">
-          <h4>{format(parseISO(label), "eeee, d MMM, yyyy")}</h4>
-          <p>${payload[0].value.toFixed(2)} Index</p>
-          <p>${payload[1].value.toFixed(2)} Market</p>
-          <p>{payload[2].value.toFixed(2)} Delta</p>
+          <h4>{date}</h4>
+          <p>${moneyFormatter(payload[0].value)} Index</p>
+          <p>${moneyFormatter(payload[1].value)} Market</p>
+          <p>{moneyFormatter(payload[2].value)} Delta</p>
         </div>
       );
     }
     return null;
   }
 
-const ReachartsEx: React.FC<Props> = ({height}) => {
+const ReachartsEx: React.FC<Props> = ({height,dataForGraph}) => {
     return (
       // <div className="h-max w-96">
         <ResponsiveContainer height={height} width={'100%'} >
-        <ComposedChart data={data} margin={{ top: 0, right: 10, left: 10, bottom: 5 }}>
+        <ComposedChart data={dataForGraph?dataForGraph:datas} margin={{ top: 20, right: 10, left: 10, bottom: 5 }}>
           <defs>
             <linearGradient id="color" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#2451B7" stopOpacity={0.4} />
@@ -60,8 +63,8 @@ const ReachartsEx: React.FC<Props> = ({height}) => {
   
           <Line dataKey="index" stroke="#2451B7" fill="url(#color)" activeDot={{ r: 8 }} />
           <Line dataKey="market" stroke="#9251B7" fill="url(#color)" activeDot={{ r: 8 }}  />
-          <Area type="monotone" dataKey={'delta'} stroke="rgb(22 163 74)" fill="rgb(2 132 199)"/>
-          
+          {/* <Area type="monotone" dataKey='delta' stroke="rgb(22 163 74)" fill="rgb(2 132 199)"/> */}
+          <Area type="monotone" dataKey="delta" stroke="rgb(22 163 74)" fill="rgb(2 132 199)" yAxisId={'deltaAxis'} /> 
           
   
           <XAxis
@@ -70,21 +73,18 @@ const ReachartsEx: React.FC<Props> = ({height}) => {
             axisLine={false}
             tickLine={false}
             tickFormatter={(str) => {
-              const date = parseISO(str);
-              if (date.getDate() % 7 === 0) {
-                return format(date, "MMM, d");
-              }
-              return "";
+                return new Date(str).toLocaleTimeString();
             }}
           />
   
+          <YAxis dataKey={'delta'} yAxisId="deltaAxis"  domain={["dataMin", "dataMax"]} tickCount={0}/>
           <YAxis
+            AxisComp={Area}
             dataKey="index"
-            accumulate="sum"
-            axisLine={false}
-            tickLine={false}
+            domain={["dataMin", "dataMax"]}
+            
             tickCount={12}
-            tickFormatter={(number) => `$${number.toFixed(2)}`}
+            tickFormatter={(number) => `$${(number/10**6).toFixed(2)}`}
           />
           {/* @ts-ignore */}
           <Tooltip content={<CustomTooltip  />} />
