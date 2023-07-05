@@ -2,7 +2,6 @@ import { Address } from "wagmi";
 import { getAmmName, getAridneFromAmm, getAridneName } from "../doas";
 import { getAllProposals } from "app/lib/supabase/allProposals";
 import { cache } from "react";
-import { loanpool } from "utils/address";
 
 export const getPNlByUser = (trades: any, user?: Address,newArrLength?:number,amm?:string) => {
     let pnl :{ date: string; value: number; }[] = [];
@@ -309,3 +308,39 @@ export const proposalsExecutedByAmm = cache(async() => {
     })
     return data;
 });
+
+export const organizePriceData = (graphData:any,apiData:any) => {
+    //new datae 3 dayss ago
+    const threeDaysAgo =new Date( new Date().setDate(new Date().getDate() - 3));
+    let data:[{date:string,market:number,index:number,delta:number}]=[{date:threeDaysAgo.toISOString(),market:0,index:0,delta:0}];
+    console.log('DATA MUTAIONS',graphData)
+    let intit = false;
+    for(let i =0; i<apiData.Results.length;i++){
+        for(let j =0; j<graphData.length;j++){
+            let market =0;
+            if(new Date(graphData[j].timeStamp *1000).valueOf() <= new Date(apiData.Results[i].Date).valueOf()){
+
+                if(graphData[j].isFrozen){
+                    market = apiData.Results[i].Close*10**6;
+                    console.log('inside if',market)
+                }else{
+                    market = graphData[j].marketPrice;
+                    console.log('inside else',market)
+                }
+
+            }else{
+                break;
+            }
+            let delta = Math.abs(market - apiData.Results[i].Close*10**6);
+            if(intit){
+            data.push({date:new Date(apiData.Results[i].Date).toISOString(),market:market,index:apiData.Results[i].Close*10**6,delta:delta})
+        }
+            else{
+                data = [{date:new Date(apiData.Results[i].Date).toISOString(),market:market,index:apiData.Results[i].Close*10**6,delta:delta}]
+                intit = true;
+            }
+        }
+    }
+    return data;
+
+}
