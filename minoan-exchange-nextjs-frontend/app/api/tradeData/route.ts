@@ -88,7 +88,6 @@ import { cache } from 'react'
 };
 
 export async function GET(req: Request){
-    console.log('req', req)
     try {
       const data = await fetchGlobalTradeData();
     //   @ts-ignore
