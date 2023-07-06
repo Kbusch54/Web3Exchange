@@ -22,12 +22,16 @@ interface Props {
     
 }
 const COLORS = ["rgb(30 58 138)","#2451B7", "#9251B7", "rgb(2 132 199)",  "rgb(153 27 27)"];
+interface CustomTooltipProps {
+  active: boolean;
+  payload: any[]; // Replace 'any' with the actual type of the payload array elements
+  label: string;
+  type?: string;
+}
 
-function CustomTooltip({ active = false, payload = [], label = '', type = '' }: any) {
+function CustomTooltip({ active =false, payload =[], label = '' , type = '' }: CustomTooltipProps) {
     if (active) {
       const date = new Date(label);
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
       const mmm =date.toDateString().split(' ')[1];
       const day = String(date.getDate() +1).padStart(2, '0');
       const formattedDate = `${mmm} ${day}`;
@@ -77,7 +81,7 @@ const ReachartLines: React.FC<Props> = ({height,lineData,type}) => {
             }}
           />
           
-          <Tooltip content={<CustomTooltip type={type}   />} />
+          <Tooltip content={<CustomTooltip type={type} active={false} payload={[]} label={""}   />} />
           <Legend />
         </ComposedChart>
       </ResponsiveContainer>

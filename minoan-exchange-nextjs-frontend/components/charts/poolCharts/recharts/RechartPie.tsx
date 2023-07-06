@@ -64,8 +64,13 @@ interface Props {
     dataForPie?: { name: string; value: number; }[]
     toolTipLabel?: string
 }
-// @ts-ignore
-const CustomTooltip = ({ active, payload,toolTipLabel }) => {
+
+interface CustomTooltipProps {
+  active: number|undefined;
+  payload: any[]; // Replace 'any' with the actual type of the payload array elements
+  toolTipLabel?: string;
+}
+const CustomTooltip = ({ active=undefined, payload=[{name:'',value:0}],toolTipLabel='' }:CustomTooltipProps) => {
   if (active) {
      return (
      <div
