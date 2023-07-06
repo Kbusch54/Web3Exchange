@@ -313,32 +313,31 @@ export const organizePriceData = (graphData:any,apiData:any) => {
     //new datae 3 dayss ago
     const threeDaysAgo =new Date( new Date().setDate(new Date().getDate() - 3));
     let data:[{date:string,market:number,index:number,delta:number}]=[{date:threeDaysAgo.toISOString(),market:0,index:0,delta:0}];
-    console.log('DATA MUTAIONS',graphData)
     let intit = false;
     for(let i =0; i<apiData.Results.length;i++){
+        let market =0;
         for(let j =0; j<graphData.length;j++){
-            let market =0;
             if(new Date(graphData[j].timeStamp *1000).valueOf() <= new Date(apiData.Results[i].Date).valueOf()){
 
                 if(graphData[j].isFrozen){
-                    market = apiData.Results[i].Close*10**6;
-                    console.log('inside if',market)
+                    market = Number(apiData.Results[i].Close*10**6);
                 }else{
-                    market = graphData[j].marketPrice;
-                    console.log('inside else',market)
+                    market = Number(graphData[j].marketPrice);
                 }
 
             }else{
+                market<=0?market = market = Number(apiData.Results[i].Close*10**6):'';
                 break;
             }
-            let delta = Math.abs(market - apiData.Results[i].Close*10**6);
-            if(intit){
-            data.push({date:new Date(apiData.Results[i].Date).toISOString(),market:market,index:apiData.Results[i].Close*10**6,delta:delta})
         }
-            else{
-                data = [{date:new Date(apiData.Results[i].Date).toISOString(),market:market,index:apiData.Results[i].Close*10**6,delta:delta}]
-                intit = true;
-            }
+        let delta = Math.abs(Number(market) - Number(apiData.Results[i].Close*10**6));
+        if(intit){
+        data.push({date:new Date(apiData.Results[i].Date).toISOString(),market:market,index:apiData.Results[i].Close*10**6,delta:delta})
+        market =0;
+    }
+        else{
+            data = [{date:new Date(apiData.Results[i].Date).toISOString(),market:market,index:apiData.Results[i].Close*10**6,delta:delta}]
+            intit = true;
         }
     }
     return data;
