@@ -86,7 +86,8 @@ import { cache } from 'react'
 
     return data;
 };
-
+export const revalidate = 8000
+export const dynamic = 'force dynamic'
 export async function GET(req: Request){
     try {
       const data = await fetchGlobalTradeData();
@@ -96,4 +97,3 @@ export async function GET(req: Request){
         return NextResponse.json({ message: 'Internal server error' })
     }
   }
-  
