@@ -19,7 +19,7 @@ const FirstSection: React.FC<Props> = () => {
             alt="logo"
             className="hidden lg:block  w-[100vw]  h-[90vh] 2xl:w-[150rem] "
           />
-           <div className="fixed lg:absolute lg:top-12 mx-4 left-0  md:grid grid-cols-1  lg:grid-cols-3 text-white   z-50 text-center ">
+           <div className="block lg:absolute lg:top-12 mx-4 left-0  md:grid grid-cols-1  lg:grid-cols-3 text-white   z-50 text-center ">
        
        <MainLanding/>
       </div>
