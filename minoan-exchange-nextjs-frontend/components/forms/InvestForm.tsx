@@ -103,6 +103,7 @@ const InvestForm: React.FC<Props> = ({ stockData, currentData, user, availableUs
     if (collateralInputRef.current) collateralInputRef.current.value = '';
     if (totalCostRef.current) totalCostRef.current.value = '';
     router.refresh();
+    window.location.reload();
   }
 
   return (
