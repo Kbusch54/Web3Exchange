@@ -90,11 +90,9 @@ export default function LoanStepper() {
         ) : (
           <React.Fragment>
             <Typography sx={{ mt: 2, mb: 1, py: 1 }}>
-      
-              <>
+
               {stepContent[activeStep]}
-              </>
-              <p>hello</p>
+        
               
             </Typography>
             <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
