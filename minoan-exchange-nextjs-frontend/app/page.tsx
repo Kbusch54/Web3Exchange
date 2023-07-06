@@ -12,6 +12,8 @@ import dynamic from "next/dynamic";
 import LoanPoolTab from "../components/LoanPoolTab";
 import ScrollUp from "../components/utils/ScrollUp";
 import FirstSection from "components/mainPage/FirstSection";
+import helmet1 from "../public/assets/greek-helmet.png";
+import helmet2 from "../public/assets/silhoute-helmet.png";
 const TradeStepper = dynamic(
   () => import("../components/mainPage/TradeStepper"),
   {
@@ -27,7 +29,7 @@ export default function page({}: Props): ReactElement {
       <section className="min-h-screen  text-center lg:ml-8 m-2" id="top">
        <FirstSection/>
       </section>
-      <section className="py-20 relative" id="trade-page">
+      <section className="min-h-screen  relative" id="trade-page">
         <div className="hidden lg:block relative">
           <Image
             src={column}
@@ -50,22 +52,22 @@ export default function page({}: Props): ReactElement {
           <TradeStepper />
         </div>
       </section>
-      <section className="h-screen relative" id="loan-pool">
-        <div className="flex flex-col text-center ">
-          <h1 className="text-3xl mb-8 text-white">Loan Pools</h1>
-          <div className="hidden lg:block absolute  pl-4 -z-10">
+      <section className="h-screen relative " id="loan-pool">
+        <div className="flex flex-col text-center  ">
+          <h1 className="text-3xl mb-8 text-white mt-24">Loan Pools</h1>
+          <div className="hidden xl:block absolute  pl-4 -z-10 mt-12">
             <Image src={ariadne} alt="ariadne" height={700} />
           </div>
 
-          <div className="border-4 border-slate-700 flex flex-col justify-center  text-center lg:mx-6 text-white m-2  backdrop-blur-[6px] p-2 shadow-2xl border-b-8 border-l-[6px] border-opacity-60 xl:ml-[40rem] lg:">
-            {/* <LoanPoolTab /> */}
+          <div className="border-4 border-slate-700  lg:mx-6 text-white m-2  backdrop-blur-[6px] p-2 shadow-2xl border-b-8 border-l-[6px] border-opacity-60 xl:ml-[40rem] lg:">
+            <LoanPoolTab />
           </div>
         </div>
       </section>
-      <section className="relative py-6 " id="theseus-dao">
-        <div className="flex flex-col text-center m-4">
-          <h1 className="text-3xl mt-4 mb-12 text-white">Theseus DAO</h1>
-          <div className="border-4 border-slate-700 flex flex-col justify-center gap-y-8 py-8  text-center text-white m-6 backdrop-blur-[6px] p-2 shadow-2xl border-b-8 border-l-[6px] border-opacity-60 xl:mr-[40rem] ">
+      <section className="relative h-screen overflow-y-scroll scroll-hidden will-change-scroll" id="theseus-dao">
+        <div className="flex flex-col  text-center m-4">
+          <h1 className="text-3xl my-12 text-white">Theseus DAO</h1>
+          <div className="border-4 border-slate-700 flex flex-col justify-center gap-y-8 py-8  text-center text-white m-6 backdrop-blur-[6px] p-2 shadow-2xl border-b-8 border-l-[6px] border-opacity-60 xl:mr-[40rem] max-w-5xl text-lg 2xl:text-xl ">
             <p>
               A DAO, or Decentralized Autonomous Organization, is a type of
               organization that operates through smart contracts on a blockchain
@@ -94,25 +96,34 @@ export default function page({}: Props): ReactElement {
               exchange safe, secure and user friendly.
             </p>
             <p>
-              When a new asset and lending pool is cretaed for the exchange the
+              When a new asset and lending pool is created for the exchange the
               DAO will vote on the maximum and minimum loan amounts for that
               asset, as well as the interest rate for that asset. The DAO will
               also be the first staker of the any new pool. The DAO will also
               recieve percentage of liquidations left over after paying the loan
-              pools back and the liquidator fee.
+              pools back and the liquidator fee. It is the job of The Theseus DAO 
+              to protect the entire protocol. By voting on limits for all the Ariadne 
+              DOA&apos;s as well as acting as an insurance fund for if the Loan pools ever run out of liquidity.
             </p>
           </div>
-          <div className="hidden xl:block absolute  ml-4 -z-10 right-10">
+          <div className="hidden xl:block absolute mt-20  ml-4 -z-10 right-10">
             <Image src={theseus} alt="theseus" />
           </div>
-          <div className="flex justify-evenly xl:mr-[40rem] mb-24 mt-18 md:mt-24 xl:mt-28 2xl:mt-36">
-            <div>pic</div>
-            <div>pic 2</div>
+          <div className="hidden xl:flex justify-evenly  ">
+            <a className="rounded-full bg-slate-800 p-4 hover:scale-125" href='/'>
+              <Image src={helmet2} height={50} width={50} alt="helmet2" />
+              <p className="text-white text-xs skew-y-12">Theseus Docs</p>
+            </a>
+            <a className="rounded-full bg-slate-800 p-4 hover:scale-125" href='/theseusDao'>
+              <Image src={helmet2} height={50} width={50} alt="helmet1" className="transform -scale-x-100" />
+              <p className="text-white text-xs -skew-y-12">Theseus DAO</p>
+            </a>
           </div>
         </div>
       </section>
-      <section className=" py-24" id="white-paper">
-        <div className="flex flex-col m-12 text-center bg-white 2xl:mx-96  p-6">
+      <section className="n" id="white-paper">
+        <div className="flex text-center justify-center align-middle">
+        <div className="flex flex-col justify-center align-middle m-12 text-center mt-20 bg-white 2xl:mx-96  p-6 max-w-6xl 4xl:max-w-none">
           <h1 className="text-center text-xl">
             {" "}
             Minoan Exchange: A Perpetual Defi Exchange
@@ -236,6 +247,7 @@ export default function page({}: Props): ReactElement {
             site. Automatic liquidation bots are used instead of user-run ones
             for showcasing the protocol.
           </p>
+        </div>
         </div>
       </section>
       <ScrollUp className="w-10 h-10  " href="#top">
