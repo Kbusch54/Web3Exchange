@@ -67,7 +67,7 @@ export default function page({}: Props): ReactElement {
       <section className="relative h-screen overflow-y-scroll scroll-hidden will-change-scroll" id="theseus-dao">
         <div className="flex flex-col  text-center m-4">
           <h1 className="text-3xl my-12 text-white">Theseus DAO</h1>
-          <div className="border-4 border-slate-700 flex flex-col justify-center gap-y-8 py-8  text-center text-white m-6 backdrop-blur-[6px] p-2 shadow-2xl border-b-8 border-l-[6px] border-opacity-60 xl:mr-[40rem] max-w-5xl text-lg 2xl:text-xl ">
+          <div className="border-4 border-slate-700 flex flex-col justify-center gap-y-8 py-8  text-center text-white m-6 backdrop-blur-[6px] p-2 shadow-2xl border-b-8 border-l-[6px] border-opacity-60 xl:mr-[40rem]  text-lg 2xl:text-xl lg:mx-20 ">
             <p>
               A DAO, or Decentralized Autonomous Organization, is a type of
               organization that operates through smart contracts on a blockchain
@@ -109,7 +109,7 @@ export default function page({}: Props): ReactElement {
           <div className="hidden xl:block absolute mt-20  ml-4 -z-10 right-10">
             <Image src={theseus} alt="theseus" />
           </div>
-          <div className="hidden xl:flex justify-evenly  ">
+          <div className="hidden xl:flex justify-evenly mr-[40rem] ">
             <a className="rounded-full bg-slate-800 p-4 hover:scale-125" href='/'>
               <Image src={helmet2} height={50} width={50} alt="helmet2" />
               <p className="text-white text-xs skew-y-12">Theseus Docs</p>
