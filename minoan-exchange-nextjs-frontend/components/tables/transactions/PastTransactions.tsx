@@ -40,7 +40,7 @@ const PastTransactions: React.FC<Props> = ({ user,limit }) => {
                     {dbData.map((data,index:number) => {
                         if(limit&&index>=limit)return null
                         return (
-                            <div className='flex flex-row text-white mx-4 items-center justify-between border border-gray-500 my-2 bg-slate-700 '>
+                            <div key={data.transactionHash} className='flex flex-row text-white mx-4 items-center justify-between border border-gray-500 my-2 bg-slate-700 '>
                                 <div className='flex flex-row gap-x-4 items-center'>
                                     <div className={` text-[2.5rem] ${typeClass(data.type)} `}>|</div>
                                     <div className='flex flex-col text-left '>
