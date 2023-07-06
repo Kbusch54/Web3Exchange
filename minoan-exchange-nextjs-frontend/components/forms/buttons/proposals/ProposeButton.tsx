@@ -1,13 +1,11 @@
 'use client'
-import { supabase } from '../../../../supabase';
 import React, { useEffect, useRef, useState } from 'react'
 import { useContractWrite, Address, useWaitForTransaction, useAccount  }  from 'wagmi';
 import { useNewProposal } from '../../../../utils/contractWrites/daos/ariadne/purpose';
 import { ethers } from 'ethers';
 import { getTransactionHash } from '../../../../utils/helpers/doas';
-import { theseus } from '../../../../utils/address';
 import toast from 'react-hot-toast';
-import { redirect, useRouter } from 'next/navigation';
+import {useRouter } from 'next/navigation';
 import { addProposal, addTransaction, upsertProposal } from '../helper/database';
 
 interface Props {
@@ -54,7 +52,6 @@ const waiting = useWaitForTransaction({
           isMounted.current = true;
         }, 10000);
       }else if(waiting.isSuccess && waiting.data){
-        setLoadingStage((prev) => false);
         isMounted.current = false;
         toast.success(`Proposed ${description} `, {  duration: 6000 ,position:'top-right'});
         if(usedNonce && transactionHash){
@@ -65,6 +62,7 @@ const waiting = useWaitForTransaction({
           addTransaction(waiting.data.transactionHash,user,date,'Added Proposal','proposal').then((res)=>{
             console.log('res added transaction',res);
           })
+          setLoadingStage((prev) => false);
           setApproved(prev=>true)
         }
       
@@ -77,6 +75,8 @@ const waiting = useWaitForTransaction({
   //@ts-ignore
   const hanldeSign = async (e) => {
     e.preventDefault();
+    setLoadingStageSign((prev) => true);
+
     //@ts-ignore
     if (!transactionHash) {
       alert('no transaction hash')
@@ -91,7 +91,6 @@ const signature = await provider.send("personal_sign", [transactionHash, user])
         if (verified.toLowerCase() == user.toLowerCase()) {
           if(usedNonce ){
             await upsertProposal(contractAddress,usedNonce,user,signature.result).then((res)=>{
-            console.log('res added transaction',res);
             toast.success(`Signed proposal ${usedNonce} `, {  duration: 6000 ,position:'top-right'});
             const date = new Date().toISOString().toLocaleString();
             addTransaction(transactionHash,user,date,'Signed Proposal','proposal').then((res)=>{
@@ -133,14 +132,13 @@ useEffect(() => {
    //@ts-ignore
    const handleWrite = async (e) => {
     e.preventDefault();
-    setLoadingStageSign((prev) => true);
     // await contractWrite.writeAsync()
     setUsedNonce((prev)=>nonce);
     console.log('nonce from contract write',nonce);
     const txHash = getTransactionHash(nonce,addressTo,0,callData,contractAddress);
     setTransactionHash(prev=>txHash);
+    setLoadingStage((prev) => true);
     //@ts-ignore
-    
     await contractWrite.writeAsync().then((res) => {
     })
     .catch((err) => {
