@@ -10,10 +10,7 @@ interface Props {
 }
 
 const PriceData: React.FC<Props> = ({priceData,stockPriceData}) => {
-    // console.log('this is price data',priceData)
-    // console.log('this is stock price data',stockPriceData)
     const priceDataForCHart = organizePriceData(priceData,stockPriceData);
-    console.log('this is price data for chart',priceDataForCHart)
     return (
         <>
             <div className="row-span-4 hidden md:inline-block overflow-clip">
