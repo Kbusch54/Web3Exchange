@@ -23,14 +23,14 @@ const Header: React.FC<Props> = () => {
             <NavButton />
           </div>
         </div>
-        <div className=" hidden lg:flex  gap-x-14 lg:gap-x-20 xl:gap-x-32 2xl:gap-x-64 mt-4 text-lg  ">
-          <a href="/docs">
+        <div className=" hidden lg:flex  gap-x-14 lg:gap-x-20 xl:gap-x-32 2xl:gap-x-64 text-center align-middle text-lg  ">
+          <a className="bg-slate-800 rounded-3xl px-4 pt-2 my-2 hover:scale-110" href="/docs">
             Docs
           </a>
-          <a href="/theseusDao">Theseus Dao</a>
-          <a href="/pools">Pools</a>
-          <a href="/invest">Invest</a>
-          <a href="/dashboard">Dashboard</a>
+          <a className="bg-slate-800 rounded-3xl px-4 pt-2 my-2 hover:scale-110" href="/theseusDao">Theseus Dao</a>
+          <a className="bg-slate-800 rounded-3xl px-4 pt-2 my-2 hover:scale-110" href="/pools">Pools</a>
+          <a className="bg-slate-800 rounded-3xl px-4 pt-2 my-2 hover:scale-110" href="/invest">Invest</a>
+          <a className="bg-slate-800 rounded-3xl px-4 pt-2 my-2 hover:scale-110" href="/dashboard">Dashboard</a>
         </div>
         <div className="my-2 align-middle items-center">
           <ConnectingButton />
