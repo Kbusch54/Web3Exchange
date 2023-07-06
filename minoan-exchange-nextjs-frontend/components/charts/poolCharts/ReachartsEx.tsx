@@ -40,8 +40,8 @@ function CustomTooltip({ active, payload, label }) {
       return (
         <div className="tooltip ">
           <h4>{date}</h4>
-          <p>${moneyFormatter(payload[0].value)} Index</p>
-          <p>${moneyFormatter(payload[1].value)} Market</p>
+          <p>${moneyFormatter(payload[1].value)} Index</p>
+          <p>${moneyFormatter(payload[0].value)} Market</p>
           <p>{moneyFormatter(payload[2].value)} Delta</p>
         </div>
       );
@@ -61,8 +61,8 @@ const ReachartsEx: React.FC<Props> = ({height,dataForGraph}) => {
             </linearGradient>
           </defs>
   
-          <Line dataKey="index" stroke="#2451B7" fill="url(#color)" activeDot={{ r: 8 }} />
           <Line dataKey="market" stroke="#9251B7" fill="url(#color)" activeDot={{ r: 8 }}  />
+          <Line dataKey="index" stroke="#2451B7" fill="url(#color)" activeDot={{ r: 8 }} />
           {/* <Area type="monotone" dataKey='delta' stroke="rgb(22 163 74)" fill="rgb(2 132 199)"/> */}
           <Area type="monotone" dataKey="delta" stroke="rgb(22 163 74)" fill="rgb(2 132 199)" yAxisId={'deltaAxis'} /> 
           
