@@ -143,11 +143,7 @@ const AllTrades: React.FC<Props> = ({ user, userAvailableBalance, active = true,
     const [loading, setLoading] = useState<boolean>(true);
 
 useEffect(() => {
-      fetch(`http://localhost:3000/api/tradeData`, {
-        next:{
-            revalidate:1000
-        }
-      }).then((res) => res.json()).then((data) => {
+      fetch(`http://localhost:3000/api/tradeData`).then((res) => res.json()).then((data) => {
         console.log('data', data);
         setTradeData(data);
         setLoading(false);
