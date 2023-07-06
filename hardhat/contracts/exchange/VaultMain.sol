@@ -225,13 +225,18 @@ function _onlyStaking() private view {
 
       function addPoolTotalUsdcSupply(address _ammPool, uint _amount) external onlyStakingOrPool{
         poolTotalUsdcSupply[_ammPool] += _amount;
+        if(_ammPool == theseusDao){
+            availableBalance[_ammPool] += _amount;
+        }
     }
       function setExchangeViewer(address _exchangeViewer)public onlyTheseusDao{
         exchangeViewer = _exchangeViewer;
     }
     function subPoolTotalUsdcSupply(address _ammPool, uint _amount) external onlyStakingOrPool{
-
         poolTotalUsdcSupply[_ammPool] -= _amount;
+        if(_ammPool == theseusDao){
+            availableBalance[_ammPool] -= _amount;
+        }
     }
 
     function addPoolAvailableUsdc(address _ammPool, uint _amount) external onlyStakingOrPool{
