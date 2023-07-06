@@ -12,7 +12,7 @@ import {
     Legend,
   } from "recharts";
   import { format, parseISO, subDays } from "date-fns";
-import { moneyFormatter } from "utils/helpers/functions";
+import { convertCamelCaseToTitle, moneyFormatter } from "utils/helpers/functions";
   
   const datas: any[] | undefined = [];
   for (let num = 30; num >= 0; num--) {
@@ -34,18 +34,22 @@ interface Props {
 }
 const COLORS = ["#2451B7","#9251B7", "rgb(30 58 138)", "rgb(88 28 135)",  "rgb(153 27 27)"];
 //@ts-ignore
-function CustomTooltip({ active, payload, label }) {
+function CustomTooltip({ active = false, payload = [], label = '' }) {
     if (active) {
       const date = new Date(label).toLocaleDateString() + " " + new Date(label).toLocaleTimeString();
       return (
         <div className="tooltip ">
-          <h4>{date}</h4>
-          <p>${moneyFormatter(payload[1].value)} Index</p>
-          <p>${moneyFormatter(payload[0].value)} Market</p>
-          <p>{moneyFormatter(payload[2].value)} Delta</p>
-        </div>
+         <h4>{date}</h4> 
+         {
+           payload.map((item:any,index:number)=>{
+             return <p key={item.dataKey}>{`$${moneyFormatter(Number(item.value))}`} {convertCamelCaseToTitle(item.dataKey)}</p>
+           })
+          }    
+         </div>
       );
+         
     }
+    
     return null;
   }
 

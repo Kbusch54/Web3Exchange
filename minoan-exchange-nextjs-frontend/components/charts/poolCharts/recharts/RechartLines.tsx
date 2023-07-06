@@ -1,15 +1,13 @@
 'use client'
 import {
     ResponsiveContainer,
-    AreaChart,
     XAxis,
-    YAxis,
     Area,
     Tooltip,
     ComposedChart,
     Legend,
   } from "recharts";
-  import { format, parseISO } from "date-fns";
+  import { parseISO } from "date-fns";
 import { convertCamelCaseToTitle, getHoursAndMinutes, moneyFormatter } from "utils/helpers/functions";
 
   const data =  [{ date: '2023-06-16', Tesla: 0, Google: 0, Meta: 0, All: 0 },
@@ -24,8 +22,8 @@ interface Props {
     
 }
 const COLORS = ["rgb(30 58 138)","#2451B7", "#9251B7", "rgb(2 132 199)",  "rgb(153 27 27)"];
-//@ts-ignore
-function CustomTooltip({ active, payload, label,type }) {
+
+function CustomTooltip({ active = false, payload = [], label = '', type = '' }: any) {
     if (active) {
       const date = new Date(label);
       const year = date.getFullYear();
@@ -38,7 +36,7 @@ function CustomTooltip({ active, payload, label,type }) {
          <h4>{formattedDate}</h4> 
          {
            payload.map((item:any,index:number)=>{
-             return <p key={item}>{type=='time'?getHoursAndMinutes(item.value)[0].toString() :type=='$'?`$${moneyFormatter(item.value)}`  : item.value} {convertCamelCaseToTitle(item.dataKey)}</p>
+             return <p key={item.dataKey}>{type=='time'?getHoursAndMinutes(item.value)[0].toString() :type=='$'?`$${moneyFormatter(item.value)}`  : item.value} {convertCamelCaseToTitle(item.dataKey)}</p>
            })
           }    
          </div>
@@ -78,22 +76,11 @@ const ReachartLines: React.FC<Props> = ({height,lineData,type}) => {
               return formattedDate;
             }}
           />
-  
-          {/* <YAxis
-            dataKey="tesla"
-            axisLine={false}
-            tickLine={false}
-            tickCount={12}
-            tickFormatter={(number) => `${Math.floor(number)}`}
-          /> */}
-          {/* @ts-ignore */}
-          <Tooltip content={<CustomTooltip type={type}  />} />
-  
-          {/* <CartesianGrid opacity={0.1} vertical={true} /> */}
+          
+          <Tooltip content={<CustomTooltip type={type}   />} />
           <Legend />
         </ComposedChart>
       </ResponsiveContainer>
-      // </div>
     )
 }
 

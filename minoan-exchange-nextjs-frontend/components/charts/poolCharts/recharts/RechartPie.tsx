@@ -116,9 +116,7 @@ const RechartPie: React.FC<Props> = ({dataForPie,toolTipLabel}) => {
             />
             
             ))}
-            {/* <Label value={`${data[activeIndex].name}`}  className='text-white text-2xl absolute top-1/2 left-1/3'/> */}
             </Pie>
-            {/* @ts-ignore */}
           <Tooltip content={<CustomTooltip active={activeIndex} payload={data} toolTipLabel={toolTipLabel}/>} />
         <Legend  type='diamond'/>
         </PieChart>

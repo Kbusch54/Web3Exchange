@@ -40,7 +40,7 @@ const data = [
         return newData;
     }
 //@ts-ignore
-  function CustomTooltip({ active, payload, label }) {
+function CustomTooltip({ active = false, payload = [payload], label = '' }) {
       if (active) {
         return (
         <div className="tooltip ">

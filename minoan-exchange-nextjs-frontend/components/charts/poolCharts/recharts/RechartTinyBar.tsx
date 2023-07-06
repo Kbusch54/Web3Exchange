@@ -36,8 +36,15 @@ interface Props {
     
 }
 const COLORS = ["#2451B7","#9251B7", "rgb(30 58 138)", "rgb(88 28 135)",  "rgb(153 27 27)"];
-//@ts-ignore
-function CustomTooltip({ active, payload, label,toolTipLabel,tooTipPost }) {
+interface CustomTooltipProps {
+  active: boolean;
+  payload: any[]; // Replace 'any' with the actual type of the payload array elements
+  label: string;
+  toolTipLabel: string;
+  tooTipPost: string;
+}
+
+function CustomTooltip({ active, payload, label, toolTipLabel, tooTipPost }: CustomTooltipProps) {
     if (active) {
       const date = new Date(Number(payload[0].payload.date) * 1000);
       return (
