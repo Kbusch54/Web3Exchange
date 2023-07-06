@@ -131,7 +131,7 @@ export default async function page(context: { params: { slug: string; }; }) {
                 )}
                 {stock?.symbol && (
                   <div className="hidden 2xl:inline">
-                    <StockData stockSymbol={stock?.symbol} />
+                    <StockData stockSymbol={stock?.symbol} priceData={priceData} />
                   </div>
                 )}
               </div>
@@ -152,7 +152,7 @@ export default async function page(context: { params: { slug: string; }; }) {
 
               <div className="inline 2xl:hidden ">
                 {stock?.symbol && (
-                  <StockData stockSymbol={stock?.symbol} />
+                  <StockData stockSymbol={stock?.symbol} priceData={priceData} />
                 )}
               </div>
 
