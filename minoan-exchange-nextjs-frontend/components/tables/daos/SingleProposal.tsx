@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, use } from 'react'
 import { Address } from 'wagmi';
 import VotingProportion from '../utils/VotingProportion';
 import CountDownProposal from '../utils/CountDownProposal';
@@ -8,6 +8,7 @@ import Copy from '../../utils/Copy';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import EtherscanLogo from '../utils/EtherscanLogo';
+import { updateProposal } from 'components/forms/buttons/helper/database';
 
 interface Props {
     index: number;
@@ -82,6 +83,10 @@ const SingleProposal: React.FC<Props> = ({ proposal, dbData, index, user, isHold
     const id = proposal.dAO? proposal.dAO.id:proposal.theseusDAO.id;
 
 
+    if(proposal.isPassed && !dbData.isProposalPassed && dbData.contractNonce){
+        //update database
+        use(updateProposal(dbData.contractNonce))
+    }
 
 
     const handleToggle = () => {
