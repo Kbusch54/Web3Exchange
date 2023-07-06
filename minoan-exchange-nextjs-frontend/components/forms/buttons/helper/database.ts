@@ -8,6 +8,15 @@ const res = await supabase
           .insert([{transactionHash: transactionHash, user: user, timestamp: timestamp, name: name,type:type}]);
           return res;
 }
+export const updateProposal = async (contractNonce:string) => {
+  const { data, error } = await supabase
+  .from('Proposals')
+  .update({isProposalPassed:true})
+  .eq('contractNonce',contractNonce)
+  .select()
+  console.log('data or err on upsert',data,error)
+  return data;
+}
 export const getTransactions = cache(async (user: string) => {
     const { data, error } = await supabase
             .from('Past Transactions')
@@ -25,9 +34,6 @@ export const getTransactions = cache(async (user: string) => {
         return data;
     }
     export const upsertProposal = async(contractAddress:string, nonce:number,user:string,signatures:string) => {
-        console.log('signature',signatures)
-        console.log('nonce',nonce)
-        console.log('user',user)
         const { data, error } = await supabase
         .from('Proposals')
         .update({signatures:[signatures],signers:[user]})
