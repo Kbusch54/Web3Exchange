@@ -213,9 +213,9 @@ contract Exchange is VaultMain {
         poolAvailableUsdc[_position.amm] += _newTC  - uint(_payment + int(_loanAmount));
         poolTotalUsdcSupply[_position.amm] += _newTC  - uint(_payment + int(_loanAmount));
         int(_newTC) >= _payment?_payments(_tradeId, _position.amm):();
-        int(_newTC)-_payment>=int(_loanAmount)?_inTheMoney(_tradeId,_loanAmount,_position.amm,_position.trader,_newTC,_usdcAmt):_delinquent(_tradeId,_loanAmount,_position.amm);
+        int(tradeCollateral[_tradeId])-_payment>=int(_loanAmount)?_inTheMoney(_tradeId,_loanAmount,_position.amm,_position.trader,tradeCollateral[_tradeId],_usdcAmt):_delinquent(_tradeId,_loanAmount,_position.amm);
         tradeCollateral[_tradeId] = 0;
-         emit ClosePosition(_position.trader,_position.timeStamp, _closePrice,block.timestamp, int(_newTC)- (_payment + int(_loanAmount)));
+         emit ClosePosition(_position.trader,_position.timeStamp, _closePrice,block.timestamp, int(tradeCollateral[_tradeId])- (_payment + int(_loanAmount)));
         tradeBalance[_tradeId] =0;
     }
     function _delinquent(bytes memory _tradeId, uint _loanAmt,address _amm)internal{
