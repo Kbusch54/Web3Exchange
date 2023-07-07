@@ -5,12 +5,14 @@ import AddCollateralButton from '../../forms/buttons/trade/AddCollateralButton';
 import { Address } from 'wagmi';
 import { ethers } from 'ethers';
 import { formatUnits } from 'ethers/lib/utils.js';
+import { moneyFormatter } from 'utils/helpers/functions';
 
 interface Props {
     tradeId: string;
     user: Address;
     vaultBalance: number;
     currentCollateral: number;
+    refetch: () => void;
 
 
 }
@@ -35,7 +37,7 @@ const customStyles = {
 
 };
 // Modal.setAppElement('#yourAppElement');
-const AddCollateralModal: React.FC<Props> = ({tradeId,user,vaultBalance,currentCollateral}) => {
+const AddCollateralModal: React.FC<Props> = ({tradeId,user,vaultBalance,currentCollateral,refetch}) => {
     const maxAllowed = vaultBalance; //would be  vault balacne
     const [modalIsOpen, setIsOpen] = useState(false);
     const [isError, setIsError] = useState(false);
@@ -54,6 +56,7 @@ const AddCollateralModal: React.FC<Props> = ({tradeId,user,vaultBalance,currentC
     }
 
     function closeModal() {
+        refetch();
         setIsOpen(false);
     }
     const handleValidation = () => {
@@ -122,7 +125,7 @@ const AddCollateralModal: React.FC<Props> = ({tradeId,user,vaultBalance,currentC
                         <div className='flex flex-row justify-around'>
                             <div className='flex flex-col text-xs'>
                                 <p className='text-gray-800 text-sm lg:text-md'>Balance</p>
-                                <p className=' md:text-md lg:text-xl text-sky-100'>${vaultBalance?String(Number(ethers.utils.formatUnits(vaultBalance,6)).toFixed(2)):'0.00'}</p>
+                                <p className=' md:text-md lg:text-xl text-sky-100'>${vaultBalance?moneyFormatter(vaultBalance):'0.00'}</p>
                             </div>
                             <div className='flex flex-col '>
                                 <input type='number' placeholder="$0.00"prefix={"$"} className='text-center text-md lg:text-lg bg-sky-700 w-[5rem] rounded-3xl text-sky-200'ref={usdcAmtRef} onInput={handleValidation} />

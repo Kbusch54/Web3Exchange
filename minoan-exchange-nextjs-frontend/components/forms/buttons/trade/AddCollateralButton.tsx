@@ -70,7 +70,7 @@ export default  function  AddCollateralButton({value,user,disabled,tradeId,close
               contractWrite.reset();
               isMounted.current = true;
               closeModal();
-            }, 10000);
+            }, 8000);
               
           }
       }
