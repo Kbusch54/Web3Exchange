@@ -7,6 +7,7 @@ import CloseOutPositionButton from '../../forms/buttons/trade/CloseOutPosition';
 import useRedstonePayload from '../../../utils/contractWrites/exchange';
 
 interface Props {
+    refetch: () => void;
     tradeId: string;
     user: Address;
     vaultBalance: number;
@@ -45,16 +46,17 @@ const customStyles = {
 
 };
 // Modal.setAppElement('#yourAppElement');
-const ClosePositionModal: React.FC<Props> = ({ tradeId, user, currentCollateral, currrentLoanAmt, vammData,currentPositionSize }) => {
+const ClosePositionModal: React.FC<Props> = ({ tradeId, user, currentCollateral, currrentLoanAmt, vammData,currentPositionSize,refetch }) => {
     const k = vammData.baseAsset * vammData.quoteAsset;
 
     const [modalIsOpen, setIsOpen] = useState(false);
     const getExitPriceAndUsdc = (positionSize:number) => {
-        const newBase = (k)/(vammData.quoteAsset + positionSize );
-        const usdc = (vammData.baseAsset - newBase)/100;
+        const newBase = (k)/(vammData.quoteAsset - positionSize );
+        const usdc = Math.abs((vammData.baseAsset - newBase));
         const newExitPrice = (usdc*10**8)/positionSize;
         return [newExitPrice,usdc]; 
     }
+  
     const amountOwed = (positionSize: number,usdcAmt:number) => {
         const amountOwed = positionSize / currentPositionSize * currrentLoanAmt;
         const pnl = usdcAmt - amountOwed;
@@ -73,6 +75,7 @@ const ClosePositionModal: React.FC<Props> = ({ tradeId, user, currentCollateral,
     }
 
     function closeModal() {
+        refetch()
         setIsOpen(false);
     }
 

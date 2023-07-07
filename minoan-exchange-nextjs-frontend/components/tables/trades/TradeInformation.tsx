@@ -32,6 +32,7 @@ interface Props {
             currentCollateral: number;
             openValue: number;
             currentValue: number;
+            entryPrice: number;
         }
         other: {
             baseAssetReserve: number,
@@ -53,8 +54,8 @@ const TradeInformation: React.FC<Props> = ({user,userAvailableBalance,row,refetc
                         <div className='text-white text-xl m-2'>Information</div>
                         <div className='grid grid-cols-3 md:grid-cols-4 lg:grid-cols-11  xl:grid-cols-11 justify-evenly text-center border border-amber-400/40 rounded-lg '>
                             <div className='text-white text-lg flex flex-col border border-white/10'>
-                                <p>MMR</p>
-                                <p>{row.information.mmr / 10 ** 4}%</p>
+                                <p>Entry Price</p>
+                                <p>${moneyFormatter(row.information.entryPrice)}</p>
                             </div>
                             <div className='text-white text-lg flex flex-col border border-white/10'>
                                 <p>Current Margin</p>
@@ -86,7 +87,7 @@ const TradeInformation: React.FC<Props> = ({user,userAvailableBalance,row,refetc
                             </div>
                             <div className='text-white text-lg flex flex-col border border-white/10'>
                                 <p>Interest Accurred</p>
-                                <p>${formatUnits(row.information.interestAccrued, 6)}</p>
+                                <p>${moneyFormatter(row.information.interestAccrued)}</p>
                             </div>
                             <div className='text-white text-lg flex flex-col border border-white/10'>
                                 <p>Open Value</p>
@@ -98,15 +99,15 @@ const TradeInformation: React.FC<Props> = ({user,userAvailableBalance,row,refetc
                             </div>
                         </div>
                         <div className='flex flex-row justify-evenly text-center text-white mt-4 pb-4 text-sm md:text-md lg:text-xl'>
-                            <AddCollateralModal user={user} tradeId={row.id} vaultBalance={userAvailableBalance} currentCollateral={row.information.currentCollateral}  />
-                            <RemoveCollateralModal user={user} tradeId={row.id} minimummarginReq={Math.floor(row.information.mmr * row.other.loanAmt / 10 ** 6)} currentCollateral={row.information.currentCollateral} />
-                            <AddLiquidityModal user={user} tradeId={row.id} vaultBalance={userAvailableBalance} leverage={row.lev} minLoanAmt={row.other.minLoanAmt}
+                            <AddCollateralModal refetch={refetch} user={user} tradeId={row.id} vaultBalance={userAvailableBalance} currentCollateral={row.information.currentCollateral}  />
+                            <RemoveCollateralModal refetch={refetch} currentInterestPayment={row.other.loanAmt*Number(row.information.interestRate) / 10 ** 6} user={user} tradeId={row.id} minimummarginReq={Math.floor(row.information.mmr * row.other.loanAmt / 10 ** 6)} currentCollateral={row.information.currentCollateral} />
+                            <AddLiquidityModal refetch={refetch}  user={user} tradeId={row.id} vaultBalance={userAvailableBalance} leverage={row.lev} minLoanAmt={row.other.minLoanAmt}
                                 positionSize={row.size} vammData={{ baseAsset: row.other.baseAssetReserve, quoteAsset: row.other.quoteAssetReserve }} minimummarginReq={row.information.mmr}
                                 currentCollateral={row.information.currentCollateral} currrentLoanAmt={row.other.loanAmt} maxLoanAmt={row.other.maxLoanAmt} side={row.side} />
-                            <RemoveLiquidityModal user={user} tradeId={row.id} vaultBalance={userAvailableBalance} leverage={row.lev}
+                            <RemoveLiquidityModal refetch={refetch} user={user} tradeId={row.id} vaultBalance={userAvailableBalance} leverage={row.lev}
                                 currentPositionSize={row.size} vammData={{ baseAsset: row.other.baseAssetReserve, quoteAsset: row.other.quoteAssetReserve }} minimummarginReq={row.information.mmr}
                                 currentCollateral={row.information.currentCollateral} currrentLoanAmt={row.other.loanAmt} maxLoanAmt={row.other.maxLoanAmt} side={row.side} />
-                            <ClosePositionModal user={user} tradeId={row.id} vaultBalance={userAvailableBalance} leverage={row.lev}
+                            <ClosePositionModal refetch={refetch} user={user} tradeId={row.id} vaultBalance={userAvailableBalance} leverage={row.lev}
                                 currentPositionSize={row.size} vammData={{ baseAsset: row.other.baseAssetReserve, quoteAsset: row.other.quoteAssetReserve }} minimummarginReq={row.information.mmr}
                                 currentCollateral={row.information.currentCollateral} currrentLoanAmt={row.other.loanAmt} maxLoanAmt={row.other.maxLoanAmt} side={row.side} />
                         </div>

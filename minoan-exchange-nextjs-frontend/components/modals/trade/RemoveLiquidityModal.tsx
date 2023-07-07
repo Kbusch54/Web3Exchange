@@ -7,6 +7,7 @@ import RemoveLiquidityButton from '../../forms/buttons/trade/RemoveLiquidityButt
 import useRedstonePayload, { getPayload } from '../../../utils/contractWrites/exchange';
 
 interface Props {
+    refetch: () => void;
     tradeId: string;
     user: Address;
     vaultBalance: number;
@@ -45,7 +46,7 @@ const customStyles = {
 
 };
 // Modal.setAppElement('#yourAppElement');
-const RemoveLiquidityModal: React.FC<Props> = ({ tradeId, user, vaultBalance, currentCollateral, leverage, currrentLoanAmt, maxLoanAmt, minimummarginReq,vammData,side,currentPositionSize }) => {
+const RemoveLiquidityModal: React.FC<Props> = ({ tradeId, user, vaultBalance, currentCollateral, leverage, currrentLoanAmt, maxLoanAmt, minimummarginReq,vammData,side,currentPositionSize ,refetch}) => {
     const maxAllowed = currentPositionSize; //would be current positon size
     const k = vammData.baseAsset * vammData.quoteAsset;
 
@@ -72,12 +73,13 @@ const RemoveLiquidityModal: React.FC<Props> = ({ tradeId, user, vaultBalance, cu
     }
 
     function closeModal() {
+        refetch();
         setIsOpen(false);
     }
     const handleValidation = () => {
         if (positionRef.current ) {
-            const value = parseFloat(positionRef.current.value) * 10 ** 8 ;
-            const rawValue = parseFloat(positionRef.current.value) * 10 ** 8;
+            const value = Math.floor(Number(parseFloat(positionRef.current.value) * 10 ** 8)) ;
+            const rawValue = Math.floor(Number(parseFloat(positionRef.current.value) * 10 ** 8)) ;
             if (value > maxAllowed) {
                 setIsError(true);
                 setErrorMessage('Amount exceeds current position size');
@@ -101,9 +103,10 @@ const RemoveLiquidityModal: React.FC<Props> = ({ tradeId, user, vaultBalance, cu
             }
         }
     };
+
     const getExitPriceAndUsdc = (positionSize:number) => {
-        const newBase = (k)/(vammData.quoteAsset + positionSize );
-        const usdc = (vammData.baseAsset - newBase)/100;
+        const newBase = (k)/(vammData.quoteAsset - positionSize ) ;
+        const usdc = Math.abs((vammData.baseAsset - newBase));
         const newExitPrice = (usdc*10**8)/positionSize;
         return [newExitPrice,usdc]; 
     }
@@ -171,7 +174,7 @@ const RemoveLiquidityModal: React.FC<Props> = ({ tradeId, user, vaultBalance, cu
                         <div className='flex flex-row justify-around'>
                             <div className='flex flex-col text-xs'>
                                 <p className='text-gray-800 text-sm lg:text-md'>Current Position Value</p>
-                                <p className=' md:text-md lg:text-xl text-sky-100'>${currentPositionSize ? ((currentPositionSize* (vammData.baseAsset/vammData.quoteAsset))/10**8).toFixed(2) : '0.00'}</p>
+                                <p className=' md:text-md lg:text-xl text-sky-100'>${currentPositionSize ? ((currentPositionSize* (vammData.baseAsset/vammData.quoteAsset))/10**6).toFixed(2) : '0.00'}</p>
                             </div>
                             <div className='flex flex-row justify-between gap-x-4 mt-1'>
                                 <p className='text-sm text-white '>New Position Size: </p>
@@ -192,11 +195,11 @@ const RemoveLiquidityModal: React.FC<Props> = ({ tradeId, user, vaultBalance, cu
                             <div className='flex flex-col text-xs'>
                                 <p className='text-gray-800 text-xs md:text-sm lg:text-md'> Value Remaining</p>
                                 <p className=' md:text-md lg:text-xl text-sky-100'>${rawValue && currentPositionSize ?
-                                  (((currentPositionSize* (vammData.baseAsset/vammData.quoteAsset))/10**8)- ((rawValue* (vammData.baseAsset/vammData.quoteAsset))/10**8)).toFixed(2) :((currentPositionSize* (vammData.baseAsset/vammData.quoteAsset))/10**8).toFixed(2)}</p>
+                                  (((currentPositionSize* (vammData.baseAsset/vammData.quoteAsset))/10**6)- ((rawValue* (vammData.baseAsset/vammData.quoteAsset))/10**6)).toFixed(2) :((currentPositionSize* (vammData.baseAsset/vammData.quoteAsset))/10**6).toFixed(2)}</p>
                             </div>
                             <div className='flex flex-col text-xs'>
                                 <p className='text-gray-800 text-xs md:text-sm lg:text-md'>Value Removed</p>
-                                <p className=' md:text-md lg:text-xl text-sky-100'>${rawValue && currentPositionSize ?((rawValue* (vammData.baseAsset/vammData.quoteAsset))/10**8).toFixed(2) :'0'}</p>
+                                <p className=' md:text-md lg:text-xl text-sky-100'>${rawValue && currentPositionSize ?((rawValue* (vammData.baseAsset/vammData.quoteAsset))/10**6).toFixed(2) :'0'}</p>
                             </div>
                         </div>
                     </div>

@@ -4,12 +4,15 @@ import Modal from 'react-modal';
 import { Address } from 'wagmi';
 import { ethers } from 'ethers';
 import RemoveCollateralButton from '../../forms/buttons/trade/RemoveCollateralButton';
+import { moneyFormatter } from 'utils/helpers/functions';
 
 interface Props {
     tradeId: string;
     user: Address;
     minimummarginReq: number;
     currentCollateral: number;
+    currentInterestPayment: number;
+    refetch: () => void;
 
 
 }
@@ -34,10 +37,9 @@ const customStyles = {
 
 };
 // Modal.setAppElement('#yourAppElement');
-const RemoveCollateralModal: React.FC<Props> = ({tradeId,user,minimummarginReq,currentCollateral}) => {
-    const maxAllowed = (currentCollateral - minimummarginReq) - 1000; //would be  mmr*loanAmt
+const RemoveCollateralModal: React.FC<Props> = ({tradeId,user,minimummarginReq,currentCollateral,currentInterestPayment,refetch}) => {
+    const maxAllowed = (currentCollateral - minimummarginReq) ; //would be  mmr*loanAmt
 
-    let subtitle;
     const [modalIsOpen, setIsOpen] = useState(false);
     const [isError, setIsError] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
@@ -55,6 +57,7 @@ const RemoveCollateralModal: React.FC<Props> = ({tradeId,user,minimummarginReq,c
     }
 
     function closeModal() {
+        refetch();
         setIsOpen(false);
     }
     const handleValidation = () => {
@@ -116,7 +119,7 @@ const RemoveCollateralModal: React.FC<Props> = ({tradeId,user,minimummarginReq,c
                         <div className='flex flex-row justify-around m-2'>
                             <p className='textsm lg:textlg'>Remove Maximum</p>
                             <div className='flex-col'>
-                                <p className='text-xs  md:text-sm lg:text-md text-sky-100 '>${maxAllowed?String(Number(ethers.utils.formatUnits(maxAllowed-10000,6)).toFixed(2)):'0.00'}</p>
+                                <p className='text-xs  md:text-sm lg:text-md text-sky-100 '>${maxAllowed?String(Number(ethers.utils.formatUnits(maxAllowed,6)).toFixed(2)):'0.00'}</p>
                                 <hr />
                             </div>
                         </div>
@@ -125,7 +128,7 @@ const RemoveCollateralModal: React.FC<Props> = ({tradeId,user,minimummarginReq,c
                         <div className='flex flex-row justify-evenly text-white mb-2'>
                             <p className='text-xs md:text-lg lg:text:2xl mr-7'>Current Interest Payment </p>
                             <div className='flex-col'>
-                                <p className='text-sm md:text-md lg:text-lg  text-sky-100'>$12.88</p>
+                                <p className='text-sm md:text-md lg:text-lg  text-sky-100'>${moneyFormatter(currentInterestPayment)}</p>
                                 <hr />
                             </div>
                         </div>

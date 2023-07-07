@@ -70,7 +70,7 @@ export default  function  RemoveCollateralButton({value,user,disabled,tradeId,cl
               contractWrite.reset();
               isMounted.current = true;
               close()
-            }, 10000);
+            }, 8000);
               
           }
       }

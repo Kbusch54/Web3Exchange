@@ -22,8 +22,7 @@ export const useAddLiquidity = (
 
       
     });
-    console.log("config",config)
-    console.log("error",error)
+
     return { config, error };
   };
 
