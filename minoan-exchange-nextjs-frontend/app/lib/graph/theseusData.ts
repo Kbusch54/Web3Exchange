@@ -1,7 +1,7 @@
 import request, { gql } from "graphql-request";
 import { cache } from 'react'
 
-export const fetchTheseus = cache(async function fetchData(user: string, theseusAdd: string) {
+export const fetchTheseus = async function fetchData(user: string, theseusAdd: string) {
     const query = gql` 
       query getvamm($user: String!, $theseusAdd: String!) {
        
@@ -14,6 +14,7 @@ export const fetchTheseus = cache(async function fetchData(user: string, theseus
           tokenId
           votesNeededPercentage
           insuranceFundMin
+          insuranceFund
           poolToken{
             tokenId
             totalSupply
@@ -90,4 +91,4 @@ export const fetchTheseus = cache(async function fetchData(user: string, theseus
     const data = await request(endpoint, query, variables);
   
     return data;
-});
+};
