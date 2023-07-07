@@ -50,7 +50,7 @@ const Balances: React.FC<Props> = ({ data }) => {
         <h3 className='text-xs md:text-lg'>Total In Vault</h3>
       </div>
       <div className="flex flex-col text-center border-2 border-blue-800 rounded-t-2xl rounded-b-xl bg-sky-800  bg-opacity-40  ">
-        <h1 className="text-xl xl:text-2xl 3xl:text-3xl 4xl:text-5xl mt-4">$2398.63</h1>
+        <h1 className="text-xl xl:text-2xl 3xl:text-3xl 4xl:text-5xl mt-4">${moneyFormatter(data.theseusDAOs[0].insuranceFund)}</h1>
         <h3 className='text-xs md:text-lg'>Insurance Fund</h3>
       </div>
       <div className="flex flex-col text-center border-2 border-blue-800 rounded-t-2xl rounded-b-xl bg-sky-800  bg-opacity-40  ">
