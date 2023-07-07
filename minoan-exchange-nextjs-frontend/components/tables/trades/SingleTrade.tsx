@@ -48,8 +48,10 @@ interface Props {
             interestPeriodsPassed: number
             minLoanAmt: number,
             openLeverage: number,
-            openLoanAmt: number,
-            tradingFee: number
+            openLoan: number,
+            tradingFee: number,
+            openLeverageAmt: number
+
         }
     }
 }
@@ -76,7 +78,6 @@ const SingleTrade: React.FC<Props> = ({ row, index, userAvailableBalance, user, 
                 <div className='text-white text-md  lg:text-xl m-2 gap-x-3 flex flex-row'>
                     {/* @ts-ignore */}
                     <button onClick={(e) => handleToggle(e)}>{toggle ? (<KeyboardArrowDownIcon />) : (<KeyboardArrowUpIcon />)}</button>
-
                     <Copy toCopy={row.id.toString()}>
                         <div className='hidden lg:inline'>{row.id.slice(127, 130) + row.id.slice(186, 194) + '...'}</div>
                         <div className='inline lg:hidden text-xs'>{'id'}</div>
