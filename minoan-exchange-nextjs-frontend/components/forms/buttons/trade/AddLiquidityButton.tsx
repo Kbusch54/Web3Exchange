@@ -73,7 +73,7 @@ export default  function  AddLiquidityButton({value,user,disabled,tradeId,levera
               contractWrite.reset();
               isMounted.current = true;
               close()
-            }, 6000);
+            }, 10000);
               
           }
       }
