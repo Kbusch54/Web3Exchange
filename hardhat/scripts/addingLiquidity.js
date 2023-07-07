@@ -9,7 +9,7 @@ const {time } = require("@nomicfoundation/hardhat-network-helpers");
 
 
 async function main() {
-    const tradeID ='0x00000000000000000000000087ad83dc2f12a14c85d20f178a918a65edfe1b4200000000000000000000000074f769cc664f8290dcfe69d15dfb0c4827ea406e000000000000000000000000000000000000000000000000000000006489bd6c0000000000000000000000000000000000000000000000000000000000000001';
+    
         // Provider
     const alchemyProvider = new ethers.providers.AlchemyProvider(network="goerli", process.env.ALCHEMY_API_KEY);
 
@@ -25,12 +25,12 @@ const redstonePayload = await sdk.requestRedstonePayload(
     ["https://d33trozg86ya9x.cloudfront.net"],
     unsignedMetadata
   );
-  const exchange = await hre.ethers.getContractAt("Exchange","0x1d67E35482a74661d287686F034dafd39352ccC3",signer);
-  const loanPool = await hre.ethers.getContractAt("LoanPool","0xdbAf4a1447A5D76c8255C6F0c098467fDa1C3Da1",signer);
+  const exchange = await hre.ethers.getContractAt("Exchange","0xF94Ad8f331830D353782bac55AD4965f35aC3cD6",signer);
+  const loanPool = await hre.ethers.getContractAt("LoanPool","0x8071f9eF2715d99A9C6E59A90C7adD22357F251b",signer);
 
-  const exchangeViewer = await hre.ethers.getContractAt("ExchangeViewer","0xa8C0f9C021ee0ec7Bf6F2782B575fc0aF416324C",signer);
+  const exchangeViewer = await hre.ethers.getContractAt("ExchangeViewer","0xE7A6830cffa37909f0438e4a545650Eb8AbfaEaa",signer);
 
-    const teslaAmm = await hre.ethers.getContractAt("VAmm","0x74f769Cc664F8290DcfE69D15dFb0C4827Ea406e",signer);
+    const teslaAmm = await hre.ethers.getContractAt("VAmm","0xB9bbeB3B30C89b34F1D06434164Fd27beDb565E4",signer);
   const ammViewer = await hre.ethers.getContractAt("AmmViewer","0xbC01aAd4C5256888B965C5Dab56a705708a439B7",signer);
   const teslaBytes = ethers.utils.formatBytes32String("TSLA");
 //   const price = await ammViewer.getPriceValue(`0x${redstonePayload}`,teslaBytes);
@@ -45,45 +45,50 @@ const redstonePayload = await sdk.requestRedstonePayload(
     // });
 
     const isActive = await exchange.getTradeIds(signer.address);
+    const tradeId = '0x00000000000000000000000087ad83dc2f12a14c85d20f178a918a65edfe1b42000000000000000000000000b9bbeb3b30c89b34f1d06434164fd27bedb565e40000000000000000000000000000000000000000000000000000000064a5ea8cffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
     // console.log(isActive);
-    // const liquid = await exchangeViewer.checkLiquidiationList();
-    // console.log(liquid);
-    // const checkLiquid = await exchangeViewer.checkLiquidiation(liquid[0]);
-    // console.log(checkLiquid);
+    const liquid = await exchangeViewer.checkLiquidiationList();
+    console.log('liquidation list',liquid);
+    const checkLiquid = await exchangeViewer.checkLiquidiation(tradeId);
+    console.log('is liquidatable',checkLiquid);
 
+    const allValues = await exchangeViewer.getAllValues(tradeId);
+    console.log('all values',allValues);
+    const interestOwed = await loanPool.interestOwed(tradeId,teslaAmm.address);
+    console.log('interestOwed',interestOwed);
+    const collateral = await exchange.tradeCollateral(tradeId);
+    console.log('collateral',collateral);
     // const isLiquidActive = await exchange.isActive(liquid[0]);
     // console.log(isLiquidActive);
-    // const tx = await exchange.liquidate(liquid[0],`0x${redstonePayload}`,{gasLimit: 1000000});
+    // const tx = await exchange.liquidate(tradeId,`0x${redstonePayload}`,{gasLimit: 9000000});
     // const isLiquidActive2 = await exchange.isActive(liquid[0]);
     // console.log(isLiquidActive2);
     // console.log(tx.hash);
     // console.log(tx);
-    // console.log(tx.hash);
-    // console.log(tx);
+
     // console.log('trades amt',isActive.length);
     // for(let i=0;i<isActive.length;i++){
     //    console.log('isActive',i,await exchange.isActive(isActive[i]));
     // }
     // const isFrozen = await teslaAmm.isFrozen();
     // console.log(isFrozen);
-  
 
     // for(let i=0;i<isActive.length;i++){
-        const getValues = await exchangeViewer.getValues(isActive[6]);
-        console.log('values for ',6,':',getValues);
-        const interestOwed = await loanPool.interestOwed(isActive[6],teslaAmm.address);
-        console.log('interestOwed for ',6,':',interestOwed);
-        const collateral = await exchange.tradeCollateral(isActive[6]);
-        console.log('collateral for ',6,':',collateral);
-        const position = await exchange.positions(isActive[6]);
-        console.log('position size for ',6,':',position.positionSize.toString());
-        const isActiveTarde = await exchange.isActive(isActive[6]);
-        console.log('isActive for ',6,':',isActiveTarde);
-        // 459765513-406225265=53540324
-        console.log(isActive[6])
-    //  }
-    const decoded = await exchange.decodeTradeId(isActive[6]);
-    console.log(decoded);
+    //     const getValues = await exchangeViewer.getValues(isActive[6]);
+    //     console.log('values for ',6,':',getValues);
+    //     const interestOwed = await loanPool.interestOwed(isActive[6],teslaAmm.address);
+    //     console.log('interestOwed for ',6,':',interestOwed);
+    //     const collateral = await exchange.tradeCollateral(isActive[6]);
+    //     console.log('collateral for ',6,':',collateral);
+    //     const position = await exchange.positions(isActive[6]);
+    //     console.log('position size for ',6,':',position.positionSize.toString());
+    //     const isActiveTarde = await exchange.isActive(isActive[6]);
+    //     console.log('isActive for ',6,':',isActiveTarde);
+    //     // 459765513-406225265=53540324
+    //     console.log(isActive[6])
+    // //  }
+    // const decoded = await exchange.decodeTradeId(isActive[6]);
+    // console.log(decoded);
     //add collateral
     // await exchange.addCollateral(isActive[6],111000000,{gasLimit: 1000000});
     // addLiquidityToPosition(bytes memory _tradeId,uint _leverage,uint _addedCollateral,bytes calldata _payload)

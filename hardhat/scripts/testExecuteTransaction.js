@@ -31,8 +31,8 @@ async function main() {
     // // console.log(transactionHash);
     // const tx = await ariadne.newProposal( ariadne.address,data);
 
-    const exchange = await hre.ethers.getContractAt("Exchange","0x1d67E35482a74661d287686F034dafd39352ccC3",signer);
-    const loanPool = await hre.ethers.getContractAt("LoanPool","0xdbAf4a1447A5D76c8255C6F0c098467fDa1C3Da1",signer);
+    const exchange = await hre.ethers.getContractAt("Exchange","0x909ABE9609cC77286f5201d6CfFB91aCefC86903",signer);
+    const loanPool = await hre.ethers.getContractAt("LoanPool","0xd13427B7aa8Ef6f3B009F07D3c6762a3354B3C68",signer);
 
     // const teslaAmm ='0xd4e3F66E134558Df57cD7Ce2e17758Bf9e041851'
 
@@ -106,13 +106,13 @@ const redstonePayload = await sdk.requestRedstonePayload(
 // const oldpRICE = await teslaAmm.getLastAssetSpotPrice();
 
 
-const outstandingLoan = await exchange.poolOutstandingLoans("0x74f769Cc664F8290DcfE69D15dFb0C4827Ea406e")
+const outstandingLoan = await exchange.poolOutstandingLoans("0xB77B90B93be5b2964dEf0faC6F5C372d95AB3776")
 
 console.log('outstandingLoan: ', outstandingLoan.toString());
 const tradIds = await exchange.getTradeIds(signer.address);
 console.log('tradIds: ', tradIds[1]);
 
-const exView =  await hre.ethers.getContractAt("ExchangeViewer","0xa8C0f9C021ee0ec7Bf6F2782B575fc0aF416324C",signer);
+const exView =  await hre.ethers.getContractAt("ExchangeViewer","0x8E63036a15314045b2C66f4Ef694421643a66764",signer);
 // const ExchangeViewer = await hre.ethers.getContractFactory('ExchangeViewer');
 // const exView = await ExchangeViewer.deploy(loanPool.address, "0x48EBEBD2A4264274D303e5EB1581Ab31989F1653", "0x8EdC8f028eaE0ACb8276d517D54e2680d57EA697",exchange.address,"0x8FdB0BacA21b8b1617B6A5b720517E0701c338a1");
 // await exView.deployed();
@@ -142,8 +142,8 @@ const isTardeActive = await exchange.isActive(tradIds[1]);
 console.log('isTardeActive: ', isTardeActive);
 const checkLiquidtonm =await  exView.checkLiquidiation(tradIds[1]);
 console.log('checkLiquidtonm: ', checkLiquidtonm);
-const liq = await exchange.liquidate(tradIds[1],`0x${redstonePayload}`,{gasLimit:400000});
-console.log('liq: ', liq);
+// const liq = await exchange.liquidate(tradIds[1],`0x${redstonePayload}`,{gasLimit:400000});
+// console.log('liq: ', liq);
 const checkLiquidtonm2 =await  exView.checkLiquidiation(tradIds[1]);
 console.log('checkLiquidtonm after : ', checkLiquidtonm2);
 // const startBlock = 9122465

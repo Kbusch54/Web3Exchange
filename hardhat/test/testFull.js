@@ -50,15 +50,31 @@ describe("Testing Full deployment", function () {
     const CreateAriadnes = await hre.ethers.getContractFactory('CreateAriadnes');
     const createAriadnes = await CreateAriadnes.deploy(votingTime,maxVotingPower,minVotingPower,votesNeededePercentage,staking.address,poolTokens.address);
     await createAriadnes.deployed();
-    // console.log('createAriadnes deployed  ',createAriadnes.address);
-    const Exchange = await hre.ethers.getContractFactory('Exchange');
+    const ExchangeLibrary = await hre.ethers.getContractFactory('ExchangeLibrary');
+
+    // Deploy the library contract
+    const library = await ExchangeLibrary.deploy();
+    await library.deployed();
+    console.log('Library deployed at:', library.address);
+    
+    // Link the library to both contracts
+    const Exchange = await hre.ethers.getContractFactory('Exchange', {
+      libraries: {
+        ExchangeLibrary: library.address,
+      },
+    });
+    const LoanPool = await hre.ethers.getContractFactory('LoanPool', {
+      libraries: {
+        ExchangeLibrary: library.address,
+      },
+    });
+    
     const exchange = await Exchange.deploy(usdc.address,staking.address);
     await exchange.deployed();
-    // console.log('exchange deployed  ',exchange.address);
-    const LoanPool = await hre.ethers.getContractFactory('LoanPool');
+    console.log('exchange deployed  ',exchange.address);
     const loanPool = await LoanPool.deploy(exchange.address);
     await loanPool.deployed();
-    // console.log('loanPool deployed  ',loanPool.address);
+    console.log('loanPool deployed  ',loanPool.address);
     const minInterestRate = 10000;
     const maxInterestRate = 100000;
     const minLoanAmount = ethers.utils.parseUnits("100", 6);
@@ -823,37 +839,39 @@ await createAriadnes.create2('meta',metaAmm.address,tokenIdForMeta)
   
 
     const getMethodNameHash = (
-votesNeeded,
-nonce,
-methodName,
-multiAddress
-) => {
-let value = "0x0";
+      votesNeeded,
+      nonce,
+      methodName,
+      multiAddress
+      ) => {
+      let value = "0x0";
 
-let callData = getFunctionCallData(
-  methodName,
-  votesNeeded
-    );
-return getTransactionHash(
-  nonce,
-  multiAddress,
-  value,
-  callData,
-  multiAddress,
-);
-};
+    let callData = getFunctionCallData(
+      methodName,
+      votesNeeded
+        );
+      return getTransactionHash(
+        nonce,
+        multiAddress,
+        value,
+        callData,
+        multiAddress,
+      );
+      };
 
-const sign = async(hash) => {
-  const signature = await owner.provider.send("personal_sign", [hash, owner.address])
-  return signature;
-}
+  const sign = async(hash) => {
+    const signature = await owner.provider.send("personal_sign", [hash, owner.address])
+    return signature;
+  }
 
+  console.log('signing');
 
-const exhcnageAbi = await hre.ethers.getContractFactory("Exchange");
-const exchangeABI = exhcnageAbi.interface.format(); 
-
-const loanPoolCon= await hre.ethers.getContractFactory("LoanPool");
-const loanPoolABI = loanPoolCon.interface.format();
+// const exhcnageAbi = await hre.ethers.getContractFactory("Exchange");
+console.log('exchange abi');
+// const exchangeABI = exhcnageAbi.interface.format(); 
+// const loanPoolCon= await hre.ethers.getContractFactory("LoanPool");
+// const loanPoolABI = loanPoolCon.interface.format();
+console.log('loan pool abi');
 
 const ariadneCon = await hre.ethers.getContractFactory("AriadneDAO");
 const ariadneABI = ariadneCon.interface.format();
@@ -876,7 +894,7 @@ console.log("const exchangeViewer = ",exchangeViewer.address);
         return { 
     owner, otherAccount,usdc,exchange,theseus,poolTokens,loanPool,
     staking,ammViewer,teslaAmm,googleAmm,metaAmm,createAriadnes,payload,
-    exchangeViewer,teslaAriadneAddress,googleAriadneAddress,ariadneABI,metaAriadneAddress,tokenIDForTesla,tokenIdForGoogle,tokenIdForMeta,sign,getFunctionCallData,decodeCallData,decodeTransaction,getMethodNameHash,ABI,getTransactionHash,loanPoolABI,exchangeABI
+    exchangeViewer,teslaAriadneAddress,googleAriadneAddress,ariadneABI,metaAriadneAddress,tokenIDForTesla,tokenIdForGoogle,tokenIdForMeta,sign,getFunctionCallData,decodeCallData,decodeTransaction,getMethodNameHash,ABI,getTransactionHash,
 }
     }
 it.skip("should deploy the contracts", async function () {
@@ -1532,7 +1550,7 @@ it.skip('should allow open position on tesla amm',async function(){
   console.log("postPosition", postPosition);
   console.log('new balance: $',formatUnits(await exchange.availableBalance(owner.address),6));
 });
-it("should open and add collateral to tesla amm", async function(){
+it.skip("should open and add collateral to tesla amm", async function(){
   const {owner, otherAccount,ammViewer,teslaAmm,usdc,exchange,exchangeViewer,theseus,poolTokens,loanPool,staking,ABI,loanPoolABI,exhcnageABI,sign,getFunctionCallData,getMethodNameHash,getTransactionHash,decodeCallData,decodeTransaction}=await loadFixture(deployContracts);
 
   //   console.log('allData',allData);
@@ -1641,15 +1659,15 @@ it.skip("Should open and allow add liqudiity to tesla amm", async function(){
 
 
 });
-it.skip("Should open and allow remove liqudiity to tesla amm", async function(){
-  const {owner, otherAccount,ammViewer,teslaAmm,usdc,exchange,theseus,poolTokens,loanPool,staking,ABI,loanPoolABI,exhcnageABI,sign,getFunctionCallData,getMethodNameHash,getTransactionHash,decodeCallData,decodeTransaction}=await loadFixture(deployContracts);
+it("Should open and allow remove liqudiity to tesla amm", async function(){
+  const {owner, otherAccount,ammViewer,teslaAmm,usdc,exchange,theseus,poolTokens,loanPool,staking,ABI,sign,getFunctionCallData,getMethodNameHash,getTransactionHash,decodeCallData,decodeTransaction}=await loadFixture(deployContracts);
   await usdc.approve(exchange.address,ethers.utils.parseUnits("5000", 6));
   await exchange.deposit(ethers.utils.parseUnits("5000", 6));
   await staking.stake(ethers.utils.parseUnits("1000", 6),theseus.address);
   await staking.stake(ethers.utils.parseUnits("3000", 6),teslaAmm.address);
 
   const leverage = 3;
-  const side = 1;
+  const side = -1;
   const collateral = parseUnits("250", 6);
 
   const poolAvailBeforeOpen = await exchange.callStatic.poolAvailableUsdc(teslaAmm.address);
@@ -1657,20 +1675,22 @@ it.skip("Should open and allow remove liqudiity to tesla amm", async function(){
   const poolOutstandingBeforeOpen = await exchange.callStatic.poolOutstandingLoans(teslaAmm.address);
 
   const userBalanceBefore = await exchange.callStatic.availableBalance(owner.address);
-  await exchange.openPosition(teslaAmm.address, collateral, leverage, side);
+  await exchange.openPosition(teslaAmm.address, collateral, leverage, side,'0x9d0d');
   const tradeIds = await exchange.callStatic.getTradeIds(owner.address);
   const position = await exchange.callStatic.positions(tradeIds[0]);
 
   const positionSize = position.positionSize;
 
   const userBalanceAfterOpen = await exchange.callStatic.availableBalance(owner.address);
-  const positionSizeToRemove = positionSize.div(2).sub(2000);
+  const positionSizeToRemove = positionSize.div(2).add(2000);
 
+  console.log('positionSize',formatUnits(positionSize,8));
+  console.log('positionSizeToRemove',formatUnits(positionSizeToRemove,8));
   const poolAvailAfterOpen = await exchange.callStatic.poolAvailableUsdc(teslaAmm.address);
   const poolTotalAfterOpen = await exchange.callStatic.poolTotalUsdcSupply(teslaAmm.address);
   const poolOutstandingAfterOpen = await exchange.callStatic.poolOutstandingLoans(teslaAmm.address);
 
-  await exchange.removeLiquidityFromPosition(tradeIds[0],positionSizeToRemove);
+  await exchange.removeLiquidityFromPosition(tradeIds[0],positionSizeToRemove,'0x9d0d');
 
   const userBalanceAfterRemoved = await exchange.callStatic.availableBalance(owner.address);
   const poolAvailAfterRemove = await exchange.callStatic.poolAvailableUsdc(teslaAmm.address);
@@ -1678,9 +1698,7 @@ it.skip("Should open and allow remove liqudiity to tesla amm", async function(){
   const poolOutstandingAfterRemove = await exchange.callStatic.poolOutstandingLoans(teslaAmm.address);
 
   const postPosition = await exchange.callStatic.positions(tradeIds[0]);
-  // console.log('pre postion',position)
-  // console.log("postPosition", postPosition);
-  await exchange.closeOutPosition(tradeIds[0]);
+  await exchange.closeOutPosition(tradeIds[0],"0x9d0d");
   const poolAvailAfterClose = await exchange.callStatic.poolAvailableUsdc(teslaAmm.address);
   const poolTotalAfterClose = await exchange.callStatic.poolTotalUsdcSupply(teslaAmm.address);
   const poolOutstandingAfterClose = await exchange.callStatic.poolOutstandingLoans(teslaAmm.address);

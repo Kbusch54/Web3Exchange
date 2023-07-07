@@ -5,6 +5,8 @@ import "../amm/VAmm.sol";
 import "./ExchangeViewer.sol";
 
 
+import "hardhat/console.sol";
+
 contract Exchange is VaultMain {
     using ExchangeLibrary for *;
   
@@ -185,8 +187,7 @@ contract Exchange is VaultMain {
         if(pnl>0){
             checkPool(uint(pnl),_position.trader,_position.amm);
         }else{
-            //check tradeCollateral > pnl else revert
-            if(tradeCollateral[_tradeId]>=uint(pnl)){
+            if(tradeCollateral[_tradeId]>=uint(pnl*-1)){
                 tradeCollateral[_tradeId] -= uint(pnl * -1);
             }else{
                 revert();
@@ -213,9 +214,10 @@ contract Exchange is VaultMain {
         poolAvailableUsdc[_position.amm] += _newTC  - uint(_payment + int(_loanAmount));
         poolTotalUsdcSupply[_position.amm] += _newTC  - uint(_payment + int(_loanAmount));
         int(_newTC) >= _payment?_payments(_tradeId, _position.amm):();
-        int(tradeCollateral[_tradeId])-_payment>=int(_loanAmount)?_inTheMoney(_tradeId,_loanAmount,_position.amm,_position.trader,tradeCollateral[_tradeId],_usdcAmt):_delinquent(_tradeId,_loanAmount,_position.amm);
+        uint _coll = tradeCollateral[_tradeId];
+        int(_coll)-_payment>=int(_loanAmount)?_inTheMoney(_tradeId,_loanAmount,_position.amm,_position.trader,_coll,_usdcAmt):_delinquent(_tradeId,_loanAmount,_position.amm);
+         emit ClosePosition(_position.trader,_position.timeStamp, _closePrice,block.timestamp, int(_coll)- (_payment + int(_loanAmount)));
         tradeCollateral[_tradeId] = 0;
-         emit ClosePosition(_position.trader,_position.timeStamp, _closePrice,block.timestamp, int(tradeCollateral[_tradeId])- (_payment + int(_loanAmount)));
         tradeBalance[_tradeId] =0;
     }
     function _delinquent(bytes memory _tradeId, uint _loanAmt,address _amm)internal{
@@ -272,13 +274,13 @@ contract Exchange is VaultMain {
         availableBalance[theseusDao]-=_remaining;
     }
 
-     function liquidate(bytes memory _tradeId,bytes calldata _payload) public {
-        require(ExchangeViewer(exchangeViewer).checkLiquidiation(_tradeId));
-        closePosition(_tradeId,_payload);
-        (address _trader,,uint _timeStamp,) = decodeTradeId(_tradeId);
-        isActive[_tradeId] = false;
-        emit Liquidated(_trader,_timeStamp);
-    } 
+    //  function liquidate(bytes memory _tradeId,bytes calldata _payload) public {
+    //     require(ExchangeViewer(exchangeViewer).checkLiquidiation(_tradeId));
+    //     closePosition(_tradeId,_payload);
+    //     (address _trader,,uint _timeStamp,) = decodeTradeId(_tradeId);
+    //     isActive[_tradeId] = false;
+    //     emit Liquidated(_trader,_timeStamp);
+    // } 
 
     function freezeStaking(address _amm)internal {
         Staking(staking).freeze(_amm);
