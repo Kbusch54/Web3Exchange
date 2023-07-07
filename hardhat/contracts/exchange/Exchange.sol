@@ -5,7 +5,6 @@ import "../amm/VAmm.sol";
 import "./ExchangeViewer.sol";
 
 
-import "hardhat/console.sol";
 
 contract Exchange is VaultMain {
     using ExchangeLibrary for *;
@@ -274,13 +273,13 @@ contract Exchange is VaultMain {
         availableBalance[theseusDao]-=_remaining;
     }
 
-    //  function liquidate(bytes memory _tradeId,bytes calldata _payload) public {
-    //     require(ExchangeViewer(exchangeViewer).checkLiquidiation(_tradeId));
-    //     closePosition(_tradeId,_payload);
-    //     (address _trader,,uint _timeStamp,) = decodeTradeId(_tradeId);
-    //     isActive[_tradeId] = false;
-    //     emit Liquidated(_trader,_timeStamp);
-    // } 
+     function liquidate(bytes memory _tradeId,bytes calldata _payload) public {
+        require(ExchangeViewer(exchangeViewer).checkLiquidiation(_tradeId));
+        closePosition(_tradeId,_payload);
+        (address _trader,,uint _timeStamp,) = decodeTradeId(_tradeId);
+        isActive[_tradeId] = false;
+        emit Liquidated(_trader,_timeStamp);
+    } 
 
     function freezeStaking(address _amm)internal {
         Staking(staking).freeze(_amm);
