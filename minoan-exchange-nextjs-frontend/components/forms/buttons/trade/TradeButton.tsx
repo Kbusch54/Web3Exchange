@@ -80,7 +80,7 @@ const TradeButton: React.FC<Props> = ({leverage,collateral,side,user,ammId,disab
               contractWrite.reset();
               isMounted.current = true;
               clearRefresh();
-            }, 10000);
+            }, 8000);
               
           }
       }
