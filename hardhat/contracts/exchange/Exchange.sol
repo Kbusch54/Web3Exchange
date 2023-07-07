@@ -173,7 +173,6 @@ contract Exchange is VaultMain {
         Position storage _position = positions[_tradeId];
          _checkAuthorization(_tradeId);
         require(
-            _positionSize * _position.side > 0 &&
                 _positionSize * _position.side <
                 _position.positionSize * _position.side);
         _payments(_tradeId, _position.amm);
