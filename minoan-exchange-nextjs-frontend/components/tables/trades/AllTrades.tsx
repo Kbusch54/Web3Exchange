@@ -9,8 +9,9 @@ import { getAmmId } from '../../../utils/helpers/doas';
 import { getGlobalTradeData } from '../../../app/lib/graph/globalTradeData';
 import { useRouter } from 'next/navigation';
 import { moneyFormatter } from 'utils/helpers/functions';
+import next from 'next/types';
 
-const revalidate = 8000;
+export const revalidate = 8000;
 interface Props {
     user: Address;
     userAvailableBalance: number;
@@ -61,6 +62,10 @@ const AllTrades: React.FC<Props> = ({ user, userAvailableBalance, active = true,
     const router = useRouter();
     const refetch = () => {
         router.refresh();
+        fetch(`http://localhost:3000/api/tradeData`).then((res) => res.json()).then((data) => {
+            setTradeData(data);
+            setLoading(false);
+        })
     }
     const getInterestPayment = (loanAmt: number, interestRate: number, now: number, lastInterestPayed: number, interestPeriod: number) => {
         return Math.floor((now - lastInterestPayed) / interestPeriod) * (loanAmt * interestRate / 10 ** 6);
@@ -144,7 +149,6 @@ const AllTrades: React.FC<Props> = ({ user, userAvailableBalance, active = true,
 
     useEffect(() => {
         fetch(`http://localhost:3000/api/tradeData`).then((res) => res.json()).then((data) => {
-            console.log('data', data);
             setTradeData(data);
             setLoading(false);
         })
