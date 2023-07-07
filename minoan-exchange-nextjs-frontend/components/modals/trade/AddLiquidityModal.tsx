@@ -128,7 +128,7 @@ const AddLiquidityModal: React.FC<Props> = ({ tradeId, user, vaultBalance, curre
     const getEntryPriceAndPsize = (newAmt:number) => {
         const newQ = k/(Number(vammData.baseAsset) + Number(newAmt) *Number(side));
         const newPs = Number(vammData.quoteAsset) - newQ;
-        const newEntryPrice = newAmt*10**8/newPs;
+        const newEntryPrice = newAmt*10**8/newPs * Number(side);
         return [newEntryPrice,newPs]; 
     }
     const collateralToLoan = (collateral: number, loan: number) => {
@@ -138,7 +138,6 @@ const AddLiquidityModal: React.FC<Props> = ({ tradeId, user, vaultBalance, curre
     };
 
     useEffect(() => {
-        console.log('USE EFFECT')
         return () => {
             setRawValue(0);
             setLeverageValue(0);

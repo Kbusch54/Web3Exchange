@@ -9,6 +9,7 @@ export const useRemoveLiquidity = (
     positionSize: number,
     payyload:string
   ) => {
+    console.log("removeLiquidity",positionSize)
     const { config, error } = usePrepareContractWrite({
         address:exchange,
        abi:ExchangeAbi,

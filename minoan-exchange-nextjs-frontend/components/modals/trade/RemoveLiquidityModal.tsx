@@ -80,12 +80,12 @@ const RemoveLiquidityModal: React.FC<Props> = ({ tradeId, user, vaultBalance, cu
         if (positionRef.current ) {
             const value = Math.floor(Number(parseFloat(positionRef.current.value) * 10 ** 8)) ;
             const rawValue = Math.floor(Number(parseFloat(positionRef.current.value) * 10 ** 8)) ;
-            if (value > maxAllowed) {
+            if (value*Number(side) > maxAllowed*Number(side)) {
                 setIsError(true);
                 setErrorMessage('Amount exceeds current position size');
                 setCheck(false);
                 setRawValue(0);
-            } else if (value <= 0 || rawValue <= 0 ) {
+            } else if (value * Number(side) <= 0 || rawValue * Number(side) <= 0 ) {
                 setIsError(true);
                 setErrorMessage('Amount is less than min allowed');
                 setCheck(false);
@@ -107,7 +107,7 @@ const RemoveLiquidityModal: React.FC<Props> = ({ tradeId, user, vaultBalance, cu
     const getExitPriceAndUsdc = (positionSize:number) => {
         const newBase = (k)/(vammData.quoteAsset - positionSize ) ;
         const usdc = Math.abs((vammData.baseAsset - newBase));
-        const newExitPrice = (usdc*10**8)/positionSize;
+        const newExitPrice = (usdc*10**8)/positionSize*Number(side);
         return [newExitPrice,usdc]; 
     }
     const amountOwed = (positionSize: number,usdcAmt:number) => {
