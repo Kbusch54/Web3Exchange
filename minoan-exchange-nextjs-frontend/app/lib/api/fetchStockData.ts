@@ -1,7 +1,7 @@
 import { cache } from "react";
 import axios from 'axios';
 
-export const fetchStockData = cache(async (stock: string) => {
+export const fetchStockData = async (stock: string) => {
 
     const options = {
       method: 'GET',
@@ -25,4 +25,4 @@ export const fetchStockData = cache(async (stock: string) => {
         console.error(error);
         return null;
     }
-    });
+    };
