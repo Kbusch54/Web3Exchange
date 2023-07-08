@@ -4,7 +4,7 @@ import { getAllProposals } from "app/lib/supabase/allProposals";
 import { cache } from "react";
 
 export const getPNlByUser = (trades: any, user?: Address,newArrLength?:number,amm?:string) => {
-    let pnl :{ date: string; value: number; }[] = [];
+    let pnl :{ date: string; value: number; absoluteValue:number }[] = [];
     let avg =0;
     if(newArrLength){
         
@@ -17,8 +17,9 @@ export const getPNlByUser = (trades: any, user?: Address,newArrLength?:number,am
                 if(trades[i]?.ammPool.id.toLowerCase() !== amm.toLowerCase()) continue;
             }
             
-            pnl.push({date:trades[i].created,value:trades[i].tradeBalance.pnl})
-            avg += Number(trades[i].tradeBalance.pnl);
+            
+            pnl.push({date:trades[i].created,value:getTradePnl(trades[i]),absoluteValue:Math.abs(getTradePnl(trades[i]))})
+            avg += Number(getTradePnl(trades[i]));
         }
     }
     else{
@@ -32,7 +33,7 @@ export const getPNlByUser = (trades: any, user?: Address,newArrLength?:number,am
                 if(trades[i].ammPool.id.toLowerCase() !== amm.toLowerCase()) continue;
             }
             
-            pnl.push({date: new Date(trades[i].created * 1000).toISOString().substring(0, 10),value:trades[i].tradeBalance.pnl})
+            pnl.push({date: new Date(trades[i].created * 1000).toISOString().substring(0, 10),value:getTradePnl(trades[i]),absoluteValue:Math.abs(getTradePnl(trades[i]))})
             avg += Number(trades[i].tradeBalance.pnl);
         }
     }
@@ -308,7 +309,36 @@ export const proposalsExecutedByAmm = cache(async() => {
     })
     return data;
 });
+export const getPNl = (trades: any) => {
+    let total = 0;
+    trades.forEach((trade: { isActive: boolean, tradeBalance: { pnl: number; } }) => {
+            if (trade.isActive == false) {
+                total += getTradePnl(trade)
+            }
+    })
+    return total;
+}
+export const getTradePnl = (trade: any) => {
+    return Number(getCollateralForTrade(trade)) - Number(trade.tradeBalance.pnl)
+}
+export const getCollateralForTrade = (trade: any) => {
+    let total:number = 0;
+    total += Number(trade.tradeOpenValues.openCollateral);
+    if (trade.collateralChange.length > 0) {
 
+        trade.collateralChange.forEach((collateralChange: { collateralChange: number; }) => {
+            total += Number(collateralChange.collateralChange)
+        })
+    }
+    if (trade.liquidityChange.length > 0) {
+        trade.liquidityChange.forEach((liquidityChange: { collateralChange: number; }) => {
+            total += Number(liquidityChange.collateralChange)
+        })
+    }
+    total -= Number(trade.tradeOpenValues.tradingFee)
+    //    console.log('total',total)
+    return total
+}
 export const organizePriceData = (graphData:any,apiData:any) => {
     //new datae 3 dayss ago
     const threeDaysAgo =new Date( new Date().setDate(new Date().getDate() - 3));
