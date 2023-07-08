@@ -240,13 +240,40 @@ export const getPoolPnl = (vamms: any) => {
         dateMap.forEach((value, key) => {
             pnl.push({date:key,Tesla:value.Tesla,Google:value.Google,Meta:value.Meta,All:value.All})
         });
-    return pnl;
+    return pnl.sort((a,b)=>new Date(a.date).valueOf() - new Date(b.date).valueOf());
 }
 export const getTradeShortVLong = (trades: any, user?: Address,amm?:Address) => {
     let data =[{name:'long',value:0},{name:'short',value:0}];
     for (let i = 0; i <trades.length; i++) {
         trades[i].tradeBalance.side == 1?data[0].value++:data[1].value++;
     }
+    return data;
+}
+export const getAllTradesPie = (trades: any, user?: Address) => {
+    let data= [{name:'tesla',value:0},{name:'google',value:0},{name:'meta',value:0}];
+    let ammMap = new Map();
+    for (let i = 0; i <trades.length; i++) {
+        if(user){
+            if(trades[i].user.id.toLowerCase() !== user.toLowerCase() || trades[i].isActive == true) continue;
+        }
+        let ammname = getAmmName(trades[i].ammPool.id);
+        if(ammMap.has(ammname)){
+            let temp = ammMap.get(ammname);
+            temp++;
+            ammMap.set(ammname,temp);
+        }else{
+            ammMap.set(ammname,1);
+        }
+    }
+    data[0].name= 'Tesla';
+    data[1].name= 'Google';
+    data[2].name= 'Meta';
+    ammMap.forEach((value,key)=>{
+        if(key == 'Tesla') data[0].value = value;
+        if(key == 'Google') data[1].value = value;
+        if(key == 'Meta') data[2].value = value;
+    })
+
     return data;
 }
 export const getProposalSignersByAmm = cache(async(amm?:Address,user?:Address) => {

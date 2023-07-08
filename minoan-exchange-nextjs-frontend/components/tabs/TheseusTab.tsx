@@ -9,7 +9,7 @@ import ReachartsEx from "../charts/poolCharts/ReachartsEx";
 import RechartPie from "../charts/poolCharts/recharts/RechartPie";
 import ReachartLines from "../charts/poolCharts/recharts/RechartLines";
 import RechartDoubleBar from "../charts/poolCharts/recharts/RechartDoubleBar";
-import { getPNlByUser, getPoolPnl, getTradeHistory, getTradeShortVLong, proposalsExecutedByAmm } from "utils/helpers/dataMutations";
+import { getAllTradesPie, getPNlByUser, getPoolPnl, getTradeHistory, getTradeShortVLong, proposalsExecutedByAmm } from "utils/helpers/dataMutations";
 import { fetchStakes } from "app/lib/graph/stakes";
 import { use } from "react";
 import { getAmmName } from "utils/helpers/doas";
@@ -67,6 +67,7 @@ export default function TheseusTab({theseusData}:Props) {
   const pnlForPools = getPoolPnl(vamms);
   const stakingData: { name: string; value: number; }[] = [];
   const longVsShort = getTradeShortVLong(trades);
+  const dataForTardePie = getAllTradesPie(trades)
   const {data ,pnl} = getTradeHistory(trades,undefined,undefined);
   const ammStakeMap = new Map();
   for(let i = 0; i < stakes.stakes?.length; i++){
@@ -122,7 +123,7 @@ stakingData.push({name: key, value: value})
               <ReachartLines height={200} lineData={data}  />
             </div>
             <div className="col-span-4 lg:col-span-1">
-              <RechartPie />
+              <RechartPie dataForPie={dataForTardePie} />
             </div>
           </div>
         </TabPanel>
