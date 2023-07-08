@@ -69,14 +69,12 @@ const RechartDoubleBar: React.FC<Props> = ({dataForGraph}) => {
             }}
             >
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
+                <XAxis dataKey="name" className='bg-blue-800'/>
                 {/* @ts-ignore */}
                 <Tooltip content={<CustomTooltip/>} />
-                <Legend />
-               
+               <Legend />
                 <Bar dataKey="executed" stackId="a" fill="rgb(217 119 6 )" />
-                <Bar dataKey='proposal'stackId="a"  fill=' rgb(30 41 59  )' />
+                <Bar dataKey='proposal'stackId="a"  fill='  rgb(30 64 175)' />
             </BarChart>
       </ResponsiveContainer>
     )
