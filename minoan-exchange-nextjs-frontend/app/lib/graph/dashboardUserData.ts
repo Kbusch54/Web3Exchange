@@ -8,15 +8,68 @@ export const getUserData = cache(async function fetchUserData(user: string) {
 
     trades(where:{user: $user}){
       isActive
+      id
       created
+      user{
+        id
+      }
+      tradeOpenValues{
+        tradingFee
+        openCollateral
+      }
+      collateralChange{
+          collateralChange
+        }
+      liquidityChange{
+        collateralChange
+      }
+     
+      tradeBalance {
+        side
+        positionSize
+        leverage
+        pnl
+        interestRate
+        LastFFRPayed
+        collateral
+        LastInterestPayed
+        LastFFRPayed
+        LastInterestPayed
+        exitTime
+        tradeId {
+          tradeId
+        }
+        loanAmt
+        positionSize
+        leverage
+        entryPrice
+      }
       ammPool{
         id
-        }
+      }
       startingCost
-      tradeBalance{
-        collateral
-        exitTime
-        pnl
+      isActive
+      liquidated
+      vamm {
+        id
+        symbol
+        loanPool {
+          maxLoan
+          minLoan
+          mmr
+          interestPeriod
+        }
+        priceData {
+          marketPrice
+          indexPrice
+        }
+        snapshots {
+          quoteAssetReserve
+          baseAssetReserve
+          marketPrice
+          ffr
+          indexPrice
+        }
       }
   }
     users(where:{id:$user}){
@@ -47,57 +100,6 @@ export const getUserData = cache(async function fetchUserData(user: string) {
         }
         totalStaked
         tokensOwnedbByUser
-      }
-    }
-    trades {
-      id
-      created
-      user{
-        id
-      }
-      tradeBalance {
-        side
-        positionSize
-        leverage
-        pnl
-        interestRate
-        LastFFRPayed
-        collateral
-        LastInterestPayed
-        LastFFRPayed
-        LastInterestPayed
-        exitTime
-        tradeId {
-          tradeId
-        }
-        loanAmt
-        positionSize
-        leverage
-        entryPrice
-      }
-      startingCost
-      isActive
-      liquidated
-      vamm {
-        id
-        symbol
-        loanPool {
-          maxLoan
-          minLoan
-          mmr
-          interestPeriod
-        }
-        priceData {
-          marketPrice
-          indexPrice
-        }
-        snapshots {
-          quoteAssetReserve
-          baseAssetReserve
-          marketPrice
-          ffr
-          indexPrice
-        }
       }
     }
   
