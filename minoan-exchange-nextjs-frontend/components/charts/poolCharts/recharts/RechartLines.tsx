@@ -75,7 +75,7 @@ const ReachartLines: React.FC<Props> = ({height,lineData,type}) => {
             tickFormatter={(str) => {
               const date = parseISO(str);
               const mmm =date.toDateString().split(' ')[1];
-              const day = String(date.getDate() +1).padStart(2, '0');
+              const day = String(date.getDate() ).padStart(2, '0');
               const formattedDate = `${mmm} ${day}`;
               return formattedDate;
             }}
