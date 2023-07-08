@@ -1,20 +1,12 @@
 'use client'
 import {
     ResponsiveContainer,
-    AreaChart,
-    XAxis,
-    YAxis,
-    Area,
     Tooltip,
-    CartesianGrid,
-    ComposedChart,
-    Line,
-    Legend,
     BarChart,
     Bar,
     Cell,
   } from "recharts";
-  import { format, parseISO, subDays } from "date-fns";
+  import { subDays } from "date-fns";
 import { getHoursAndMinutes, moneyFormatter } from "utils/helpers/functions";
   
   const data: any[] | undefined = [];
@@ -51,7 +43,7 @@ function CustomTooltip({ active, payload, label, toolTipLabel, tooTipPost }: Cus
         <div className="tooltip ">
           <h4>{date.toISOString().substring(0, 10)
           }</h4>
-          <p>{toolTipLabel?toolTipLabel:''}{toolTipLabel == '$'?moneyFormatter(payload[0].value):toolTipLabel == 'Duration: '? getHoursAndMinutes(payload[0].value * 1000)[0]: payload[0].value} {tooTipPost}</p>
+          <p>{toolTipLabel?toolTipLabel:''}{toolTipLabel == '$'?moneyFormatter(payload[0].payload.value):toolTipLabel == 'Duration: '? getHoursAndMinutes(payload[0].value * 1000)[0]: payload[0].value} {tooTipPost}</p>
         </div>
       );
     }
@@ -60,7 +52,6 @@ function CustomTooltip({ active, payload, label, toolTipLabel, tooTipPost }: Cus
 
 const RechartTinyBar: React.FC<Props> = ({height,dataBar,toolTipLabel,toolTipPost}) => {
     return (
-      // <div className="h-max w-96">
       <ResponsiveContainer width="100%" height={height}>
       <BarChart
 
@@ -73,19 +64,16 @@ const RechartTinyBar: React.FC<Props> = ({height,dataBar,toolTipLabel,toolTipPos
      }}
      barSize={20}
       >
-        {/* <CartesianGrid  className="text-red-700"/> */}
                   {/* @ts-ignore */}
         <Tooltip content={<CustomTooltip tooTipPost={toolTipPost} toolTipLabel={toolTipLabel} />} />
-        <Bar dataKey="value" background={{ fill: 'rgb(51 65 85)' }}     barSize={4} >
-        {data.map((item, index) => (
+        <Bar dataKey={`${toolTipLabel=='$'?'absoluteValue':'value'}`}background={{ fill: 'rgb(51 65 85)' }}   barSize={4} >
+          {/* @ts-ignore */}
+        {dataBar.map((item, index) => (
             <Cell key={index} fill={item.value >= 0 ? 'rgb(56 189 247)' : 'rgb(185 28 28)'} />
         ))}
         </Bar>
-        {/* <Bar dataKey="index" fill="rgb(185 28 28)" background={{ fill: 'rgb(51 65 85)' }} xAxisId={1}  barSize={4} /> */}
-        
       </BarChart>
     </ResponsiveContainer>
-      // </div>
     )
 }
 
