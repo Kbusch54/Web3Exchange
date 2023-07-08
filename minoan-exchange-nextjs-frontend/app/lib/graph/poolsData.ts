@@ -81,6 +81,16 @@ export const fetchLoanPoolData = cache(async(symbol: string, user: string) => {
           ammPool{
             id
           }
+          tradeOpenValues{
+            openCollateral
+            tradingFee
+          }
+          collateralChange{
+            collateralChange
+          }
+          liquidityChange{
+            collateralChange
+          }
           tradeBalance {
             side
             positionSize
