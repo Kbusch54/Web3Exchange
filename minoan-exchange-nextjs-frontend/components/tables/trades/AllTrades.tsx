@@ -1,15 +1,11 @@
 'use client'
-import React, { use, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import SingleTrade from './SingleTrade';
 import { Address } from 'wagmi';
-import request, { gql } from 'graphql-request';
 import { ethers } from 'ethers';
 import SingleGlobalTrade from './SingleGlobalTrade';
 import { getAmmId } from '../../../utils/helpers/doas';
-import { getGlobalTradeData } from '../../../app/lib/graph/globalTradeData';
 import { useRouter } from 'next/navigation';
-import { moneyFormatter } from 'utils/helpers/functions';
-import next from 'next/types';
 
 export const revalidate = 8000;
 interface Props {
@@ -70,7 +66,7 @@ const AllTrades: React.FC<Props> = ({ user, userAvailableBalance, active = true,
     const getInterestPayment = (loanAmt: number, interestRate: number, now: number, lastInterestPayed: number, interestPeriod: number) => {
         return Math.floor((now - lastInterestPayed) / interestPeriod) * (loanAmt * interestRate / 10 ** 6);
     }
-    const getPnl = (baseAsset: number, quoteAsset: number, psize: number, loanAmt: number, collateral: number, interestPayed: number, tradingFee: number) => {
+    const getPnlActiveTrades = (baseAsset: number, quoteAsset: number, psize: number, loanAmt: number,  interestPayed: number, tradingFee: number) => {
         let quoteWPsz = Number(quoteAsset) + Number(psize);
         let k = Number(baseAsset) * Number(quoteAsset);
         let newBaseAsset = (Number(k)) / Number(quoteWPsz);
@@ -88,7 +84,7 @@ const AllTrades: React.FC<Props> = ({ user, userAvailableBalance, active = true,
             const { ffr, baseAssetReserve, quoteAssetReserve } = vamm.snapshots[0];
             const now = isActive ? Math.floor(Date.now() / 1000) : exitTime;
             const interestPayment = getInterestPayment(isActive ? loanAmt : openLoanAmt, isActive ? interestRate : openInterestRate, now, isActive ? LastInterestPayed : trade.created, interestPeriod);
-            const pnlCalc = getPnl(baseAssetReserve, quoteAssetReserve, positionSize, loanAmt, collateral, interestPayment, tradingFee);
+            const pnlCalc = getPnlActiveTrades(baseAssetReserve, quoteAssetReserve, positionSize, loanAmt, interestPayment, tradingFee);
             const vammAdd = vamm.id;
             const tradeID = encodedData(user.id, vammAdd, trade.created, side);
             const getDateTime = (timestamp: number) => {
