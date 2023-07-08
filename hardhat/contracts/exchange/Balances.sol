@@ -24,7 +24,7 @@ contract Balances {
     }
 
     function _onlyTheseusDao() private view {
-    require(msg.sender == theseusDao,'not theseusDao');
+    require(msg.sender == theseusDao);
 }
   modifier onlyTheseusDao {
         _onlyTheseusDao();
@@ -55,8 +55,8 @@ contract Balances {
      * @param _amount The amount of USDC tokens to deposit.
      */
     function deposit(uint _amount) public {
-        require(IERC20(Usdc).balanceOf(msg.sender) >= _amount, "not enough balance");
-        require(IERC20(Usdc).transferFrom(msg.sender, address(this), _amount), 'transfer failed');
+        IERC20(Usdc).balanceOf(msg.sender) >= _amount;
+        IERC20(Usdc).transferFrom(msg.sender, address(this), _amount);
         availableBalance[msg.sender] += _amount;
         emit Deposit(msg.sender, _amount);
     }
@@ -66,7 +66,7 @@ contract Balances {
      * @param _amount The amount of USDC tokens to withdraw.
      */
     function withdraw(uint _amount) public {
-        require(availableBalance[msg.sender] >= _amount, "not enough balance");
+        require(availableBalance[msg.sender] >= _amount);
         if(msg.sender == theseusDao){
             uint _insuranceMin = TheseusDAO(payable(theseusDao)).insuranceFundMin();
             require(availableBalance[msg.sender] - _amount >= _insuranceMin);

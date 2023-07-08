@@ -875,22 +875,22 @@ console.log('loan pool abi');
 
 const ariadneCon = await hre.ethers.getContractFactory("AriadneDAO");
 const ariadneABI = ariadneCon.interface.format();
-console.log('const ariadneTesla =',teslaAriadneAddress);
-console.log('const ariadneGoogle =',googleAriadneAddress);
-console.log('const ariadneMeta =',metaAriadneAddress);
-console.log("const createAriadnes = ",createAriadnes.address);
-console.log("const TeslaAmm = ",teslaAmm.address);
-console.log("const GoogleAmm = ",googleAmm.address);
-console.log("const MetaAmm = ",metaAmm.address);
-console.log("const ammViewer = ",ammViewer.address);
-console.log("const loanpool = ",loanPool.address);
-console.log("const staking = ",staking.address);
-console.log("const exchange = ",exchange.address);
-console.log("const theseus = ",theseus.address);
-console.log("const poolTokens = ",poolTokens.address);
-console.log("const usdc = ",usdc.address);
-console.log("const payload = ",payload.address);
-console.log("const exchangeViewer = ",exchangeViewer.address);
+// console.log('const ariadneTesla =',teslaAriadneAddress);
+// console.log('const ariadneGoogle =',googleAriadneAddress);
+// console.log('const ariadneMeta =',metaAriadneAddress);
+// console.log("const createAriadnes = ",createAriadnes.address);
+// console.log("const TeslaAmm = ",teslaAmm.address);
+// console.log("const GoogleAmm = ",googleAmm.address);
+// console.log("const MetaAmm = ",metaAmm.address);
+// console.log("const ammViewer = ",ammViewer.address);
+// console.log("const loanpool = ",loanPool.address);
+// console.log("const staking = ",staking.address);
+// console.log("const exchange = ",exchange.address);
+// console.log("const theseus = ",theseus.address);
+// console.log("const poolTokens = ",poolTokens.address);
+// console.log("const usdc = ",usdc.address);
+// console.log("const payload = ",payload.address);
+// console.log("const exchangeViewer = ",exchangeViewer.address);
         return { 
     owner, otherAccount,usdc,exchange,theseus,poolTokens,loanPool,
     staking,ammViewer,teslaAmm,googleAmm,metaAmm,createAriadnes,payload,
@@ -1660,7 +1660,7 @@ it.skip("Should open and allow add liqudiity to tesla amm", async function(){
 
 });
 it("Should open and allow remove liqudiity to tesla amm", async function(){
-  const {owner, otherAccount,ammViewer,teslaAmm,usdc,exchange,theseus,poolTokens,loanPool,staking,ABI,sign,getFunctionCallData,getMethodNameHash,getTransactionHash,decodeCallData,decodeTransaction}=await loadFixture(deployContracts);
+  const {owner, otherAccount,ammViewer,teslaAmm,usdc,exchange,theseus,poolTokens,loanPool,staking,ABI,exchangeViewer,sign,getFunctionCallData,getMethodNameHash,getTransactionHash,decodeCallData,decodeTransaction}=await loadFixture(deployContracts);
   await usdc.approve(exchange.address,ethers.utils.parseUnits("5000", 6));
   await exchange.deposit(ethers.utils.parseUnits("5000", 6));
   await staking.stake(ethers.utils.parseUnits("1000", 6),theseus.address);
@@ -1684,44 +1684,53 @@ it("Should open and allow remove liqudiity to tesla amm", async function(){
   const userBalanceAfterOpen = await exchange.callStatic.availableBalance(owner.address);
   const positionSizeToRemove = positionSize.div(2).add(2000);
 
-  console.log('positionSize',formatUnits(positionSize,8));
-  console.log('positionSizeToRemove',formatUnits(positionSizeToRemove,8));
-  const poolAvailAfterOpen = await exchange.callStatic.poolAvailableUsdc(teslaAmm.address);
-  const poolTotalAfterOpen = await exchange.callStatic.poolTotalUsdcSupply(teslaAmm.address);
-  const poolOutstandingAfterOpen = await exchange.callStatic.poolOutstandingLoans(teslaAmm.address);
+  // console.log('positionSize',formatUnits(positionSize,8));
+  // console.log('positionSizeToRemove',formatUnits(positionSizeToRemove,8));
+  // const poolAvailAfterOpen = await exchange.callStatic.poolAvailableUsdc(teslaAmm.address);
+  // const poolTotalAfterOpen = await exchange.callStatic.poolTotalUsdcSupply(teslaAmm.address);
+  // const poolOutstandingAfterOpen = await exchange.callStatic.poolOutstandingLoans(teslaAmm.address);
 
-  await exchange.removeLiquidityFromPosition(tradeIds[0],positionSizeToRemove,'0x9d0d');
+  // await exchange.removeLiquidityFromPosition(tradeIds[0],positionSizeToRemove,'0x9d0d');
 
-  const userBalanceAfterRemoved = await exchange.callStatic.availableBalance(owner.address);
-  const poolAvailAfterRemove = await exchange.callStatic.poolAvailableUsdc(teslaAmm.address);
-  const poolTotalAfterRemove = await exchange.callStatic.poolTotalUsdcSupply(teslaAmm.address);
-  const poolOutstandingAfterRemove = await exchange.callStatic.poolOutstandingLoans(teslaAmm.address);
+  // const userBalanceAfterRemoved = await exchange.callStatic.availableBalance(owner.address);
+  // const poolAvailAfterRemove = await exchange.callStatic.poolAvailableUsdc(teslaAmm.address);
+  // const poolTotalAfterRemove = await exchange.callStatic.poolTotalUsdcSupply(teslaAmm.address);
+  // const poolOutstandingAfterRemove = await exchange.callStatic.poolOutstandingLoans(teslaAmm.address);
 
-  const postPosition = await exchange.callStatic.positions(tradeIds[0]);
-  await exchange.closeOutPosition(tradeIds[0],"0x9d0d");
-  const poolAvailAfterClose = await exchange.callStatic.poolAvailableUsdc(teslaAmm.address);
-  const poolTotalAfterClose = await exchange.callStatic.poolTotalUsdcSupply(teslaAmm.address);
-  const poolOutstandingAfterClose = await exchange.callStatic.poolOutstandingLoans(teslaAmm.address);
+  // const postPosition = await exchange.callStatic.positions(tradeIds[0]);
+  await time.increase(time.duration.hours(30));
+  const interestOwed = await loanPool.callStatic.interestOwed(tradeIds[0],teslaAmm.address);
+  console.log('interestOwed',interestOwed);
 
-  const userBalanceAfterClose = await exchange.callStatic.availableBalance(owner.address);
-  console.log('poolAvaible Balance before open: $',formatUnits(poolAvailBeforeOpen,6));
-  console.log('poolTotal before open: $',formatUnits(poolTotalBeforeOpen,6));
-  console.log('poolOutstanding before open: $',formatUnits(poolOutstandingBeforeOpen,6));
-  console.log('poolAvaible Balance after open: $',formatUnits(poolAvailAfterOpen,6));
-  console.log('poolTotal after open: $',formatUnits(poolTotalAfterOpen,6));
-  console.log('poolOutstanding after open: $',formatUnits(poolOutstandingAfterOpen,6));
-  console.log('poolAvaible Balance after remove: $',formatUnits(poolAvailAfterRemove,6));
-  console.log('poolTotal after remove: $',formatUnits(poolTotalAfterRemove,6));
-  console.log('poolOutstanding after remove: $',formatUnits(poolOutstandingAfterRemove,6));
-  console.log('poolAvaible Balance after close: $',formatUnits(poolAvailAfterClose,6));
-  console.log('poolTotal after close: $',formatUnits(poolTotalAfterClose,6));
-  console.log('poolOutstanding after close: $',formatUnits(poolOutstandingAfterClose,6));
-  console.log('userBalance before open: $',formatUnits(userBalanceBefore,6));
-  console.log('userBalance after open: $',formatUnits(userBalanceAfterOpen,6));
-  console.log('userBalance after remove: $',formatUnits(userBalanceAfterRemoved,6));
-  console.log('userBalance after close: $',formatUnits(userBalanceAfterClose,6));
-  const usdcBalanceOfExchange = await usdc.balanceOf(exchange.address);
-  console.log('usdcBalanceOfExchange',formatUnits(usdcBalanceOfExchange,6));
+  const isLiquidatable = await exchangeViewer.callStatic.checkLiquidiation(tradeIds[0]);
+  console.log('isLiquidatable',isLiquidatable);
+  await exchange.liquidate(tradeIds[0],'0x9d0d');
+  const isActive = await exchange.callStatic.isActive(tradeIds[0]);
+  console.log('isActive',isActive);
+  // await exchange.closeOutPosition(tradeIds[0],"0x9d0d");
+  // const poolAvailAfterClose = await exchange.callStatic.poolAvailableUsdc(teslaAmm.address);
+  // const poolTotalAfterClose = await exchange.callStatic.poolTotalUsdcSupply(teslaAmm.address);
+  // const poolOutstandingAfterClose = await exchange.callStatic.poolOutstandingLoans(teslaAmm.address);
+
+  // const userBalanceAfterClose = await exchange.callStatic.availableBalance(owner.address);
+  // console.log('poolAvaible Balance before open: $',formatUnits(poolAvailBeforeOpen,6));
+  // console.log('poolTotal before open: $',formatUnits(poolTotalBeforeOpen,6));
+  // console.log('poolOutstanding before open: $',formatUnits(poolOutstandingBeforeOpen,6));
+  // console.log('poolAvaible Balance after open: $',formatUnits(poolAvailAfterOpen,6));
+  // console.log('poolTotal after open: $',formatUnits(poolTotalAfterOpen,6));
+  // console.log('poolOutstanding after open: $',formatUnits(poolOutstandingAfterOpen,6));
+  // console.log('poolAvaible Balance after remove: $',formatUnits(poolAvailAfterRemove,6));
+  // console.log('poolTotal after remove: $',formatUnits(poolTotalAfterRemove,6));
+  // console.log('poolOutstanding after remove: $',formatUnits(poolOutstandingAfterRemove,6));
+  // console.log('poolAvaible Balance after close: $',formatUnits(poolAvailAfterClose,6));
+  // console.log('poolTotal after close: $',formatUnits(poolTotalAfterClose,6));
+  // console.log('poolOutstanding after close: $',formatUnits(poolOutstandingAfterClose,6));
+  // console.log('userBalance before open: $',formatUnits(userBalanceBefore,6));
+  // console.log('userBalance after open: $',formatUnits(userBalanceAfterOpen,6));
+  // console.log('userBalance after remove: $',formatUnits(userBalanceAfterRemoved,6));
+  // console.log('userBalance after close: $',formatUnits(userBalanceAfterClose,6));
+  // const usdcBalanceOfExchange = await usdc.balanceOf(exchange.address);
+  // console.log('usdcBalanceOfExchange',formatUnits(usdcBalanceOfExchange,6));
 
 });
 it.skip("should open position and when profit show approprialey", async function(){

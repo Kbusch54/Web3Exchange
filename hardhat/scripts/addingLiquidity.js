@@ -45,26 +45,27 @@ const redstonePayload = await sdk.requestRedstonePayload(
     // });
 
     const isActive = await exchange.getTradeIds(signer.address);
-    const tradeId = '0x00000000000000000000000087ad83dc2f12a14c85d20f178a918a65edfe1b42000000000000000000000000b9bbeb3b30c89b34f1d06434164fd27bedb565e40000000000000000000000000000000000000000000000000000000064a5ea8cffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
+    const tradeId = '0x00000000000000000000000087ad83dc2f12a14d87s20f178a918a65edfe1b420000000000000000000000000ffae85a8f923e3d078598083b88c194442b65440000000000000000000000000000000000000000000000000000000064a883780000000000000000000000000000000000000000000000000000000000000001'
     // console.log(isActive);
     const liquid = await exchangeViewer.checkLiquidiationList();
     console.log('liquidation list',liquid);
-    const checkLiquid = await exchangeViewer.checkLiquidiation(tradeId);
-    console.log('is liquidatable',checkLiquid);
 
-    const allValues = await exchangeViewer.getAllValues(tradeId);
-    console.log('all values',allValues);
-    const interestOwed = await loanPool.interestOwed(tradeId,teslaAmm.address);
-    console.log('interestOwed',interestOwed);
-    const collateral = await exchange.tradeCollateral(tradeId);
-    console.log('collateral',collateral);
-    // const isLiquidActive = await exchange.isActive(liquid[0]);
-    // console.log(isLiquidActive);
-    // const tx = await exchange.liquidate(tradeId,`0x${redstonePayload}`,{gasLimit: 9000000});
+    
+
+    // const allValues = await exchangeViewer.getAllValues(tradeId);
+    // console.log('all values',allValues);
+    // const interestOwed = await loanPool.interestOwed(tradeId,teslaAmm.address);
+    // console.log('interestOwed',interestOwed);
+    // const collateral = await exchange.tradeCollateral(tradeId);
+    // console.log('collateral',collateral);
+    const isLiquidActive = await exchange.isActive(liquid[0]);
+    console.log(isLiquidActive);
+
+    const tx = await exchange.liquidate(liquid[0],`0x${redstonePayload}`,{gasLimit: 9000000});
     // const isLiquidActive2 = await exchange.isActive(liquid[0]);
     // console.log(isLiquidActive2);
-    // console.log(tx.hash);
-    // console.log(tx);
+    console.log(tx.hash);
+    console.log(tx);
 
     // console.log('trades amt',isActive.length);
     // for(let i=0;i<isActive.length;i++){

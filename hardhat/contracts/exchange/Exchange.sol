@@ -4,8 +4,6 @@ import "./VaultMain.sol";
 import "../amm/VAmm.sol";
 import "./ExchangeViewer.sol";
 
-
-
 contract Exchange is VaultMain {
     using ExchangeLibrary for *;
   
@@ -206,30 +204,32 @@ contract Exchange is VaultMain {
                uint _closePrice;
           ( _closePrice, _usdcAmt) = VAmm(_position.amm).closePosition(_position.positionSize, _position.side,_payload);
         int _payment = _ffr + int(_interest);
-        // poolOutstandingLoans[_position.amm] -= _loanAmount;
         tradeCollateral[_tradeId] += uint(_usdcAmt);
         uint _newTC = tradeCollateral[_tradeId];
         poolAvailableUsdc[_position.amm] += _newTC  - uint(_payment + int(_loanAmount));
         poolTotalUsdcSupply[_position.amm] += _newTC  - uint(_payment + int(_loanAmount));
         int(_newTC) >= _payment?_payments(_tradeId, _position.amm):();
         uint _coll = tradeCollateral[_tradeId];
-        int(_coll)-_payment>=int(_loanAmount)?_inTheMoney(_tradeId,_loanAmount,_position.amm,_position.trader,_coll,_usdcAmt):_delinquent(_tradeId,_loanAmount,_position.amm);
+        int(_coll)-_payment>=int(_loanAmount)?_inTheMoney(_tradeId,_loanAmount,_position.amm,_position.trader,_coll,_usdcAmt):_delinquent(_tradeId,_loanAmount,_position.amm,_coll);
          emit ClosePosition(_position.trader,_position.timeStamp, _closePrice,block.timestamp, int(_coll)- (_payment + int(_loanAmount)));
         tradeCollateral[_tradeId] = 0;
         tradeBalance[_tradeId] =0;
     }
-    function _delinquent(bytes memory _tradeId, uint _loanAmt,address _amm)internal{
-        uint _amtLeftOver = _loanAmt - tradeCollateral[_tradeId];
-        LoanPool(loanPool).repayLoan(_tradeId, tradeCollateral[_tradeId], _amm);
-        tradeCollateral[_tradeId] = 0;
-        //amtLo debit from poolTotalUsdcSupply
-        poolOutstandingLoans[_amm] -= _amtLeftOver;
-        checkPool(_amtLeftOver,address(0),_amm);
+    function _delinquent(bytes memory _tradeId, uint _loanAmt,address _amm,uint _coll)internal{
+        if(_coll <= _loanAmt){
+            uint _amtLeftOver = _loanAmt - _coll;
+            LoanPool(loanPool).repayLoan(_tradeId, _coll, _amm);
+            poolOutstandingLoans[_amm] -= _amtLeftOver;
+            checkPool(_amtLeftOver,address(0),_amm);
+        }else{
+            uint _amtLeftOver = _coll - _loanAmt;
+            LoanPool(loanPool).repayLoan(_tradeId, _loanAmt, _amm);
+            poolTotalUsdcSupply[_amm] += _amtLeftOver;
+            poolAvailableUsdc[_amm] += _amtLeftOver;
+        }
     }
     function _inTheMoney(bytes memory _tradeId, uint _loanAmt,address _amm,address _user,uint _tradeCollateral,int _usdcAmt)internal{
-        
         uint _amtLeftOver =  _tradeCollateral- _loanAmt;
-
         if(uint(_usdcAmt) >_loanAmt){
             uint _amtToPay = uint(_usdcAmt) - _loanAmt;
             poolAvailableUsdc[_amm] -= _amtToPay;
