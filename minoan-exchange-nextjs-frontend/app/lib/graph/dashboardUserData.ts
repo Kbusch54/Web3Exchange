@@ -6,7 +6,11 @@ export const getUserData = cache(async function fetchUserData(user: string) {
     const query = gql` 
       query getAllData($user: String!) {
 
-    trades(where:{user: $user}){
+    trades(
+    orderBy: created
+    orderDirection: asc
+    where: { user: $user}
+  ) {
       isActive
       id
       created

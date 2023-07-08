@@ -5,7 +5,7 @@ export const revalidate = 50000 // 500 seconds
 export const getGlobalTradeData = cache(async function fetchGlobalTradeData() {
     const query = gql` 
       query getTrades {
-    trades(orderBy: created, orderDirection: desc) {
+    trades(orderBy: created, orderDirection: asc) {
       id
       created
       user{
@@ -15,14 +15,20 @@ export const getGlobalTradeData = cache(async function fetchGlobalTradeData() {
         id
       }
       tradeOpenValues{
-		openValue
-    openLoanAmt
-    openCollateral
-    openLeverage
-    openEntryPrice
-    openPositionSize
-    openInterestRate  
-    tradingFee
+        openValue
+        openLoanAmt
+        openCollateral
+        openLeverage
+        openEntryPrice
+        openPositionSize
+        openInterestRate  
+        tradingFee
+  }
+  collateralChange{
+    collateralChange
+  }
+  liquidityChange{
+    collateralChange
   }
       tradeBalance {
         side

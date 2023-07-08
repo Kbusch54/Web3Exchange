@@ -32,7 +32,7 @@ export const fetchTheseus = async function fetchData(user: string, theseusAdd: s
           name
           loanPool {
             id
-            poolPnl{
+            poolPnl(orderBy: timeStamp, orderDirection: asc){
               amount
               timeStamp
               }
