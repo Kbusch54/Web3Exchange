@@ -161,9 +161,9 @@ export const getTradeHistory = (trades: any, user?: Address,amm?:Address) => {
             let temp = dateMap.get(created);
             let pnlTemp = pnlMap.get(created);
             temp[getAmmName(trades[i].ammPool.id) as keyof typeof temp] ++;
-            pnlTemp[getAmmName(trades[i].ammPool.id) as keyof typeof temp] += Number(trades[i].tradeBalance.pnl);
+            pnlTemp[getAmmName(trades[i].ammPool.id) as keyof typeof temp] += Number(getTradePnl(trades[i]));
             temp['All'] ++;
-            pnlTemp['All'] += Number(trades[i].tradeBalance.pnl);
+            pnlTemp['All'] += Number(getTradePnl(trades[i]));
             dateMap.set(created,temp);
             pnlMap.has(created)&&pnlMap.set(created,pnlTemp)
         }else{
@@ -171,8 +171,8 @@ export const getTradeHistory = (trades: any, user?: Address,amm?:Address) => {
             let temp: { "Tesla": number; "Google": number; "Meta": number; "All": number; }= {"Tesla":0,"Google":0,"Meta":0,"All":0};
             let ammName = getAmmName(trades[i].ammPool.id);
             temp[ammName as keyof typeof temp] ++;
-            pnlTemp[ammName as keyof typeof temp] += Number(trades[i].tradeBalance.pnl);
-            pnlTemp['All'] += Number(trades[i].tradeBalance.pnl);
+            pnlTemp[ammName as keyof typeof temp] += Number(getTradePnl(trades[i]));
+            pnlTemp['All'] += Number(getTradePnl(trades[i]));
             temp['All'] ++;
             dateMap.set(created,temp);
             !pnlMap.has(created)&&pnlMap.set(created,pnlTemp)
