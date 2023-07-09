@@ -9,7 +9,7 @@ import logo from "../public/assets/minotaur-logo-thing.png";
 import ariadne from "../public/assets/ariadne-real.png";
 import theseus from "../public/assets/stone-theseus.png";
 import dynamic from "next/dynamic";
-import LoanPoolTab from "../components/LoanPoolTab";
+import LoanPoolTab from "../components/mainPage/loanPool/LoanPoolTab";
 import ScrollUp from "../components/utils/ScrollUp";
 import FirstSection from "components/mainPage/FirstSection";
 import helmet1 from "../public/assets/greek-helmet.png";

@@ -3,7 +3,6 @@ import AssetStatsTab from './tabs/dashboard/AssetStatsTab'
 import { Stock } from '../types/custom'
 import Image from 'next/image'
 import { Address } from 'wagmi'
-import LoadingState from './balances/dashboard/LoadingState'
 
 interface Props {
     stockData: Stock,

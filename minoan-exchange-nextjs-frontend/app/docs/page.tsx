@@ -1,15 +1,11 @@
 
-import React, { ReactElement } from "react";
-import FirstSection from "components/mainPage/FirstSection";
-import { revalidate } from "app/lib/graph/globalTradeData";
 
 interface Props { }
 
 export default async function page({ }: Props) {
   const data =  await fetch(`http://localhost:3000/api/tradeData`,{next:{revalidate:8000}})
   const res = await data.json()
-  // @ts-ignore
-  console.log('data', res);
+  
   return (
 
     <section className="text-center">
@@ -27,7 +23,7 @@ export default async function page({ }: Props) {
         )
         ):(
           <div className="bg-amber-400 mt-64 text-white ">
-            <p>loading</p>
+            <p>loading...</p>
           </div>
         )}
     </>
