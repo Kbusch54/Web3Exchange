@@ -1,7 +1,7 @@
 'use client'
 import React, { useEffect,useRef,useState } from 'react'
 import {useContractWrite , Address, useWaitForTransaction } from 'wagmi';
-import { useApproveUsdc } from '../../../../utils/contractWrites/approve';
+import { useApproveUsdc } from '../../../../utils/contractWrites/tokens/approve';
 import toast from 'react-hot-toast';
 import { addTransaction } from '../helper/database';
 import { moneyFormatter } from 'utils/helpers/functions';
