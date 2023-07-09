@@ -52,6 +52,11 @@ contract AmmViewer{
         (bool success, ) = _amm.call(data);
         require(success, "setBaseAssetStarter failed");
     }
+    function updateIndexPricePeriod(address _amm, uint _indexPricePeriod) external onlyTheseusDao isAmmContract(_amm){
+        bytes memory data = abi.encodeWithSignature("setIndexPricePeriod(uint256)",_indexPricePeriod);
+        (bool success, ) = _amm.call(data);
+        require(success, "setIndexPricePeriod failed");
+    }
     function emitAmmOpenPosition( int amount) external onlyAmmContract{
         emit AmmOpenPosition(msg.sender,amount,block.timestamp);
     }

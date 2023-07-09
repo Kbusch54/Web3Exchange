@@ -6,6 +6,7 @@ import './AmmViewer.sol';
  * @title VAmm
  * @dev A custom implementation of a Virtual Automated Market Maker (VAMM) contract.
  */
+
 contract VAmm {
     using SafeMath for int;
     AmmViewer public  ammViewer;
@@ -72,8 +73,6 @@ contract VAmm {
     ) external {
         path = _path;
         indexPrice = _indexPrice;
-        // k= indexPrice*_quoteAssetAmount*100;
-        // uint _baseAsset  = k/_quoteAssetAmount;
         uint _baseAsset = _quoteAssetAmount * _indexPrice;
         k = _baseAsset * _quoteAssetAmount;
         liquidityChangedSnapshots.push(
@@ -287,9 +286,7 @@ contract VAmm {
         int _newFundingRate = calculateFundingRate(
             int(getAssetPrice())
         );
-
-        //check if snapshot time is over
-        if(lastSnapshot.timestamp + indexPricePeriod >= block.timestamp -15 minutes && lastSnapshot.timestamp + indexPricePeriod <= block.timestamp +15 minutes){
+        if(lastSnapshot.timestamp + indexPricePeriod < block.timestamp){
             adjustFundingPaymentsAll();
         }else{
             lastSnapshot.fundingRate = _newFundingRate;
@@ -413,5 +410,9 @@ contract VAmm {
     function setBaseAssetStarter(uint _baseAssetStarter) external {
         require(msg.sender == address(ammViewer), "only amm viewer");
         baseAssetStarter = _baseAssetStarter;
+    }
+    function setIndexPricePeriod(uint16 _indexPricePeriod) external {
+        require(msg.sender == address(ammViewer), "only amm viewer");
+        indexPricePeriod = _indexPricePeriod;
     }
 }
