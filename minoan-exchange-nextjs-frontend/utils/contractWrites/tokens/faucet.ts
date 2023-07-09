@@ -2,7 +2,7 @@ import { UsdcAbi } from "../../abis";
 import { usePrepareContractWrite, Address } from "wagmi";
 import { usdc as usdcAddress} from "../../address";
 
-export const useApproveUsdc = (
+export const useFaucet = (
     signer: Address,
   ) => {
     const { config, error } = usePrepareContractWrite({
