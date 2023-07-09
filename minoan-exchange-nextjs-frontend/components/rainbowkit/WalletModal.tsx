@@ -5,6 +5,12 @@ import { useSession } from 'next-auth/react';
 import Countdown from '../countdowns/Countdown';
 import Image from 'next/image';
 import Copy from '../utils/Copy';
+import Faucet from 'components/forms/buttons/exchangeBalance/Faucet';
+import { Address } from 'viem';
+import { useRouter } from 'next/navigation';
+import { useBalance } from 'wagmi';
+import { usdc } from 'utils/address';
+import { moneyFormatter } from 'utils/helpers/functions';
 
 
 interface Props {
@@ -60,9 +66,20 @@ const WalletModal: React.FC<Props> = ({ account, signOutFunc }) => {
         setIsOpen(false);
     }
 
+    const router = useRouter()
+
+    const handleZero = () => {
+        router.refresh()
+    }
+    const { data, isLoading, error } = useBalance({
+        address: account.address as Address,
+        token: usdc,
+        watch: true,
+      });
 
     return (
         <div className='flex flex-row gap-x-1 md:gap-x-4  '>
+            <Faucet user={account.address as Address} disabled={!session} handleZero={handleZero}/>
             <button className='px-2 py-1 md:px-3 md:py-2  text-white border rounded-xl hover:scale-125 bg-blue-600 text-sm md:text-md lg:text-lg 2xl:text-xs 3xl:text-xl' onClick={openModal}>
                 Wallet
             </button>
@@ -95,7 +112,13 @@ const WalletModal: React.FC<Props> = ({ account, signOutFunc }) => {
                                 </Copy>
                         </div>
                         )}
-                        <p className='bg-slate-700 rounded-xl p-4'>{account.displayBalance}</p>
+                        <p className='bg-slate-700 rounded-xl p-4 mx-2'>{account.displayBalance}</p>
+                        {data ? (
+
+                            <p className='bg-slate-700 rounded-xl p-4 '>${moneyFormatter(Number(data.value))}</p>
+                            ):(
+                                <p className='bg-slate-700 rounded-xl p-4'>Loading...</p>
+                            )}
                     </div>
                     {session.data?.expires && (
                         <div>
