@@ -137,6 +137,26 @@ export default function TheseusProposalModal({user}:Props) {
         
 
     }, [currentId, callData,check]);
+    const goBackBtn = ()=>{
+        setSelected(false);
+        setSelectedFunction(null);
+        setDescription(null);
+        setContractFuncs(null);
+        setContractName(null);
+        setAddressTo(null);
+        setInputData(null);
+        setCallData(null);
+        setCheck(false);
+    }
+    const goBackBtnInternal = ()=>{
+        setSelectedFunction(null);
+        setDescription(null);
+        setContractFuncs(null);
+        setAddressTo(null);
+        setInputData(null);
+        setCallData(null);
+        setCheck(false);
+    }
 
     return (
         <div className=''>
@@ -149,7 +169,9 @@ export default function TheseusProposalModal({user}:Props) {
                 style={customStyles}
                 contentLabel="Add Collateral Modal"
             >
-                <div className=' flex flex-col justify-center modal-background opacity-90' >
+                <div className=' flex flex-col justify-center modal-background opacity-90 relative' >
+                <button onClick={closeModal} className='text-lg text-white bg-red-500 rounded-full py-[.07rem] px-[.375rem] absolute top-5 right-4'>X</button>
+          {selected && <button onClick={() => goBackBtn()} className='absolute top-5 left-4 text-lg text-white bg-amber-500 rounded-full py-[.07rem] px-[.375rem]'>{'<'}</button>}
                     {!selected && !contractFuncs && (
                         <div className='m-12'>
                             <h1 className='text-white text-center m-12 '>Smart Contracts</h1>
@@ -174,6 +196,7 @@ export default function TheseusProposalModal({user}:Props) {
                         <div className='flex justify-center items-center'>
                             {selectedFunction && contractFuncs && (
                                 <div className='flex flex-col justify-center items-center' >
+                                    {selectedFunction && contractFuncs && <button onClick={() => goBackBtnInternal()} className='absolute top-5 left-4 text-lg text-white bg-amber-500 rounded-full py-[.07rem] px-[.375rem]'>{'<'}</button>}
                                     <h1 className='text-white text-center m-12 '>{convertCamelCaseToTitle(contractFuncs[selectedFunction].name)}</h1>
                                     <div className='flex  flex-wrap justify-center  gap-5  text-md xl:text-lg text-center text-white pb-12 px-4 '>
                                         {contractFuncs[selectedFunction].inputs.map((input: any, index: number) => {
@@ -198,7 +221,7 @@ export default function TheseusProposalModal({user}:Props) {
                                         />
                                     </div>
                                     <div className='flex flex-row gap-x-28 justify-between my-4'>
-                                        <button disabled className='px-2 py-1 bg-red-500 rounded-2xl text-white text-lg hover:scale-125'>Cancel</button>
+                                        <button onClick={closeModal} className='px-2 py-1 bg-red-500 rounded-2xl text-white text-lg hover:scale-125'>Cancel</button>
                                        
                                         {(check == true && callData != null && addressTo !=null && description !=null && currentId !=null&& user) ? (
                                             <ProposeButton addressTo={addressTo} callData={callData} contractAddress={theseus} description={description} nonce={currentId} user={user} disabled={!check} option='thesesu' close={closeModal} />
