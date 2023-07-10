@@ -16,6 +16,8 @@ import { getServerSession } from 'next-auth/next';
 import { Address } from "viem";
 import TypeSelection from "../../../components/menus/TypeSelection";
 import { fetchLoanPoolData } from "app/lib/graph/poolsData";
+import PriceData from "components/stockData/charts/PriceData";
+import { fetchStockData } from "app/lib/api/fetchStockData";
 
 interface Props {
   params: {
@@ -103,6 +105,10 @@ export default async function PoolPage({ params }: Props) {
   //@ts-ignore
   const ariadneData = allData.vamms[0].loanPool.poolToken.ammPool.ariadneDAO;
 
+  const stockPriceData = await fetchStockData(params.slug.toUpperCase());
+  // @ts-ignore
+  const priceData = graphData.priceData;
+
   return (
     <div>
       {stock && graphData ? (
@@ -126,7 +132,7 @@ export default async function PoolPage({ params }: Props) {
               id={"charts"}
               className="hidden md:block col-span-9 px-4  text-lg shadow-xl shadow-slate-500"
             >
-              <ReachartsEx height={500} />
+              <PriceData priceData={priceData} stockPriceData={stockPriceData} pool={true} />
             </div>
             <section id={"select-charts"} className="col-span-9">
               <TypeSelection poolData={allData} user={user}/>

@@ -6,6 +6,11 @@ export const fetchLoanPoolData = cache(async(symbol: string, user: string) => {
       query getLoanPool($id: String!,$user: String!) {
         vamms(where: { symbol: $id}) {
           name
+          priceData(orderBy: timeStamp, orderDirection: asc) {
+              marketPrice
+              isFrozen
+              timeStamp
+          }
           loanPool {
             id
             created

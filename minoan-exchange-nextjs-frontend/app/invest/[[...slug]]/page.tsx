@@ -43,13 +43,13 @@ export default async function page(context: { params: { slug: string; }; }) {
     return res;
   });
   const stockPriceData = await fetchStockData(slug[0].toUpperCase());
+  // @ts-ignore
+  const priceData = loanPoolData.vamms[0].priceData;
   //@ts-ignore
   const graphData = loanPoolData.vamms[0];
   //@ts-ignore
   const userData = loanPoolData.users[0] ? loanPoolData.users[0].balances.availableUsdc : 0;
   const stock = await getStocks(slug);
-  // @ts-ignore
-  const priceData = loanPoolData.vamms[0].priceData;
   return (
     <>
       <div className="my-2 mx-6">
