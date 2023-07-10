@@ -11,77 +11,16 @@ import { Stock } from "../../../types/custom";
 import { stocks } from "../../utils/stockData";
 import ReachartsEx from "../../../components/charts/poolCharts/ReachartsEx";
 import { redirect } from "next/navigation";
-import { request, gql } from "graphql-request";
 import AllTrades from "../../../components/tables/trades/AllTrades";
 import { authOptions } from '../../../utils/auth/authOptions';
 import { getServerSession } from 'next-auth/next';
 import { Address } from "viem";
-import axios from "axios";
 import PriceData from "components/stockData/charts/PriceData";
 import { fetchStockData } from "app/lib/api/fetchStockData";
+import { fetchLoanPoolData } from "app/lib/graph/loanPoolData";
 type Props = {};
 export const revalidate = 8000
-async function fetchLoanPoolData(symbol: string, user: string) {
-  const query = gql` 
-    query getLoanPool($id: String!,$user: String!) {
-      vamms(where: { symbol: $id}) {
-        name
-        priceData(orderBy: timeStamp, orderDirection: asc) {
-      marketPrice
-        marketPrice
-        isFrozen
-        timeStamp
-        }
-        loanPool {
-          id
-          created
-          minLoan
-          maxLoan
-          interestRate
-          interestPeriod
-          mmr
-          minHoldingsReqPercentage
-          tradingFee
-          poolBalance {
-            totalUsdcSupply
-            availableUsdc
-            outstandingLoanUsdc
-          }
-          stakes{
-            totalStaked
-            }
-          poolToken{
-            tokenId
-            totalSupply
-            tokenBalance(where:{user:$user}){
-              tokensOwnedbByUser
-              totalStaked
-              user{
-                balances{
-                  availableUsdc
-                }
-              }
-            }
-          }
-        }
-      }
-      users(where:{id:$user}){
-        id
-        balances{
-          availableUsdc
-        }
-      }
-    }
-   
-  `;
 
-
-
-  const endpoint = "https://api.studio.thegraph.com/query/46803/subgraph-minoan/version/latest";
-  const variables = { id: symbol, user: user };
-  const data = await request(endpoint, query, variables);
-  return data;
-}
 
 const getStocks = async (slug: string) => {
   const s: Stock | undefined = stocks.find(
