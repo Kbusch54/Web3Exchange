@@ -62,7 +62,7 @@ contract ExchangeViewer{
     }
        function calcFFRFull(bytes memory _tradeId, address _amm, uint _intialTradeBalance) public view returns (int ffrOwed) {
         (int _cumulativeFFR,int side) = calcFFR(_tradeId, _amm);
-        return (_cumulativeFFR*int(_intialTradeBalance)/100000000*side);
+        return (_cumulativeFFR*int(_intialTradeBalance)/10**8*side);
     }
 
     function getValues(

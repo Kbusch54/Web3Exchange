@@ -1696,17 +1696,18 @@ it("Should open and allow remove liqudiity to tesla amm", async function(){
   // const poolAvailAfterRemove = await exchange.callStatic.poolAvailableUsdc(teslaAmm.address);
   // const poolTotalAfterRemove = await exchange.callStatic.poolTotalUsdcSupply(teslaAmm.address);
   // const poolOutstandingAfterRemove = await exchange.callStatic.poolOutstandingLoans(teslaAmm.address);
-
+  await exchange.openPosition(teslaAmm.address, collateral, leverage, 1,'0x9d0d');
   // const postPosition = await exchange.callStatic.positions(tradeIds[0]);
   await time.increase(time.duration.hours(30));
+  await exchange.openPosition(teslaAmm.address, collateral, leverage, 1,'0x9d0d');
   const interestOwed = await loanPool.callStatic.interestOwed(tradeIds[0],teslaAmm.address);
-  console.log('interestOwed',interestOwed);
+  // console.log('interestOwed',interestOwed);
 
-  const isLiquidatable = await exchangeViewer.callStatic.checkLiquidiation(tradeIds[0]);
-  console.log('isLiquidatable',isLiquidatable);
-  await exchange.liquidate(tradeIds[0],'0x9d0d');
-  const isActive = await exchange.callStatic.isActive(tradeIds[0]);
-  console.log('isActive',isActive);
+  // const isLiquidatable = await exchangeViewer.callStatic.checkLiquidiation(tradeIds[0]);
+  // console.log('isLiquidatable',isLiquidatable);
+  // await exchange.liquidate(tradeIds[0],'0x9d0d');
+  // const isActive = await exchange.callStatic.isActive(tradeIds[0]);
+  // console.log('isActive',isActive);
   // await exchange.closeOutPosition(tradeIds[0],"0x9d0d");
   // const poolAvailAfterClose = await exchange.callStatic.poolAvailableUsdc(teslaAmm.address);
   // const poolTotalAfterClose = await exchange.callStatic.poolTotalUsdcSupply(teslaAmm.address);

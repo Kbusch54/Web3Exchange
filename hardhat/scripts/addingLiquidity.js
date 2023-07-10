@@ -45,27 +45,34 @@ const redstonePayload = await sdk.requestRedstonePayload(
     // });
 
     const isActive = await exchange.getTradeIds(signer.address);
-    const tradeId = '0x00000000000000000000000087ad83dc2f12a14d87s20f178a918a65edfe1b420000000000000000000000000ffae85a8f923e3d078598083b88c194442b65440000000000000000000000000000000000000000000000000000000064a883780000000000000000000000000000000000000000000000000000000000000001'
+    // const tradeId = '0x00000000000000000000000087ad83dc2f12a14d87s20f178a918a65edfe1b420000000000000000000000000ffae85a8f923e3d078598083b88c194442b65440000000000000000000000000000000000000000000000000000000064a883780000000000000000000000000000000000000000000000000000000000000001'
     // console.log(isActive);
-    const liquid = await exchangeViewer.checkLiquidiationList();
-    console.log('liquidation list',liquid);
+    // const liquid = await exchangeViewer.checkLiquidiationList();
+    // console.log('liquidation list',liquid);
 
-    
-
+    const metaAmm = await hre.ethers.getContractAt("VAmm","0x0FFaE85a8f923E3d078598083B88c194442B6544",signer);
+    const tradeId ='0x00000000000000000000000087ad83dc2f12a14c85d20f178a918a65edfe1b420000000000000000000000000ffae85a8f923e3d078598083b88c194442b65440000000000000000000000000000000000000000000000000000000064a5b27c0000000000000000000000000000000000000000000000000000000000000001'
+    const ffr = await exchangeViewer.calcFFR(tradeId,metaAmm.address);
+    const initialTradeBalance = await exchange.tradeBalance(tradeId);
+    console.log('ffr',ffr);
+    const indexPeriode = await metaAmm.indexPricePeriod();
+    const ffrFull = await exchangeViewer.calcFFRFull(tradeId,metaAmm.address,initialTradeBalance);
+    console.log('indexPeriode',indexPeriode.toString());
+    console.log('ffrFull',ffrFull);
     // const allValues = await exchangeViewer.getAllValues(tradeId);
     // console.log('all values',allValues);
     // const interestOwed = await loanPool.interestOwed(tradeId,teslaAmm.address);
     // console.log('interestOwed',interestOwed);
     // const collateral = await exchange.tradeCollateral(tradeId);
     // console.log('collateral',collateral);
-    const isLiquidActive = await exchange.isActive(liquid[0]);
-    console.log(isLiquidActive);
+    // const isLiquidActive = await exchange.isActive(liquid[0]);
+    // console.log(isLiquidActive);
 
-    const tx = await exchange.liquidate(liquid[0],`0x${redstonePayload}`,{gasLimit: 9000000});
-    // const isLiquidActive2 = await exchange.isActive(liquid[0]);
-    // console.log(isLiquidActive2);
-    console.log(tx.hash);
-    console.log(tx);
+    // const tx = await exchange.liquidate(liquid[0],`0x${redstonePayload}`,{gasLimit: 9000000});
+    // // const isLiquidActive2 = await exchange.isActive(liquid[0]);
+    // // console.log(isLiquidActive2);
+    // console.log(tx.hash);
+    // console.log(tx);
 
     // console.log('trades amt',isActive.length);
     // for(let i=0;i<isActive.length;i++){
