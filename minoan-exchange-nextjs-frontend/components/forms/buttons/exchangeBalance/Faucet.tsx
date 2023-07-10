@@ -44,7 +44,7 @@ export default  function  FaucetButton({user,disabled,handleZero}:Props)  {
             setApproved(prev=>true)
             setLoadingStage((prev) => false);
             isMounted.current = false;
-            toast.success(`$2,000.00 Minted ${waiting.data.transactionHash}`, {  duration: 6000 ,position:'top-right'});
+            toast.success(`$2,000.00 Minted`, {  duration: 6000 ,position:'top-right'});
             const date = new Date().toISOString().toLocaleString();
             setTimeout(() => {
               setApproved(prev=>false)
