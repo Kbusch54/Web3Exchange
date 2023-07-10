@@ -18,6 +18,8 @@ import { Address } from "viem";
 import PriceData from "components/stockData/charts/PriceData";
 import { fetchStockData } from "app/lib/api/fetchStockData";
 import { fetchLoanPoolData } from "app/lib/graph/loanPoolData";
+import { ffrData } from "utils/helpers/dataMutations";
+import ReachartFFRBar from "components/charts/poolCharts/recharts/RechartFFRBar";
 type Props = {};
 export const revalidate = 8000
 
@@ -49,6 +51,11 @@ export default async function page(context: { params: { slug: string; }; }) {
   const graphData = loanPoolData.vamms[0];
   //@ts-ignore
   const userData = loanPoolData.users[0] ? loanPoolData.users[0].balances.availableUsdc : 0;
+
+  // @ts-ignore
+  const snapshots = loanPoolData.vamms[0].snapshots;
+  const dataForBar = ffrData(snapshots);
+  console.log(dataForBar);
   const stock = await getStocks(slug);
   return (
     <>
@@ -79,7 +86,7 @@ export default async function page(context: { params: { slug: string; }; }) {
               <div className="grid grid-rows-6 ">
                 <PriceData priceData={priceData} stockPriceData={stockPriceData} />
                 <div className="row-span-2">
-                  <ReachartsEx height={200} />
+                  <ReachartFFRBar height={200} dataBar={dataForBar} />
                 </div>
               </div>
             </div>

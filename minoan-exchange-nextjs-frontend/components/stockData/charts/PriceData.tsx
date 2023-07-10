@@ -11,7 +11,6 @@ interface Props {
 
 const PriceData: React.FC<Props> = ({priceData,stockPriceData,pool}) => {
     const priceDataForCHart = organizePriceData(priceData,stockPriceData);
-    console.log(priceDataForCHart)
     return (
         <>
             <div className={`${pool?'':'row-span-4 hidden md:inline-block overflow-clip'}`}>

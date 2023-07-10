@@ -6,10 +6,18 @@ export async function fetchLoanPoolData(symbol: string, user: string) {
         vamms(where: { symbol: $id}) {
           name
           priceData(orderBy: timeStamp, orderDirection: asc) {
-        marketPrice
-          marketPrice
-          isFrozen
-          timeStamp
+            marketPrice
+            marketPrice
+            isFrozen
+            timeStamp
+          }
+          snapshots(orderDirection: asc, orderBy: index) {
+            quoteAssetReserve
+            baseAssetReserve
+            marketPrice
+            blockTimestamp
+            ffr
+            indexPrice
           }
           loanPool {
             id

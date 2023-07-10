@@ -366,6 +366,15 @@ export const getCollateralForTrade = (trade: any) => {
     //    console.log('total',total)
     return total
 }
+export const ffrData = (graphData:any) => {
+    let data:{date:string,ffr:number,absoluteFFR:number,delta:number}[] = [];
+    
+    for(let i =0; i<graphData.length;i++){
+        let delta = Math.abs(Number(graphData[i].marketPrice) - Number(graphData[i].indexPrice));
+        data.push({date:new Date(graphData[i].blockTimestamp *1000).toISOString(),ffr:graphData[i].ffr,absoluteFFR:Math.abs(graphData[i].ffr),delta:delta})
+    }
+    return data;
+}
 export const organizePriceData = (graphData:any,apiData:any) => {
     //new datae 3 dayss ago
     const threeDaysAgo =new Date( new Date().setDate(new Date().getDate() - 3));
