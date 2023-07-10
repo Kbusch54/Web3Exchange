@@ -27,6 +27,8 @@ const Wallet: React.FC<Props> = ({ user }) => {
         watch: true,
     });
     const walletData:WalletData = use(fetchWallet(user));
+    const vaultBal = walletData.users[0]?.balances.availableUsdc?moneyFormatter(walletData.users[0].balances.availableUsdc):0
+    const totalCollateral = walletData.users[0]? walletData.users[0].balances?.totalCollateralUsdc?moneyFormatter(walletData.users[0].balances.totalCollateralUsdc):0:0
     return (
         <div className='mt-0 2xl:mt-8 3xl:mt-0'>
             <div className='bg-transparent flex flex-row mx-[1.53rem]'>
@@ -62,7 +64,7 @@ const Wallet: React.FC<Props> = ({ user }) => {
                         </div>
                         <div className='flex flex-col '>
                             <div className='border-2 border-amber-400 rounded-3xl'>
-                                <p className=' text-lg'>${walletData.users[0].balances.totalCollateralUsdc?moneyFormatter(walletData.users[0].balances.totalCollateralUsdc):'0.00'}</p>
+                                <p className=' text-lg'>${totalCollateral}</p>
                             </div>
                             <p className='text-sm text-gray-600'>Current Collateral</p>
                         </div>
@@ -77,7 +79,7 @@ const Wallet: React.FC<Props> = ({ user }) => {
                         <div className='flex flex-col mt-4'>
                             <p className='text-lg'>Vault Balance</p>
                             <div className='p-2'>
-                                <p className='text-3xl text-amber-400'>${walletData.users[0].balances.availableUsdc?moneyFormatter(walletData.users[0].balances.availableUsdc):'0.00'}</p>
+                                <p className='text-3xl text-amber-400'>${vaultBal}</p>
                             </div>
                         </div>
                         <div className='absolute right-8 top-8'>

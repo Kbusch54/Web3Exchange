@@ -22,11 +22,11 @@ const Balances: React.FC<Props> = ({ data }) => {
   const totalInpools = data.vamms.map((amm) => amm.loanPool.poolBalance.totalUsdcSupply).reduce((a, b) => Number(a) + Number(b), 0);
       // @ts-ignore
       const totalAvailable = data.vamms.map((amm) => amm.loanPool.poolBalance.availableUsdc).reduce((a, b) => Number(a) + Number(b), 0);
-  console.log('totalInpools', totalInpools);
+      const tokensOwnedbByUser = poolToke? poolToke.tokenBalance[0]?poolToke.tokenBalance[0].tokensOwnedbByUser:0:0;
   return (
     <div className=" grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 3xl:grid-cols-7   mt-12 gap-y-6 gap-x-6 text-white">
       <div className="flex flex-col text-center border-2 border-blue-800 rounded-t-2xl rounded-b-xl bg-sky-800  bg-opacity-40 ">
-        <h1 className="text-xl xl:text-2xl 3xl:text-3xl 4xl:text-5xl mt-4">{(poolToke.tokenBalance[0].tokensOwnedbByUser/10**6).toFixed(3)}</h1>
+        <h1 className="text-xl xl:text-2xl 3xl:text-3xl 4xl:text-5xl mt-4">{(tokensOwnedbByUser/10**6).toFixed(3)}</h1>
         <h3 className='text-xs md:text-lg'> Your Balance</h3>
       </div>
       <div className="flex flex-col text-center border-2 border-blue-800 rounded-t-2xl rounded-b-xl bg-sky-800  bg-opacity-40 ">
