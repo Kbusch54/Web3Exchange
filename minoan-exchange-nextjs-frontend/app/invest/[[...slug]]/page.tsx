@@ -55,7 +55,6 @@ export default async function page(context: { params: { slug: string; }; }) {
   // @ts-ignore
   const snapshots = loanPoolData.vamms[0].snapshots;
   const dataForBar = ffrData(snapshots);
-  console.log(dataForBar);
   const stock = await getStocks(slug);
   return (
     <>
