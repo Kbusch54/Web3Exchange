@@ -27,6 +27,9 @@ interface Props {
         information: {
             mmr: number;
             ffr: number;
+            ffrPayed: number;
+            LastFFRPayed: number;
+            snapshots:{ffr:number,index:number}[];
             ffrReturn: string;
             liquidationPrice: number;
             interestRate: number;
@@ -68,10 +71,8 @@ const SingleTrade: React.FC<Props> = ({ row, index, userAvailableBalance, user, 
 
 
     const margin = row.information.currentCollateral / (row.lev * row.information.startCollateral) * 100
-    // console.log('user 0x'.concat(row.id.slice(26, 66)))
-    // console.log('amm 0x'.concat(row.id.slice(90, 130)))
-    // console.log('timestamp 0x'.concat(row.id.slice(186, 194)))
-    // console.log('side 0x'.concat(row.id.slice(254, 258)))
+
+
     return (
         <div key={row.id} className=' '>
             <div className='grid grid-cols-7 justify-evenly text-center border border-amber-400/40 rounded-lg '>

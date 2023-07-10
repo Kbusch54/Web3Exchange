@@ -12,6 +12,7 @@ import { cache } from 'react'
     trades(orderBy: created, orderDirection: desc) {
       id
       created
+      ffrPayed
       user{
         id
       }
@@ -19,15 +20,15 @@ import { cache } from 'react'
         id
       }
       tradeOpenValues{
-		openValue
-    openLoanAmt
-    openCollateral
-    openLeverage
-    openEntryPrice
-    openPositionSize
-    openInterestRate  
-    tradingFee
-  }
+        openValue
+        openLoanAmt
+        openCollateral
+        openLeverage
+        openEntryPrice
+        openPositionSize
+        openInterestRate  
+        tradingFee
+      }
       tradeBalance {
         side
         positionSize
@@ -36,8 +37,6 @@ import { cache } from 'react'
         interestRate
         LastFFRPayed
         collateral
-        LastInterestPayed
-        LastFFRPayed
         LastInterestPayed
         tradeId {
           tradeId
@@ -71,7 +70,11 @@ import { cache } from 'react'
           baseAssetReserve
           marketPrice
           ffr
+          index
           indexPrice
+          vamm{
+              name
+            }
         }
       }
     }

@@ -21,6 +21,9 @@ interface Props {
         pnl: string;
         created: number;
         information: {
+            LastFFRPayed: number;
+            snapshots: any;
+            ffrPayed: number;
             mmr: number;
             ffr: number;
             ffrReturn: string;
@@ -47,6 +50,18 @@ interface Props {
 
 const TradeInformation: React.FC<Props> = ({user,userAvailableBalance,row,refetch}) => {
     const margin=row.information.currentCollateral/row.other.loanAmt
+    const ffrClac = () => {
+        let ffr = 0;
+        let lastFFR = row.information.LastFFRPayed;
+        let snapshots = row.information.snapshots;
+        let index=0;
+        do {
+            ffr += Number(snapshots[index].ffr);
+            index = Number(snapshots[index].index);
+        }while(index!=lastFFR)
+        return ((Number(ffr) * Number(row.other.loanAmt)) / 10 ** 8*Number(row.side))+Number(row.information.ffrPayed);
+    }
+    console.log('ffr', ffrClac())
     
     return (
         <div className={`bg-slate-800 `}>
@@ -63,7 +78,7 @@ const TradeInformation: React.FC<Props> = ({user,userAvailableBalance,row,refetc
                             </div>
                             <div className='text-white text-lg flex flex-col border border-white/10'>
                                 <p>FFR</p>
-                                <p>{Number(row.information.ffr) / 10 ** 4}</p>
+                                <p>${moneyFormatter(ffrClac())}</p>
                             </div>
                             <div className='text-white text-lg flex flex-col border border-white/10'>
                                 <p>Liquidation Price</p>

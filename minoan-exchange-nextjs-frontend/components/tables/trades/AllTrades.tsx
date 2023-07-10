@@ -76,7 +76,7 @@ const AllTrades: React.FC<Props> = ({ user, userAvailableBalance, active = true,
 
     const tradesToRows = (trades: any) => {
         return trades.map((trade: any) => {
-            const { tradeBalance, startingCost, isActive, liquidated, vamm, user, tradeOpenValues } = trade;
+            const { tradeBalance, startingCost, isActive, liquidated, vamm, user, tradeOpenValues,ffrPayed } = trade;
             const { openValue, openLoanAmt, openCollateral, openLeverage, openEntryPrice, openPositionSize, openInterestRate, tradingFee } = tradeOpenValues;
             const { side, positionSize, leverage, pnl, interestRate, LastFFRPayed, collateral, LastInterestPayed, tradeId, loanAmt, entryPrice, exitPrice, exitTime } = tradeBalance;
             const { mmr, interestPeriod, maxLoan, minLoan } = vamm.loanPool;
@@ -111,8 +111,11 @@ const AllTrades: React.FC<Props> = ({ user, userAvailableBalance, active = true,
                 information: {
                     mmr: mmr,
                     ffr: ffr,
+                    ffrPayed:ffrPayed,
+                    LastFFRPayed: LastFFRPayed,
                     ffrReturn: 'ffrReturn',
                     liquidationPrice: 'liquidationPrice',
+                    snapshots: vamm.snapshots,
                     interestRate: active ? interestRate : openInterestRate,
                     interestPeriod: interestPeriod,
                     interestAccrued: interestPayment,
@@ -199,6 +202,7 @@ const AllTrades: React.FC<Props> = ({ user, userAvailableBalance, active = true,
     if (!global) {
         if (active) {
 
+            
             return (
                 <div className='border-2 border-amber-400/20 flex flex-col bg-slate-900 shadow-lg shadow-amber-400 rounded-2xl'>
                     <div className='grid grid-cols-7 justify-evenly text-center '>
