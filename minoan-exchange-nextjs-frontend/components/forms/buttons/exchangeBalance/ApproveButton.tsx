@@ -44,7 +44,7 @@ export default  function  ApproveButton({value,user,disabled,handleZero}:Props) 
             setApproved(prev=>true)
             setLoadingStage((prev) => false);
             isMounted.current = false;
-            toast.success(`$${moneyFormatter(value)} Approved ${waiting.data.transactionHash}`, {  duration: 6000 ,position:'top-right'});
+            toast.success(`$${moneyFormatter(value)} Approved `, {  duration: 6000 ,position:'top-right'});
             const date = new Date().toISOString().toLocaleString();
             addTransaction(waiting.data.transactionHash,user,date,'Approve','vault').then((res)=>{
               console.log('res added transaction',res);
@@ -53,7 +53,8 @@ export default  function  ApproveButton({value,user,disabled,handleZero}:Props) 
               setApproved(prev=>false)
               contractWrite.reset();
               isMounted.current = true;;
-            }, 10000);
+              handleZero();
+            }, 6000);
               
           }
       }

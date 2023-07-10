@@ -45,7 +45,7 @@ export default  function  DepositButton({value,user,disabled,handleZero}:Props) 
             setApproved(prev=>true)
             setLoadingStage((prev) => false);
             isMounted.current = false;
-            toast.success(`$${moneyFormatter(value)} Deposited ${waiting.data.transactionHash}`, {  duration: 6000 ,position:'top-right'});
+            toast.success(`$${moneyFormatter(value)} Deposited`, {  duration: 6000 ,position:'top-right'});
             const date = new Date().toISOString().toLocaleString();
             addTransaction(waiting.data.transactionHash,user,date,'Deposit','vault').then((res)=>{
               console.log('res added transaction',res);
@@ -55,7 +55,7 @@ export default  function  DepositButton({value,user,disabled,handleZero}:Props) 
               contractWrite.reset();
               isMounted.current = true;
               handleZero();
-            }, 10000);
+            }, 8000);
               
           }
       }
