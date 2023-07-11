@@ -15,11 +15,11 @@ const steps = [
   "Enter Trade",
 ];
 const stepContent = [
-  "First get some fake USDC from our faucet",
-  "Deposit funds into vault",
-  "Pick what asset you wish to speculate on",
-  "Enter in loan amount you wish to take out",
-  "Enter trade",
+  "First get some fake USDC from our faucet by clicking the mint button at the top of the screen",
+  "Deposit funds into vault either from a pool page, or the invest page look for the deposit box",
+  "Pick what asset you wish to speculate on from the invest page i.e. TSLA, GOOG or META",
+  "Enter in USDC amt you would like to put down as collateral and the leverage to borrow at. Then select either short or long and finally click trade.",
+  "Your trade will be executed and you will be able to see it in the invest page.",
 ];
 
 export default function TradeStepper() {
@@ -100,7 +100,6 @@ export default function TradeStepper() {
           <React.Fragment>
             <Typography sx={{ mt: 2, mb: 1, py: 1 }}>
               <>{stepContent[activeStep]}</>
-              <p>hello</p>
             </Typography>
             <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
               <Button
