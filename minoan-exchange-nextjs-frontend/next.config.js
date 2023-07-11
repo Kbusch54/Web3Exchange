@@ -5,6 +5,22 @@ module.exports = {
     appDir: true,
       serverActions: true,
   },
+  webpack: (config, { webpack }) => {
+    config.experiments = {
+    ...config.experiments,
+    topLevelAwait: true,
+    }
+    config.externals.push({
+    sharp: "commonjs sharp",
+    canvas: "commonjs canvas",
+    })
+    config.plugins.push(
+    new webpack.ProvidePlugin({
+    Buffer: ["buffer", "Buffer"],
+    }),
+    )
+    return config
+    },
   env: {
     NEXT_PUBLIC_ALCHEMY_ID: process.env.NEXT_PUBLIC_ALCHEMY_ID,
     NEXT_PUBLIC_SUPABASE: process.env.SUPABASE_KEY,
