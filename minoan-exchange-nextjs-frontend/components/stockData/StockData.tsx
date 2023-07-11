@@ -11,7 +11,7 @@ interface Props {
 }
 const StockInfo: React.FC<Props> = ({ stockSymbol, priceData, stockPriceData }) => {
 
-const markPrice = priceData && priceData[priceData.length - 1].isFrozen == false? priceData[priceData.length - 1].marketPrice : stockPriceData.Results[stockPriceData.Results.length-1].Close *10**6;
+const markPrice = priceData && priceData[priceData.length - 1]?  priceData[priceData.length - 1].isFrozen == false? priceData[priceData.length - 1].marketPrice : stockPriceData.Results[stockPriceData.Results.length-1].Close *10**6:0;
 
 
   if (!stockPriceData && !priceData) {
