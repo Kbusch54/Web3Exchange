@@ -23,6 +23,7 @@ const Balances: React.FC<Props> = ({ data }) => {
       // @ts-ignore
       const totalAvailable = data.vamms.map((amm) => amm.loanPool.poolBalance.availableUsdc).reduce((a, b) => Number(a) + Number(b), 0);
       const tokensOwnedbByUser = poolToke? poolToke.tokenBalance[0]?poolToke.tokenBalance[0].tokensOwnedbByUser:0:0;
+      const insuranceFund =data.theseusDAOs[0]?data.theseusDAOs[0].insuranceFund:0;
   return (
     <div className=" grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 3xl:grid-cols-7   mt-12 gap-y-6 gap-x-6 text-white">
       <div className="flex flex-col text-center border-2 border-blue-800 rounded-t-2xl rounded-b-xl bg-sky-800  bg-opacity-40 ">
@@ -50,7 +51,7 @@ const Balances: React.FC<Props> = ({ data }) => {
         <h3 className='text-xs md:text-lg'>Total In Vault</h3>
       </div>
       <div className="flex flex-col text-center border-2 border-blue-800 rounded-t-2xl rounded-b-xl bg-sky-800  bg-opacity-40  ">
-        <h1 className="text-xl xl:text-2xl 3xl:text-3xl 4xl:text-5xl mt-4">${moneyFormatter(data.theseusDAOs[0].insuranceFund)}</h1>
+        <h1 className="text-xl xl:text-2xl 3xl:text-3xl 4xl:text-5xl mt-4">${moneyFormatter(insuranceFund)}</h1>
         <h3 className='text-xs md:text-lg'>Insurance Fund</h3>
       </div>
       <div className="flex flex-col text-center border-2 border-blue-800 rounded-t-2xl rounded-b-xl bg-sky-800  bg-opacity-40  ">
