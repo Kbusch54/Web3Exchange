@@ -120,7 +120,7 @@ const AddLiquidityModal: React.FC<Props> = ({ tradeId, user, vaultBalance, curre
                 setLeverageValue(leverageValue);
                 const [newEntryPrice,newPs] = getEntryPriceAndPsize(rawValue * leverageValue);
                 entryPriceRef.current ? entryPriceRef.current.value = '$'.concat(moneyFormatter((newEntryPrice))) : null;
-                newPSizeRef.current ? newPSizeRef.current.value = ethers.utils.formatUnits(Math.floor(newPs),8) : null;
+                newPSizeRef.current ? newPSizeRef.current.value = String(Math.floor(newPs/10**8)) : null;
                 newTotalPSizeRef.current ? newTotalPSizeRef.current.value = ethers.utils.formatUnits(Math.floor(newPs + Number(positionSize)),8) : null;
             }
         }
