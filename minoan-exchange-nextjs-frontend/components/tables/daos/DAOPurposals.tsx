@@ -83,7 +83,7 @@ const fetchPurposals = async (daoId: string) => {
 
 const checkUserStakes = async (userId: string, inputTokenId: number) => {
     const query = gql`
-      query CheckUserStakes($userId: String!) {
+      query($userId: String!) {
         users(where: { id: $userId }) {
           id
           stakes {
@@ -122,7 +122,6 @@ const checkUserStakes = async (userId: string, inputTokenId: number) => {
 const DAOPurposals = ({ daoAddress, user,tokenId ,isTheseus}: Props) => {
   //@ts-ignore
   const {proposals}=isTheseus?use(fetchTheseusPurposals(daoAddress)):use(fetchPurposals(daoAddress));
-   
     const hasStakes = use(checkUserStakes(user,tokenId?tokenId:0));
     //@ts-ignore
     const { data, error } = use(supabase.from('Proposals').select().ilike('contractAddress', `%${daoAddress}%`));
