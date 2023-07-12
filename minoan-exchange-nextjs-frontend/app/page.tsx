@@ -122,7 +122,7 @@ export default function page({ }: Props): ReactElement {
           </div>
         </div>
       </section>
-      <section className="" id="white-paper">
+      <section className=" h-screen" id="white-paper">
               <WhitePaper />
       </section>
       <ScrollUp className="w-10 h-10  " href="#top">
