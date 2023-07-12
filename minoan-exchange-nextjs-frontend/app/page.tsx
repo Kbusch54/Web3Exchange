@@ -1,10 +1,7 @@
 import React, { ReactElement } from "react";
 
 import Image from "next/image";
-
-import main from "../public/assets/main-background.png";
 import column from "../public/assets/column.png";
-import Link from "next/link";
 import logo from "../public/assets/minotaur-logo-thing.png";
 import ariadne from "../public/assets/ariadne-real.png";
 import theseus from "../public/assets/stone-theseus.png";
