@@ -159,7 +159,6 @@ function _onlyStaking() private view {
     ) public returns (bool) {
         (uint _fullInterest,uint _toPools) = LoanPool(loanPool).interestOwed(_tradeId, _amm);
         tradeCollateral[_tradeId] -= _fullInterest;
-        positions[_tradeId].collateral -= _fullInterest;
         poolAvailableUsdc[_amm] += _toPools;
         poolTotalUsdcSupply[_amm] += _toPools;
                 (address _trader,,uint _timeStamp,) = decodeTradeId(_tradeId);
@@ -187,12 +186,12 @@ function _onlyStaking() private view {
             tradeCollateral[_tradeId] += _ffrCal;
             poolAvailableUsdc[_amm] -= _ffrCal;
             poolTotalUsdcSupply[_amm] -= _ffrCal;
-            positions[_tradeId].collateral += _ffrCal;
+            // positions[_tradeId].collateral += _ffrCal;
             positions[_tradeId].lastFundingRate = _lastFFR;
         } else {
             uint _ffrCal = uint(_ffrToBePayed * -1);
             tradeCollateral[_tradeId] -= _ffrCal;
-            positions[_tradeId].collateral -= _ffrCal;
+            // positions[_tradeId].collateral -= _ffrCal;
             poolAvailableUsdc[_amm] += _ffrCal;
             poolTotalUsdcSupply[_amm] += _ffrCal;
             positions[_tradeId].lastFundingRate = _lastFFR;

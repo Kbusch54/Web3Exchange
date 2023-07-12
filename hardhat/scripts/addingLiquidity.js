@@ -25,10 +25,10 @@ const redstonePayload = await sdk.requestRedstonePayload(
     ["https://d33trozg86ya9x.cloudfront.net"],
     unsignedMetadata
   );
-  const exchange = await hre.ethers.getContractAt("Exchange","0xF94Ad8f331830D353782bac55AD4965f35aC3cD6",signer);
-  const loanPool = await hre.ethers.getContractAt("LoanPool","0x8071f9eF2715d99A9C6E59A90C7adD22357F251b",signer);
+  const exchange = await hre.ethers.getContractAt("Exchange","0x17a9723aa61b08C900603aa921Da26019A79cb8f",signer);
+  const loanPool = await hre.ethers.getContractAt("LoanPool","0x54584803e3b0F7DEec387b5CfB22Aa6FFDc15166",signer);
 
-  const exchangeViewer = await hre.ethers.getContractAt("ExchangeViewer","0xE7A6830cffa37909f0438e4a545650Eb8AbfaEaa",signer);
+  const exchangeViewer = await hre.ethers.getContractAt("ExchangeViewer","0xAe2a5e1fA5012982CCE291E5918e7Bf3Ff156d2a",signer);
 
     const teslaAmm = await hre.ethers.getContractAt("VAmm","0xB9bbeB3B30C89b34F1D06434164Fd27beDb565E4",signer);
   const ammViewer = await hre.ethers.getContractAt("AmmViewer","0xbC01aAd4C5256888B965C5Dab56a705708a439B7",signer);
@@ -50,15 +50,25 @@ const redstonePayload = await sdk.requestRedstonePayload(
     // const liquid = await exchangeViewer.checkLiquidiationList();
     // console.log('liquidation list',liquid);
 
-    const metaAmm = await hre.ethers.getContractAt("VAmm","0x0FFaE85a8f923E3d078598083B88c194442B6544",signer);
-    const tradeId ='0x00000000000000000000000087ad83dc2f12a14c85d20f178a918a65edfe1b420000000000000000000000000ffae85a8f923e3d078598083b88c194442b65440000000000000000000000000000000000000000000000000000000064a5b27c0000000000000000000000000000000000000000000000000000000000000001'
-    const ffr = await exchangeViewer.calcFFR(tradeId,metaAmm.address);
+    const googAmm = await hre.ethers.getContractAt("VAmm","0x3951c8AF6Cbfd7e4Fb0C694b1CA366abE8F5c1AB",signer);
+    const tradeId ='0x00000000000000000000000087ad83dc2f12a14c85d20f178a918a65edfe1b420000000000000000000000003951c8af6cbfd7e4fb0c694b1ca366abe8f5c1ab0000000000000000000000000000000000000000000000000000000064ad7290ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
+    const ffr = await exchangeViewer.calcFFR(tradeId,googAmm.address);
     const initialTradeBalance = await exchange.tradeBalance(tradeId);
     console.log('ffr',ffr);
-    const indexPeriode = await metaAmm.indexPricePeriod();
-    const ffrFull = await exchangeViewer.calcFFRFull(tradeId,metaAmm.address,initialTradeBalance);
-    console.log('indexPeriode',indexPeriode.toString());
+    const ffrFull = await exchangeViewer.calcFFRFull(tradeId,googAmm.address,initialTradeBalance);
     console.log('ffrFull',ffrFull);
+    const interestOwed =await  loanPool.interestOwed(tradeId, googAmm.address)
+    console.log('interestOwed',interestOwed);
+    const tradeColl = await exchange.tradeCollateral(tradeId)
+    const posColl =   await  exchange.positions(tradeId);
+    console.log('tradeColl',tradeColl);
+    console.log('posColl',posColl);
+
+    // const tx = await exchange.payInterestPayments(tradeId,googAmm.address,{gasLimit: 1000000});
+    // const recipt = await tx.wait()
+    // console.log(recipt);
+    // console.log(tx.hash);
+    // console.log(tx);
     // const allValues = await exchangeViewer.getAllValues(tradeId);
     // console.log('all values',allValues);
     // const interestOwed = await loanPool.interestOwed(tradeId,teslaAmm.address);
