@@ -3,7 +3,6 @@ import React from "react";
 import TheseusTab from "../../components/tabs/TheseusTab";
 import theseus from "../../public/assets/theseus-removed.png";
 import { redirect } from "next/navigation";
-import { request, gql } from 'graphql-request';
 import StakingSection from "../../components/forms/StakingSection";
 import { theseus as theseusAdd } from "../../utils/address";
 import DAOPurposals from "../../components/tables/daos/DAOPurposals";

@@ -142,7 +142,7 @@ export const fetchLoanPoolData = cache(async(symbol: string, user: string) => {
   
   
   
-    const endpoint = "https://api.studio.thegraph.com/query/46803/subgraph-minoan/version/latest";
+    const endpoint = process.env.NEXT_PUBLIC_SUBGRAPH_URL||"https://api.studio.thegraph.com/query/46803/subgraph-minoan/version/latest";
     const variables = { id: symbol, user: user };
     const data = await request(endpoint, query, variables);
   

@@ -7,6 +7,7 @@ import ApproveButton from "./buttons/exchangeBalance/ApproveButton";
 import DepositButton from "./buttons/exchangeBalance/DepositButton";
 import { usdc } from "../../utils/address";
 import { useRouter } from "next/navigation";
+import { moneyFormatter } from "utils/helpers/functions";
 interface Props {
   availableUsdc: number;
   user: Address;
@@ -139,7 +140,7 @@ useEffect(() => {
     handleDepositFocus(e);
     setDepositRawValue(walletBalance);
     setDepositDisplayValue(rawToDisplay(walletBalance));
-    const maxDepositValueFormatted = parseFloat(String(walletBalance != null ? walletBalance / 1000000 : 0)).toFixed(2);
+    const maxDepositValueFormatted = walletBalance != null ? moneyFormatter(walletBalance)  : '0';
     setDepositDisplayValue(maxDepositValueFormatted);
     if (depositRef.current) {
       depositRef.current.value = maxDepositValueFormatted;

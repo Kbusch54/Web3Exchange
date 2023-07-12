@@ -52,7 +52,7 @@ const InvestForm: React.FC<Props> = ({ stockData, currentData, user, availableUs
         psizeInputRef.current ? psizeInputRef.current.value = String(parseFloat(leverageInputRef.current.value) * parseFloat(collateralInputRef.current.value)) : null;
 
         try {
-          const result = String((parseFloat(leverageInputRef.current.value) * parseFloat(collateralInputRef.current.value) * (currentData.loanPool.tradingFee / 10 ** 6)).toFixed(2));
+          const result = String((parseFloat(leverageInputRef.current.value) * parseFloat(collateralInputRef.current.value) * (currentData.loanPool.tradingFee / 10 ** 7)).toFixed(2));
           totalCostRef.current ? totalCostRef.current.value = '$'.concat(result) : null;
         } catch (error) {
           totalCostRef.current ? totalCostRef.current.value = '' : null;

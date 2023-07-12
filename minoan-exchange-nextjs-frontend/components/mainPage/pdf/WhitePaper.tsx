@@ -16,9 +16,9 @@ const WhitePaper: React.FC<Props> = () => {
     }
 
     return (
-        <div className='m-4 mt-24'>
+        <div className='m-4 '>
             <p>Page {pageNumber} of {numPages}</p>
-                <div className='flex flex-row justify-center gap-x-4 lg:hidden'>
+                <div className='flex flex-row justify-center gap-x-4 lg:hidden mt-64 '>
                     <button className='p-2 bg-slate-700 text-white border-2 border-gray-600 hover:scale-125 text-md' onClick={() => setPageNumber(pageNumber - 1)} disabled={pageNumber <= 1}>Previous</button>
                     <button className='p-2 bg-slate-700 text-white border-2 border-gray-600 hover:scale-125 text-md' onClick={() => setPageNumber(pageNumber + 1)} disabled={pageNumber >= numPages}>Next</button>
                 </div>
@@ -32,7 +32,7 @@ const WhitePaper: React.FC<Props> = () => {
                         renderTextLayer={false}
                         renderAnnotationLayer={false}
                         // scale={1.5}
-                        className='scale-75 lg:scale-150'
+                        className='scale-75 lg:scale-150 mt-24 lg:mt-64'
                     />
                 </Document>
                 <button className='hidden p-4 bg-slate-700 text-white border-2 border-gray-600 lg:inline self-center hover:scale-125' onClick={() => setPageNumber(pageNumber + 1)} disabled={pageNumber >= numPages}>Next</button>
