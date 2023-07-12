@@ -57,7 +57,7 @@ export default function page({ }: Props): ReactElement {
             <Image src={ariadne} alt="ariadne" height={700} />
           </div>
 
-          <div className="border-4 border-slate-700  lg:mx-6 text-white m-2  backdrop-blur-[6px] p-2 shadow-2xl border-b-8 border-l-[6px] border-opacity-60 xl:ml-[40rem] lg:">
+          <div className=" border-4 border-slate-700  lg:mx-6 text-white m-2  backdrop-blur-[6px] p-2 shadow-2xl border-b-8 border-l-[6px] border-opacity-60 xl:ml-[40rem] lg:">
             <LoanPoolTab />
           </div>
         </div>
