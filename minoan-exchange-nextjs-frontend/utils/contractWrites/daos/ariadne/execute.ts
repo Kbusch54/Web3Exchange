@@ -1,7 +1,7 @@
 import { AriadneDAO } from "../../../abis";
 import { usePrepareContractWrite, Address } from "wagmi";
 import { parseUnits } from "ethers/lib/utils.js";
-import { getAriadnePool } from "../../../helpers/doas";
+import { getAriadnePool, sortSignatures } from "../../../helpers/doas";
 
 export const useExecuteProposal = (
     nonce:number,
@@ -12,12 +12,14 @@ export const useExecuteProposal = (
     signer: Address,
   ) => {
 
+    // sort signatures backwards
+    let newSigs = sortSignatures(signatures,transactionHash);
     const { config, error } = usePrepareContractWrite({
         address:contractAdd,
        abi:AriadneDAO,
        chainId:5,
       functionName: "executeTransaction",
-      args: [nonce,addressTo,0,transactionHash,signatures],
+      args: [nonce,addressTo,0,transactionHash,newSigs],
       account: signer,
         gas: parseUnits("200000", "wei").toBigInt(),
       

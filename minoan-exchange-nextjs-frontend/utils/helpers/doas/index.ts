@@ -99,3 +99,20 @@ export const getAridneFromAmm = (ammAddress: string) =>{
       return 'Theseus';
   }
 }
+const getAddressFromSignature = (signature:string,hash:string) =>{
+    const address = ethers.utils.recoverAddress(hash,signature);
+    return address;
+}
+
+export const sortSignatures = (signatures:string[],hash:string) =>{
+    const sorted = signatures.sort((a,b)=>{
+        if(getAddressFromSignature(a,hash) < getAddressFromSignature(b,hash)){
+        return -1;
+        }
+        if(getAddressFromSignature(a,hash) > getAddressFromSignature(b,hash)){
+        return 1;
+        }
+        return 0;
+    })
+    return sorted;
+}
