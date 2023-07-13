@@ -56,7 +56,6 @@ const PastTradeInformation: React.FC<Props> = ({ row, user }) => {
         const sec = date.getSeconds();
         return `${month}/${day} ${hour > 12 ? hour - 12 : hour}:${min < 10 ? '0'.concat(min.toString()) : min} ${hour > 12 ? 'PM' : 'AM'}`;
     }
-    console.log(row.information.exitPrice)
     return (
         <div className={`bg-slate-800 `}>
 
