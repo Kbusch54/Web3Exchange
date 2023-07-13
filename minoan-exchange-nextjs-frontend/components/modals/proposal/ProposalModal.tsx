@@ -123,7 +123,7 @@ export default function ProposalModal({currentValue,ammAddress,user,symbol,loanP
     { maxLoan: [10 ** 6, 'USDC'] },
     { minHoldingsReqPercentage: [1, '%'] },
     { minLoan: [10 ** 6, 'USDC'] },
-    { tradingFee: [10 ** 5, '%'] },
+    { tradingFee: [10 ** 4, '%'] },
   ];
 
 
