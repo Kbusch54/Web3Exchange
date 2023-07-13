@@ -72,6 +72,7 @@ const SingleTrade: React.FC<Props> = ({ row, index, userAvailableBalance, user, 
 
     const margin = row.information.currentCollateral / (row.lev * row.information.startCollateral) * 100
 
+    const pnl = !row.isActive ? `$`+moneyFormatter(Number(Number(row.information.exitPrice)*Number(row.size)/10**8)-Number(row.information.openValue)- Number(row.other.tradingFee)) : Number(row.pnl) > 0 ? `$${moneyFormatter(Number(row.pnl))}` : ` - $${Number(moneyFormatter(Number(row.pnl) * -1))}`
 
     return (
         <div key={row.id} className=' '>
@@ -88,7 +89,7 @@ const SingleTrade: React.FC<Props> = ({ row, index, userAvailableBalance, user, 
                 <div className='text-white text-md  lg:text-xl m-2'><SideSelection side={row.side} /></div>
                 <div className='text-white text-md  lg:text-xl m-2'>{(row.size / 10 ** 8).toFixed(4)}</div>
                 <div className='text-white text-md  lg:text-xl m-2'>{row.lev}</div>
-                <div className='text-white text-md  lg:text-xl m-2'>{Number(row.pnl) > 0 ? `$${moneyFormatter(Number(row.pnl))}` : ` - $${Number(moneyFormatter(Number(row.pnl) * -1))}`}</div>
+                <div className='text-white text-md  lg:text-xl m-2'>{`${pnl}`}</div>
                 <div className='text-white text-md  lg:text-xl m-2'>{row.created}</div>
             </div>
             <div >
