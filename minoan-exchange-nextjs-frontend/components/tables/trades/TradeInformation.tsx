@@ -82,7 +82,7 @@ const TradeInformation: React.FC<Props> = ({user,userAvailableBalance,row,refetc
                             </div>
                             <div className='text-white text-lg flex flex-col border border-white/10'>
                                 <p>Liquidation Price</p>
-                                <p>$123.44</p>
+                                <p>${moneyFormatter(row.information.liquidationPrice)}</p>
                             </div>
                             <div className='text-white text-lg flex flex-col border border-white/10'>
                                 <p>Start Collateral</p>
