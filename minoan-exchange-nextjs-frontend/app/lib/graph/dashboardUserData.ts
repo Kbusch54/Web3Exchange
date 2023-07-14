@@ -14,12 +14,17 @@ export const getUserData = cache(async function fetchUserData(user: string) {
       isActive
       id
       created
+      ffrPayed 
       user{
         id
       }
       tradeOpenValues{
         tradingFee
         openCollateral
+        openLoanAmt
+        openValue
+        openPositionSize
+        openInterestRate
       }
       collateralChange{
           collateralChange
@@ -32,6 +37,7 @@ export const getUserData = cache(async function fetchUserData(user: string) {
         side
         positionSize
         leverage
+        exitPrice
         pnl
         interestRate
         LastFFRPayed
