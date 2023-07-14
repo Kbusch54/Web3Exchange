@@ -5,6 +5,9 @@
     "build": "next build",
     "start": "next start"
   },
+  "engines": {
+    "node": "16.14.2"
+  },
   "dependencies": {
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
