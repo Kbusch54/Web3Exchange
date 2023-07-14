@@ -11,13 +11,9 @@ export const useNewProposal = (
     signer: Address,
     options?:any
   ) => {
-    // newProposal(address payable to,bytes calldata data
-   
-
-    const option = options?TheseusDAOAbi:AriadneDAO;
     const { config, error } = usePrepareContractWrite({
         address:contractAddress,
-       abi:option,
+       abi:TheseusDAOAbi,
        chainId:5,
       functionName: "newProposal",
       args: [addressTo,callData],

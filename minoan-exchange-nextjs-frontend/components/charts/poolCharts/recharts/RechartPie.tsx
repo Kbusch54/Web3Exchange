@@ -81,7 +81,9 @@ const CustomTooltip = ({ active=undefined, payload=[{name:'',value:0}],toolTipLa
         <br />
         </div>
     );
- }
+ } else {
+  return null;  // Return null when 'active' is not truthy
+}
 };
 const RechartPie: React.FC<Props> = ({dataForPie,toolTipLabel}) => {
     
