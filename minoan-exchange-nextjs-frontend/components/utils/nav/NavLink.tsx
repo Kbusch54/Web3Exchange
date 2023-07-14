@@ -3,6 +3,7 @@ import React,{forwardRef } from 'react'
 interface Props {
     children?: React.ReactNode|string
     href?: string
+    target?: string
     ref?: any
 }
 
