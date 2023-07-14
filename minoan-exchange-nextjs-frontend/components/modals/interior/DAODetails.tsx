@@ -44,7 +44,7 @@ const DAODetails: React.FC<Props> = ({ ariadneData }) => {
             <div className='flex flex-row justify-around '>
                 <div className='flex flex-col text-xs'>
                     <p className='text-gray-800 text-sm lg:text-md'>Your Holdings %</p>
-                    <p className=' md:text-md lg:text-xl text-sky-100'>{userHoldingsPercentage}%</p>
+                    <p className=' md:text-md lg:text-xl text-sky-100'>{userHoldingsPercentage.toFixed(3)}%</p>
                 </div>
                 <div className='flex flex-col text-xs'>
                     <p className='text-gray-800 text-sm lg:text-md'>Expiration Time</p>
