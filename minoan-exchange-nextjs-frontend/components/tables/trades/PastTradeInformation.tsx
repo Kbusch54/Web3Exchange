@@ -17,6 +17,7 @@ interface Props {
         information: {
             mmr: number;
             ffr: number;
+            ffrPayed:number;
             ffrReturn: string;
             liquidationPrice: number;
             interestRate: number;
@@ -79,7 +80,7 @@ const PastTradeInformation: React.FC<Props> = ({ row, user }) => {
                 </div>
                 <div className='text-white text-lg flex flex-col border border-white/10'>
                     <p>FFR Total</p>
-                    <p>${moneyFormatter(Number(row.information.ffr) * Number(row.other.openLoan) *Number(-row.side) / 10**6)}</p>
+                    <p>${moneyFormatter(Number(row.information.ffrPayed))}</p>
                 </div>
                 <div className='text-white text-lg flex flex-col border border-white/10'>
                     <p>Trading Fee</p>

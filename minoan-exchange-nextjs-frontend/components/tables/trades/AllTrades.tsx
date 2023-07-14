@@ -66,11 +66,19 @@ const AllTrades: React.FC<Props> = ({ user, userAvailableBalance, active = true,
     const getInterestPayment = (loanAmt: number, interestRate: number, now: number, lastInterestPayed: number, interestPeriod: number) => {
         return Math.floor((now - lastInterestPayed) / interestPeriod) * (loanAmt * interestRate / 10 ** 6);
     }
-    const getPnlActiveTrades = (baseAsset: number, quoteAsset: number, psize: number, loanAmt: number,  interestPayed: number, tradingFee: number) => {
+    const getPnlActiveTrades = (baseAsset: number, quoteAsset: number, psize: number, loanAmt: number,  interestPayed: number, tradingFee: number,side:number) => {
         let quoteWPsz = Number(quoteAsset) + Number(psize);
         let k = Number(baseAsset) * Number(quoteAsset);
         let newBaseAsset = (Number(k)) / Number(quoteWPsz);
-        return Math.floor(Math.abs(Number(baseAsset) - Number(newBaseAsset)) - Math.abs(Number(tradingFee) + Number(loanAmt) + Number(interestPayed)));
+        return Math.floor(Math.abs((Number(baseAsset) - Number(newBaseAsset))) - Math.abs(Number(tradingFee) + Number(loanAmt) + Number(interestPayed)));
+    }
+    const getMargin = (collateral:number, interestAccrued:number, fundingRatePayed:number)=>{
+        return collateral - interestAccrued - fundingRatePayed;
+    }
+    const getLiquidationPrice = (margin:number, pSize:number,entryPrice:number,mmr:number,side:number) => {
+        const numerator = margin - (pSize * entryPrice);
+        const denominator = pSize*(mmr-side);
+        return numerator/denominator;
     }
     const encodedData = (addr1: Address, addr2: Address, num: Number, intNum: Number) => ethers.utils.defaultAbiCoder.encode(['address', 'address', 'uint256', 'int256'], [addr1, addr2, num, intNum]);
 
@@ -83,8 +91,11 @@ const AllTrades: React.FC<Props> = ({ user, userAvailableBalance, active = true,
             const { marketPrice, indexPrice } = vamm.priceData[0];
             const { ffr, baseAssetReserve, quoteAssetReserve } = vamm.snapshots[0];
             const now = isActive ? Math.floor(Date.now() / 1000) : exitTime;
+            const pnlCalculation = (currentValue:number,openValue:number,interestAccrued:number,tradingFee:number,side:number)=>{
+                return Number(currentValue) - Number(openValue) - Number(interestAccrued) - Number(tradingFee);
+            }
             const interestPayment = getInterestPayment(isActive ? loanAmt : openLoanAmt, isActive ? interestRate : openInterestRate, now, isActive ? LastInterestPayed : trade.created, interestPeriod);
-            const pnlCalc = getPnlActiveTrades(baseAssetReserve, quoteAssetReserve, positionSize, loanAmt, interestPayment, tradingFee);
+            const pnlCalc = getPnlActiveTrades(baseAssetReserve, quoteAssetReserve, positionSize, loanAmt, interestPayment, tradingFee,side);
             const vammAdd = vamm.id;
             const tradeID = encodedData(user.id, vammAdd, trade.created, side);
             const getDateTime = (timestamp: number) => {
@@ -102,7 +113,7 @@ const AllTrades: React.FC<Props> = ({ user, userAvailableBalance, active = true,
                 asset: vamm.symbol,
                 size: active ? positionSize : openPositionSize,
                 lev: active ? leverage : openLeverage,
-                pnl: pnlCalc,
+                pnl: active?pnlCalculation(active ? Number(marketPrice) * Number(positionSize) / 10 ** 8 : Number(marketPrice) * Number(openPositionSize) / 10 ** 8, active ? openEntryPrice * openPositionSize / 10 ** 8 : openEntryPrice * openPositionSize / 10 ** 8, interestPayment, tradingFee,side):pnlCalc,
                 created: getDateTime(trade.created),
                 isActive: isActive,
                 liquidated: liquidated,
@@ -114,7 +125,7 @@ const AllTrades: React.FC<Props> = ({ user, userAvailableBalance, active = true,
                     ffrPayed:ffrPayed,
                     LastFFRPayed: LastFFRPayed,
                     ffrReturn: 'ffrReturn',
-                    liquidationPrice: 'liquidationPrice',
+                    liquidationPrice: getLiquidationPrice(getMargin(collateral,interestPayment,ffrPayed),active ? positionSize/10**8 : openPositionSize/10**8,active ? entryPrice : openEntryPrice,mmr/10**6,side),
                     snapshots: vamm.snapshots,
                     interestRate: active ? interestRate : openInterestRate,
                     interestPeriod: interestPeriod,
@@ -304,3 +315,18 @@ const AllTrades: React.FC<Props> = ({ user, userAvailableBalance, active = true,
 }
 
 export default AllTrades
+// {
+//     trades(orderBy: created, orderDirection: desc, where: {isActive: true}) {
+//       ffrPayed
+//       tradeBalance {
+//         LastFFRPayed
+//       }
+//       vamm {
+//         snapshots(orderBy: index, orderDirection: desc) {
+//           blockTimestamp
+//           index
+//           ffr
+//         }
+//       }
+//     }
+//   }
