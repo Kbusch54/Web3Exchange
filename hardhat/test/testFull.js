@@ -1665,10 +1665,12 @@ it("Should open and allow remove liqudiity to tesla amm", async function(){
   await exchange.deposit(ethers.utils.parseUnits("5000", 6));
   await staking.stake(ethers.utils.parseUnits("1000", 6),theseus.address);
   await staking.stake(ethers.utils.parseUnits("3000", 6),teslaAmm.address);
+  const tradingFee = await loanPool.tradingFeeLoanPool(teslaAmm.address);
+  console.log('tradingFee',tradingFee)
 
-  const leverage = 3;
-  const side = -1;
-  const collateral = parseUnits("250", 6);
+  const leverage = 14;
+  const side = 1;
+  const collateral = parseUnits("12", 6);
 
   const poolAvailBeforeOpen = await exchange.callStatic.poolAvailableUsdc(teslaAmm.address);
   const poolTotalBeforeOpen = await exchange.callStatic.poolTotalUsdcSupply(teslaAmm.address);
@@ -1684,6 +1686,17 @@ it("Should open and allow remove liqudiity to tesla amm", async function(){
   const userBalanceAfterOpen = await exchange.callStatic.availableBalance(owner.address);
   const positionSizeToRemove = positionSize.div(2).add(2000);
 
+  const poolAvailAfterOpen = await exchange.callStatic.poolAvailableUsdc(teslaAmm.address);
+  const poolTotalAfterOpen = await exchange.callStatic.poolTotalUsdcSupply(teslaAmm.address);
+  const poolOutstandingAfterOpen = await exchange.callStatic.poolOutstandingLoans(teslaAmm.address);
+  console.log('poolAvaible Balance before open: $',formatUnits(poolAvailBeforeOpen,6));
+  console.log('poolTotal before open: $',formatUnits(poolTotalBeforeOpen,6));
+  console.log('poolOutstanding before open: $',formatUnits(poolOutstandingBeforeOpen,6));
+  console.log('poolAvaible Balance after open: $',formatUnits(poolAvailAfterOpen,6));
+  console.log('poolTotal after open: $',formatUnits(poolTotalAfterOpen,6));
+  console.log('poolOutstanding after open: $',formatUnits(poolOutstandingAfterOpen,6));
+  console.log('userBalance before open: $',formatUnits(userBalanceBefore,6));
+  console.log('userBalance after open: $',formatUnits(userBalanceAfterOpen,6));
   // console.log('positionSize',formatUnits(positionSize,8));
   // console.log('positionSizeToRemove',formatUnits(positionSizeToRemove,8));
   // const poolAvailAfterOpen = await exchange.callStatic.poolAvailableUsdc(teslaAmm.address);
@@ -1696,11 +1709,11 @@ it("Should open and allow remove liqudiity to tesla amm", async function(){
   // const poolAvailAfterRemove = await exchange.callStatic.poolAvailableUsdc(teslaAmm.address);
   // const poolTotalAfterRemove = await exchange.callStatic.poolTotalUsdcSupply(teslaAmm.address);
   // const poolOutstandingAfterRemove = await exchange.callStatic.poolOutstandingLoans(teslaAmm.address);
-  await exchange.openPosition(teslaAmm.address, collateral, leverage, 1,'0x9d0d');
+  // await exchange.openPosition(teslaAmm.address, collateral, leverage, 1,'0x9d0d');
   // const postPosition = await exchange.callStatic.positions(tradeIds[0]);
-  await time.increase(time.duration.hours(30));
-  await exchange.openPosition(teslaAmm.address, collateral, leverage, 1,'0x9d0d');
-  const interestOwed = await loanPool.callStatic.interestOwed(tradeIds[0],teslaAmm.address);
+  // await time.increase(time.duration.hours(30));
+  // await exchange.openPosition(teslaAmm.address, collateral, leverage, 1,'0x9d0d');
+  // const interestOwed = await loanPool.callStatic.interestOwed(tradeIds[0],teslaAmm.address);
   // console.log('interestOwed',interestOwed);
 
   // const isLiquidatable = await exchangeViewer.callStatic.checkLiquidiation(tradeIds[0]);
@@ -1812,7 +1825,7 @@ it.skip("should open position and when profit show approprialey", async function
 
 });
 
-  it.skip('should open and go into debt', async function(){
+it.skip('should open and go into debt', async function(){
     const {owner, otherAccount,ammViewer,teslaAmm, googleAmm ,usdc,exchange,theseus,poolTokens,loanPool,staking,ABI,loanPoolABI,exhcnageABI,sign,getFunctionCallData,getMethodNameHash,getTransactionHash,decodeCallData,decodeTransaction}=await loadFixture(deployContracts);
     await usdc.approve(exchange.address,ethers.utils.parseUnits("5000", 6));
     await exchange.deposit(ethers.utils.parseUnits("5000", 6));
