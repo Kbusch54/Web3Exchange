@@ -17,8 +17,9 @@ export const getPNlByUser = (trades: any, user?: Address,newArrLength?:number,am
                 if(trades[i]?.ammPool.id.toLowerCase() !== amm.toLowerCase()) continue;
             }
             
-            
-            pnl.push({date:trades[i].created,value:getTradePnl(trades[i]),absoluteValue:Math.abs(getTradePnl(trades[i]))})
+            let tradesPnl = getTradePnl(trades[i]);
+            console.log('tradesPnl',tradesPnl)
+            pnl.push({date:trades[i].created,value:tradesPnl,absoluteValue:Math.abs(tradesPnl)})
             avg += Number(getTradePnl(trades[i]));
         }
     }
@@ -33,7 +34,9 @@ export const getPNlByUser = (trades: any, user?: Address,newArrLength?:number,am
                 if(trades[i].ammPool.id.toLowerCase() !== amm.toLowerCase()) continue;
             }
             
-            pnl.push({date: new Date(trades[i].created * 1000).toISOString().substring(0, 10),value:getTradePnl(trades[i]),absoluteValue:Math.abs(getTradePnl(trades[i]))})
+            let tradesPnl = getTradePnl(trades[i]);
+            console.log('tradesPnl',tradesPnl)
+            pnl.push({date:trades[i].created,value:tradesPnl,absoluteValue:Math.abs(tradesPnl)})
             avg += Number(trades[i].tradeBalance.pnl);
         }
     }
@@ -222,7 +225,6 @@ export const getPoolPnl = (vamms: any) => {
             if(leastDate > created) leastDate = created;
             if(dateMap.has(created)){
                 let temp = dateMap.get(created);
-
                 temp[getAmmName(vamms[i].loanPool.id) as keyof typeof temp] +=Number(vamms[i].loanPool.poolPnl[j].amount);
                 temp['All'] +=Number(vamms[i].loanPool.poolPnl[j].amount)
                 dateMap.set(created,temp);
@@ -345,8 +347,24 @@ export const getPNl = (trades: any) => {
     })
     return total;
 }
+const getInterestPayment = (loanAmt: number, interestRate: number, now: number, lastInterestPayed: number, interestPeriod: number) => {
+    return Math.floor((now - lastInterestPayed) / interestPeriod) * (loanAmt * interestRate / 10 ** 6);
+}
 export const getTradePnl = (trade: any) => {
-    return Number(getCollateralForTrade(trade)) - Number(trade.tradeBalance.pnl)
+    const { tradeBalance,tradeOpenValues,ffrPayed,created } = trade;
+    const { openLoanAmt, openInterestRate, tradingFee,openPositionSize,openValue } = tradeOpenValues;
+    const { side, exitTime,exitPrice } = tradeBalance;
+    const interestPayment = getInterestPayment( openLoanAmt, openInterestRate,exitTime,  trade.created, trade.vamm.loanPool.interestPeriod);
+    const closeValue = Number(openPositionSize) * Number(exitPrice)/10**8;
+
+    if(trade.isActive == true){
+
+        return Number(getCollateralForTrade(trade)) - Number(trade.tradeBalance.pnl)
+    }else{
+
+        return closeValue - openValue - (interestPayment + Number(tradingFee)) + Number(Number(ffrPayed?ffrPayed:0))
+    }
+
 }
 export const getCollateralForTrade = (trade: any) => {
     let total:number = 0;
@@ -363,7 +381,6 @@ export const getCollateralForTrade = (trade: any) => {
         })
     }
     total -= Number(trade.tradeOpenValues.tradingFee)
-    //    console.log('total',total)
     return total
 }
 export const ffrData = (graphData:any) => {
