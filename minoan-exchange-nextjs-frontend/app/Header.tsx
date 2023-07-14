@@ -24,7 +24,7 @@ const Header: React.FC<Props> = () => {
           </div>
         </div>
         <div className=" hidden lg:flex  gap-x-14 lg:gap-x-20 xl:gap-x-32 2xl:gap-x-64 text-center align-middle text-lg  ">
-          <a className="bg-slate-800 rounded-3xl px-4 pt-2 my-2 hover:scale-110" href="/docs">
+          <a className="bg-slate-800 rounded-3xl px-4 pt-2 my-2 hover:scale-110" target="_blank" href="https://kevins-organization-15.gitbook.io/product-docs/">
             Docs
           </a>
           <a className="bg-slate-800 rounded-3xl px-4 pt-2 my-2 hover:scale-110" href="/theseusDao">Theseus Dao</a>
