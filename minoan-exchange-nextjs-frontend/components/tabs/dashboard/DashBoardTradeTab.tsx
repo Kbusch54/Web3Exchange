@@ -29,8 +29,8 @@ export default function DashBoardTradeTab({user,vaultBal}:Props) {
             variant="scrollable"
             textColor="inherit"
           >
-            <Tab className={`text-white `}  label="Active Trades" value="1" />
-            <Tab className="text-white" label="Past Trades" value="2" />
+            <Tab style={{color: 'rgb(255 255 255)'}} className={`text-white `}  label="Active Trades" value="1" />
+            <Tab style={{color: 'rgb(255 255 255)'}} className="text-white" label="Past Trades" value="2" />
           </TabList>
         </Box>
         <TabPanel value="1">
