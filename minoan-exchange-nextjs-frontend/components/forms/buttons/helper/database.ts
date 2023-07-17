@@ -46,5 +46,5 @@ export const getTransactions = cache(async (user: string) => {
         const { data, error } = await supabase
       .from('Proposals')
       .update([{result:executionTransactionhash,isProposalPassed:true,executor:executor}])
-        .eq('contractNonce', contractAddress+'_'+Number(nonce))
+        .ilike('contractNonce', contractAddress+'_'+Number(nonce))
     }

@@ -47,7 +47,7 @@ export default function ExecuteProposalButton({ user, disabled, callData, nonce,
         setTimeout(() => {
           contractWrite.reset();
           isMounted.current = true;
-        }, 10000);
+        }, 8000);
       } else if (waiting.isSuccess && waiting.data) {
         setLoadingStage((prev) => false);
         isMounted.current = false;

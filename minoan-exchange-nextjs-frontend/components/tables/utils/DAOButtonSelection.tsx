@@ -28,8 +28,6 @@ interface Props {
 }
 
 const DAOButtonSelection: React.FC<Props> = ({proposal,user,dbData,votesReceived,isHolder,id,votesNeededPercentage}) => {
-    console.log('is holder', isHolder)
-    console.log('db singers',dbData?.signers?.includes(user));
     return (
         <div className='flex flex-row justify-center'>
         {votesReceived >= (votesNeededPercentage) / 10 ** 2 && dbData.signatures != null && dbData.transactionHashToSign !=null && (
