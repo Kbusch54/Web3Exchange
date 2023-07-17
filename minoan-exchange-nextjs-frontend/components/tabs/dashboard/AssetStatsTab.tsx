@@ -33,6 +33,7 @@ const AssetStatsTab: React.FC<Props> = ({stockData,user,userData}) => {
             onChange={handleChange}
             aria-label="lab API tabs example"
             variant="fullWidth"
+            className="text-white"
           >
             <Tab className="text-white text-center text-base md:text-lg lg:text-3xl" label="Investments" value="1" />
             <Tab className="text-white text-center text-base md:text-lg lg:text-3xl" label="Staking" value="2" />

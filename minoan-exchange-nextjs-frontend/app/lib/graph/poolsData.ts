@@ -80,6 +80,11 @@ export const fetchLoanPoolData = cache(async(symbol: string, user: string) => {
         trades {
           id
           created
+          vamm{
+            loanPool{
+              interestPeriod
+            }
+          }
           user{
             id
           }
