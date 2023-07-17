@@ -95,12 +95,12 @@ stakingData.push({name: key, value: value})
             textColor="inherit"
           >
 
-            <Tab className="text-white" label="Pool Earnings" value="2" />
-            <Tab className="text-white" label="Staked in Pools" value="3" />
-            <Tab className="text-white" label="Long vs Shorts" value="4" />
-            <Tab className="text-white" label="Trades" value="5" />
-            <Tab className="text-white" label="Proposals" value="6" />
-            <Tab className="text-white" label="Pnl" value="7" />
+            <Tab style={{color: 'rgb(255 255 255)'}} className="text-white" label="Pool Earnings" value="2" />
+            <Tab style={{color: 'rgb(255 255 255)'}} className="text-white" label="Staked in Pools" value="3" />
+            <Tab style={{color: 'rgb(255 255 255)'}} className="text-white" label="Long vs Shorts" value="4" />
+            <Tab style={{color: 'rgb(255 255 255)'}} className="text-white" label="Trades" value="5" />
+            <Tab style={{color: 'rgb(255 255 255)'}} className="text-white" label="Proposals" value="6" />
+            <Tab style={{color: 'rgb(255 255 255)'}} className="text-white" label="Pnl" value="7" />
           </TabList>
         </Box>
 
