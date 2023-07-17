@@ -9,9 +9,7 @@ import dynamic from "next/dynamic";
 import LoanPoolTab from "../components/mainPage/loanPool/LoanPoolTab";
 import ScrollUp from "../components/utils/ScrollUp";
 import FirstSection from "components/mainPage/FirstSection";
-import helmet1 from "../public/assets/greek-helmet.png";
 import helmet2 from "../public/assets/silhoute-helmet.png";
-import WhitePaper from "components/mainPage/pdf/WhitePaper";
 const TradeStepper = dynamic(
   () => import("../components/mainPage/TradeStepper"),
   {
@@ -119,9 +117,9 @@ export default function page({ }: Props): ReactElement {
           </div>
         </div>
       </section>
-      <section className=" h-screen" id="white-paper">
+      {/* <section className=" h-screen" id="white-paper">
               <WhitePaper />
-      </section>
+      </section> */}
       <ScrollUp className="w-10 h-10  " href="#top">
         <Image
           src={logo}
