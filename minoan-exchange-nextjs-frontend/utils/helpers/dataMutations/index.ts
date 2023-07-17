@@ -18,7 +18,6 @@ export const getPNlByUser = (trades: any, user?: Address,newArrLength?:number,am
             }
             
             let tradesPnl = getTradePnl(trades[i]);
-            console.log('tradesPnl',tradesPnl)
             pnl.push({date:trades[i].created,value:tradesPnl,absoluteValue:Math.abs(tradesPnl)})
             avg += Number(getTradePnl(trades[i]));
         }
@@ -35,7 +34,6 @@ export const getPNlByUser = (trades: any, user?: Address,newArrLength?:number,am
             }
             
             let tradesPnl = getTradePnl(trades[i]);
-            console.log('tradesPnl',tradesPnl)
             pnl.push({date:trades[i].created,value:tradesPnl,absoluteValue:Math.abs(tradesPnl)})
             avg += Number(trades[i].tradeBalance.pnl);
         }
