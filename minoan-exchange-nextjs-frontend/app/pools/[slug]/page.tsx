@@ -6,9 +6,7 @@ import Balances from "../../../components/balances/Balances";
 import InvestorStats from "../../../components/stockData/InvestorStats";
 import StakingStats from "../../../components/stockData/StakingStats";
 import { redirect } from "next/navigation";
-import { request, gql } from 'graphql-request';
 import VaultUSDCForm from "../../../components/forms/VaultUSDCForm";
-import ReachartsEx from "../../../components/charts/poolCharts/ReachartsEx";
 import StakingSection from "../../../components/forms/StakingSection";
 import DAOPurposals from "../../../components/tables/daos/DAOPurposals";
 import { authOptions } from '../../../utils/auth/authOptions';
@@ -158,7 +156,6 @@ export default async function PoolPage({ params }: Props) {
           </div>
           <div id={"dao"} className="m-2 md:m-12">
             <DAOPurposals isTheseus={false} user={user} daoAddress={poolToken.ammPool.ariadneDAO.id} tokenId={poolToken.tokenId} />
-            {/* <DaoTransaction /> */}
             <PurposalModal ariadneData={ariadneData} loanPoolTheseus={graphData.loanPool.loanPoolTheseus} symbol={stock.symbol} ammAddress={graphData.loanPool.id} currentValue={graphData.loanPool} user={user} />
           </div>
         </div>

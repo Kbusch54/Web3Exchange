@@ -158,7 +158,7 @@ const AllTrades: React.FC<Props> = ({ user, userAvailableBalance, active = true,
     const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
-        fetch(`http://localhost:3000/api/tradeData`).then((res) => res.json()).then((data) => {
+        fetch(`https://web3-exchange.vercel.app/api/tradeData`).then((res) => res.json()).then((data) => {
             setTradeData(data);
             setLoading(false);
         })
