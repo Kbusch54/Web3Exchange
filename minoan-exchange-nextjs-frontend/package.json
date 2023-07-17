@@ -26,7 +26,6 @@
     "material-ui-popup-state": "^5.0.8",
     "next": "^13.4.5",
     "next-auth": "^4.22.1",
-    "node": "18.12.1",
     "pino-pretty": "^10.0.0",
     "react": "18.2.0",
     "react-apexcharts": "^1.4.0",
