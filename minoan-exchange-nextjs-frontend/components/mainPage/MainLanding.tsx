@@ -26,7 +26,7 @@ const MainLanding: React.FC<Props> = () => {
           <ScrollUp className='p-2 bg-slate-800 rounded-3xl font-bold hover:scale-125' href={'#theseus-dao'}>Thesus DOA</ScrollUp>
           <a className='p-2 bg-slate-800 rounded-3xl font-bold hover:scale-125' href={'/pools'}>Ariadne Pools</a>
           <a className='p-2 bg-slate-800 rounded-3xl font-bold hover:scale-125' target="_blank" href="https://kevins-organization-15.gitbook.io/product-docs/other/whitepaper">White Paper</a>
-          <a className='p-2 bg-slate-800 rounded-3xl font-bold hover:scale-125' href={'/docs'}>Docs</a>
+          <a className='p-2 bg-slate-800 rounded-3xl font-bold hover:scale-125' target="_blank" href="https://kevins-organization-15.gitbook.io/product-docs/">Docs</a>
         </div>
       </div>
     )
