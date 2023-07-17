@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef, Suspense } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Modal from 'react-modal';
 import { getAllFunctions, getFunctionCallDataLoanPool } from '../../../utils/contractReads/loanpool/functionReading';
 import { getAllUpdateFunctions, getFunctionCallDataAriadne } from '../../../utils/contractReads/ariadneDao/internalFunctions';

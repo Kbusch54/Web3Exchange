@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react'
+import React from 'react'
 import AssetStatsTab from './tabs/dashboard/AssetStatsTab'
 import { Stock } from '../types/custom'
 import Image from 'next/image'

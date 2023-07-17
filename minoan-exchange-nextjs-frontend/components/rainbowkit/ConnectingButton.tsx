@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { useAccount, useDisconnect, useSignMessage } from "wagmi";
+import { useAccount, useDisconnect } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useSession, signOut } from 'next-auth/react';
 import WalletModal from './WalletModal';

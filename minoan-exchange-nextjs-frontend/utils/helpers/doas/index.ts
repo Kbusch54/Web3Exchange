@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import { Address } from "wagmi";
-import { ariadneTesla, ariadneGoogle, ariadneMeta,GoogleAmm,TeslaAmm,MetaAmm, theseus } from "../../address";
+import { ariadneTesla, ariadneGoogle, ariadneMeta,GoogleAmm,TeslaAmm,MetaAmm } from "../../address";
 import { useGetCurrentId } from "../../contractReads/ariadneDao/currentId";
 
 export const getTransactionHashFull = async (

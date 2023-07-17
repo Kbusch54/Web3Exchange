@@ -5,7 +5,7 @@ import { exchange, usdc } from "../../address";
 import { Address } from "viem";
 
 export const useGetAllowance = (address: string) => {
-    //@ts-ignore
+  
   const [allowance, setAllowance] = useState<number | null>(null);
   const [isPending, setIsPending] = useState<boolean>(true);
   const [isError, setIsError] = useState<string | null>(null);

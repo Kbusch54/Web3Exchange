@@ -1,9 +1,8 @@
 'use client';
-import React,{useState,useEffect,useRef} from 'react';
+import React,{useState,useRef} from 'react';
 import Modal from 'react-modal';
 import AddCollateralButton from '../../forms/buttons/trade/AddCollateralButton';
 import { Address } from 'wagmi';
-import { ethers } from 'ethers';
 import { formatUnits } from 'ethers/lib/utils.js';
 import { moneyFormatter } from 'utils/helpers/functions';
 

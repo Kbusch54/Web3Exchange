@@ -1,7 +1,6 @@
 
 "use client";
-import React, { cache, useEffect, useLayoutEffect, useState } from "react";
-import axios from "axios";
+import React from "react";
 import { moneyFormatter } from "utils/helpers/functions";
 
 interface Props {

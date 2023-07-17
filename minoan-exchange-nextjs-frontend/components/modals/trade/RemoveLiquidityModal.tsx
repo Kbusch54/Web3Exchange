@@ -4,7 +4,7 @@ import Modal from 'react-modal';
 import { Address } from 'wagmi';
 import { ethers } from 'ethers';
 import RemoveLiquidityButton from '../../forms/buttons/trade/RemoveLiquidityButton';
-import useRedstonePayload, { getPayload } from '../../../utils/contractWrites/exchange';
+import useRedstonePayload from '../../../utils/contractWrites/exchange';
 
 interface Props {
     refetch: () => void;

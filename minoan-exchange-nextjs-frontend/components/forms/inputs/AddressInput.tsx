@@ -1,7 +1,4 @@
-import React,{useRef,useState} from 'react';
-import PropTypes from 'prop-types';
-import { Address } from 'wagmi';
-interface Props {
+import React,{useRef,useState} from 'react';interface Props {
     name: string,
     label: string
     handleInputChange: ( value:string|null) => void;

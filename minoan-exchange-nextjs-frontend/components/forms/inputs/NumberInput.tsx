@@ -1,5 +1,4 @@
 import React,{useRef,useState} from 'react';
-import { Address } from 'wagmi';
 interface Props {
     name: string,
     label: string,

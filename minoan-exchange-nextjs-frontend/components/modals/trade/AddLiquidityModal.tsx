@@ -4,7 +4,7 @@ import Modal from 'react-modal';
 import { Address } from 'wagmi';
 import { ethers } from 'ethers';
 import AddLiquidityButton from '../../forms/buttons/trade/AddLiquidityButton';
-import useRedstonePayload, { getPayload } from '../../../utils/contractWrites/exchange';
+import useRedstonePayload from '../../../utils/contractWrites/exchange';
 import { moneyFormatter } from 'utils/helpers/functions';
 
 interface Props {

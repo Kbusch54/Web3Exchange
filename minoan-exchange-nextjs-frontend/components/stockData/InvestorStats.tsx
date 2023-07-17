@@ -1,4 +1,4 @@
-import { ethers,utils } from 'ethers';
+import {utils } from 'ethers';
 import React from 'react'
 import { moneyFormatter } from '../../utils/helpers/functions';
 

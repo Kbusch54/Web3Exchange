@@ -1,6 +1,5 @@
 'use client'
 import React, { useState } from 'react'
-import DAOPurposals from './DAOPurposals';
 import { Address } from 'wagmi';
 import SingleProposal from './SingleProposal';
 

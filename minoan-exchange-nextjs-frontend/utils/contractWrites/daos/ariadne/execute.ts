@@ -1,7 +1,7 @@
 import { AriadneDAO } from "../../../abis";
 import { usePrepareContractWrite, Address } from "wagmi";
 import { parseUnits } from "ethers/lib/utils.js";
-import { getAriadnePool, sortSignatures } from "../../../helpers/doas";
+import {  sortSignatures } from "../../../helpers/doas";
 
 export const useExecuteProposal = (
     nonce:number,

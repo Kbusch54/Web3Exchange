@@ -1,6 +1,6 @@
 'use client'
 import { ethers } from 'ethers';
-import React, { Suspense, lazy,use,useEffect,useState } from 'react'
+import React, { Suspense, lazy,use } from 'react'
 import { Address } from 'wagmi';
 import { getInterestData } from '../../app/lib/graph/interestData';
 

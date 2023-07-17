@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import { LoanPoolAbi,AriadneDAO } from "../../abis";
+import { LoanPoolAbi } from "../../abis";
 
 export const getAllFunctions =()=>{
     const functions = LoanPoolAbi.filter((x)=>{

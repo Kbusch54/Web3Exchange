@@ -1,5 +1,4 @@
 "use client";
-//@ts-ignore
 import React,{use} from "react";
 import Box from "@mui/material/Box";
 import Tab from "@mui/material/Tab";
@@ -10,7 +9,6 @@ import { Stock } from "../../../types/custom";
 import InvestmentStats from "../../balances/dashboard/InvestmentStats";
 import StakingStatsPersonal from "../../balances/dashboard/StakingStatsPersonal";
 import { Address } from "wagmi";
-import { supabase } from "../../../supabase";
 import DAOStatsPersonal from "../../balances/dashboard/DAOStatsPersonal";
 import { getAllProposals } from "../../../app/lib/supabase/allProposals";
 

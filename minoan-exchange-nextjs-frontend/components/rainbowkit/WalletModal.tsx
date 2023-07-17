@@ -1,5 +1,5 @@
 'use client'
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import Modal from 'react-modal';
 import { useSession } from 'next-auth/react';
 import Countdown from '../countdowns/Countdown';

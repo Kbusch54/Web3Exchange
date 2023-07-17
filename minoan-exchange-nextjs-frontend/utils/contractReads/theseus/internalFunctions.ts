@@ -1,7 +1,6 @@
 import { ethers } from "ethers";
 import { TheseusDAOAbi,CreateAriadneAbi,LoanPoolAbi,AriadneDAO,ExchangeAbi,StakingAbi,UsdcAbi,AmmViewerAbi } from "../../abis";
 import { ammViewer, ariadneTesla, createAriadnes, exchange, loanpool, staking, theseus, usdc } from "../../address";
-import { Address } from "wagmi";
 
  const getAllUpdateFunctions =()=>{
     const functions = TheseusDAOAbi.filter((x)=>{

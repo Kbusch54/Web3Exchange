@@ -1,5 +1,5 @@
 import { formatUnits } from 'ethers/lib/utils.js'
-import React, { useState } from 'react'
+import React from 'react'
 import { Address } from 'wagmi'
 import AddCollateralModal from '../../modals/trade/AddCollateralModal'
 import AddLiquidityModal from '../../modals/trade/AddLiquidityModal'

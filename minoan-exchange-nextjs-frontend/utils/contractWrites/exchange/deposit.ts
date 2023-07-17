@@ -1,6 +1,6 @@
 import { ExchangeAbi } from "../../abis";
 import { usePrepareContractWrite, Address } from "wagmi";
-import { usdc,exchange} from "../../address";
+import { exchange} from "../../address";
 
 export const useDepositUsdc = (
     amount:number,
